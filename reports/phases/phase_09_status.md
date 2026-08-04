@@ -5,21 +5,26 @@
 - Next phase ready: `True`
 
 ## Inputs read
-- `01_GLOBAL_PROJECT_CONTRACT.md`
-- `28_PAPER_EXPERIMENT_ROLE_REGISTRY.md`
-- `29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md`
-- `30_SPEC_COMPLETENESS_AUDIT.md`
-- `31_IMPLEMENTATION_DECISIONS.md`
-- `32_RUNTIME_PREFLIGHT_CHECKLIST.md`
+- `ViPragSent train`
+- `09_PHASE_09_IMPLEMENT_AZURE_PROMPTS_AND_CLIENT.md`
 
 ## Files created
-- `reports/phases/phase_09_status.md`
-- `reports/phases/phase_09_handoff.json`
+- `data\manifests\prompts\emotion_v1.json`
+- `data\manifests\prompts\manifest_report.json`
+- `data\manifests\prompts\polarity_v1.json`
+- `data\manifests\prompts\pragmatic_v1.json`
+- `data\manifests\prompts\q3_budget_128_v1.json`
+- `data\manifests\prompts\q3_budget_256_v1.json`
+- `data\manifests\prompts\q3_budget_32_v1.json`
+- `data\manifests\prompts\q3_budget_512_v1.json`
+- `data\manifests\prompts\q3_budget_64_v1.json`
+- `data\manifests\prompts\q3_budget_full_v1.json`
 
 ## Tests run
-- `python -m pytest`
-- `python scripts/semantic_config_audit.py`
-- `python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture`
+- `general pragmatic 8-shot coverage`
+- `polarity 3/2/3 coverage`
+- `emotion 7+1 coverage`
+- `Q3 eligibility`
 
 ## Blockers
 - None

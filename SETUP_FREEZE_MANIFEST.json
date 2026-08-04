@@ -12,17 +12,32 @@
       "passed": false,
       "blockers": [
         "UIT-VSFC and/or UIT-VSMEC official test files are missing; use the manual-drop fallback",
+        "External dataset provenance is incomplete; official/manual-drop checks must pass",
         "Azure credentials/deployment are not configured",
-        "Model weights have not passed Phase 15 offline verification"
+        "Model weights have not passed Phase 15 offline verification",
+        "A100 20 GB or an A100 MIG profile is not available",
+        "Java 17 LTS is required for VnCoreNLP",
+        "Pinned VnCoreNLP RDRSegmenter resources are missing",
+        "PEFT is not installed for QLoRA",
+        "bitsandbytes is not installed for NF4 QLoRA",
+        "Phase 15 model/tokenizer smoke report is missing"
       ],
       "warnings": [],
       "checks": {
         "vipragsent_processed": true,
         "external_manifest": true,
         "external_official_tests": false,
+        "external_provenance_complete": false,
         "azure_credentials": false,
         "model_revisions_pinned": true,
         "model_weights_verified": false,
+        "cuda_a100_or_mig": false,
+        "java_17": false,
+        "vncorenlp_resources": false,
+        "peft_installed": false,
+        "bitsandbytes_installed": false,
+        "prompt_manifests": true,
+        "model_smoke_report": false,
         "azure_direct_endpoint_absent": true,
         "artifact_schema": true
       }
@@ -33,8 +48,15 @@
   },
   "blockers": [
     "UIT-VSFC and/or UIT-VSMEC official test files are missing; use the manual-drop fallback",
+    "External dataset provenance is incomplete; official/manual-drop checks must pass",
     "Azure credentials/deployment are not configured",
-    "Model weights have not passed Phase 15 offline verification"
+    "Model weights have not passed Phase 15 offline verification",
+    "A100 20 GB or an A100 MIG profile is not available",
+    "Java 17 LTS is required for VnCoreNLP",
+    "Pinned VnCoreNLP RDRSegmenter resources are missing",
+    "PEFT is not installed for QLoRA",
+    "bitsandbytes is not installed for NF4 QLoRA",
+    "Phase 15 model/tokenizer smoke report is missing"
   ],
   "source_zip_sha256": "23150E5165BFABB202499FA1CCAB1B76770ADDD57C8DBB0FD81DC79732844AC2"
 }

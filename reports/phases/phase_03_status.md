@@ -1,25 +1,17 @@
 # Phase 03 status
 
 - Status: `BLOCKED`
-- Tests passed: `True`
+- Tests passed: `False`
 - Next phase ready: `False`
 
 ## Inputs read
-- `01_GLOBAL_PROJECT_CONTRACT.md`
-- `28_PAPER_EXPERIMENT_ROLE_REGISTRY.md`
-- `29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md`
-- `30_SPEC_COMPLETENESS_AUDIT.md`
-- `31_IMPLEMENTATION_DECISIONS.md`
-- `32_RUNTIME_PREFLIGHT_CHECKLIST.md`
+- `23_AZURE_OPENAI_SETUP.md`
+- `.env.example`
 
 ## Files created
-- `reports/phases/phase_03_status.md`
-- `reports/phases/phase_03_handoff.json`
+- `data/manifests/azure_deployment.json`
 
 ## Tests run
-- `python -m pytest`
-- `python scripts/semantic_config_audit.py`
-- `python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture`
 
 ## Blockers
-- Azure endpoint, deployment, and credentials are not configured
+- AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_BASE_URL, and AZURE_OPENAI_DEPLOYMENT are required

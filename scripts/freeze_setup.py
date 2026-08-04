@@ -64,6 +64,10 @@ def main() -> int:
     for path in _setup_files():
         checksum_lines.append(f"{sha256_file(path)}  {path.relative_to(ROOT).as_posix()}")
     (ROOT / "SETUP_CHECKSUMS.sha256").write_text("\n".join(checksum_lines) + "\n", encoding="utf-8")
+    state_path = ROOT / "PROJECT_STATE.json"
+    state = json.loads(state_path.read_text(encoding="utf-8")) if state_path.exists() else {"project": "ViPragSent"}
+    state.update({"current_phase": "15", "weights_downloaded": False, "full_run_started": False, "setup_frozen": False, "core_experiments_ready": False, "blockers": blockers})
+    state_path.write_text(json.dumps(state, indent=2) + "\n", encoding="utf-8")
     write_phase_handoff(
         "14",
         "PASS" if not blockers else "BLOCKED",
