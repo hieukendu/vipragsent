@@ -1,0 +1,21 @@
+table_4_metrics:
+  pragmatic_f1:
+    split: vipragsent_dev
+    definition: arithmetic_mean_of_six_binary_macro_f1
+  ordinary_f1:
+    split: [uit_vsfc_test, uit_vsmec_test, aivivn_human_derived_3way_test]
+    definition: unweighted_mean_of_three_external_macro_f1_scores
+  ece:
+    split: vipragsent_dev
+    head: intended_polarity_3way
+    definition: top_label_ece_10_equal_width_bins
+  relative_cost:
+    denominator: vipragsent_full_phobert
+    definition: measured_total_gpu_hours_variant_divided_by_measured_total_gpu_hours_full_phobert
+variants:
+  - full
+  - no_emotion_auxiliary
+  - no_polarity_auxiliary
+  - no_rationale
+  - no_multitask
+  - no_uncertainty_weighting

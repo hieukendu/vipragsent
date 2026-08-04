@@ -1,0 +1,12 @@
+profile: a100_20gb
+gpu_name_pattern: A100
+max_gpu_memory_gb: 20
+precision: bf16
+max_sequence_length: 128
+gradient_clipping: 1.0
+physical_batch_probe:
+  phobert: [32, 16, 8]
+  xlmr_large: [8, 4, 2, 1]
+  qlora_7b: [2, 1]
+frozen_physical_batch_size: null
+frozen_gradient_accumulation_steps: null

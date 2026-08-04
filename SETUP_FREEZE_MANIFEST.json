@@ -1,0 +1,40 @@
+{
+  "project": "ViPragSent",
+  "setup_freeze_attempted": true,
+  "setup_ready": false,
+  "weights_downloaded": false,
+  "full_run_started": false,
+  "checks": {
+    "config_validation": true,
+    "semantic_config_audit": true,
+    "fixture_dag": true,
+    "full_preflight": {
+      "passed": false,
+      "blockers": [
+        "UIT-VSFC and/or UIT-VSMEC official test files are missing; use the manual-drop fallback",
+        "Azure credentials/deployment are not configured",
+        "Model weights have not passed Phase 15 offline verification"
+      ],
+      "warnings": [],
+      "checks": {
+        "vipragsent_processed": true,
+        "external_manifest": true,
+        "external_official_tests": false,
+        "azure_credentials": false,
+        "model_revisions_pinned": true,
+        "model_weights_verified": false,
+        "azure_direct_endpoint_absent": true,
+        "artifact_schema": true
+      }
+    },
+    "git_worktree_clean_at_freeze": false,
+    "python": "3.12.7",
+    "azure_env_present": false
+  },
+  "blockers": [
+    "UIT-VSFC and/or UIT-VSMEC official test files are missing; use the manual-drop fallback",
+    "Azure credentials/deployment are not configured",
+    "Model weights have not passed Phase 15 offline verification"
+  ],
+  "source_zip_sha256": "23150E5165BFABB202499FA1CCAB1B76770ADDD57C8DBB0FD81DC79732844AC2"
+}

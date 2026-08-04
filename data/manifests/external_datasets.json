@@ -1,0 +1,35 @@
+{
+  "generated_at_utc": "2026-08-04T13:15:15.204679+00:00",
+  "datasets": {
+    "uit_vsfc": {
+      "status": "BLOCKED",
+      "source": "official UIT source or official UIT Hugging Face organization",
+      "normalized_path": "data/processed/external/uit_vsfc/test.csv",
+      "checksum": null,
+      "license_note": "manual agreement/access required"
+    },
+    "uit_vsmec": {
+      "status": "BLOCKED",
+      "source": "official UIT source",
+      "normalized_path": "data/processed/external/uit_vsmec/test.csv",
+      "checksum": null,
+      "license_note": "manual agreement/access required"
+    },
+    "aivivn_original": {
+      "status": "BLOCKED",
+      "source": "Kaggle mcocoz/aivivn-2019",
+      "normalized_path": null,
+      "checksum": null,
+      "license_note": "Kaggle credentials required; provenance-only"
+    },
+    "aivivn_human_derived_3way": {
+      "status": "PASS",
+      "source": "bundled V8 package",
+      "normalized_path": "data\\processed\\external\\aivivn_human_derived_3way\\test.csv",
+      "checksum": "F6F6A78EBADE3BC1038A3B1CFE05FF44E172AF024BBBC8A31079EFCF8133C6D3",
+      "license_note": "project-bundled human-derived split"
+    }
+  },
+  "q1b_uses_bundled_aivivn_human_derived_3way": true,
+  "external_finetuning": false
+}

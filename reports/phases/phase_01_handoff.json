@@ -1,0 +1,28 @@
+{
+  "phase": "01",
+  "status": "PASS",
+  "inputs_read": [
+    "D:\\vipragsent\\ViPragSent_Experiment_Dataset_FINAL_V8.zip",
+    "02_vipragsent/*.csv",
+    "04_q3_low_resource_sarcasm/*.csv",
+    "05_rationale_generation/rationale_generation_input_train.jsonl"
+  ],
+  "files_created": [
+    "data/raw/vipragsent_package",
+    "data/processed/vipragsent",
+    "data/processed/q3_low_resource_sarcasm",
+    "data/processed/rationales/azure_rationale_input_train.jsonl",
+    "data/manifests/dataset_manifest.json",
+    "data/manifests/human_iaa_recomputed.json"
+  ],
+  "tests_run": [
+    "V8 count/split/schema validation",
+    "Q3 nested-mask validation",
+    "human IAA recomputation",
+    "rationale placeholder sanitization"
+  ],
+  "tests_passed": true,
+  "blockers": [],
+  "next_phase_ready": true,
+  "generated_at_utc": "2026-08-04T13:15:04.987546+00:00"
+}

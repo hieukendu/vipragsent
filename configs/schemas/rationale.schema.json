@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["sample_id", "comment", "rationale_target", "source_input_hash"],
+  "properties": {
+    "sample_id": {"type": "string"},
+    "comment": {"type": "string"},
+    "rationale_target": {"type": "string", "pattern": "^<RATIONALE>[\\s\\S]*</RATIONALE>$"},
+    "source_input_hash": {"type": "string"}
+  }
+}

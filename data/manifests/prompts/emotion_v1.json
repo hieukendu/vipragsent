@@ -1,0 +1,138 @@
+{
+  "task": "emotion",
+  "source_split": "vipragsent_train_only",
+  "sample_ids": [
+    "fresh_visobert_00007",
+    "fresh_visobert_00000",
+    "fresh_visobert_00001",
+    "fresh_visobert_00030",
+    "fresh_visobert_00003",
+    "fresh_visobert_00004",
+    "fresh_visobert_00080",
+    "fresh_visobert_00103"
+  ],
+  "demonstrations": [
+    {
+      "sample_id": "fresh_visobert_00007",
+      "text": "Định bụng ko khẩu nghiệp rồi. Mà xuất hiện nhiều quá 😡",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 1,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "negative",
+        "emotion": "anger"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00000",
+      "text": "Ru ngu tot that",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 1,
+        "polarity": "negative",
+        "emotion": "disgust"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00001",
+      "text": "Năm nay mũ có lông ko e? Form to hay ôm",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "positive",
+        "emotion": "enjoyment"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00030",
+      "text": "Mấy thằng chó ăn cứt lo chuyện bao đồng",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "negative",
+        "emotion": "fear"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00003",
+      "text": "Phan Hoàng Anh Thư tứk",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "neutral",
+        "emotion": "other"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00004",
+      "text": "Hà Nội đợi mình nha",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "positive",
+        "emotion": "sadness"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00080",
+      "text": "Ủa nhớ Acc này lên cthu r mà sao rớt lẹ z",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 1,
+        "irony": 1,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "neutral",
+        "emotion": "surprise"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00103",
+      "text": "Thanks...😊",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 1,
+        "mocking": 0,
+        "polarity": "neutral",
+        "emotion": "other"
+      }
+    }
+  ],
+  "composition": {
+    "anger": 1,
+    "disgust": 1,
+    "enjoyment": 1,
+    "fear": 1,
+    "other": 1,
+    "sadness": 1,
+    "surprise": 1
+  },
+  "prompt_hash": "257F51AC99339556B96204374D6EF3712AE7316AF58505D83D23FB604EF982A6"
+}

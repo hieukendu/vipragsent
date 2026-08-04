@@ -1,0 +1,69 @@
+{
+  "computed_before_adjudication": true,
+  "fields": [
+    {
+      "field": "implicit_sentiment",
+      "n": 11997,
+      "raw_agreement": 0.9736600816870884,
+      "cohen_kappa": 0.9181617043822845,
+      "krippendorff_alpha_nominal": 0.9180897326033587,
+      "disagreement_count": 316
+    },
+    {
+      "field": "sarcasm",
+      "n": 11997,
+      "raw_agreement": 0.9864132699841627,
+      "cohen_kappa": 0.8957972282485063,
+      "krippendorff_alpha_nominal": 0.8957330956818907,
+      "disagreement_count": 163
+    },
+    {
+      "field": "irony",
+      "n": 11997,
+      "raw_agreement": 0.9989997499374844,
+      "cohen_kappa": 0.9922768464401203,
+      "krippendorff_alpha_nominal": 0.9922771550609585,
+      "disagreement_count": 12
+    },
+    {
+      "field": "idiom_figurative",
+      "n": 11997,
+      "raw_agreement": 0.9584896224056014,
+      "cohen_kappa": 0.5778181221521567,
+      "krippendorff_alpha_nominal": 0.5745715990691393,
+      "disagreement_count": 498
+    },
+    {
+      "field": "code_switching",
+      "n": 11997,
+      "raw_agreement": 0.945986496624156,
+      "cohen_kappa": 0.7638784211641164,
+      "krippendorff_alpha_nominal": 0.7629519193567195,
+      "disagreement_count": 648
+    },
+    {
+      "field": "mocking",
+      "n": 11997,
+      "raw_agreement": 0.9404017671084438,
+      "cohen_kappa": 0.7615357899602425,
+      "krippendorff_alpha_nominal": 0.7598678624760677,
+      "disagreement_count": 715
+    },
+    {
+      "field": "polarity",
+      "n": 11997,
+      "raw_agreement": 0.9242310577644411,
+      "cohen_kappa": 0.8544805789278183,
+      "krippendorff_alpha_nominal": 0.8539117840634743,
+      "disagreement_count": 909
+    },
+    {
+      "field": "emotion",
+      "n": 11997,
+      "raw_agreement": 0.8282070517629407,
+      "cohen_kappa": 0.7592729686087039,
+      "krippendorff_alpha_nominal": 0.7569886658043596,
+      "disagreement_count": 2061
+    }
+  ]
+}

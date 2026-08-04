@@ -1,0 +1,49 @@
+# Python and tooling
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+*.egg-info/
+
+# Local configuration, credentials, and logs
+.env
+.env.*
+!.env.example
+*.log
+.codex_input/
+
+# User-supplied archives and restricted/private data
+*.zip
+data/raw/
+data/external/*
+!data/external/manual_drop/
+!data/external/manual_drop/**/
+!data/external/manual_drop/**/README.md
+data/model_cache/
+data/input/
+checkpoints/
+predictions/
+runs/
+
+# Generated outputs and reports
+results/
+experiment_artifacts/
+SETUP_CHECKSUMS.sha256
+FINAL_RESULT_CHECKSUMS.sha256
+FINAL_CHECKSUMS.sha256
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.onnx
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

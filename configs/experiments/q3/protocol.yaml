@@ -1,0 +1,14 @@
+q3:
+  source_of_truth: bundled_budget_mask_files
+  budgets: [32, 64, 128, 256, 512, full]
+  positive_subsets: nested
+  negative_pool: all_train_sarcasm_negatives_fixed_across_budgets
+  out_of_budget_positive:
+    sarcasm_target_mask: 0
+    rationale_loss_mask: 0
+    other_task_targets: active
+  pos_weight:
+    recompute_per_budget: true
+  dev_test: fixed
+  primary_metric: sarcasm_binary_macro_f1
+  threshold: tune_on_dev_per_seed_and_budget

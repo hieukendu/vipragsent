@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["implicit_sentiment", "sarcasm", "irony", "idiom_figurative", "code_switching", "mocking", "polarity", "emotion"],
+  "properties": {
+    "implicit_sentiment": {"type": "integer", "enum": [0, 1]},
+    "sarcasm": {"type": "integer", "enum": [0, 1]},
+    "irony": {"type": "integer", "enum": [0, 1]},
+    "idiom_figurative": {"type": "integer", "enum": [0, 1]},
+    "code_switching": {"type": "integer", "enum": [0, 1]},
+    "mocking": {"type": "integer", "enum": [0, 1]},
+    "polarity": {"type": "string", "enum": ["negative", "neutral", "positive"]},
+    "emotion": {"type": "string", "enum": ["anger", "disgust", "enjoyment", "fear", "other", "sadness", "surprise"]}
+  }
+}

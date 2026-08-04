@@ -1,0 +1,11 @@
+provider: azure_openai
+api: responses_v1
+model_family: GPT-4.1-mini
+expected_model_version: "2025-04-14"
+temperature: 0
+rationale_max_output_tokens: 256
+pragmatic_label_max_output_tokens: 128
+polarity_label_max_output_tokens: 32
+emotion_label_max_output_tokens: 32
+structured_outputs: strict
+authentication: [api_key, entra_id]

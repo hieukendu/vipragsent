@@ -1,0 +1,139 @@
+{
+  "composition": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking",
+    "ordinary_positive_control",
+    "ordinary_negative_control"
+  ],
+  "budget": "full",
+  "sample_ids": [
+    "fresh_visobert_00000",
+    "fresh_visobert_00009",
+    "fresh_visobert_00007",
+    "fresh_visobert_00032",
+    "fresh_visobert_00012",
+    "fresh_visobert_00011",
+    "fresh_visobert_00001",
+    "fresh_visobert_00019"
+  ],
+  "demonstrations": [
+    {
+      "sample_id": "fresh_visobert_00000",
+      "text": "Ru ngu tot that",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 1,
+        "polarity": "negative",
+        "emotion": "disgust"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00009",
+      "text": "Có khi nào một trong những ng con bị đuổi đi đã thuê sát thủ tới giết cả nhà để hưởng trọn mảnh đất ko mn? triệu đô thời đó mà chia cho 7 người thì nó ít, mà chia cho người thì nhiều. Thậm chí đến nay triệu đô vẫn là nhiều vãi, và mảnh đất đó tới nay chắc cũng ko còn giá đó đâu 🤷🏻♀",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 1,
+        "irony": 1,
+        "idiom_figurative": 1,
+        "code_switching": 0,
+        "mocking": 1,
+        "polarity": "neutral",
+        "emotion": "disgust"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00007",
+      "text": "Định bụng ko khẩu nghiệp rồi. Mà xuất hiện nhiều quá 😡",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 1,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "negative",
+        "emotion": "anger"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00032",
+      "text": "Đương nhiên k phai Đông Phương ca rôi 😂😂😂 khi phach như ông phai thân hoa phuc, cô ao đê phanh, cươi dâm ta 😂😂😂😂😂😂",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 1,
+        "irony": 0,
+        "idiom_figurative": 1,
+        "code_switching": 0,
+        "mocking": 1,
+        "polarity": "positive",
+        "emotion": "enjoyment"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00012",
+      "text": "mây ba mu nay toan la sl ko đây toan phe phai no ko đây toan la đeo vang gia đê lên mxh sl lůa đao la chu yêu",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 1,
+        "mocking": 0,
+        "polarity": "positive",
+        "emotion": "enjoyment"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00011",
+      "text": "Ngọc Linh đi cái nì xong mà hát karaoke thì hết lấc =))",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 1,
+        "irony": 1,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 1,
+        "polarity": "neutral",
+        "emotion": "disgust"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00001",
+      "text": "Năm nay mũ có lông ko e? Form to hay ôm",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "positive",
+        "emotion": "enjoyment"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00019",
+      "text": "M jkavshsjsjsjjsjsnsns",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "negative",
+        "emotion": "enjoyment"
+      }
+    }
+  ],
+  "source_split": "vipragsent_train_only",
+  "prompt_hash": "88C1CA41E8F199F96499AC023E0E7BDFC38CEE9819AA779C50DE003618FC4C41"
+}

@@ -1,0 +1,27 @@
+{
+  "pragmatic_pos_weight": {
+    "implicit_sentiment": 3.766388557806913,
+    "sarcasm": 13.675229357798164,
+    "irony": 13.436823104693142,
+    "idiom_figurative": 13.206039076376554,
+    "code_switching": 5.6318407960199,
+    "mocking": 7.581545064377682
+  },
+  "class_weight": {
+    "polarity": {
+      "negative": 2.0491929285165256,
+      "neutral": 0.5403323875152006,
+      "positive": 1.5121951219512195
+    },
+    "emotion": {
+      "anger": 4.552077404667046,
+      "disgust": 1.6138014527845037,
+      "enjoyment": 0.5609088996423311,
+      "fear": 5.033354310887351,
+      "other": 0.3098918981750552,
+      "sadness": 1.611525287124723,
+      "surprise": 3.0147003392385976
+    }
+  },
+  "source_split": "train"
+}

@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["run_id", "seed", "model_revision", "tokenizer_revision", "data_fingerprint", "preprocessing_name", "preprocessing_version", "physical_batch_size", "gradient_accumulation_steps", "effective_batch_size", "inference_output_source", "rationale_decoder_enabled_at_inference"],
+  "properties": {
+    "run_id": {"type": "string"},
+    "seed": {"type": "integer"},
+    "model_revision": {"type": "string"},
+    "tokenizer_revision": {"type": "string"},
+    "data_fingerprint": {"type": "string"},
+    "preprocessing_name": {"type": "string"},
+    "preprocessing_version": {"type": "string"},
+    "physical_batch_size": {"type": "integer"},
+    "gradient_accumulation_steps": {"type": "integer"},
+    "effective_batch_size": {"type": "integer"},
+    "inference_output_source": {"enum": ["classification_heads", "parsed_generated_labels"]},
+    "rationale_decoder_enabled_at_inference": {"type": "boolean"}
+  }
+}

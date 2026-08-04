@@ -1,0 +1,12 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["system", "seed", "metrics", "status"],
+  "properties": {
+    "system": {"type": "string"},
+    "seed": {"type": "integer"},
+    "metrics": {"type": "object"},
+    "status": {"enum": ["PASS", "BLOCKED", "FAIL"]}
+  }
+}
