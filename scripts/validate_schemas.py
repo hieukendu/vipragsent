@@ -19,7 +19,8 @@ def main() -> int:
             errors.append(f"invalid JSON schema {path}: {exc}")
     config_report = validate_config_tree(ROOT)
     errors.extend(config_report["errors"])
-    if validate_artifact_tree(ROOT / "experiment_artifacts"):
+    artifact_root = ROOT / "experiment_artifacts"
+    if artifact_root.exists() and any(path.is_file() for path in artifact_root.rglob("*")) and validate_artifact_tree(artifact_root):
         errors.append("artifact tree does not satisfy locked columns")
     print("schema validation passed" if not errors else "\n".join(errors))
     return 0 if not errors else 3

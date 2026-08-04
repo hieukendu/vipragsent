@@ -1,15 +1,50 @@
 {
-  "project": "ViPragSent",
-  "setup_freeze_attempted": true,
-  "setup_ready": false,
-  "weights_downloaded": false,
-  "full_run_started": false,
+  "azure_deployment_manifest": "data/manifests/azure_deployment.json",
+  "blockers": [
+    "unresolved scientific protocol conflict"
+  ],
   "checks": {
+    "azure_env_present": true,
     "config_validation": true,
-    "semantic_config_audit": true,
     "fixture_dag": true,
-    "full_preflight": {
-      "passed": false,
+    "frozen_data_hashes": {
+      "baseline": {
+        "data/manifests/dataset_manifest.json": "7F72157C504AC3511B4DF5F2E594BCA4517987EBC1AA958AF8D8EF6B44D67B3E",
+        "data/manifests/external_datasets.json": "4C3948F303261293060B699FF90EDAE27AA99155A7D934AF43E8C7928919B0C3",
+        "data/manifests/human_iaa_recomputed.json": "A08E7BE28605E1E66AD51B094589AC551ACA7A96C207CA39BB24F65F8392E745",
+        "data/manifests/input_checksums.json": "BA47F5B353947E79C81E3B587618FE9E99030DE546131B7004B9684FDAC8B79C",
+        "data/processed/external/aivivn_human_derived_3way/manifest.json": "D5DFF111F328A0536983A79F279F3810A8E23205C812B6810D95F343FFD06A6D",
+        "data/processed/q3_low_resource_sarcasm/budget_128_masks.csv": "5D1B3E5C423236322EE18A76A3AD6F42565DFC60B907E167B6A2D3FB33B66996",
+        "data/processed/q3_low_resource_sarcasm/budget_256_masks.csv": "DBAEAFE218BDF398E2173D7643298A3846D85E09058154701CD30DC1968DDD0D",
+        "data/processed/q3_low_resource_sarcasm/budget_32_masks.csv": "87FB2F9B2130E45AAB9F3D8E9300844107E194AFD916AEEAF6F814119D84284B",
+        "data/processed/q3_low_resource_sarcasm/budget_512_masks.csv": "4276E1C7565BA593AB754A203C10217744DB1D8B3C9D6F2FE5ED3C6A63944892",
+        "data/processed/q3_low_resource_sarcasm/budget_64_masks.csv": "6B7CA4E4D9A20137567D8353F3FFEFE653AC60B8D180FD3EDA490D51C96E9568",
+        "data/processed/q3_low_resource_sarcasm/budget_full_masks.csv": "C3DA66570D50A20E28893D1BFDC952E9BB9C1C4BA4A07824FE54DD3357E492B1",
+        "data/processed/vipragsent/dev.csv": "2D878B788A38C0C36DBA0D07C23A21E3E30327E593F3549776D2D1B47DA0E47A",
+        "data/processed/vipragsent/test.csv": "3493E25034C12312C069F9CE923ECC1D1DB170FA71DB69E2A93A0DAC0709CEBA",
+        "data/processed/vipragsent/train.csv": "71F857D5E76F6ADB7B73F7831E4B06F4A87BA0B8251A85957861F823C02AC993"
+      },
+      "baseline_commit": "d77c3735b5526b681ca555761835043c73f472ff",
+      "changed": [],
+      "current": {
+        "data/manifests/dataset_manifest.json": "7F72157C504AC3511B4DF5F2E594BCA4517987EBC1AA958AF8D8EF6B44D67B3E",
+        "data/manifests/external_datasets.json": "4C3948F303261293060B699FF90EDAE27AA99155A7D934AF43E8C7928919B0C3",
+        "data/manifests/human_iaa_recomputed.json": "A08E7BE28605E1E66AD51B094589AC551ACA7A96C207CA39BB24F65F8392E745",
+        "data/manifests/input_checksums.json": "BA47F5B353947E79C81E3B587618FE9E99030DE546131B7004B9684FDAC8B79C",
+        "data/processed/external/aivivn_human_derived_3way/manifest.json": "D5DFF111F328A0536983A79F279F3810A8E23205C812B6810D95F343FFD06A6D",
+        "data/processed/q3_low_resource_sarcasm/budget_128_masks.csv": "5D1B3E5C423236322EE18A76A3AD6F42565DFC60B907E167B6A2D3FB33B66996",
+        "data/processed/q3_low_resource_sarcasm/budget_256_masks.csv": "DBAEAFE218BDF398E2173D7643298A3846D85E09058154701CD30DC1968DDD0D",
+        "data/processed/q3_low_resource_sarcasm/budget_32_masks.csv": "87FB2F9B2130E45AAB9F3D8E9300844107E194AFD916AEEAF6F814119D84284B",
+        "data/processed/q3_low_resource_sarcasm/budget_512_masks.csv": "4276E1C7565BA593AB754A203C10217744DB1D8B3C9D6F2FE5ED3C6A63944892",
+        "data/processed/q3_low_resource_sarcasm/budget_64_masks.csv": "6B7CA4E4D9A20137567D8353F3FFEFE653AC60B8D180FD3EDA490D51C96E9568",
+        "data/processed/q3_low_resource_sarcasm/budget_full_masks.csv": "C3DA66570D50A20E28893D1BFDC952E9BB9C1C4BA4A07824FE54DD3357E492B1",
+        "data/processed/vipragsent/dev.csv": "2D878B788A38C0C36DBA0D07C23A21E3E30327E593F3549776D2D1B47DA0E47A",
+        "data/processed/vipragsent/test.csv": "3493E25034C12312C069F9CE923ECC1D1DB170FA71DB69E2A93A0DAC0709CEBA",
+        "data/processed/vipragsent/train.csv": "71F857D5E76F6ADB7B73F7831E4B06F4A87BA0B8251A85957861F823C02AC993"
+      },
+      "unchanged": true
+    },
+    "full_runtime_preflight": {
       "blockers": [
         "Model weights have not passed Phase 15 offline verification",
         "A100 20 GB or an A100 MIG profile is not available",
@@ -18,39 +53,62 @@
         "bitsandbytes is not installed for NF4 QLoRA",
         "Phase 15 model/tokenizer smoke report is missing"
       ],
-      "warnings": [],
       "checks": {
-        "vipragsent_processed": true,
+        "active_rationale_manifest_sanitized": true,
+        "artifact_schema": true,
+        "azure_credentials": true,
+        "azure_deployment_verified": true,
+        "azure_direct_endpoint_absent": true,
+        "azure_live_smoke": true,
+        "bitsandbytes_installed": false,
+        "cuda_a100_or_mig": false,
+        "expected_run_inventory": true,
         "external_manifest": true,
         "external_official_tests": true,
         "external_provenance_complete": true,
-        "azure_credentials": true,
-        "azure_deployment_verified": true,
-        "azure_live_smoke": true,
-        "model_revisions_pinned": true,
-        "model_weights_verified": false,
-        "cuda_a100_or_mig": false,
         "java_17": false,
-        "vncorenlp_resources": true,
-        "peft_installed": false,
-        "bitsandbytes_installed": false,
-        "prompt_manifests": true,
+        "model_revisions_pinned": true,
         "model_smoke_report": false,
-        "azure_direct_endpoint_absent": true,
-        "artifact_schema": true
-      }
+        "model_weights_verified": false,
+        "peft_installed": false,
+        "prompt_manifests": true,
+        "vipragsent_processed": true,
+        "vncorenlp_resources": true
+      },
+      "exit_code": 2,
+      "passed": false,
+      "scientific_protocol_conflicts": [
+        "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
+        "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
+        "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
+      ],
+      "warnings": []
     },
-    "git_worktree_clean_at_freeze": false,
+    "git_worktree_clean_at_freeze": true,
+    "production_implementation_audit": true,
     "python": "3.12.7",
-    "azure_env_present": true
+    "semantic_config_audit": true
   },
-  "blockers": [
-    "Model weights have not passed Phase 15 offline verification",
-    "A100 20 GB or an A100 MIG profile is not available",
-    "Java 17 LTS is required for VnCoreNLP",
-    "PEFT is not installed for QLoRA",
-    "bitsandbytes is not installed for NF4 QLoRA",
-    "Phase 15 model/tokenizer smoke report is missing"
+  "deferred_runtime_requirements": [
+    "A100 or A100 MIG runtime",
+    "Java 17 and VnCoreNLP resources",
+    "PEFT",
+    "bitsandbytes",
+    "model downloads",
+    "real Phase 15 model/tokenizer/QLoRA smoke"
   ],
-  "source_zip_sha256": "23150E5165BFABB202499FA1CCAB1B76770ADDD57C8DBB0FD81DC79732844AC2"
+  "full_run_started": false,
+  "project": "ViPragSent",
+  "runtime_dependencies_pending": true,
+  "scientific_protocol_conflicts": [
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
+  ],
+  "setup_frozen": false,
+  "setup_implementation_ready": true,
+  "setup_ready": false,
+  "source_zip_sha256": "23150E5165BFABB202499FA1CCAB1B76770ADDD57C8DBB0FD81DC79732844AC2",
+  "status": "BLOCKED",
+  "weights_downloaded": false
 }

@@ -5,12 +5,14 @@ import os
 import re
 import subprocess
 import importlib.util
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
 
 from ..artifacts.schemas import validate_artifact_tree
 from ..data.loaders import load_vipragsent
+from ..protocol import validate_protocol_resolution
+from .status import RunExitCode
 
 
 @dataclass
@@ -19,9 +21,20 @@ class PreflightResult:
     blockers: list[str]
     warnings: list[str]
     checks: dict[str, bool]
+    scientific_protocol_conflicts: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        payload = asdict(self)
+        payload["exit_code"] = self.exit_code
+        return payload
+
+    @property
+    def exit_code(self) -> int:
+        if self.blockers:
+            return RunExitCode.BLOCKED
+        if self.scientific_protocol_conflicts:
+            return RunExitCode.PROTOCOL_FAILURE
+        return RunExitCode.SUCCESS
 
 
 def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightResult:
@@ -29,6 +42,7 @@ def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightRes
     blockers: list[str] = []
     warnings: list[str] = []
     checks: dict[str, bool] = {}
+    scientific_protocol_conflicts = validate_protocol_resolution(root)["scientific_protocol_conflicts"]
     processed = root / "data" / "processed" / "vipragsent"
     checks["vipragsent_processed"] = processed.exists() and all((processed / f"{split}.csv").exists() for split in ("train", "dev", "test"))
     if not checks["vipragsent_processed"]:
@@ -43,7 +57,8 @@ def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightRes
     if not checks["external_manifest"]:
         blockers.append("External dataset manifest is missing")
     external_files = [root / "data" / "processed" / "external" / "uit_vsfc" / "test.csv", root / "data" / "processed" / "external" / "uit_vsmec" / "test.csv"]
-    checks["external_official_tests"] = all(path.exists() for path in external_files)
+    bundled_aivivn = root / "data/processed/external/aivivn_human_derived_3way/test.csv"
+    checks["external_official_tests"] = all(path.exists() for path in external_files) and bundled_aivivn.exists()
     if mode == "full" and not checks["external_official_tests"]:
         blockers.append("UIT-VSFC and/or UIT-VSMEC official test files are missing; use the manual-drop fallback")
     if external_manifest.exists():
@@ -74,7 +89,12 @@ def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightRes
     if mode == "full" and not checks["model_revisions_pinned"]:
         blockers.append("Immutable Hugging Face model revisions are not pinned")
     weights_manifest = root / "data" / "model_cache_manifest.json"
-    checks["model_weights_verified"] = weights_manifest.exists()
+    try:
+        weights_payload = json.loads(weights_manifest.read_text(encoding="utf-8")) if weights_manifest.exists() else {}
+    except json.JSONDecodeError:
+        weights_payload = {}
+        blockers.append("Model cache manifest is invalid JSON")
+    checks["model_weights_verified"] = bool(weights_payload.get("weights_downloaded") is True and all(item.get("status") == "PASS" for item in weights_payload.get("models", [])))
     if mode == "full" and not checks["model_weights_verified"]:
         blockers.append("Model weights have not passed Phase 15 offline verification")
     try:
@@ -111,11 +131,30 @@ def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightRes
     checks["prompt_manifests"] = all(path.exists() for path in required_prompts)
     if mode == "full" and not checks["prompt_manifests"]:
         blockers.append("Frozen task-specific Azure prompt manifests are incomplete")
-    checks["model_smoke_report"] = (root / "data/model_smoke_report.json").exists()
+    smoke_path = root / "data/model_smoke_report.json"
+    try:
+        smoke_payload = json.loads(smoke_path.read_text(encoding="utf-8")) if smoke_path.exists() else {}
+    except json.JSONDecodeError:
+        smoke_payload = {}
+        blockers.append("Model smoke report is invalid JSON")
+    checks["model_smoke_report"] = bool(smoke_payload.get("offline_load_smoke") is True and smoke_payload.get("actual_local_loads") is True)
     if mode == "full" and not checks["model_smoke_report"]:
         blockers.append("Phase 15 model/tokenizer smoke report is missing")
     checks["azure_direct_endpoint_absent"] = "api.openai.com" not in " ".join(path.read_text(encoding="utf-8", errors="ignore") for path in (root / "configs").rglob("*.yaml"))
-    checks["artifact_schema"] = not validate_artifact_tree(root / "experiment_artifacts") if mode == "fixture" else True
+    artifact_root = root / "experiment_artifacts"
+    artifact_errors = validate_artifact_tree(artifact_root) if artifact_root.exists() and any(path.is_file() for path in artifact_root.rglob("*")) else []
+    checks["artifact_schema"] = not artifact_errors
+    if mode == "full" and artifact_errors:
+        blockers.extend(f"Artifact schema error: {error}" for error in artifact_errors)
+    rationale_path = root / "data/processed/rationales/azure_rationale_input_train.jsonl"
+    rationale_text = rationale_path.read_text(encoding="utf-8", errors="ignore") if rationale_path.exists() else ""
+    checks["active_rationale_manifest_sanitized"] = "TO_BE_FILLED_WITH_EXACT_GPT_4O_MINI_SNAPSHOT" not in rationale_text
+    if mode == "full" and not checks["active_rationale_manifest_sanitized"]:
+        blockers.append("Active rationale manifest contains a legacy generator placeholder")
+    checks["expected_run_inventory"] = (root / "reports/expected_experiment_runs.json").exists()
+    if mode == "full" and not checks["expected_run_inventory"]:
+        blockers.append("Expected experiment run inventory is missing")
     if mode == "fixture":
         blockers = []
-    return PreflightResult(not blockers, blockers, warnings, checks)
+        scientific_protocol_conflicts = []
+    return PreflightResult(not blockers and not scientific_protocol_conflicts, blockers, warnings, checks, scientific_protocol_conflicts)

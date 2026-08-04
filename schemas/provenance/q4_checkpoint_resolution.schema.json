@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["display_label", "requested_system_id", "resolved_checkpoint_id", "required_output", "resolution_status", "approval_source"],
+  "properties": {
+    "display_label": {"type": "string"},
+    "requested_system_id": {"type": "string"},
+    "resolved_checkpoint_id": {"type": "string"},
+    "required_output": {"type": "string"},
+    "resolution_status": {"enum": ["RESOLVED", "CONFLICT"]},
+    "approval_source": {"type": "string"},
+    "evidence": {"type": "string"}
+  },
+  "additionalProperties": false
+}

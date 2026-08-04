@@ -15,10 +15,10 @@ class ClassificationHeads(nn.Module):
         self.emotion = nn.Linear(hidden_size, len(EMOTION_LABELS))
 
     def forward(self, pooled: Tensor, *, active_tasks: set[str] | None = None) -> dict[str, Tensor]:
-        active_tasks = active_tasks or {"pragmatic", "polarity", "emotion"}
+        active_tasks = {"pragmatic", "polarity", "emotion"} if active_tasks is None else active_tasks
         outputs: dict[str, Tensor] = {}
         if "pragmatic" in active_tasks:
-            outputs.update({key: self.dropout(layer(pooled)).squeeze(-1) for key, layer in self.pragmatic.items()})
+            outputs.update({key: layer(self.dropout(pooled)).squeeze(-1) for key, layer in self.pragmatic.items()})
         if "polarity" in active_tasks:
             outputs["polarity"] = self.polarity(self.dropout(pooled))
         if "emotion" in active_tasks:

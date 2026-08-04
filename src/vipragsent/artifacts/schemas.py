@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import csv
+import json
 from pathlib import Path
+from typing import Any
 from typing import Iterable
 
 
@@ -38,4 +40,31 @@ def validate_artifact_tree(root: str | Path) -> list[str]:
             actual = next(csv.reader(handle), [])
         if actual != _expected(filename):
             errors.append(f"{path}: expected columns {_expected(filename)}, got {actual}")
+    return errors
+
+
+def validate_production_artifact(root: str | Path, run_records: list[dict[str, Any]]) -> list[str]:
+    """Validate a release-shaped tree without accepting fixture provenance."""
+    errors = validate_artifact_tree(root)
+    if not run_records:
+        errors.append("production export has no real run records")
+    for record in run_records:
+        if record.get("mode") != "full":
+            errors.append(f"run {record.get('system')} is not mode=full")
+        if record.get("synthetic_results") is True:
+            errors.append(f"run {record.get('system')} contains synthetic results")
+        if record.get("model_revision") == "fixture" or record.get("tokenizer_revision") == "fixture":
+            errors.append(f"run {record.get('system')} uses fixture revisions")
+    for path in Path(root).rglob("*"):
+        if not path.is_file():
+            continue
+        if path.suffix == ".json":
+            try:
+                payload = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, json.JSONDecodeError):
+                continue
+            if payload.get("mode") == "fixture" or payload.get("synthetic_results") is True:
+                errors.append(f"fixture provenance found in production artifact: {path}")
+        if path.suffix in {".csv", ".jsonl"} and "fixture" in path.read_text(encoding="utf-8", errors="ignore").casefold():
+            errors.append(f"fixture marker found in production artifact: {path}")
     return errors

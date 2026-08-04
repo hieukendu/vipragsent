@@ -4,6 +4,7 @@ from collections.abc import Mapping, Sequence
 
 import numpy as np
 
+from ..constants import PRAGMATIC_LABELS
 from .metrics import binary_macro_f1
 
 
@@ -21,4 +22,4 @@ def tune_pragmatic_thresholds(
 ) -> dict[str, float]:
     if set(true) != set(probabilities):
         raise ValueError("Threshold inputs must have identical label keys")
-    return {key: tune_binary_threshold(true[key], probabilities[key], **kwargs) for key in sorted(true)}
+    return {key: tune_binary_threshold(true[key], probabilities[key], **kwargs) for key in PRAGMATIC_LABELS if key in true}

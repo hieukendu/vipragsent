@@ -3,10 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import torch
+
 from vipragsent.constants import EXPECTED_SPLIT_COUNTS, PRAGMATIC_LABELS
 from vipragsent.data.loaders import calculate_loss_weights, load_vipragsent
 from vipragsent.data.masks import validate_q3_masks
 from vipragsent.data.rationales import iter_rationale_inputs
+from vipragsent.models.losses import classification_losses, token_cross_entropy
 
 
 def test_frozen_vipragsent_counts_and_split_immutability() -> None:
@@ -44,3 +47,29 @@ def test_active_rationale_input_has_no_legacy_generator_metadata() -> None:
     assert len(rows) == 7998
     assert set(rows[0]) == {"sample_id", "comment", "gold_labels"}
     assert "generator_metadata_required" not in rows[0]
+
+
+def test_q3_masks_zero_only_sarcasm_and_rationale_losses() -> None:
+    targets = {
+        "implicit_sentiment": torch.tensor([0.0, 1.0]),
+        "sarcasm": torch.tensor([1.0, 1.0]),
+        "irony": torch.tensor([0.0, 0.0]),
+        "idiom_figurative": torch.tensor([0.0, 0.0]),
+        "code_switching": torch.tensor([0.0, 0.0]),
+        "mocking": torch.tensor([0.0, 0.0]),
+        "polarity": torch.tensor([0, 1]),
+        "emotion": torch.tensor([0, 1]),
+    }
+    logits = {key: torch.zeros(2) for key in targets if key not in {"polarity", "emotion"}}
+    logits.update({"polarity": torch.zeros(2, 3), "emotion": torch.zeros(2, 7)})
+    mask = torch.tensor([0.0, 1.0])
+    first = classification_losses(logits, targets, active_tasks={"pragmatic", "polarity", "emotion"}, sarcasm_target_mask=mask)
+    changed = dict(logits)
+    changed["sarcasm"] = torch.tensor([100.0, 0.0])
+    second = classification_losses(changed, targets, active_tasks={"pragmatic", "polarity", "emotion"}, sarcasm_target_mask=mask)
+    assert torch.equal(first["sarcasm"], second["sarcasm"])
+    assert first["polarity"].item() == second["polarity"].item()
+    token_logits = torch.zeros(2, 3, 5)
+    token_targets = torch.tensor([[1, 2, 3], [1, 2, 3]])
+    assert token_cross_entropy(token_logits, token_targets, sample_mask=mask).item() > 0
+    assert token_cross_entropy(token_logits, token_targets, sample_mask=torch.zeros(2)).item() == 0

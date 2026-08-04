@@ -1,0 +1,22 @@
+{
+  "evidence": {
+    "Q1A": "configs/experiments/q1a/system_roles.yaml resolves vistral_baseline and no_auxiliary to identical fingerprints",
+    "Q1B": "configs/experiments/q1b/checkpoint_matrix.yaml explicitly names polarity_v1 and emotion_v1; both manifests validate",
+    "Q3": "configs/experiments/q3/system_aliases.yaml maps every generic label to a concrete system with RESOLVED status",
+    "Q4": "configs/experiments/q4/checkpoint_resolution.yaml preserves pragmatic-only checkpoint conflicts and resolves only full ViPragSent Vistral",
+    "SIGNIFICANCE_PVALUE": "configs/statistics/significance_method.yaml does not specify an authoritative exact raw p-value formula"
+  },
+  "resolution_status": {
+    "Q1A": "CONFLICT",
+    "Q1B": "RESOLVED",
+    "Q3": "RESOLVED",
+    "Q4": "CONFLICT",
+    "SIGNIFICANCE_PVALUE": "CONFLICT"
+  },
+  "schema_version": 1,
+  "scientific_protocol_conflicts": [
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
+  ]
+}

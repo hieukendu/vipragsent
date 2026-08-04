@@ -5,7 +5,8 @@ from pathlib import Path
 
 from _bootstrap import ROOT
 from vipragsent.data.loaders import load_vipragsent
-from vipragsent.data.preprocessing import DeterministicSegmenter, PreprocessingSpec, TextPreprocessor
+from vipragsent.data.preprocessing import DeterministicSegmenter, PreprocessingSpec, TextPreprocessor, VnCoreNLPSegmenter
+from vipragsent.models.factory import load_model_registry
 
 
 def main() -> int:
@@ -14,7 +15,9 @@ def main() -> int:
     parser.add_argument("--fixture", action="store_true")
     args = parser.parse_args()
     bundle = load_vipragsent(ROOT / "data/processed/vipragsent")
-    preprocessor = TextPreprocessor(PreprocessingSpec(args.backbone, "vncorenlp_rdrsegmenter" if args.backbone == "phobert_base" else "unicode_nfc", "fixture-v1" if args.fixture else "runtime-v1"), segmenter=DeterministicSegmenter(version="fixture-whitespace" if args.fixture else "vncorenlp-rdrsegmenter-pending"))
+    model_spec = load_model_registry(ROOT / "configs/models/model_registry.yaml")[args.backbone]
+    segmenter = DeterministicSegmenter() if args.fixture and args.backbone == "phobert_base" else VnCoreNLPSegmenter.from_env() if args.backbone == "phobert_base" else None
+    preprocessor = TextPreprocessor(PreprocessingSpec(args.backbone, "vncorenlp_rdrsegmenter" if args.backbone == "phobert_base" else "unicode_nfc", "fixture-v1" if args.fixture else "runtime-v1", tokenizer_revision=model_spec.tokenizer_revision, model_revision=model_spec.revision, execution_mode="fixture" if args.fixture else "production"), segmenter=segmenter)
     output_root = ROOT / "data/processed/tokenized_text" / args.backbone
     reports = {}
     for split, examples in bundle.splits.items():
