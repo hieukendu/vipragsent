@@ -22,10 +22,13 @@ venv/
 data/raw/
 data/external/*
 !data/external/manual_drop/
+data/external/manual_drop/**
 !data/external/manual_drop/**/
 !data/external/manual_drop/**/README.md
 data/model_cache/
 data/input/
+data/processed/external/uit_vsfc/
+data/processed/external/uit_vsmec/
 checkpoints/
 predictions/
 runs/

@@ -3,22 +3,26 @@
   "status": "BLOCKED",
   "inputs_read": [
     "22_DATA_SOURCE_REGISTRY.md",
-    "V8 bundled AIVIVN files"
+    "V8 bundled AIVIVN files",
+    "official UIT-VSFC Drive folder",
+    "official UIT-VSMEC Drive folder"
   ],
   "files_created": [
     "data/manifests/external_datasets.json",
+    "data/processed/external/uit_vsfc/test.csv",
+    "data/processed/external/uit_vsmec/test.csv",
     "data/external/manual_drop/*/README.md"
   ],
   "tests_run": [
+    "official UIT-VSFC line-count and label validation",
+    "official UIT-VSMEC workbook schema and label validation",
     "external manifest generation",
     "bundled AIVIVN schema/checksum check"
   ],
   "tests_passed": true,
   "blockers": [
-    "Manual or credentialed dataset required: uit_vsfc",
-    "Manual or credentialed dataset required: uit_vsmec",
     "Manual or credentialed dataset required: aivivn_original"
   ],
   "next_phase_ready": false,
-  "generated_at_utc": "2026-08-04T13:55:57.154043+00:00"
+  "generated_at_utc": "2026-08-04T14:53:53.210178+00:00"
 }
