@@ -12,6 +12,10 @@
 - `data/manifests/azure_deployment.json`
 
 ## Tests run
+- `endpoint/auth configuration validation`
+- `deployment metadata validation`
+- `strict schema materialization`
+- `live Responses API plain and strict-schema smoke`
 
 ## Blockers
-- AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_BASE_URL, and AZURE_OPENAI_DEPLOYMENT are required
+- Live Azure Responses API smoke failed; verify the deployment name and resource

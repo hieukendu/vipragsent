@@ -55,6 +55,20 @@ def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightRes
     checks["azure_credentials"] = settings_present
     if mode == "full" and not settings_present:
         blockers.append("Azure credentials/deployment are not configured")
+    azure_manifest = root / "data" / "manifests" / "azure_deployment.json"
+    azure_report: dict[str, Any] = {}
+    if azure_manifest.exists():
+        try:
+            azure_report = json.loads(azure_manifest.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            blockers.append("Azure deployment manifest is invalid JSON")
+    checks["azure_deployment_verified"] = azure_report.get("verified") is True
+    smoke = azure_report.get("smoke")
+    checks["azure_live_smoke"] = isinstance(smoke, dict) and smoke.get("status") == "PASS"
+    if mode == "full" and not checks["azure_deployment_verified"]:
+        blockers.append("Azure deployment live verification failed or is missing")
+    if mode == "full" and not checks["azure_live_smoke"]:
+        blockers.append("Azure Responses API plain/strict Structured Output smoke has not passed")
     registry = root / "configs" / "models" / "model_registry.yaml"
     checks["model_revisions_pinned"] = registry.exists() and "revision: null" not in registry.read_text(encoding="utf-8")
     if mode == "full" and not checks["model_revisions_pinned"]:

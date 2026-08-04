@@ -1,5 +1,22 @@
 {
   "verified": false,
-  "blocker": "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_BASE_URL, and AZURE_OPENAI_DEPLOYMENT are required",
-  "settings": null
+  "endpoint": "https://hieulhks-0611-resource.openai.azure.com/",
+  "base_url": "https://hieulhks-0611-resource.openai.azure.com/openai/v1/",
+  "deployment": "vipragsent-gpt41-mini",
+  "batch_deployment": null,
+  "auth_mode": "api_key",
+  "model_family": "GPT-4.1-mini",
+  "expected_model_version": "2025-04-14",
+  "metadata": {
+    "model": "GPT-4.1-mini",
+    "version": "2025-04-14",
+    "deployment": "vipragsent-gpt41-mini",
+    "source": "environment-asserted"
+  },
+  "smoke": {
+    "status": "BLOCKED",
+    "error_type": "NotFoundError",
+    "error": "Error code: 404 - {'error': {'type': 'invalid_request_error', 'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}"
+  },
+  "blocker": "Live Azure Responses API smoke failed"
 }

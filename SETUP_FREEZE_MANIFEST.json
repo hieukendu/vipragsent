@@ -11,11 +11,11 @@
     "full_preflight": {
       "passed": false,
       "blockers": [
-        "Azure credentials/deployment are not configured",
+        "Azure deployment live verification failed or is missing",
+        "Azure Responses API plain/strict Structured Output smoke has not passed",
         "Model weights have not passed Phase 15 offline verification",
         "A100 20 GB or an A100 MIG profile is not available",
         "Java 17 LTS is required for VnCoreNLP",
-        "Pinned VnCoreNLP RDRSegmenter resources are missing",
         "PEFT is not installed for QLoRA",
         "bitsandbytes is not installed for NF4 QLoRA",
         "Phase 15 model/tokenizer smoke report is missing"
@@ -26,12 +26,14 @@
         "external_manifest": true,
         "external_official_tests": true,
         "external_provenance_complete": true,
-        "azure_credentials": false,
+        "azure_credentials": true,
+        "azure_deployment_verified": false,
+        "azure_live_smoke": false,
         "model_revisions_pinned": true,
         "model_weights_verified": false,
         "cuda_a100_or_mig": false,
         "java_17": false,
-        "vncorenlp_resources": false,
+        "vncorenlp_resources": true,
         "peft_installed": false,
         "bitsandbytes_installed": false,
         "prompt_manifests": true,
@@ -42,14 +44,14 @@
     },
     "git_worktree_clean_at_freeze": false,
     "python": "3.12.7",
-    "azure_env_present": false
+    "azure_env_present": true
   },
   "blockers": [
-    "Azure credentials/deployment are not configured",
+    "Azure deployment live verification failed or is missing",
+    "Azure Responses API plain/strict Structured Output smoke has not passed",
     "Model weights have not passed Phase 15 offline verification",
     "A100 20 GB or an A100 MIG profile is not available",
     "Java 17 LTS is required for VnCoreNLP",
-    "Pinned VnCoreNLP RDRSegmenter resources are missing",
     "PEFT is not installed for QLoRA",
     "bitsandbytes is not installed for NF4 QLoRA",
     "Phase 15 model/tokenizer smoke report is missing"

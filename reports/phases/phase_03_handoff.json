@@ -8,11 +8,16 @@
   "files_created": [
     "data/manifests/azure_deployment.json"
   ],
-  "tests_run": [],
+  "tests_run": [
+    "endpoint/auth configuration validation",
+    "deployment metadata validation",
+    "strict schema materialization",
+    "live Responses API plain and strict-schema smoke"
+  ],
   "tests_passed": false,
   "blockers": [
-    "AZURE_OPENAI_ENDPOINT, AZURE_OPENAI_BASE_URL, and AZURE_OPENAI_DEPLOYMENT are required"
+    "Live Azure Responses API smoke failed; verify the deployment name and resource"
   ],
   "next_phase_ready": false,
-  "generated_at_utc": "2026-08-04T13:56:00.806062+00:00"
+  "generated_at_utc": "2026-08-04T15:45:20.204630+00:00"
 }
