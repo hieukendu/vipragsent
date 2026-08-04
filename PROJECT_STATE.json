@@ -2,12 +2,23 @@
   "project": "ViPragSent",
   "contract_revision": "setup-first-one-click-final",
   "target_python": "3.11",
-  "current_phase": "00",
+  "current_phase": "15",
   "weights_downloaded": false,
   "full_run_started": false,
   "setup_frozen": false,
   "core_experiments_ready": false,
   "manual_paper_analysis_pending": true,
-  "blockers": [],
+  "blockers": [
+    "UIT-VSFC and/or UIT-VSMEC official test files are missing; use the manual-drop fallback",
+    "External dataset provenance is incomplete; official/manual-drop checks must pass",
+    "Azure credentials/deployment are not configured",
+    "Model weights have not passed Phase 15 offline verification",
+    "A100 20 GB or an A100 MIG profile is not available",
+    "Java 17 LTS is required for VnCoreNLP",
+    "Pinned VnCoreNLP RDRSegmenter resources are missing",
+    "PEFT is not installed for QLoRA",
+    "bitsandbytes is not installed for NF4 QLoRA",
+    "Phase 15 model/tokenizer smoke report is missing"
+  ],
   "phase_handoff_directory": "reports/phases"
 }
