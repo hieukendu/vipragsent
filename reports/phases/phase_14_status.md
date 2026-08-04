@@ -22,7 +22,6 @@
 - `full runtime preflight`
 
 ## Blockers
-- External dataset provenance is incomplete; official/manual-drop checks must pass
 - Azure credentials/deployment are not configured
 - Model weights have not passed Phase 15 offline verification
 - A100 20 GB or an A100 MIG profile is not available

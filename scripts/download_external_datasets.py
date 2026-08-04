@@ -16,7 +16,7 @@ from vipragsent.phase import write_phase_handoff
 MANUAL_READMES = {
     "uit_vsfc": """# UIT-VSFC manual drop\n\nOfficial source folder: `https://drive.google.com/drive/folders/1xclbjHHK58zk2X6iqbvMPS2rcy9y9E0X`\n\nPlace the official test-folder files `sents.txt`, `sentiments.txt`, and `topics.txt` in this directory. The normalizer maps `0=negative`, `1=neutral`, and `2=positive`, and writes `data/processed/external/uit_vsfc/test.csv` with columns `sample_id,text,polarity`.\n\nKeep the author-contact permission evidence privately. Do not substitute an unsplit mirror or a random split.\n""",
     "uit_vsmec": """# UIT-VSMEC manual drop\n\nOfficial source folder: `https://drive.google.com/drive/folders/1HooABJyrddVGzll7fgkJ6VzkG_XuWfRu?usp=drive_link`\n\nPlace the official test workbook `test_nor_811.xlsx` in this directory. The normalizer writes `data/processed/external/uit_vsmec/test.csv` with columns `sample_id,text,emotion`. The source workbook's first-column identifiers repeat, so stable row-based sample IDs are generated without deduplicating records.\n\nKeep the author-contact permission evidence privately. Do not substitute an unsplit mirror or a random split.\n""",
-    "aivivn_original": """# AIVIVN original manual fallback\n\nThe original Kaggle source is `mcocoz/aivivn-2019`. Configure Kaggle credentials through the standard environment or `KAGGLE_CONFIG_DIR`; never commit credentials.\nThe original binary files are provenance-only. Q1b uses the bundled `AIVIVN-human-derived-3way` split.\n""",
+    "aivivn_original": """# AIVIVN original manual fallback\n\nOfficial Kaggle source: `https://www.kaggle.com/datasets/mcocoz/aivivn-2019`\n\nPlace the original `train.csv` and `test.csv` files in this directory. The files must contain `id`, `comment`, and `label` columns. They are preserved for provenance only; Q1b uses the bundled `AIVIVN-human-derived-3way` split.\n\nConfigure Kaggle credentials through the standard environment or `KAGGLE_CONFIG_DIR`; never commit credentials or the original text.\n""",
 }
 
 OFFICIAL_SOURCES = {
@@ -171,6 +171,59 @@ def _normalize_vsmec(raw_root: Path) -> dict[str, Any]:
     }
 
 
+def _inspect_aivivn(raw_root: Path) -> dict[str, Any]:
+    raw_paths = {name: raw_root / name for name in ("train.csv", "test.csv")}
+    missing = [name for name, path in raw_paths.items() if not path.exists()]
+    if missing:
+        return {"status": "BLOCKED", "missing_files": missing}
+
+    file_reports: dict[str, Any] = {}
+    for name, path in raw_paths.items():
+        with path.open(encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            required = {"id", "comment", "label"}
+            if not required.issubset(reader.fieldnames or set()):
+                raise ValueError(f"AIVIVN {name} is missing columns {sorted(required)}")
+            rows = list(reader)
+        ids = [row["id"] for row in rows]
+        labels = Counter(row["label"].strip() for row in rows)
+        if len(ids) != len(set(ids)):
+            raise ValueError(f"AIVIVN {name} contains duplicate IDs")
+        if any(not row["comment"].strip() for row in rows):
+            raise ValueError(f"AIVIVN {name} contains an empty comment")
+        if set(labels) - {"0", "1"}:
+            raise ValueError(f"AIVIVN {name} contains unexpected labels: {sorted(set(labels) - {'0', '1'})}")
+        file_reports[name] = {"rows": len(rows), "label_counts": dict(sorted(labels.items()))}
+
+    return {
+        "status": "PASS",
+        "normalized_path": None,
+        "checksum": None,
+        "raw_paths": [_relative(path) for path in raw_paths.values()],
+        "raw_checksums": {name: sha256_file(path) for name, path in raw_paths.items()},
+        "file_reports": file_reports,
+        "split": "official train/test files preserved as downloaded",
+        "split_evidence": "Kaggle mcocoz/aivivn-2019 archive supplied train.csv and test.csv.",
+        "provenance_only": True,
+    }
+
+
+def _aivivn_entry(inspected: dict[str, Any]) -> dict[str, Any]:
+    entry = {
+        "status": inspected["status"],
+        "source": "https://www.kaggle.com/datasets/mcocoz/aivivn-2019",
+        "normalized_path": None,
+        "checksum": None,
+        "license_note": "Kaggle metadata reports Apache-2.0; original binaries are preserved for provenance only.",
+        "access_evidence": "Downloaded through the authenticated Kaggle client; credentials are not stored in the repository.",
+        "provenance_only": True,
+    }
+    for key in ("missing_files", "raw_paths", "raw_checksums", "file_reports", "split", "split_evidence"):
+        if key in inspected:
+            entry[key] = inspected[key]
+    return entry
+
+
 def _external_entry(name: str, normalized: dict[str, Any]) -> dict[str, Any]:
     source = OFFICIAL_SOURCES[name]
     entry = {
@@ -201,13 +254,14 @@ def main() -> int:
         "uit_vsfc": _normalize_vsfc(ROOT / "data/external/manual_drop/uit_vsfc"),
         "uit_vsmec": _normalize_vsmec(ROOT / "data/external/manual_drop/uit_vsmec"),
     }
+    aivivn = _inspect_aivivn(ROOT / "data/external/manual_drop/aivivn_original")
     bundled = ROOT / "data/processed/external/aivivn_human_derived_3way/test.csv"
     manifest = {
         "generated_at_utc": datetime.now(timezone.utc).isoformat(),
         "datasets": {
             "uit_vsfc": _external_entry("uit_vsfc", normalized["uit_vsfc"]),
             "uit_vsmec": _external_entry("uit_vsmec", normalized["uit_vsmec"]),
-            "aivivn_original": {"status": "BLOCKED", "source": "Kaggle mcocoz/aivivn-2019", "normalized_path": None, "checksum": None, "license_note": "Kaggle credentials required; provenance-only"},
+            "aivivn_original": _aivivn_entry(aivivn),
             "aivivn_human_derived_3way": {"status": "PASS" if bundled.exists() else "BLOCKED", "source": "bundled V8 package", "normalized_path": str(bundled.relative_to(ROOT)) if bundled.exists() else None, "checksum": sha256_file(bundled) if bundled.exists() else None, "license_note": "project-bundled human-derived split"},
         },
         "q1b_uses_bundled_aivivn_human_derived_3way": True,
@@ -218,7 +272,7 @@ def main() -> int:
     path.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     blocked = [name for name, item in manifest["datasets"].items() if item["status"] == "BLOCKED"]
     status = "PASS" if not blocked else "BLOCKED"
-    write_phase_handoff("02", status, inputs_read=["22_DATA_SOURCE_REGISTRY.md", "V8 bundled AIVIVN files", "official UIT-VSFC Drive folder", "official UIT-VSMEC Drive folder"], files_created=["data/manifests/external_datasets.json", "data/processed/external/uit_vsfc/test.csv", "data/processed/external/uit_vsmec/test.csv", "data/external/manual_drop/*/README.md"], tests_run=["official UIT-VSFC line-count and label validation", "official UIT-VSMEC workbook schema and label validation", "external manifest generation", "bundled AIVIVN schema/checksum check"], tests_passed=True, blockers=[f"Manual or credentialed dataset required: {name}" for name in blocked], next_phase_ready=not blocked)
+    write_phase_handoff("02", status, inputs_read=["22_DATA_SOURCE_REGISTRY.md", "Kaggle mcocoz/aivivn-2019", "V8 bundled AIVIVN files", "official UIT-VSFC Drive folder", "official UIT-VSMEC Drive folder"], files_created=["data/manifests/external_datasets.json", "data/processed/external/uit_vsfc/test.csv", "data/processed/external/uit_vsmec/test.csv", "data/external/manual_drop/aivivn_original/train.csv", "data/external/manual_drop/aivivn_original/test.csv", "data/external/manual_drop/*/README.md"], tests_run=["official UIT-VSFC line-count and label validation", "official UIT-VSMEC workbook schema and label validation", "AIVIVN original train/test schema and checksum validation", "external manifest generation", "bundled AIVIVN schema/checksum check"], tests_passed=True, blockers=[f"Manual or credentialed dataset required: {name}" for name in blocked], next_phase_ready=not blocked)
     print(json.dumps({"status": status, "blocked": blocked, "dry_run": args.dry_run}, indent=2))
     return 0 if not blocked or args.dry_run else 2
 
