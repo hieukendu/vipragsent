@@ -1,8 +1,8 @@
 # Phase 03 status
 
-- Status: `BLOCKED`
-- Tests passed: `False`
-- Next phase ready: `False`
+- Status: `PASS`
+- Tests passed: `True`
+- Next phase ready: `True`
 
 ## Inputs read
 - `23_AZURE_OPENAI_SETUP.md`
@@ -18,4 +18,4 @@
 - `live Responses API plain and strict-schema smoke`
 
 ## Blockers
-- Live Azure Responses API smoke failed; verify the deployment name and resource
+- None

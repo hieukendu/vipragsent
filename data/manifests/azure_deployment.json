@@ -1,8 +1,8 @@
 {
-  "verified": false,
+  "verified": true,
   "endpoint": "https://hieulhks-0611-resource.openai.azure.com/",
   "base_url": "https://hieulhks-0611-resource.openai.azure.com/openai/v1/",
-  "deployment": "vipragsent-gpt41-mini",
+  "deployment": "gpt-4.1-mini",
   "batch_deployment": null,
   "auth_mode": "api_key",
   "model_family": "GPT-4.1-mini",
@@ -10,13 +10,18 @@
   "metadata": {
     "model": "GPT-4.1-mini",
     "version": "2025-04-14",
-    "deployment": "vipragsent-gpt41-mini",
+    "deployment": "gpt-4.1-mini",
     "source": "environment-asserted"
   },
   "smoke": {
-    "status": "BLOCKED",
-    "error_type": "NotFoundError",
-    "error": "Error code: 404 - {'error': {'type': 'invalid_request_error', 'code': 'DeploymentNotFound', 'message': 'The API deployment for this resource does not exist. If you created the deployment within the last 5 minutes, please wait a moment and try again.'}}"
-  },
-  "blocker": "Live Azure Responses API smoke failed"
+    "status": "PASS",
+    "plain_response": {
+      "id": "resp_0b98c84f9460c0bb006a7209b1f6e081949f5e0e1b51fc820f",
+      "model": "gpt-4.1-mini"
+    },
+    "structured_response": {
+      "id": "resp_0284d2bb09426165006a7209b5a0a08193a87caef15e8edc24",
+      "model": "gpt-4.1-mini"
+    }
+  }
 }

@@ -14,7 +14,7 @@ from vipragsent.phase import write_phase_handoff
 def _live_smoke(settings: AzureSettings) -> dict[str, object]:
     client = AzureResponsesClient(settings)
     try:
-        plain = client._default_transport(input="Reply with exactly OK.", max_output_tokens=8)
+        plain = client._default_transport(input="Reply with exactly OK.", max_output_tokens=16)
         structured = client._default_transport(
             input="Return a valid all-task ViPragSent label object.",
             text={
