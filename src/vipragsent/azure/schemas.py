@@ -40,3 +40,18 @@ def validate_structured_output(value: dict[str, Any], task: str = "all") -> dict
     if "emotion" in normalized and normalized["emotion"] not in EMOTION_LABELS:
         raise ValueError("Invalid emotion output")
     return normalized
+
+
+def strict_rationale_schema() -> dict[str, Any]:
+    return {
+        "type": "object",
+        "properties": {"rationale": {"type": "string"}},
+        "required": ["rationale"],
+        "additionalProperties": False,
+    }
+
+
+def validate_rationale_output(value: dict[str, Any]) -> str:
+    if set(value) != {"rationale"} or not isinstance(value["rationale"], str) or not value["rationale"].strip():
+        raise ValueError("Rationale Structured Output must contain exactly a non-empty rationale string")
+    return value["rationale"].strip()

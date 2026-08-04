@@ -1,0 +1,25 @@
+name: cpu-ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install CPU core and dev dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[core,dev]"
+      - name: Compile
+        run: python -m compileall -q src scripts tests
+      - name: Ruff
+        run: ruff check .
+      - name: CPU tests
+        run: python -m pytest -q -m "not server and not gpu and not azure_live and not model_download"
+      - name: Production implementation audit
+        run: python scripts/audit_production_implementation.py

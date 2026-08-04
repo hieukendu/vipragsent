@@ -1,0 +1,24 @@
+q1a:
+  source_of_truth: 21_MASTER_EXPERIMENT_MATRIX.md
+  roles:
+    vistral_baseline:
+      system_id: vistral_pragmatic_sft
+      backbone: vistral_7b
+      active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+      active_losses: [pragmatic]
+      rationale_decoder_training: false
+      inference_output_source: classification_heads
+      training_data: vipragsent_train
+      seed_behavior: training_seeds
+    no_auxiliary:
+      system_id: vistral_pragmatic_sft
+      backbone: vistral_7b
+      active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+      active_losses: [pragmatic]
+      rationale_decoder_training: false
+      inference_output_source: classification_heads
+      training_data: vipragsent_train
+      seed_behavior: training_seeds
+  resolution_status: CONFLICT
+  conflict_code: SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY
+  evidence: The locked matrix names both rows while the role registry resolves no_auxiliary to the same vistral_pragmatic_sft fingerprint.

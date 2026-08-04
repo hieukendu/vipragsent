@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import torch
@@ -50,6 +51,9 @@ def load_pretrained_backbone(
     revision: str,
     family: str,
     trust_remote_code: bool = False,
+    local_path: str | Path | None = None,
+    cache_dir: str | Path | None = None,
+    local_files_only: bool = False,
 ) -> nn.Module:
     """Load only the base transformer; no unused pretrained LM head is allocated."""
     if not revision:
@@ -58,6 +62,21 @@ def load_pretrained_backbone(
         from transformers import AutoModel
     except ImportError as exc:
         raise RuntimeError("transformers is required for real model loading") from exc
-    model = AutoModel.from_pretrained(repo_id, revision=revision, trust_remote_code=trust_remote_code)
+    if trust_remote_code:
+        raise ValueError("trust_remote_code is prohibited without a reviewed ADR")
+    source = str(local_path) if local_path else repo_id
+    if local_path is not None and not Path(local_path).exists():
+        raise RuntimeError(f"Pinned local model snapshot is missing: {local_path}")
+    try:
+        model = AutoModel.from_pretrained(
+            source,
+            revision=revision,
+            trust_remote_code=False,
+            cache_dir=str(cache_dir) if cache_dir else None,
+            local_files_only=local_files_only or local_path is not None,
+            output_hidden_states=False,
+        )
+    except Exception as exc:
+        raise RuntimeError(f"Unable to load pinned backbone {repo_id}@{revision}: {exc}") from exc
     model._vipragsent_backbone_family = family
     return model

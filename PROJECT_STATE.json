@@ -1,20 +1,23 @@
 {
-  "project": "ViPragSent",
-  "contract_revision": "setup-first-one-click-final",
-  "target_python": "3.11",
-  "current_phase": "15",
-  "weights_downloaded": false,
-  "full_run_started": false,
-  "setup_frozen": false,
-  "core_experiments_ready": false,
-  "manual_paper_analysis_pending": true,
   "blockers": [
-    "Model weights have not passed Phase 15 offline verification",
-    "A100 20 GB or an A100 MIG profile is not available",
-    "Java 17 LTS is required for VnCoreNLP",
-    "PEFT is not installed for QLoRA",
-    "bitsandbytes is not installed for NF4 QLoRA",
-    "Phase 15 model/tokenizer smoke report is missing"
+    "unresolved scientific protocol conflict"
   ],
-  "phase_handoff_directory": "reports/phases"
+  "contract_revision": "setup-first-one-click-final",
+  "core_experiments_ready": false,
+  "current_phase": "14.5",
+  "full_run_started": false,
+  "manual_paper_analysis_pending": true,
+  "phase_handoff_directory": "reports/phases",
+  "project": "ViPragSent",
+  "runtime_dependencies_pending": true,
+  "runtime_environment_ready": false,
+  "scientific_protocol_conflicts": [
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
+  ],
+  "setup_frozen": false,
+  "setup_implementation_ready": true,
+  "target_python": "3.11",
+  "weights_downloaded": false
 }

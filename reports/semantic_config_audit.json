@@ -12,6 +12,11 @@
     "emotion"
   ],
   "model_count": 4,
+  "scientific_protocol_conflicts": [
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
+  ],
   "full_inference_output_source": "classification_heads",
   "rationale_decoder_enabled_at_inference": false,
   "cot_only_output_source": "parsed_generated_labels",

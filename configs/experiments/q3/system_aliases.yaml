@@ -1,0 +1,36 @@
+q3_system_aliases:
+  - paper_label: PhoBERT
+    resolved_system_id: phobert_pragmatic_finetune
+    checkpoint_family: phobert_pragmatic_finetune
+    active_heads_and_losses: [six_pragmatic_heads, pragmatic_loss]
+    inference_output_source: classification_heads
+    approval_source: 21_MASTER_EXPERIMENT_MATRIX.md; 31_IMPLEMENTATION_DECISIONS.md
+    resolution_status: RESOLVED
+  - paper_label: XLM-R
+    resolved_system_id: xlmr_pragmatic_finetune
+    checkpoint_family: xlmr_pragmatic_finetune
+    active_heads_and_losses: [six_pragmatic_heads, pragmatic_loss]
+    inference_output_source: classification_heads
+    approval_source: 21_MASTER_EXPERIMENT_MATRIX.md; 31_IMPLEMENTATION_DECISIONS.md
+    resolution_status: RESOLVED
+  - paper_label: Vistral
+    resolved_system_id: vistral_pragmatic_sft
+    checkpoint_family: vistral_pragmatic_sft
+    active_heads_and_losses: [six_pragmatic_heads, pragmatic_loss]
+    inference_output_source: classification_heads
+    approval_source: 21_MASTER_EXPERIMENT_MATRIX.md; 31_IMPLEMENTATION_DECISIONS.md
+    resolution_status: RESOLVED
+  - paper_label: Azure GPT-4.1-mini 8-shot
+    resolved_system_id: azure_gpt41_mini_8shot
+    checkpoint_family: azure_gpt41_mini
+    active_heads_and_losses: [six_pragmatic_structured_output_keys]
+    inference_output_source: parsed_structured_output
+    approval_source: 23_AZURE_OPENAI_SETUP.md; 21_MASTER_EXPERIMENT_MATRIX.md
+    resolution_status: RESOLVED
+  - paper_label: full ViPragSent
+    resolved_system_id: vipragsent_full_vistral
+    checkpoint_family: vipragsent_full_vistral
+    active_heads_and_losses: [eight_classification_heads, rationale_auxiliary]
+    inference_output_source: classification_heads
+    approval_source: 28_PAPER_EXPERIMENT_ROLE_REGISTRY.md; 31_IMPLEMENTATION_DECISIONS.md
+    resolution_status: RESOLVED

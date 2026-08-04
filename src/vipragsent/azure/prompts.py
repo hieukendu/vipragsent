@@ -72,6 +72,8 @@ def validate_demo_manifest(manifest: Mapping[str, Any], *, q3_eligible_ids: set[
     demos = manifest.get("demonstrations", [])
     if len(demos) != 8:
         raise ValueError("Demonstration payload must contain eight examples")
+    if manifest.get("source_split") != "vipragsent_train_only":
+        raise ValueError("Demonstrations must come from the ViPragSent train split")
     for key, demo in zip(PRAGMATIC_LABELS, demos[:6]):
         if int(demo["labels"][key]) != 1:
             raise ValueError(f"Designated demonstration is not positive for {key}")
@@ -80,9 +82,35 @@ def validate_demo_manifest(manifest: Mapping[str, Any], *, q3_eligible_ids: set[
             raise ValueError("Invalid ordinary control demonstration")
 
 
+def validate_task_demo_manifest(manifest: Mapping[str, Any], task: str, *, q3_eligible_ids: set[str] | None = None) -> None:
+    ids = list(manifest.get("sample_ids", []))
+    demos = list(manifest.get("demonstrations", []))
+    if len(ids) != 8 or len(set(ids)) != 8 or len(demos) != 8 or ids != [demo.get("sample_id") for demo in demos]:
+        raise ValueError(f"{task} demonstrations must contain eight ordered unique IDs")
+    if manifest.get("source_split") != "vipragsent_train_only":
+        raise ValueError("Demonstrations must come from ViPragSent train only")
+    if q3_eligible_ids is not None and not set(ids).issubset(q3_eligible_ids):
+        raise ValueError(f"{task} demonstrations contain an ineligible Q3 sample")
+    if task == "pragmatic":
+        validate_demo_manifest(manifest, q3_eligible_ids=q3_eligible_ids)
+        return
+    if task == "polarity":
+        expected = {label: count for label, count in zip(("negative", "neutral", "positive"), (3, 2, 3), strict=True)}
+        actual = {label: sum(demo["labels"].get("polarity") == label for demo in demos) for label in expected}
+        if actual != expected:
+            raise ValueError(f"Invalid polarity 8-shot composition: {actual}")
+        return
+    if task == "emotion":
+        counts = {label: sum(demo["labels"].get("emotion") == label for demo in demos) for label in ("anger", "disgust", "enjoyment", "fear", "other", "sadness", "surprise")}
+        if any(counts[label] != 1 for label in counts if label != "other") or counts["other"] != 2:
+            raise ValueError(f"Invalid emotion 8-shot composition: {counts}")
+        return
+    raise ValueError(f"Unknown task demo manifest: {task}")
+
+
 class PromptRegistry:
     def __init__(self, manifest: Mapping[str, Any]) -> None:
-        validate_demo_manifest(manifest)
+        validate_task_demo_manifest(manifest, "pragmatic")
         self.manifest = dict(manifest)
 
     def _render(self, task: str, target_text: str, demonstrations: list[Mapping[str, Any]]) -> PromptSpec:
@@ -97,7 +125,9 @@ class PromptRegistry:
         return self._render("pragmatic", text, self.manifest["demonstrations"])
 
     def polarity(self, text: str, demonstrations: list[Mapping[str, Any]]) -> PromptSpec:
+        validate_task_demo_manifest({"sample_ids": [demo["sample_id"] for demo in demonstrations], "demonstrations": demonstrations, "source_split": "vipragsent_train_only"}, "polarity")
         return self._render("polarity", text, demonstrations)
 
     def emotion(self, text: str, demonstrations: list[Mapping[str, Any]]) -> PromptSpec:
+        validate_task_demo_manifest({"sample_ids": [demo["sample_id"] for demo in demonstrations], "demonstrations": demonstrations, "source_split": "vipragsent_train_only"}, "emotion")
         return self._render("emotion", text, demonstrations)

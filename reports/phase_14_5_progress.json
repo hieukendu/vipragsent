@@ -1,0 +1,448 @@
+{
+  "commands_run": [
+    {
+      "command": "python -m compileall -q src scripts tests",
+      "returncode": 0,
+      "stderr_tail": "",
+      "stdout_tail": ""
+    },
+    {
+      "command": "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+      "returncode": 0,
+      "stderr_tail": "",
+      "stdout_tail": ".............................                                            [100%]\n"
+    }
+  ],
+  "defects_confirmed": [
+    "fixture root manifest claimed core completion",
+    "full DAG had scheduled/no-op handlers",
+    "decoder lacked shifted causal teacher forcing",
+    "training engine lacked real dev selection",
+    "production/export/checksum/audit paths were incomplete"
+  ],
+  "deferred_server_requirements": [
+    "Java 17 and VnCoreNLP resources",
+    "PEFT",
+    "bitsandbytes",
+    "A100 or A100 MIG runtime",
+    "model downloads",
+    "real Phase 15 model/tokenizer/QLoRA smoke"
+  ],
+  "files_inspected": [
+    "28_PAPER_EXPERIMENT_ROLE_REGISTRY.md",
+    "29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md",
+    "30_SPEC_COMPLETENESS_AUDIT.md",
+    "31_IMPLEMENTATION_DECISIONS.md",
+    "32_RUNTIME_PREFLIGHT_CHECKLIST.md"
+  ],
+  "git_data_hygiene": {
+    "files": [
+      {
+        "classification": "manual_drop_documentation",
+        "path": "data/external/manual_drop/aivivn_original/README.md",
+        "recommendation": "keep local README; do not add raw files",
+        "sha256": "A58397BBBE52D2960445CB4ECD36549633228FCE12BC0357E655889A70B05C16"
+      },
+      {
+        "classification": "manual_drop_documentation",
+        "path": "data/external/manual_drop/uit_vsfc/README.md",
+        "recommendation": "keep local README; do not add raw files",
+        "sha256": "5130B78F556C3040F793BD34BC23B908C8AE0E2BEA01C7CB620A41F69AC5A860"
+      },
+      {
+        "classification": "manual_drop_documentation",
+        "path": "data/external/manual_drop/uit_vsmec/README.md",
+        "recommendation": "keep local README; do not add raw files",
+        "sha256": "DEB0179B6FC6F883E783D38A30C9E0B43E2463F5B4FB6CFDD08AFDF1B2E0CF81"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/azure_deployment.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "861257468F7B2F2E2234FC3175F8197E0E784FE94C30FF9C427F642073A084FE"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/dataset_manifest.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "7F72157C504AC3511B4DF5F2E594BCA4517987EBC1AA958AF8D8EF6B44D67B3E"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/external_datasets.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "4C3948F303261293060B699FF90EDAE27AA99155A7D934AF43E8C7928919B0C3"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/human_iaa_recomputed.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "A08E7BE28605E1E66AD51B094589AC551ACA7A96C207CA39BB24F65F8392E745"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/input_checksums.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "BA47F5B353947E79C81E3B587618FE9E99030DE546131B7004B9684FDAC8B79C"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/loss_weights_train.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "5C155BCEFB699DF26D5CD5AB0459FC1406DC9648C9C2DE597C4875F54D94725C"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/model_resolution_report.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "02758BE1031B3439FA863FD315BA628D81DB8B82B8FE63C0FFA22E3A1CAD8A42"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/emotion_v1.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "C4C92D48D72C198A9439DEF3503EA21E9BE7FD9CFA50CC6609D0DC9D6320A557"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/manifest_report.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "19377345B0EE51324ABBF0AE9F513105C12D61F56CC32FFF5F7E96E07C2CFB18"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/polarity_v1.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "8B5C0FDFE58FA97E8724ED5212CC4AABA012503A74F8F74AFC8F8AFF0C25B723"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/pragmatic_v1.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "E1199A5FA3B17736BD58B1CE2714D99479C8971495895BC7E22861B4C8ED2671"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/q3_budget_128_v1.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "8EDE59CC8A02D1399184CDA16BAC4EF4DA06F6DC9B32F0B329280F5FC651D637"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/q3_budget_256_v1.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "C476D1B231D03C87ED1A9657BF6EA5E422EB344139E44E5AA044F836179D25F6"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/q3_budget_32_v1.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "91561E625A1EC9AE582C214E59D4EC3619BD104905BAFF1FD9D79B143AF0FE94"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/q3_budget_512_v1.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "EAE053C8C74E57E75679C042CF8B295BC709A6809EC62D05B1E54E44ACD1B3CF"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/q3_budget_64_v1.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "FD28E51334A8384E617422FFE3A5A4632CDD195F5032BF25C867AE72803E3DA7"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/prompts/q3_budget_full_v1.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "E2CF8C3B596D7C2EED79147ED441E9F63692679F37CE3F7797A47B3BE801C679"
+      },
+      {
+        "classification": "external_derived_evaluation_input_review_redistribution_license",
+        "path": "data/processed/external/aivivn_human_derived_3way/dev.csv",
+        "recommendation": "retain only if the source license permits redistribution",
+        "sha256": "1B3C30DB5F9052CA76AF33BC71E22CCFAF0FF6974FFCA058F9D5217A6A7E853D"
+      },
+      {
+        "classification": "external_derived_evaluation_input_review_redistribution_license",
+        "path": "data/processed/external/aivivn_human_derived_3way/manifest.json",
+        "recommendation": "retain only if the source license permits redistribution",
+        "sha256": "D5DFF111F328A0536983A79F279F3810A8E23205C812B6810D95F343FFD06A6D"
+      },
+      {
+        "classification": "external_derived_evaluation_input_review_redistribution_license",
+        "path": "data/processed/external/aivivn_human_derived_3way/test.csv",
+        "recommendation": "retain only if the source license permits redistribution",
+        "sha256": "F6F6A78EBADE3BC1038A3B1CFE05FF44E172AF024BBBC8A31079EFCF8133C6D3"
+      },
+      {
+        "classification": "external_derived_evaluation_input_review_redistribution_license",
+        "path": "data/processed/external/aivivn_human_derived_3way/train.csv",
+        "recommendation": "retain only if the source license permits redistribution",
+        "sha256": "A485D4F8798D884ABBD454EF909FC9F3576361D6DEC851E9FDD0CBF475BE398D"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/q3_low_resource_sarcasm/budget_128_masks.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "5D1B3E5C423236322EE18A76A3AD6F42565DFC60B907E167B6A2D3FB33B66996"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/q3_low_resource_sarcasm/budget_256_masks.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "DBAEAFE218BDF398E2173D7643298A3846D85E09058154701CD30DC1968DDD0D"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/q3_low_resource_sarcasm/budget_32_masks.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "87FB2F9B2130E45AAB9F3D8E9300844107E194AFD916AEEAF6F814119D84284B"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/q3_low_resource_sarcasm/budget_512_masks.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "4276E1C7565BA593AB754A203C10217744DB1D8B3C9D6F2FE5ED3C6A63944892"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/q3_low_resource_sarcasm/budget_64_masks.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "6B7CA4E4D9A20137567D8353F3FFEFE653AC60B8D180FD3EDA490D51C96E9568"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/q3_low_resource_sarcasm/budget_full_masks.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "C3DA66570D50A20E28893D1BFDC952E9BB9C1C4BA4A07824FE54DD3357E492B1"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/q3_low_resource_sarcasm/budget_summary.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "29296D0245BF03212682FCA00C5AEA2EB2868AB4F94F1ED7AFCDFD9B3814F896"
+      },
+      {
+        "classification": "processed_text_input_restricted_review",
+        "path": "data/processed/rationales/azure_rationale_input_train.jsonl",
+        "recommendation": "review index tracking; do not remove automatically: git rm --cached data/processed/rationales/azure_rationale_input_train.jsonl",
+        "sha256": "AFDE345251BD694ECBD3047CF0ACD7F3B966B820ED7976BDCCB4A951B982F273"
+      },
+      {
+        "classification": "generated_or_fixture_cache",
+        "path": "data/processed/tokenized_text/phobert_base/dev.jsonl",
+        "recommendation": "git rm --cached data/processed/tokenized_text/phobert_base/dev.jsonl",
+        "sha256": "225CDEEBACA67A1C9E768C5829EFDA9833D96824EFC328EAF0AD2EADDB0945D8"
+      },
+      {
+        "classification": "generated_or_fixture_cache",
+        "path": "data/processed/tokenized_text/phobert_base/test.jsonl",
+        "recommendation": "git rm --cached data/processed/tokenized_text/phobert_base/test.jsonl",
+        "sha256": "E67492535D71032269CED4421C30255758DED1BF6451593D3D4DA46F4DB6B96F"
+      },
+      {
+        "classification": "generated_or_fixture_cache",
+        "path": "data/processed/tokenized_text/phobert_base/train.jsonl",
+        "recommendation": "git rm --cached data/processed/tokenized_text/phobert_base/train.jsonl",
+        "sha256": "CF080A652A9D4AF0328ADA3FCAA592957BB877D9178C5806AC047B111DC08022"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/vipragsent/dev.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "2D878B788A38C0C36DBA0D07C23A21E3E30327E593F3549776D2D1B47DA0E47A"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/vipragsent/label_schema.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "56A94DD37CD1938FF228C0B22D1D365A9C1E50CAFDBE35061B4BCE76EBDBB59F"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/vipragsent/test.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "3493E25034C12312C069F9CE923ECC1D1DB170FA71DB69E2A93A0DAC0709CEBA"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/vipragsent/train.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "71F857D5E76F6ADB7B73F7831E4B06F4A87BA0B8251A85957861F823C02AC993"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/processed/vipragsent/vipragsent_full.csv",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "1BC9778F6CF8C70BA0E26382BBC113D24E9A62D637F1FA8B7F837B0D35EE8C83"
+      }
+    ],
+    "generated_cache_recommendations": [
+      "git rm --cached data/processed/tokenized_text/phobert_base/dev.jsonl",
+      "git rm --cached data/processed/tokenized_text/phobert_base/test.jsonl",
+      "git rm --cached data/processed/tokenized_text/phobert_base/train.jsonl"
+    ],
+    "history_rewrite_performed": false,
+    "index_cleanup_performed": false,
+    "tracked_file_count": 40
+  },
+  "implementation_changes": {
+    "config_validation": {
+      "canonical_label_keys": [
+        "implicit_sentiment",
+        "sarcasm",
+        "irony",
+        "idiom_figurative",
+        "code_switching",
+        "mocking",
+        "polarity",
+        "emotion"
+      ],
+      "errors": [],
+      "model_count": 4,
+      "passed": true,
+      "scientific_protocol_conflicts": [
+        "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
+        "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
+        "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
+      ]
+    },
+    "named_production_handlers": true,
+    "temporary_behavior": true
+  },
+  "implementation_passed": true,
+  "phase": "14.5",
+  "phase14_ready": false,
+  "production_dag_kinds_have_named_handlers": true,
+  "repair_items": [
+    {
+      "description": "Phase 14/15 boundary and freeze semantics",
+      "repair": "A",
+      "status": "PASS"
+    },
+    {
+      "description": "typed production handlers and DAG outcomes",
+      "repair": "B",
+      "status": "PASS"
+    },
+    {
+      "description": "fixture and production artifact isolation",
+      "repair": "C",
+      "status": "PASS"
+    },
+    {
+      "description": "production-capable training engine",
+      "repair": "D",
+      "status": "PASS"
+    },
+    {
+      "description": "uncertainty weighting and CoT device behavior",
+      "repair": "E",
+      "status": "PASS"
+    },
+    {
+      "description": "explicit Q2 variant semantics",
+      "repair": "F",
+      "status": "PASS"
+    },
+    {
+      "description": "Q3 masks and masked losses",
+      "repair": "G",
+      "status": "PASS"
+    },
+    {
+      "description": "production tokenizers and VnCoreNLP interface",
+      "repair": "H",
+      "status": "PASS"
+    },
+    {
+      "description": "optional-import QLoRA factory",
+      "repair": "I",
+      "status": "PASS"
+    },
+    {
+      "description": "causal rationale decoder and generation",
+      "repair": "J",
+      "status": "PASS"
+    },
+    {
+      "description": "Azure retry/cache/provenance contract",
+      "repair": "K",
+      "status": "PASS"
+    },
+    {
+      "description": "production artifact exporter",
+      "repair": "L",
+      "status": "PASS"
+    },
+    {
+      "description": "reproducibility audit",
+      "repair": "M",
+      "status": "PASS"
+    },
+    {
+      "description": "setup checksums and Git data hygiene audit",
+      "repair": "N",
+      "status": "PASS"
+    },
+    {
+      "description": "backbone/model factory",
+      "repair": "O",
+      "status": "PASS"
+    },
+    {
+      "description": "Azure rationale and prompted-baseline runners",
+      "repair": "P",
+      "status": "PASS"
+    },
+    {
+      "description": "production evaluation/statistics and conflict gates",
+      "repair": "Q",
+      "status": "BLOCKED"
+    },
+    {
+      "description": "profiling and cost accounting",
+      "repair": "R",
+      "status": "PASS"
+    },
+    {
+      "description": "matrix and expected-run inventory",
+      "repair": "S",
+      "status": "BLOCKED"
+    },
+    {
+      "description": "execution-context isolation",
+      "repair": "T",
+      "status": "PASS"
+    }
+  ],
+  "results": {
+    "counts_by_question": {
+      "Q1a": 29,
+      "Q1b": 22,
+      "Q2": 18,
+      "Q3": 78,
+      "Q4": 3,
+      "backbone_sensitivity": 6
+    },
+    "errors": [],
+    "expected_run_count": 156,
+    "warnings": [
+      "ruff executable is unavailable in the current environment; CI will run the declared dev dependency"
+    ]
+  },
+  "scientific_protocol_conflicts": [
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
+    "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
+  ],
+  "server_paths_have_explicit_blockers_and_injected_tests": true,
+  "tests_added": [
+    "causal decoder/EOS tests",
+    "uncertainty/Q3 mask tests",
+    "independent checkpoint bundle tests",
+    "CPU training selection/checkpoint/resume tests",
+    "temporary fake full-DAG traversal"
+  ]
+}

@@ -7,6 +7,7 @@ from typing import Any
 import yaml
 
 from .constants import ALL_LABEL_KEYS, EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS
+from .protocol import validate_protocol_resolution
 
 
 def validate_config_tree(root: str | Path = ".") -> dict[str, Any]:
@@ -40,4 +41,9 @@ def validate_config_tree(root: str | Path = ".") -> dict[str, Any]:
     active_config_text = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in (root / "configs").rglob("*" ) if path.is_file())
     if "explanation_at_inference" in active_config_text or "Figure 5" in active_config_text:
         errors.append("prohibited component appears in active configuration")
-    return {"passed": not errors, "errors": errors, "canonical_label_keys": list(ALL_LABEL_KEYS), "model_count": len(registry["models"])}
+    protocol = validate_protocol_resolution(root)
+    if "full_model" in yaml.safe_load((root / "configs/losses.yaml").read_text(encoding="utf-8")):
+        full_loss = yaml.safe_load((root / "configs/losses.yaml").read_text(encoding="utf-8"))["full_model"]
+        if full_loss.get("independent_uncertainty_parameters") != 8:
+            errors.append("Full model must own eight uncertainty parameters")
+    return {"passed": not errors, "errors": errors, "canonical_label_keys": list(ALL_LABEL_KEYS), "model_count": len(registry["models"]), "scientific_protocol_conflicts": protocol["scientific_protocol_conflicts"]}
