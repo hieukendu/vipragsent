@@ -1,0 +1,8 @@
+bootstrap_seed: 20260525
+resamples: 1000
+trainable:
+  hierarchy: seed_then_test_example
+azure:
+  hierarchy: test_example
+confidence_interval: percentile_95
+multiple_comparisons: holm

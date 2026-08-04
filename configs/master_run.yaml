@@ -1,0 +1,28 @@
+project: vipragsent
+contract_version: setup-first-one-click-final
+data_root: data
+output_root: experiment_artifacts
+result_root: results
+max_sequence_length: 128
+split_seed: 20260520
+training_seeds: [20260521, 20260522, 20260523]
+subset_seed: 20260524
+bootstrap_seed: 20260525
+bootstrap_resamples: 1000
+losses:
+  rationale_beta: 0.3
+  uncertainty_weighting: homoscedastic
+thresholds:
+  start: 0.05
+  stop: 0.95
+  step: 0.01
+runtime:
+  profile: configs/runtime/a100_20gb.yaml
+  one_gpu_job_at_a_time: true
+  allow_concurrent_7b_jobs: false
+paper_roles: configs/paper_roles.yaml
+model_registry: configs/models/model_registry.yaml
+matrix: configs/experiments/master_matrix.yaml
+external_datasets_manifest: data/manifests/external_datasets.json
+azure_settings: configs/azure/settings.yaml
+manual_analysis_pending: true

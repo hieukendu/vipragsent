@@ -1,0 +1,11 @@
+pragmatic:
+  type: weighted_binary_cross_entropy
+  pos_weight_source: vipragsent_train_only
+polarity:
+  type: class_weighted_cross_entropy
+emotion:
+  type: class_weighted_cross_entropy
+full_model:
+  type: homoscedastic_uncertainty
+  independent_uncertainty_parameters: 8
+rationale_beta: 0.3

@@ -1,0 +1,65 @@
+version: 1
+nodes:
+  - id: preflight_validation
+    kind: validation
+    depends_on: []
+  - id: rationale_generation
+    kind: azure_rationale
+    depends_on: [preflight_validation]
+  - id: azure_prompted_baselines
+    kind: azure_baselines
+    depends_on: [preflight_validation, rationale_generation]
+  - id: phobert_jobs
+    kind: gpu_training
+    depends_on: [preflight_validation, rationale_generation]
+  - id: xlmr_jobs
+    kind: gpu_training
+    depends_on: [preflight_validation, rationale_generation]
+  - id: sailor_jobs
+    kind: gpu_training
+    depends_on: [preflight_validation, rationale_generation]
+  - id: vistral_jobs
+    kind: gpu_training
+    depends_on: [preflight_validation, rationale_generation]
+  - id: table3_checkpoint_training
+    kind: gpu_training
+    depends_on: [phobert_jobs, xlmr_jobs, sailor_jobs, vistral_jobs]
+  - id: q1a_evaluation
+    kind: evaluation
+    depends_on: [azure_prompted_baselines, phobert_jobs, xlmr_jobs, sailor_jobs, vistral_jobs]
+  - id: q1b_external_retention
+    kind: evaluation
+    depends_on: [table3_checkpoint_training]
+  - id: q2_ablations
+    kind: evaluation
+    depends_on: [phobert_jobs, table3_checkpoint_training]
+  - id: q3_low_resource
+    kind: evaluation
+    depends_on: [phobert_jobs, vistral_jobs, azure_prompted_baselines]
+  - id: q4_calibration_learning_curves
+    kind: evaluation
+    depends_on: [phobert_jobs, vistral_jobs]
+  - id: backbone_sensitivity
+    kind: evaluation
+    depends_on: [phobert_jobs, vistral_jobs]
+  - id: statistics
+    kind: statistics
+    depends_on: [q1a_evaluation, q1b_external_retention, q2_ablations, q3_low_resource, q4_calibration_learning_curves]
+  - id: cost_latency
+    kind: profiling
+    depends_on: [q1a_evaluation, q1b_external_retention]
+  - id: error_analysis_candidate_export
+    kind: manual_candidates
+    depends_on: [q1a_evaluation]
+  - id: qualitative_candidate_export
+    kind: manual_candidates
+    depends_on: [q1a_evaluation]
+  - id: paper_artifact_schema_validation
+    kind: artifact_validation
+    depends_on: [statistics, cost_latency, backbone_sensitivity, error_analysis_candidate_export, qualitative_candidate_export]
+  - id: artifact_export
+    kind: export
+    depends_on: [paper_artifact_schema_validation]
+  - id: final_manifest
+    kind: manifest
+    depends_on: [artifact_export]

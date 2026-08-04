@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "errors": [],
+  "canonical_label_keys": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking",
+    "polarity",
+    "emotion"
+  ],
+  "model_count": 4,
+  "full_inference_output_source": "classification_heads",
+  "rationale_decoder_enabled_at_inference": false,
+  "cot_only_output_source": "parsed_generated_labels",
+  "phobert_preprocessing": "vncorenlp_rdrsegmenter"
+}

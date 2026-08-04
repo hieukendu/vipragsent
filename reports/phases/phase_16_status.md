@@ -1,0 +1,27 @@
+# Phase 16 status
+
+- Status: `BLOCKED`
+- Tests passed: `True`
+- Next phase ready: `False`
+
+## Inputs read
+- `01_GLOBAL_PROJECT_CONTRACT.md`
+- `28_PAPER_EXPERIMENT_ROLE_REGISTRY.md`
+- `29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md`
+- `30_SPEC_COMPLETENESS_AUDIT.md`
+- `31_IMPLEMENTATION_DECISIONS.md`
+- `32_RUNTIME_PREFLIGHT_CHECKLIST.md`
+
+## Files created
+- `reports/phases/phase_16_status.md`
+- `reports/phases/phase_16_handoff.json`
+
+## Tests run
+- `python -m pytest`
+- `python scripts/semantic_config_audit.py`
+- `python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture`
+
+## Blockers
+- Phase 15 model verification is not complete
+- External official test datasets are missing
+- Azure deployment is not configured

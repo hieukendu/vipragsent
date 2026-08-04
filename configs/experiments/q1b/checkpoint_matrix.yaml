@@ -1,0 +1,27 @@
+systems:
+  phobert_ordinary_single_task:
+    polarity_checkpoint: phobert_pol_single
+    emotion_checkpoint: phobert_emo_single
+  phobert_multitask:
+    checkpoint: phobert_multitask_8head
+    polarity_output: polarity_head
+    emotion_output: emotion_head
+  xlmr_multitask:
+    checkpoint: xlmr_multitask_8head
+    polarity_output: polarity_head
+    emotion_output: emotion_head
+  sailor_multitask:
+    checkpoint: sailor_multitask_8head
+    polarity_output: polarity_head
+    emotion_output: emotion_head
+  vistral_multitask:
+    checkpoint: vistral_multitask_8head
+    polarity_output: polarity_head
+    emotion_output: emotion_head
+  vipragsent:
+    checkpoint: vipragsent_full_phobert
+    polarity_output: polarity_head
+    emotion_output: emotion_head
+  azure_gpt41_mini:
+    polarity_output: dedicated_polarity_prompt
+    emotion_output: dedicated_emotion_prompt

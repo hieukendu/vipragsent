@@ -1,0 +1,134 @@
+{
+  "task": "polarity",
+  "source_split": "vipragsent_train_only",
+  "sample_ids": [
+    "fresh_visobert_00000",
+    "fresh_visobert_00007",
+    "fresh_visobert_00019",
+    "fresh_visobert_00003",
+    "fresh_visobert_00008",
+    "fresh_visobert_00001",
+    "fresh_visobert_00004",
+    "fresh_visobert_00012"
+  ],
+  "demonstrations": [
+    {
+      "sample_id": "fresh_visobert_00000",
+      "text": "Ru ngu tot that",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 1,
+        "polarity": "negative",
+        "emotion": "disgust"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00007",
+      "text": "Định bụng ko khẩu nghiệp rồi. Mà xuất hiện nhiều quá 😡",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 1,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "negative",
+        "emotion": "anger"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00019",
+      "text": "M jkavshsjsjsjjsjsnsns",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "negative",
+        "emotion": "enjoyment"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00003",
+      "text": "Phan Hoàng Anh Thư tứk",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "neutral",
+        "emotion": "other"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00008",
+      "text": "E o que nen k xem chj hat dc chỉ xem qua tivi thoi chj goj ten e đj chj",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "neutral",
+        "emotion": "other"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00001",
+      "text": "Năm nay mũ có lông ko e? Form to hay ôm",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "positive",
+        "emotion": "enjoyment"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00004",
+      "text": "Hà Nội đợi mình nha",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "positive",
+        "emotion": "sadness"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00012",
+      "text": "mây ba mu nay toan la sl ko đây toan phe phai no ko đây toan la đeo vang gia đê lên mxh sl lůa đao la chu yêu",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 1,
+        "mocking": 0,
+        "polarity": "positive",
+        "emotion": "enjoyment"
+      }
+    }
+  ],
+  "composition": {
+    "negative": 3,
+    "neutral": 2,
+    "positive": 3
+  },
+  "prompt_hash": "A1F29BD244832F780BA6BCE93A1EE80264D2F9B9ABA5733B1B80D01D9975869C"
+}

@@ -1,0 +1,21 @@
+models:
+- name: phobert_base
+  repo_id: vinai/phobert-base
+  revision: 01daacda68afe13d83023d16ec647239e344a1e6
+  tokenizer_revision: 01daacda68afe13d83023d16ec647239e344a1e6
+  quantization: none
+- name: xlmr_large
+  repo_id: FacebookAI/xlm-roberta-large
+  revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  quantization: none
+- name: sailor_7b
+  repo_id: sail/Sailor-7B
+  revision: b8b49a0f02073e58db2e42e5811955dfe87ca970
+  tokenizer_revision: b8b49a0f02073e58db2e42e5811955dfe87ca970
+  quantization: nf4
+- name: vistral_7b
+  repo_id: Viet-Mistral/Vistral-7B-Chat
+  revision: d331b64e61b935cc43c2b3010ae9fb4fde599b45
+  tokenizer_revision: d331b64e61b935cc43c2b3010ae9fb4fde599b45
+  quantization: nf4

@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["artifact", "source_files", "script", "sha256", "model_or_azure_metadata"],
+  "properties": {
+    "artifact": {"type": "string"},
+    "source_files": {"type": "string"},
+    "script": {"type": "string"},
+    "sha256": {"type": "string"},
+    "model_or_azure_metadata": {"type": "string"}
+  }
+}

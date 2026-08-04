@@ -1,0 +1,28 @@
+{
+  "EXPERIMENT_REPOSITORY_READY": false,
+  "blockers": [
+    "UIT-VSFC and/or UIT-VSMEC official test files are missing; use the manual-drop fallback",
+    "Azure credentials/deployment are not configured",
+    "Model weights have not passed Phase 15 offline verification"
+  ],
+  "fixture_artifacts_valid": true,
+  "full_preflight": {
+    "passed": false,
+    "blockers": [
+      "UIT-VSFC and/or UIT-VSMEC official test files are missing; use the manual-drop fallback",
+      "Azure credentials/deployment are not configured",
+      "Model weights have not passed Phase 15 offline verification"
+    ],
+    "warnings": [],
+    "checks": {
+      "vipragsent_processed": true,
+      "external_manifest": true,
+      "external_official_tests": false,
+      "azure_credentials": false,
+      "model_revisions_pinned": true,
+      "model_weights_verified": false,
+      "azure_direct_endpoint_absent": true,
+      "artifact_schema": true
+    }
+  }
+}

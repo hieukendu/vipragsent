@@ -1,0 +1,139 @@
+{
+  "composition": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking",
+    "ordinary_positive_control",
+    "ordinary_negative_control"
+  ],
+  "budget": "64",
+  "sample_ids": [
+    "fresh_visobert_00000",
+    "fresh_visobert_00041",
+    "fresh_visobert_00007",
+    "fresh_visobert_00038",
+    "fresh_visobert_00012",
+    "fresh_visobert_00062",
+    "fresh_visobert_00001",
+    "fresh_visobert_00019"
+  ],
+  "demonstrations": [
+    {
+      "sample_id": "fresh_visobert_00000",
+      "text": "Ru ngu tot that",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 1,
+        "polarity": "negative",
+        "emotion": "disgust"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00041",
+      "text": "Vẫn nhớ như in cái cảm giác trên bàn mổ, và khi e bé được ra ngoài. Nhanh quá vậy mà bạn nhà mình đã được gần tuổi rồi. Cảm ơn các bác sĩ bệnh viện đã cho mẹ con nhà mình kỳ nghỉ dưỡng tại bệnh viện",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 1,
+        "irony": 1,
+        "idiom_figurative": 1,
+        "code_switching": 0,
+        "mocking": 1,
+        "polarity": "neutral",
+        "emotion": "disgust"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00007",
+      "text": "Định bụng ko khẩu nghiệp rồi. Mà xuất hiện nhiều quá 😡",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 1,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "negative",
+        "emotion": "anger"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00038",
+      "text": "Đá Tảng như nàoooo",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 1,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "negative",
+        "emotion": "enjoyment"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00012",
+      "text": "mây ba mu nay toan la sl ko đây toan phe phai no ko đây toan la đeo vang gia đê lên mxh sl lůa đao la chu yêu",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 1,
+        "mocking": 0,
+        "polarity": "positive",
+        "emotion": "enjoyment"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00062",
+      "text": "Chuẩn bị về quê hoi☺",
+      "labels": {
+        "implicit_sentiment": 1,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 1,
+        "polarity": "neutral",
+        "emotion": "disgust"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00001",
+      "text": "Năm nay mũ có lông ko e? Form to hay ôm",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "positive",
+        "emotion": "enjoyment"
+      }
+    },
+    {
+      "sample_id": "fresh_visobert_00019",
+      "text": "M jkavshsjsjsjjsjsnsns",
+      "labels": {
+        "implicit_sentiment": 0,
+        "sarcasm": 0,
+        "irony": 0,
+        "idiom_figurative": 0,
+        "code_switching": 0,
+        "mocking": 0,
+        "polarity": "negative",
+        "emotion": "enjoyment"
+      }
+    }
+  ],
+  "source_split": "vipragsent_train_only",
+  "prompt_hash": "0A05B1DE59867D976E81ACDABF6C69FD8E6A037BFA5D41DC3C7C1422A60533F6"
+}

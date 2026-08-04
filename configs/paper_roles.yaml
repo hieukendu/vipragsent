@@ -1,0 +1,23 @@
+paper_roles:
+  table_2_headline:
+    model: vipragsent_full
+    backbone: vistral_7b
+
+  table_3_retention:
+    model: vipragsent_full
+    backbone: phobert_base
+
+  table_4_ablation:
+    model: vipragsent_full
+    backbone: phobert_base
+
+  q4_calibration:
+    systems:
+      - phobert_finetune
+      - vistral_7b_sft
+      - vipragsent_full_vistral
+
+  backbone_sensitivity:
+    systems:
+      - vipragsent_full_phobert
+      - vipragsent_full_vistral

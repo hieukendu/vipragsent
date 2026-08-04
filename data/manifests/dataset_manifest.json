@@ -1,0 +1,61 @@
+{
+  "package": "ViPragSent_Experiment_Dataset_FINAL_V8",
+  "source_zip": "D:\\vipragsent\\ViPragSent_Experiment_Dataset_FINAL_V8.zip",
+  "source_zip_sha256": "23150E5165BFABB202499FA1CCAB1B76770ADDD57C8DBB0FD81DC79732844AC2",
+  "validation": {
+    "rows": 11997,
+    "split_sizes": {
+      "train": 7998,
+      "dev": 1999,
+      "test": 2000
+    },
+    "unique_sample_ids": true,
+    "missing_text_rows": 0,
+    "train_sarcasm_positives": 545,
+    "q3": {
+      "budgets": [
+        "32",
+        "64",
+        "128",
+        "256",
+        "512",
+        "full"
+      ],
+      "selected_positive_counts": {
+        "32": 32,
+        "64": 64,
+        "128": 128,
+        "256": 256,
+        "512": 512,
+        "full": 545
+      },
+      "fixed_negative_count": 7453,
+      "positive_count_full": 545,
+      "nested": true,
+      "expected_train_rows": 7998
+    },
+    "label_keys": [
+      "implicit_sentiment",
+      "sarcasm",
+      "irony",
+      "idiom_figurative",
+      "code_switching",
+      "mocking",
+      "polarity",
+      "emotion"
+    ],
+    "deduplication_performed": false
+  },
+  "processed_files": {
+    "dev.csv": "2D878B788A38C0C36DBA0D07C23A21E3E30327E593F3549776D2D1B47DA0E47A",
+    "test.csv": "3493E25034C12312C069F9CE923ECC1D1DB170FA71DB69E2A93A0DAC0709CEBA",
+    "train.csv": "71F857D5E76F6ADB7B73F7831E4B06F4A87BA0B8251A85957861F823C02AC993",
+    "vipragsent_full.csv": "1BC9778F6CF8C70BA0E26382BBC113D24E9A62D637F1FA8B7F837B0D35EE8C83"
+  },
+  "processed_fingerprint": "7C39BEEBC462D1F9076F5DF1565E924BD884263D5503F23398BD83A6BF4205EB",
+  "rationale_source_sha256": "7BD70E39E081C77844D82B90386AEEEF60AC2C20EE4E94695EDE1C59F7F0B980",
+  "active_rationale_sha256": "AFDE345251BD694ECBD3047CF0ACD7F3B966B820ED7976BDCCB4A951B982F273",
+  "rationale_rows": 7998,
+  "duplicate_policy": "retain_all_rows_and_near_overlaps",
+  "raw_text_preserved": true
+}
