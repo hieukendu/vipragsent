@@ -1,5 +1,5 @@
 {
-  "generated_at_utc": "2026-08-04T14:53:53.208180+00:00",
+  "generated_at_utc": "2026-08-04T15:20:11.993084+00:00",
   "datasets": {
     "uit_vsfc": {
       "status": "PASS",
@@ -147,11 +147,39 @@
       ]
     },
     "aivivn_original": {
-      "status": "BLOCKED",
-      "source": "Kaggle mcocoz/aivivn-2019",
+      "status": "PASS",
+      "source": "https://www.kaggle.com/datasets/mcocoz/aivivn-2019",
       "normalized_path": null,
       "checksum": null,
-      "license_note": "Kaggle credentials required; provenance-only"
+      "license_note": "Kaggle metadata reports Apache-2.0; original binaries are preserved for provenance only.",
+      "access_evidence": "Downloaded through the authenticated Kaggle client; credentials are not stored in the repository.",
+      "provenance_only": true,
+      "raw_paths": [
+        "data/external/manual_drop/aivivn_original/train.csv",
+        "data/external/manual_drop/aivivn_original/test.csv"
+      ],
+      "raw_checksums": {
+        "train.csv": "1F77AF867FC62EB87981CF5F671ED68DEB43693D6712C593FD61A19742EBE6C3",
+        "test.csv": "B073A16DBE9F4FA25B08E7C03D43B236DA5E9D217EF28EC385E75B63B0053215"
+      },
+      "file_reports": {
+        "train.csv": {
+          "rows": 12870,
+          "label_counts": {
+            "0": 5446,
+            "1": 7424
+          }
+        },
+        "test.csv": {
+          "rows": 3217,
+          "label_counts": {
+            "0": 1361,
+            "1": 1856
+          }
+        }
+      },
+      "split": "official train/test files preserved as downloaded",
+      "split_evidence": "Kaggle mcocoz/aivivn-2019 archive supplied train.csv and test.csv."
     },
     "aivivn_human_derived_3way": {
       "status": "PASS",
