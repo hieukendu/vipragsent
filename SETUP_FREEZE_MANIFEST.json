@@ -11,8 +11,6 @@
     "full_preflight": {
       "passed": false,
       "blockers": [
-        "Azure deployment live verification failed or is missing",
-        "Azure Responses API plain/strict Structured Output smoke has not passed",
         "Model weights have not passed Phase 15 offline verification",
         "A100 20 GB or an A100 MIG profile is not available",
         "Java 17 LTS is required for VnCoreNLP",
@@ -27,8 +25,8 @@
         "external_official_tests": true,
         "external_provenance_complete": true,
         "azure_credentials": true,
-        "azure_deployment_verified": false,
-        "azure_live_smoke": false,
+        "azure_deployment_verified": true,
+        "azure_live_smoke": true,
         "model_revisions_pinned": true,
         "model_weights_verified": false,
         "cuda_a100_or_mig": false,
@@ -47,8 +45,6 @@
     "azure_env_present": true
   },
   "blockers": [
-    "Azure deployment live verification failed or is missing",
-    "Azure Responses API plain/strict Structured Output smoke has not passed",
     "Model weights have not passed Phase 15 offline verification",
     "A100 20 GB or an A100 MIG profile is not available",
     "Java 17 LTS is required for VnCoreNLP",

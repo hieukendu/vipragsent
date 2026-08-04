@@ -1,6 +1,6 @@
 {
   "phase": "03",
-  "status": "BLOCKED",
+  "status": "PASS",
   "inputs_read": [
     "23_AZURE_OPENAI_SETUP.md",
     ".env.example"
@@ -14,10 +14,8 @@
     "strict schema materialization",
     "live Responses API plain and strict-schema smoke"
   ],
-  "tests_passed": false,
-  "blockers": [
-    "Live Azure Responses API smoke failed; verify the deployment name and resource"
-  ],
-  "next_phase_ready": false,
-  "generated_at_utc": "2026-08-04T15:45:20.204630+00:00"
+  "tests_passed": true,
+  "blockers": [],
+  "next_phase_ready": true,
+  "generated_at_utc": "2026-08-04T15:48:08.760613+00:00"
 }
