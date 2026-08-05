@@ -19,9 +19,9 @@ from vipragsent.orchestration.system_registry import validate_execution_registry
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
 try:
-    from readiness_utils import merge_snapshot_into_report, read_json
+    from readiness_utils import load_review, merge_snapshot_into_report, read_json
 except ModuleNotFoundError:
-    from scripts.readiness_utils import merge_snapshot_into_report, read_json
+    from scripts.readiness_utils import load_review, merge_snapshot_into_report, read_json
 
 BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
 SAFE_TEST_SELECTOR = "not server and not gpu and not azure_live and not model_download"
@@ -262,10 +262,7 @@ def main() -> int:
         self_review_command = {"command": ["python", "scripts/self_review_runtime_integration.py"], "returncode": 0, "status": "PASS", "skipped": True}
     else:
         self_review_command = _run(root, ["python", "scripts/self_review_runtime_integration.py"], timeout=900)
-    review_path = root / "reports/luna_max_review_cycles.json"
-    if not review_path.exists():
-        review_path = root / "reports/runtime_self_review.json"
-    self_review = json.loads(review_path.read_text(encoding="utf-8")) if review_path.exists() else {"status": "FAIL", "error": "self-review report is missing"}
+    self_review = load_review(root)
     if self_review_command["returncode"] != 0:
         self_review["command_returncode"] = self_review_command["returncode"]
     readiness = _readiness(root, checks=contract_reports, safe_commands=safe_commands + [self_review_command], self_review=self_review)
@@ -315,6 +312,11 @@ def main() -> int:
         f"- Report generation parent SHA: `{final.get('report_generation_parent_sha', code_commit)}`",
         f"- Frozen data changed: `{str(final['frozen_data_changed']).lower()}`",
         f"- Self-review: `{review_summary.get('rounds_per_cycle', 0)} rounds x {review_summary.get('cycles', 0)} cycles`; consecutive clean cycles: `{review_summary.get('consecutive_clean_cycles', 0)}`",
+        f"- Review source: `{review_summary.get('source')}`",
+        f"- Execution mode: `{review_summary.get('execution_mode')}`",
+        f"- Subagents called: `{str(review_summary.get('subagents_called')).lower()}`",
+        f"- No new defects: `{str(review_summary.get('no_new_defects')).lower()}`",
+        f"- Historical subagent profile verification: `{review_summary.get('historical_subagent_profile_verification')}`",
         "",
         "## Execution boundary",
         "",

@@ -22,9 +22,9 @@ from vipragsent.orchestration.system_registry import load_execution_registry
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
 try:
-    from readiness_utils import merge_snapshot_into_report, read_json
+    from readiness_utils import load_review, merge_snapshot_into_report, read_json
 except ModuleNotFoundError:
-    from scripts.readiness_utils import merge_snapshot_into_report, read_json
+    from scripts.readiness_utils import load_review, merge_snapshot_into_report, read_json
 
 BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
 RUNTIME_BLOCKERS = [
@@ -295,10 +295,7 @@ def main() -> int:
         _run(["python", "scripts/audit_final_production_correctness.py"], timeout=1200),
         _run(["python", "scripts/self_review_runtime_integration.py"], timeout=1200),
     ]
-    self_review_path = ROOT / "reports/luna_max_review_cycles.json"
-    if not self_review_path.exists():
-        self_review_path = ROOT / "reports/runtime_self_review.json"
-    self_review = json.loads(self_review_path.read_text(encoding="utf-8")) if self_review_path.exists() else {"status": "FAIL"}
+    self_review = load_review(ROOT)
     os.environ["VIPRAGSENT_SKIP_SELF_REVIEW"] = "1"
     commands.append(_run(["python", "scripts/audit_final_runtime_integration.py"], timeout=1200))
     _protocol_resolution()
@@ -325,6 +322,11 @@ def main() -> int:
         f"Inventory: `{len(inventory['rows'])}` rows",
         f"Frozen data unchanged: `{str(frozen['unchanged']).lower()}`",
         f"Self-review: `{review_summary.get('rounds_per_cycle', 0)} rounds x {review_summary.get('cycles', 0)} cycles`; consecutive clean cycles: `{review_summary.get('consecutive_clean_cycles', 0)}`",
+        f"- Review source: `{review_summary.get('source')}`",
+        f"- Execution mode: `{review_summary.get('execution_mode')}`",
+        f"- Subagents called: `{str(review_summary.get('subagents_called')).lower()}`",
+        f"- No new defects: `{str(review_summary.get('no_new_defects')).lower()}`",
+        f"- Historical subagent profile verification: `{review_summary.get('historical_subagent_profile_verification')}`",
         "",
         "Phase 15, model downloads, Azure requests, real training, real test prediction, approvals, and the global production DAG were not executed.",
         "",

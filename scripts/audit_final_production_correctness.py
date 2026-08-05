@@ -32,9 +32,9 @@ from vipragsent.orchestration.system_registry import (
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
 try:
-    from readiness_utils import merge_snapshot_into_report, read_json
+    from readiness_utils import load_review, merge_snapshot_into_report, read_json
 except ModuleNotFoundError:
-    from scripts.readiness_utils import merge_snapshot_into_report, read_json
+    from scripts.readiness_utils import load_review, merge_snapshot_into_report, read_json
 from vipragsent.training.class_weights import compute_train_only_class_weights
 from vipragsent.training.config_resolver import resolve_training_config
 
@@ -298,18 +298,9 @@ def _static_evidence() -> dict[str, Any]:
 
 
 def _self_review(evidence: dict[str, Any], commands: list[dict[str, Any]], hygiene: dict[str, Any], static: dict[str, Any]) -> dict[str, Any]:
-    cycle_path = ROOT / "reports/luna_max_review_cycles.json"
-    if cycle_path.exists():
-        cycle_report = json.loads(cycle_path.read_text(encoding="utf-8"))
-        return {
-            "status": cycle_report.get("status", "FAIL"),
-            "required_rounds": cycle_report.get("rounds_per_cycle", 5),
-            "completed_rounds_per_sequence": cycle_report.get("rounds_per_cycle", 5),
-            "sequences": cycle_report.get("cycles", []),
-            "consecutive_no_new_defect_sequences": cycle_report.get("consecutive_clean_cycles", 0),
-            "restart_required": cycle_report.get("status") != "PASS",
-            "source": "reports/luna_max_review_cycles.json",
-        }
+    canonical_review = load_review(ROOT)
+    if canonical_review.get("valid") is True:
+        return canonical_review
     command_passed = all(item["returncode"] == 0 for item in commands)
     checks = [
         ("scientific freeze", evidence["scientific"]["status"] == "PASS"),
@@ -430,6 +421,13 @@ def audit() -> dict[str, Any]:
     engineering_lines = [f"- `{path}`" for path in engineering_paths] or ["- none"]
     review_summary = final.get("review_summary", {})
     markdown = ["# Final production correctness repair", "", f"- Status: `{final['status']}`", f"- Local code readiness: `{final.get('LOCAL_CODE_READINESS', final['status'])}`", f"- Server runtime readiness: `{final.get('SERVER_RUNTIME_READINESS', 'NOT_RUN')}`", f"- Scientific changes: `{len(final['scientific_changes'])}`", f"- Frozen data changed: `{str(final['frozen_data_changed']).lower()}`", f"- CI status/conclusion: `{final.get('ci_status', ci_status)}/{final.get('ci_conclusion', ci_status)}`", f"- Audited code commit: `{final.get('audited_code_commit', 'UNVERIFIED_EXTERNAL')}`", f"- Self-review: `{review_summary.get('rounds_per_cycle', 0)} rounds x {review_summary.get('cycles', 0)} cycles`; consecutive clean cycles: `{review_summary.get('consecutive_clean_cycles', 0)}`", "", "## Execution boundary", "", "- Phase 15, model download, Azure requests, GPU training, real predictions, approval, and final aggregation were not executed.", "", "## Runtime blockers", "", *[f"- {item}" for item in final.get("runtime_blockers", ["Phase 15 has not been executed on the target server", "Model-family runtime assets are not prepared", "GPU and Azure live integration have not been validated", "No real approved production run exists"])], "", "## Evidence", "", *[f"- {key}: `{value.get('status', 'RECORDED')}`" for key, value in evidence.items()], "", "## Engineering changes", "", *engineering_lines, ""]
+    markdown.extend([
+        f"- Review source: `{review_summary.get('source')}`",
+        f"- Execution mode: `{review_summary.get('execution_mode')}`",
+        f"- Subagents called: `{str(review_summary.get('subagents_called')).lower()}`",
+        f"- No new defects: `{str(review_summary.get('no_new_defects')).lower()}`",
+        f"- Historical subagent profile verification: `{review_summary.get('historical_subagent_profile_verification')}`",
+    ])
     atomic_write_text(ROOT / "reports/final_production_correctness_repair.md", "\n".join(markdown))
     print(json.dumps(final, indent=2, ensure_ascii=False, default=str))
     return final
