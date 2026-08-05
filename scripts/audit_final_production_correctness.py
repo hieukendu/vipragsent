@@ -315,6 +315,7 @@ def _self_review(evidence: dict[str, Any], commands: list[dict[str, Any]], hygie
 
 def audit() -> dict[str, Any]:
     commands = [
+        _run(["python", "scripts/run_all_experiments.py", "--config", "configs/master_run.yaml", "--mode", "fixture"], timeout=240),
         _run(["python", "-m", "compileall", "-q", "src", "scripts", "tests"]),
         _run(["ruff", "check", "."]),
         _run(["python", "-m", "pytest", "-q", "-m", "not server and not gpu and not azure_live and not model_download"], timeout=600),
