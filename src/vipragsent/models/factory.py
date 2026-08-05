@@ -9,7 +9,13 @@ from torch import nn
 from ..orchestration.status import RuntimeBlocked
 from .backbones import load_pretrained_backbone
 from .qlora import build_qlora_backbone
-from .variants import IndependentCheckpointBundle, VariantConfig, ViPragSentModel
+from .variants import (
+    GenerationBaselineModel,
+    IndependentCheckpointBundle,
+    SingleTaskPragmaticBundle,
+    VariantConfig,
+    ViPragSentModel,
+)
 
 
 @dataclass(frozen=True)
@@ -84,6 +90,17 @@ def build_production_model(
     )
     if config.hidden_size <= 0 or config.vocab_size <= 0:
         raise RuntimeBlocked("Loaded backbone did not expose hidden_size and vocab_size")
+    if variant == "phobert_pragmatic_single_task":
+        first = True
+
+        def independent_pragmatic_backbone() -> nn.Module:
+            nonlocal first
+            if first:
+                first = False
+                return base
+            return load_base()
+
+        return SingleTaskPragmaticBundle(independent_pragmatic_backbone, config), spec
     if config.is_checkpoint_bundle:
         first = True
 
@@ -95,4 +112,6 @@ def build_production_model(
             return load_base()
 
         return IndependentCheckpointBundle(independent_backbone, config), spec
+    if variant in {"cot_only_vistral", "explanation_only_vistral"}:
+        return GenerationBaselineModel(base, config), spec
     return ViPragSentModel(base, config), spec

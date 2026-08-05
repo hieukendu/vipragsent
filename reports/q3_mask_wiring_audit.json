@@ -1,0 +1,44 @@
+{
+  "dev_test_masks": "Q3 masks are supplied only to train collator",
+  "report": {
+    "budgets": [
+      "32",
+      "64",
+      "128",
+      "256",
+      "512",
+      "full"
+    ],
+    "expected_train_rows": 7998,
+    "fixed_negative_count": 7453,
+    "fixed_negative_ids_hash": "7FB9B1DB4D177C6FE5D5BB67F5C1E039792C1E9261CE262025061C4F694863E3",
+    "mask_hashes": {
+      "128": "5D1B3E5C423236322EE18A76A3AD6F42565DFC60B907E167B6A2D3FB33B66996",
+      "256": "DBAEAFE218BDF398E2173D7643298A3846D85E09058154701CD30DC1968DDD0D",
+      "32": "87FB2F9B2130E45AAB9F3D8E9300844107E194AFD916AEEAF6F814119D84284B",
+      "512": "4276E1C7565BA593AB754A203C10217744DB1D8B3C9D6F2FE5ED3C6A63944892",
+      "64": "6B7CA4E4D9A20137567D8353F3FFEFE653AC60B8D180FD3EDA490D51C96E9568",
+      "full": "C3DA66570D50A20E28893D1BFDC952E9BB9C1C4BA4A07824FE54DD3357E492B1"
+    },
+    "nested": true,
+    "positive_count_full": 545,
+    "removed_budgets": {},
+    "selected_positive_counts": {
+      "128": 128,
+      "256": 256,
+      "32": 32,
+      "512": 512,
+      "64": 64,
+      "full": 545
+    },
+    "valid_budgets": [
+      "32",
+      "64",
+      "128",
+      "256",
+      "512",
+      "full"
+    ]
+  },
+  "status": "PASS"
+}

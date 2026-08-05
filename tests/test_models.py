@@ -43,9 +43,16 @@ def test_rationale_decoder_is_causal_and_future_tokens_do_not_change_prior_logit
     attention_mask = torch.ones_like(input_ids)
     first_target = torch.tensor([[1, 31, 32, 33, 34, 2]])
     changed_target = torch.tensor([[1, 31, 32, 93, 94, 2]])
-    first = model(input_ids, attention_mask, rationale_input_ids=first_target)
-    changed = model(input_ids, attention_mask, rationale_input_ids=changed_target)
-    assert torch.allclose(first["rationale_logits"][:, :2], changed["rationale_logits"][:, :2])
+    with torch.no_grad():
+        memory = model.backbone(input_ids=input_ids, attention_mask=attention_mask).last_hidden_state
+        first, _, _ = model.rationale_decoder.teacher_forcing(first_target, torch.ones_like(first_target), memory, attention_mask)
+        changed, _, _ = model.rationale_decoder.teacher_forcing(changed_target, torch.ones_like(changed_target), memory, attention_mask)
+    assert torch.allclose(first[:, :2], changed[:, :2])
+
+    model.eval()
+    with torch.no_grad():
+        inference = model(input_ids, attention_mask, rationale_input_ids=first_target)
+    assert "rationale_logits" not in inference
 
 
 def test_uncertainty_loss_has_eight_parameters_and_finite_gradient() -> None:

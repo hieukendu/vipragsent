@@ -39,12 +39,12 @@ def _validate_prompt_text(path: Path, item: dict[str, Any], expected: dict[str, 
             errors.append(f"{path}: prompt names experiment IDs {sorted(mentioned)}, expected only {identifier}")
         required = (identifier, "--stage preflight", "--stage all", "--resume", "print_run_review_summary.py", "PENDING_USER_APPROVAL", "stop")
     elif kind == "azure_job":
-        required = (identifier, "--stage preflight", "--stage all", "--resume", "PENDING_USER_APPROVAL", "stop")
+        required = (identifier, "--stage preflight", "--stage all", "execute_api_job", "validate_responses", "export_artifacts", "validate_artifacts", "generate_review_summary", "--resume", "PENDING_USER_APPROVAL", "stop")
     elif kind == "phase15":
         mentioned = {value for value in all_model_families if value in text}
         if mentioned != {identifier}:
             errors.append(f"{path}: prompt names model families {sorted(mentioned)}, expected only {identifier}")
-        required = (identifier, "download_all_models.py", "--model-family", "verify_model_smoke.py", "--model-family", "PENDING_USER_APPROVAL", "stop")
+        required = (identifier, "download_all_models.py", "--model-family", "verify_model_smoke.py", "--model-family", "probe_model_batch.py", "--model-family", "PENDING_USER_APPROVAL", "stop")
     else:
         required = ("aggregate_approved_runs.py", "APPROVED", "PENDING_USER_APPROVAL", "stop")
     for fragment in required:

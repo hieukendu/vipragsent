@@ -8,6 +8,7 @@ from typing import Any
 from ..hashing import sha256_file, sha256_json
 from .contracts import ExecutionKind, RunContext, RunEntry
 from .run_store import artifact_hashes, git_commit, utc_now
+from .variant_diff import changed_components_against_full_phobert
 
 COMMON_FIELDS = (
     "run_id", "research_question", "system_id", "display_name", "variant", "backbone", "seed", "budget", "execution_kind",
@@ -89,6 +90,8 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
         "per_label_dev_metrics": dev.get("per_label_f1", "NOT_APPLICABLE"),
         "per_label_test_metrics": test.get("per_label_f1", "NOT_APPLICABLE"),
         "macro_pragmatic_f1": test.get("macro_pragmatic_f1", dev.get("macro_pragmatic_f1", "NOT_APPLICABLE")),
+        "sarcasm_dev_f1": dev.get("sarcasm_dev_f1", "NOT_APPLICABLE"),
+        "sarcasm_test_f1": test.get("sarcasm_test_f1", "NOT_APPLICABLE"),
         "RUN_STATUS": "PASS",
         "USER_REVIEW_STATUS": "PENDING",
         "NEXT_RUN_ALLOWED": "NO",
@@ -98,32 +101,49 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
     if trainable:
         training_config = _load_json(run_root / "training/optimizer_summary.json", {})
         scheduler_config = _load_json(run_root / "training/scheduler_summary.json", {})
+        resolved = _load_json(run_root / "training/resolved_training_config.json", {})
         history = _load_json(run_root / "training/history.json", [])
+        best_epoch = checkpoint.get("best_epoch") or selection.get("best_epoch")
+        best_dev_loss = None
+        for row in history:
+            try:
+                if best_epoch is not None and float(row.get("epoch")) == float(best_epoch):
+                    best_dev_loss = row.get("dev_loss")
+                    break
+            except (TypeError, ValueError):
+                continue
         fields.update({
-            "optimizer": training_config.get("optimizer", "AdamW"),
-            "learning_rate": training_config.get("learning_rate", 0.05 if context.fixture else "locked_config"),
-            "weight_decay": training_config.get("weight_decay", 0.0 if context.fixture else "locked_config"),
-            "scheduler": scheduler_config.get("scheduler", "linear"),
-            "warmup_ratio": scheduler_config.get("warmup_ratio", 0.1),
-            "precision": "fp32" if context.fixture else manifest.get("precision", "bf16"),
-            "physical_batch_size": manifest.get("physical_batch_size", 4 if context.fixture else "locked_config"),
-            "gradient_accumulation_steps": manifest.get("gradient_accumulation_steps", 1 if context.fixture else "locked_config"),
-            "effective_batch_size": manifest.get("effective_batch_size", 4 if context.fixture else "locked_config"),
-            "maximum_epochs": len(history) if context.fixture else manifest.get("maximum_epochs", "locked_config"),
+            "optimizer": training_config.get("optimizer"),
+            "learning_rate": training_config.get("learning_rate"),
+            "weight_decay": training_config.get("weight_decay"),
+            "scheduler": scheduler_config.get("scheduler"),
+            "warmup_ratio": scheduler_config.get("warmup_ratio"),
+            "precision": resolved.get("precision") or manifest.get("precision"),
+            "physical_batch_size": resolved.get("physical_batch_size") or manifest.get("physical_batch_size"),
+            "gradient_accumulation_steps": resolved.get("gradient_accumulation_steps") or manifest.get("gradient_accumulation_steps"),
+            "effective_batch_size": resolved.get("effective_batch_size") or manifest.get("effective_batch_size"),
+            "maximum_epochs": resolved.get("maximum_epochs") or manifest.get("maximum_epochs"),
             "actual_epochs": len(history),
-            "best_epoch": checkpoint.get("best_epoch") or selection.get("best_epoch") or "NOT_APPLICABLE",
-            "early_stopping_reason": "maximum_epochs_or_patience",
-            "best_dev_metric": selection.get("value", dev.get("macro_pragmatic_f1", "NOT_APPLICABLE")),
-            "best_dev_loss": next((row.get("dev_loss") for row in history if str(row.get("epoch")) == str(checkpoint.get("best_epoch"))), min((row.get("dev_loss") for row in history if isinstance(row.get("dev_loss"), (int, float))), default="NOT_APPLICABLE")),
-            "checkpoint_path": checkpoint.get("path", "NOT_APPLICABLE"),
-            "checkpoint_sha256": checkpoint.get("sha256") or checkpoint_manifest.get("checkpoint_sha256", "NOT_APPLICABLE"),
+            "best_epoch": best_epoch or "NOT_APPLICABLE",
+            "early_stopping_reason": "patience_exhausted" if history and len(history) < int(resolved.get("maximum_epochs", len(history))) else "maximum_epochs_reached",
+            "best_dev_metric": selection.get("value"),
+            "best_dev_loss": best_dev_loss,
+            "checkpoint_path": checkpoint.get("path"),
+            "checkpoint_sha256": checkpoint.get("sha256") or checkpoint_manifest.get("checkpoint_sha256"),
         })
+        fields["class_weights"] = _load_json(run_root / "training/class_weights.json", "NOT_APPLICABLE")
+        fields["rationale_applicability"] = {"training": bool(resolved.get("rationale_training")), "inference": bool(resolved.get("rationale_inference", False))}
+        fields["q3_budget_data"] = {"budget": entry.budget, "selected_positive_count": checkpoint_manifest.get("selected_positive_count"), "fixed_negative_count": checkpoint_manifest.get("fixed_negative_count"), "pos_weight": checkpoint_manifest.get("pos_weight"), "mask_hash": checkpoint_manifest.get("q3_mask_hash", "NOT_APPLICABLE")} if entry.research_question == "Q3" else "NOT_APPLICABLE"
+        if entry.research_question == "Q3":
+            fields.update({"selected_positive_count": checkpoint_manifest.get("selected_positive_count"), "fixed_negative_count": checkpoint_manifest.get("fixed_negative_count"), "budget_pos_weight": checkpoint_manifest.get("pos_weight"), "q3_mask_hash": checkpoint_manifest.get("q3_mask_hash")})
+        fields["changed_components"] = changed_components_against_full_phobert(context.root, entry.system_id)
     else:
         for field in TRAINABLE_FIELDS:
             applicability[field] = "NOT_APPLICABLE"
         applicability["training"] = entry.execution_kind
         fields.update({field: "NOT_APPLICABLE" for field in TRAINABLE_FIELDS})
         fields["not_applicable_reason"] = "This entry does not create a new trainable checkpoint under its locked execution_kind."
+        fields["changed_components"] = changed_components_against_full_phobert(context.root, entry.system_id) if (context.root / "configs/experiments/system_execution_registry.yaml").exists() else "NOT_APPLICABLE"
     if entry.research_question == "Q4":
         fields.update({
             "per_label_pragmatic_ece": q4.get("per_label_pragmatic_ece", "NOT_APPLICABLE"),
@@ -180,6 +200,17 @@ def validate_review_summary(summary: Mapping[str, Any], *, completed: bool = Fal
             for field in TRAINABLE_FIELDS:
                 if summary.get(field) in (None, "", "NOT_APPLICABLE"):
                     errors.append(f"completed trainable summary field is unresolved: {field}")
+            trainable_payload = {key: summary.get(key) for key in TRAINABLE_FIELDS}
+            trainable_payload.update({
+                "resolved_training_config": summary.get("resolved_training_config"),
+                "class_weights": summary.get("class_weights"),
+                "rationale_applicability": summary.get("rationale_applicability"),
+                "q3_budget_data": summary.get("q3_budget_data"),
+            })
+            encoded = json.dumps(trainable_payload, ensure_ascii=False, sort_keys=True)
+            for placeholder in ("locked_config", "measured", "TODO"):
+                if placeholder in encoded:
+                    errors.append(f"completed trainable summary contains unresolved placeholder: {placeholder}")
         else:
             if summary.get("not_applicable_reason") in (None, ""):
                 errors.append("non-trainable summary requires not_applicable_reason")

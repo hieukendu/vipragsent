@@ -12,9 +12,12 @@ import yaml
 
 from ..hashing import sha256_file, sha256_json
 from ..protocol import validate_protocol_resolution
+from ..runtime.disk import derive_minimum_free_disk_bytes
+from ..runtime.hardware import validate_hardware
 from ..runtime.model_assets import read_family_status
 from .contracts import VALID_EXECUTION_KINDS, RunEntry
 from .run_store import git_commit, git_worktree_clean
+from .system_registry import resolve_execution_spec
 
 
 def _registry(root: Path) -> dict[str, dict[str, Any]]:
@@ -65,6 +68,21 @@ def run_single_preflight(
     _check(checks, "execution_kind_exact", entry.execution_kind in VALID_EXECUTION_KINDS, detail=f"execution_kind={entry.execution_kind}")
     if entry.execution_kind not in VALID_EXECUTION_KINDS:
         blockers.append(f"unsupported execution_kind: {entry.execution_kind}")
+
+    execution_spec = None
+    if not entry.is_azure:
+        try:
+            execution_spec = resolve_execution_spec(root, entry.system_id)
+            registry_ok = execution_spec.variant_id != ""
+            registry_detail = f"executor={execution_spec.executor_kind}; variant={execution_spec.variant_id}"
+        except ValueError as exc:
+            registry_ok = False
+            registry_detail = str(exc)
+        _check(checks, "exact_system_execution_registry", registry_ok, detail=registry_detail)
+        if not registry_ok:
+            blockers.append(registry_detail)
+    else:
+        _check(checks, "exact_system_execution_registry", True, detail="Azure jobs use the dedicated Azure job inventory", required=False)
 
     inventory_path = root / "reports/expected_experiment_runs.json"
     rows: list[Mapping[str, Any]] = []
@@ -172,10 +190,11 @@ def run_single_preflight(
             if package_failures and not fixture:
                 blockers.append("required Python packages are unavailable: " + ", ".join(package_failures))
 
-            gpu_ok = fixture or bool(os.getenv("CUDA_VISIBLE_DEVICES"))
-            _check(checks, "required_gpu_and_precision", gpu_ok, detail="fixture CPU path" if fixture else "CUDA_VISIBLE_DEVICES is configured", required=not fixture)
+            hardware = validate_hardware(root) if not fixture else {"status": "PASS", "checks": {"fixture_cpu_path": True}, "blockers": []}
+            gpu_ok = fixture or hardware.get("status") == "PASS"
+            _check(checks, "required_gpu_and_precision", gpu_ok, detail="fixture CPU path" if fixture else json.dumps(hardware, sort_keys=True), required=not fixture)
             if not gpu_ok:
-                blockers.append("required GPU/precision runtime is unavailable")
+                blockers.append("required GPU/precision runtime is unavailable: " + ", ".join(hardware.get("blockers", [])))
 
             rationale_required = "rationale" in (entry.task + ";" + entry.dependencies).casefold()
             rationale_path = root / "data/processed/rationales/azure_rationale_input_train.jsonl"
@@ -191,6 +210,17 @@ def run_single_preflight(
         _check(checks, "q3_mask_present_and_exact", mask_match, detail=f"path={q3_path}; expected={expected_mask}; actual={q3_hash}")
         if not mask_match:
             blockers.append("Q3 budget/mask hash is missing or does not match")
+        if not fixture and (root / "data/processed/vipragsent").exists():
+            try:
+                from ..data.loaders import load_vipragsent
+                from ..data.masks import validate_q3_masks
+
+                train = load_vipragsent(root / "data/processed/vipragsent").train
+                q3_report = validate_q3_masks(root / "data/processed/q3_low_resource_sarcasm", {item.sample_id: item for item in train}, strict_frozen=True)
+                _check(checks, "q3_mask_semantics_deep", True, detail=json.dumps({"counts": q3_report["selected_positive_counts"], "fixed_negative_count": q3_report["fixed_negative_count"], "nested": q3_report["nested"]}, sort_keys=True))
+            except Exception as exc:
+                _check(checks, "q3_mask_semantics_deep", False, detail=str(exc))
+                blockers.append("Q3 mask semantic validation failed: " + str(exc))
     else:
         _check(checks, "q3_mask_present_and_exact", True, detail="not applicable", required=False)
 
@@ -236,9 +266,9 @@ def run_single_preflight(
     _check(checks, "output_path_writable", writable, detail=str(run_root))
     if not writable:
         blockers.append("canonical output path is not writable")
-    usage = shutil.disk_usage(run_root if run_root.exists() else root)
-    disk_ok = fixture or usage.free >= int(entry.raw.get("minimum_free_disk_bytes", 1))
-    _check(checks, "sufficient_disk_space", disk_ok, detail=f"free_bytes={usage.free}", required=not fixture)
+    disk_evidence = derive_minimum_free_disk_bytes(root, str(entry.backbone)) if not entry.is_azure else {"minimum_free_bytes": 0, "available_free_bytes": shutil.disk_usage(root).free, "passed": True}
+    disk_ok = fixture or bool(disk_evidence.get("passed"))
+    _check(checks, "sufficient_disk_space", disk_ok, detail=json.dumps(disk_evidence, sort_keys=True), required=not fixture)
     if not disk_ok:
         blockers.append("insufficient disk space for the requested run")
 

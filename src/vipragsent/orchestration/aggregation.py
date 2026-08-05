@@ -127,6 +127,18 @@ def _number(value: Any, default: float = 0.0) -> float:
         return default
 
 
+def _required_number(value: Any, field: str) -> float:
+    if value in (None, "", "NOT_APPLICABLE", "locked_config", "measured"):
+        raise ValueError(f"required aggregation metric is missing: {field}")
+    try:
+        result = float(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"required aggregation metric is not numeric: {field}={value!r}") from exc
+    if not np.isfinite(result):
+        raise ValueError(f"required aggregation metric is not finite: {field}")
+    return result
+
+
 def _table2(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for record in records:
@@ -134,39 +146,89 @@ def _table2(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
         groups[(str(summary.get("system_id")), str(summary.get("backbone")))].append(summary)
     rows: list[dict[str, Any]] = []
     for (system, backbone), summaries in sorted(groups.items()):
-        row: dict[str, Any] = {"system": system, "backbone": backbone, "seed_count": len(summaries)}
+        seeds = {summary.get("seed") for summary in summaries if summary.get("seed") not in (None, "NOT_APPLICABLE")}
+        expected_seed_count = 0 if any(summary.get("seed") == "NOT_APPLICABLE" for summary in summaries) else len(TRAINING_SEEDS)
+        if expected_seed_count and seeds != set(TRAINING_SEEDS):
+            raise ValueError(f"Table 2 requires exactly the locked seeds for {system}: {sorted(seeds)}")
+        row: dict[str, Any] = {"system": system, "backbone": backbone, "seed_count": len(seeds) if expected_seed_count else 0}
         per_label: dict[str, list[float]] = defaultdict(list)
+        intervals: dict[str, list[tuple[float, float]]] = defaultdict(list)
         for summary in summaries:
             for label, value in (summary.get("per_label_test_metrics") or {}).items():
                 if label.endswith("_f1"):
-                    per_label[label.removesuffix("_f1")].append(_number(value))
+                    canonical = label.removesuffix("_f1")
+                    per_label[canonical].append(_required_number(value, f"{system}.{canonical}.f1"))
+            ci_payload = summary.get("test_confidence_intervals") or summary.get("per_label_test_ci") or {}
+            for label, interval in ci_payload.items():
+                if not isinstance(interval, Mapping) or "low" not in interval or "high" not in interval:
+                    raise ValueError(f"Table 2 confidence interval is incomplete for {system}.{label}")
+                intervals[str(label)].append((_required_number(interval["low"], f"{system}.{label}.ci_low"), _required_number(interval["high"], f"{system}.{label}.ci_high")))
         short_names = {"implicit_sentiment": "implicit", "sarcasm": "sarcasm", "irony": "irony", "idiom_figurative": "idiom", "code_switching": "code_switching", "mocking": "mocking"}
         for label in PRAGMATIC_LABELS:
-            values = per_label.get(label, [0.0])
+            values = per_label.get(label)
+            if not values or label not in intervals:
+                raise ValueError(f"Table 2 is missing approved metric or confidence interval for {system}.{label}")
             short = short_names[label]
             row[f"{short}_f1"] = mean(values)
-            row[f"{short}_ci_low"] = mean(values)
-            row[f"{short}_ci_high"] = mean(values)
-        macros = [_number(summary.get("macro_pragmatic_f1")) for summary in summaries]
-        row.update({"macro_prag_f1": mean(macros), "macro_prag_ci_low": mean(macros), "macro_prag_ci_high": mean(macros), "invalid_output_rate": 0.0})
+            row[f"{short}_ci_low"] = mean(interval[0] for interval in intervals[label])
+            row[f"{short}_ci_high"] = mean(interval[1] for interval in intervals[label])
+        macros = [_required_number(summary.get("macro_pragmatic_f1"), f"{system}.macro_prag_f1") for summary in summaries]
+        macro_intervals = [summary.get("macro_confidence_interval") for summary in summaries]
+        if any(not isinstance(interval, Mapping) for interval in macro_intervals):
+            raise ValueError(f"Table 2 is missing approved macro confidence intervals for {system}")
+        row.update({"macro_prag_f1": mean(macros), "macro_prag_ci_low": mean(_required_number(interval["low"], f"{system}.macro.ci_low") for interval in macro_intervals), "macro_prag_ci_high": mean(_required_number(interval["high"], f"{system}.macro.ci_high") for interval in macro_intervals), "invalid_output_rate": mean(_required_number(summary.get("invalid_output_rate", 0.0), f"{system}.invalid_output_rate") for summary in summaries)})
         rows.append(row)
     return rows
 
 
 def _table3(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
+    groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
         summary = record["summary"]
-        metrics = summary.get("per_label_test_metrics") or {}
-        rows.append({"system": summary.get("system_id"), "polarity_checkpoint": summary.get("source_checkpoint_id", "NOT_APPLICABLE"), "emotion_checkpoint": summary.get("source_checkpoint_id", "NOT_APPLICABLE"), "vsfc_macro_f1": _number(metrics.get("vsfc_macro_f1")), "vsmec_macro_f1": _number(metrics.get("vsmec_macro_f1")), "aivivn_macro_f1": _number(metrics.get("aivivn_macro_f1")), "ord_f1": _number(metrics.get("ord_f1")), "seed_count": 1 if summary.get("seed") != "NOT_APPLICABLE" else 0, "training_data": "ViPragSent", "external_finetuning": False})
+        metrics = _load(Path(record["run_root"]) / "metrics/external_retention_metrics.json", {}) or {}
+        if not metrics:
+            raise ValueError(f"{record['run_id']}: Q1b external retention metrics are missing")
+        groups[str(summary.get("system_id"))].append({"record": record, "summary": summary, "metrics": metrics})
+    rows: list[dict[str, Any]] = []
+    for system, values in sorted(groups.items()):
+        seeds = {item["summary"].get("seed") for item in values if item["summary"].get("seed") not in (None, "NOT_APPLICABLE")}
+        if seeds and seeds != set(TRAINING_SEEDS) and {str(seed) for seed in seeds} != {str(seed) for seed in TRAINING_SEEDS}:
+            raise ValueError(f"Table 3 requires exactly the locked seeds for {system}: {sorted(seeds)}")
+        metric_rows = [item["metrics"] for item in values]
+        rows.append({
+            "system": system,
+            "polarity_checkpoint": str(values[0]["metrics"].get("source_checkpoint_id") or values[0]["summary"].get("source_checkpoint_id") or "NOT_APPLICABLE"),
+            "emotion_checkpoint": str(values[0]["metrics"].get("source_checkpoint_id") or values[0]["summary"].get("source_checkpoint_id") or "NOT_APPLICABLE"),
+            "vsfc_macro_f1": mean(_required_number(item.get("vsfc_macro_f1"), f"{system}.vsfc_macro_f1") for item in metric_rows),
+            "vsmec_macro_f1": mean(_required_number(item.get("vsmec_macro_f1"), f"{system}.vsmec_macro_f1") for item in metric_rows),
+            "aivivn_macro_f1": mean(_required_number(item.get("aivivn_macro_f1"), f"{system}.aivivn_macro_f1") for item in metric_rows),
+            "ord_f1": mean(_required_number(item.get("ord_f1"), f"{system}.ord_f1") for item in metric_rows),
+            "seed_count": len(seeds) if seeds else 0,
+            "training_data": "ViPragSent",
+            "external_finetuning": all(item.get("external_finetuning") is False for item in metric_rows),
+        })
     return rows
 
 
 def _table4(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
+    groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
-        summary = record["summary"]
-        rows.append({"configuration": summary.get("variant"), "backbone": summary.get("backbone"), "prag_dev_f1": _number(summary.get("best_dev_metric")), "ord_external_f1": _number(summary.get("macro_pragmatic_f1")), "polarity_dev_ece": _number(summary.get("polarity_dev_ece")), "gpu_hours": _number(summary.get("successful_gpu_hours")), "relative_cost_to_full_phobert": _number(summary.get("relative_cost_to_full_phobert"), 1.0), "seed_count": 1, "changed_components": summary.get("changed_components", "locked")})
+        groups[str(record["summary"].get("variant"))].append(record)
+    full_records = groups.get("full", [])
+    full_costs = [_required_number(item["summary"].get("successful_gpu_hours"), "full.successful_gpu_hours") for item in full_records]
+    if not full_costs or any(value <= 0 for value in full_costs):
+        raise ValueError("Table 4 requires measured positive full PhoBERT GPU hours")
+    rows: list[dict[str, Any]] = []
+    for configuration, items in sorted(groups.items()):
+        seeds = {item["summary"].get("seed") for item in items}
+        metric_rows = [_load(Path(item["run_root"]) / "metrics/external_retention_metrics.json", {}) or {} for item in items]
+        if any(not metric for metric in metric_rows):
+            raise ValueError(f"Table 4 external retention metrics are missing for {configuration}")
+        changed = [item["summary"].get("changed_components") for item in items]
+        if any(value in (None, "", "locked") for value in changed):
+            raise ValueError(f"Table 4 changed-components manifest is missing for {configuration}")
+        costs = [_required_number(item["summary"].get("successful_gpu_hours"), f"{configuration}.successful_gpu_hours") for item in items]
+        rows.append({"configuration": configuration, "backbone": items[0]["summary"].get("backbone"), "prag_dev_f1": mean(_required_number(item["summary"].get("best_dev_metric"), f"{configuration}.best_dev_metric") for item in items), "ord_external_f1": mean(_required_number(metric.get("ord_f1"), f"{configuration}.ord_external_f1") for metric in metric_rows), "polarity_dev_ece": mean(_required_number(item["summary"].get("polarity_dev_ece"), f"{configuration}.polarity_dev_ece") for item in items), "gpu_hours": mean(costs), "relative_cost_to_full_phobert": mean(costs) / mean(full_costs), "seed_count": len(seeds), "changed_components": json.dumps(changed[0], sort_keys=True) if isinstance(changed[0], (dict, list)) else str(changed[0])})
     return rows
 
 
@@ -175,7 +237,10 @@ def _q3_rows(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for record in records:
         summary = record["summary"]
         metrics = record["summary"].get("per_label_test_metrics") or {}
-        rows.append({"system": summary.get("system_id"), "budget": summary.get("budget"), "selected_positive_count": summary.get("selected_positive_count", 0), "fixed_negative_count": summary.get("fixed_negative_count", 0), "seed": summary.get("seed"), "sarcasm_dev_f1": _number(summary.get("sarcasm_dev_f1", summary.get("best_dev_metric"))), "sarcasm_test_f1": _number(metrics.get("sarcasm_f1", summary.get("macro_pragmatic_f1"))), "dev_threshold": summary.get("frozen_thresholds", {}).get("sarcasm", 0.5) if isinstance(summary.get("frozen_thresholds"), dict) else 0.5, "pos_weight": _number(summary.get("budget_pos_weight")), "data_hash": summary.get("dataset_fingerprint"), "mask_hash": summary.get("q3_mask_hash", "NOT_APPLICABLE")})
+        thresholds = summary.get("frozen_thresholds")
+        if not isinstance(thresholds, Mapping) or "sarcasm" not in thresholds:
+            raise ValueError(f"{record['run_id']}: Q3 sarcasm threshold is missing")
+        rows.append({"system": summary.get("system_id"), "budget": summary.get("budget"), "selected_positive_count": int(summary["selected_positive_count"]), "fixed_negative_count": int(summary["fixed_negative_count"]), "seed": summary.get("seed"), "sarcasm_dev_f1": _required_number(summary.get("sarcasm_dev_f1", summary.get("best_dev_metric")), f"{record['run_id']}.sarcasm_dev_f1"), "sarcasm_test_f1": _required_number(metrics.get("sarcasm_f1", metrics.get("sarcasm_macro_f1")), f"{record['run_id']}.sarcasm_test_f1"), "dev_threshold": _required_number(thresholds["sarcasm"], f"{record['run_id']}.dev_threshold"), "pos_weight": _required_number(summary.get("budget_pos_weight"), f"{record['run_id']}.pos_weight"), "data_hash": summary.get("dataset_fingerprint"), "mask_hash": summary.get("q3_mask_hash")})
     return rows
 
 
@@ -204,9 +269,12 @@ def _q4_summary(per_seed: list[dict[str, Any]]) -> list[dict[str, Any]]:
         grouped[(str(row["system"]), str(row["label"]))].append(row)
     rows: list[dict[str, Any]] = []
     for (system, label), values in sorted(grouped.items()):
-        eces = [_number(row["ece"]) for row in values]
-        macros = [_number(row["macro_pragmatic_ece"]) for row in values]
-        rows.append({"system": system, "display_name": values[0]["display_name"], "label": label, "mean_ece": mean(eces), "std_ece": stdev(eces) if len(eces) > 1 else 0.0, "mean_macro_pragmatic_ece": mean(macros), "std_macro_pragmatic_ece": stdev(macros) if len(macros) > 1 else 0.0, "seed_count": len({row["seed"] for row in values}), "split": "vipragsent_test", "bin_count": 10, "temperature_scaling": False})
+        seeds = {row["seed"] for row in values}
+        if len(values) != len(TRAINING_SEEDS) or (seeds != {str(seed) for seed in TRAINING_SEEDS} and seeds != set(TRAINING_SEEDS)):
+            raise ValueError(f"Q4 requires exactly three seed-level rows for {system}.{label}")
+        eces = [_required_number(row.get("ece"), f"{system}.{label}.ece") for row in values]
+        macros = [_required_number(row.get("macro_pragmatic_ece"), f"{system}.macro_pragmatic_ece") for row in values]
+        rows.append({"system": system, "display_name": values[0]["display_name"], "label": label, "mean_ece": mean(eces), "std_ece": stdev(eces), "mean_macro_pragmatic_ece": mean(macros), "std_macro_pragmatic_ece": stdev(macros), "seed_count": len(seeds), "split": "vipragsent_test", "bin_count": 10, "temperature_scaling": False})
     return rows
 
 
@@ -235,7 +303,9 @@ def _q4_figures(output: Path, summary_rows: list[dict[str, Any]], reliability: l
                 candidates = [row["mean_macro_pragmatic_ece"] for row in summary_rows if row["system"] == system]
             else:
                 candidates = [row["mean_ece"] for row in summary_rows if row["system"] == system and row["label"] == label]
-            values.append(_number(candidates[0] if candidates else 0.0))
+            if not candidates:
+                raise ValueError(f"Q4 heatmap value is missing for {system}.{label}")
+            values.append(_required_number(candidates[0], f"{system}.{label}.heatmap"))
         matrix.append(values)
     fig, axis = plt.subplots(figsize=(10, 3.2))
     image = axis.imshow(np.asarray(matrix, dtype=float), aspect="auto", cmap="viridis")
@@ -252,11 +322,13 @@ def _q4_figures(output: Path, summary_rows: list[dict[str, Any]], reliability: l
     for axis, label in zip(axes.flat, PRAGMATIC_LABELS, strict=True):
         for system in systems:
             rows = [row for row in reliability if row.get("label") == label and row.get("system") == system]
+            if not rows:
+                raise ValueError(f"Q4 reliability backing data is missing for {system}.{label}")
             grouped: dict[int, list[dict[str, Any]]] = defaultdict(list)
             for row in rows:
                 grouped[int(row.get("bin_index", 0))].append(row)
-            x = [mean([_number(item.get("mean_confidence")) for item in grouped[index]]) if grouped[index] else 0.0 for index in sorted(grouped)]
-            y = [mean([_number(item.get("empirical_positive_rate")) for item in grouped[index]]) if grouped[index] else 0.0 for index in sorted(grouped)]
+            x = [mean([_required_number(item.get("mean_confidence"), f"{system}.{label}.mean_confidence") for item in grouped[index]]) for index in sorted(grouped)]
+            y = [mean([_required_number(item.get("empirical_positive_rate"), f"{system}.{label}.empirical_positive_rate") for item in grouped[index]]) for index in sorted(grouped)]
             axis.plot(x, y, marker="o", label=system)
         axis.plot([0, 1], [0, 1], color="black", linewidth=0.7)
         axis.set_title(label)
@@ -270,12 +342,19 @@ def _q4_figures(output: Path, summary_rows: list[dict[str, Any]], reliability: l
     fig, axis = plt.subplots(figsize=(8, 4.5))
     for system in systems:
         rows = [row for row in curves if row.get("system") == system]
-        epochs = sorted({int(float(row.get("epoch", 0))) for row in rows})
+        if not rows:
+            raise ValueError(f"Q4 learning curve backing data is missing for {system}")
+        try:
+            epochs = sorted({int(float(row["epoch"])) for row in rows})
+        except (KeyError, TypeError, ValueError) as exc:
+            raise ValueError(f"Q4 learning curve epoch is missing for {system}") from exc
         values = []
         deviations = []
         for epoch in epochs:
-            epoch_values = [_number(row.get("dev_macro_pragmatic_f1")) for row in rows if int(float(row.get("epoch", 0))) == epoch]
-            values.append(mean(epoch_values) if epoch_values else 0.0)
+            epoch_values = [_required_number(row.get("dev_macro_pragmatic_f1"), f"{system}.epoch_{epoch}.dev_macro_pragmatic_f1") for row in rows if int(float(row["epoch"])) == epoch]
+            if not epoch_values:
+                raise ValueError(f"Q4 learning curve value is missing for {system} epoch {epoch}")
+            values.append(mean(epoch_values))
             deviations.append(np.std(epoch_values, ddof=1) if len(epoch_values) > 1 else 0.0)
         axis.plot(epochs, values, marker="o", label=system)
         axis.fill_between(epochs, np.asarray(values) - np.asarray(deviations), np.asarray(values) + np.asarray(deviations), alpha=0.12)
@@ -331,9 +410,14 @@ def _significance_rows(records: list[dict[str, Any]], root: Path) -> list[dict[s
     by_system: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
         by_system[str(record["summary"].get("system_id"))].append(record)
+    inventory = _scope_rows(root, "Q1a")
+    azure_rows = [row for row in inventory if row.get("execution_kind") == "azure" and row.get("variant") == "eight_shot"]
+    if len(azure_rows) != 1:
+        raise ValueError(f"Q1a approved Azure 8-shot system is not uniquely resolved: {len(azure_rows)} rows")
+    azure_system = str(azure_rows[0].get("system_id"))
     comparisons = (
         ("vipragsent_full_vistral", "phobert_pragmatic_finetune"),
-        ("vipragsent_full_vistral", "azure_pragmatic_8_shot"),
+        ("vipragsent_full_vistral", azure_system),
         ("vipragsent_full_vistral", "vistral_pragmatic_sft"),
     )
     output: list[dict[str, Any]] = []
@@ -344,6 +428,7 @@ def _significance_rows(records: list[dict[str, Any]], root: Path) -> list[dict[s
             raise ValueError(f"Missing approved comparison system: {left_name} or {right_name}")
         left = [_prediction_pairs(record) for record in left_records]
         right = [_prediction_pairs(record) for record in right_records]
+        _validate_significance_alignment(left_records, right_records)
         if len(right) == 1 and len(left) > 1:
             def result_factory(metric, left_pairs, right_pairs):
                 return paired_bootstrap_trainable_vs_azure(
@@ -379,6 +464,22 @@ def _significance_rows(records: list[dict[str, Any]], root: Path) -> list[dict[s
         for metric_name, result, adjusted in zip(metrics, family, corrected, strict=True):
             output.append({"comparison": f"{left_name}_vs_{right_name}", "metric": metric_name, "observed_delta": result.observed, "ci_low": result.ci_low, "ci_high": result.ci_high, "raw_p_value": result.p_value, "holm_adjusted_p_value": adjusted, "resamples": strategy["resamples"], "bootstrap_seed": strategy["bootstrap_seed"], "prediction_files": prediction_files})
     return output
+
+
+def _validate_significance_alignment(left_records: list[dict[str, Any]], right_records: list[dict[str, Any]]) -> None:
+    def rows(record: Mapping[str, Any]) -> list[dict[str, Any]]:
+        path = Path(record["run_root"]) / "predictions/test_predictions.jsonl"
+        return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+    reference = rows(left_records[0])
+    reference_ids = [str(row.get("sample_id")) for row in reference]
+    reference_gold = [row.get("gold") for row in reference]
+    for record in [*left_records[1:], *right_records]:
+        candidate = rows(record)
+        ids = [str(row.get("sample_id")) for row in candidate]
+        gold = [row.get("gold") for row in candidate]
+        if ids != reference_ids or gold != reference_gold:
+            raise ValueError(f"Significance inputs are not aligned by sample order/gold labels: {record['run_id']}")
 
 
 def aggregate_approved_scope(root: str | Path, research_question: str) -> dict[str, Any]:
@@ -418,19 +519,20 @@ def aggregate_approved_scope(root: str | Path, research_question: str) -> dict[s
         outputs.append(str(path.relative_to(root)))
     if research_question in {"Q3", "all"}:
         q3 = _q3_rows(q3_records)
-        budgets = {str(row.get("budget")) for row in q3}
         required_budgets = {"32", "64", "128", "256", "512", "full"}
-        if research_question == "Q3" and not required_budgets.issubset(budgets):
-            return {"status": "BLOCKED", "scope": research_question, "blockers": [f"incomplete Q3 budget set: missing {sorted(required_budgets - budgets)}"], "outputs": []}
+        expected_pairs = {(system, budget, str(seed)) for system in {"phobert_pragmatic_finetune", "xlmr_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"} for budget in required_budgets for seed in TRAINING_SEEDS}
+        observed_pairs = {(str(row.get("system")), str(row.get("budget")), str(row.get("seed"))) for row in q3}
+        if observed_pairs != expected_pairs or len(q3) != len(expected_pairs):
+            return {"status": "BLOCKED", "scope": research_question, "blockers": [f"incomplete Q3 system-budget-seed Cartesian product: missing={sorted(expected_pairs - observed_pairs)[:5]}; extra={sorted(observed_pairs - expected_pairs)[:5]}"], "outputs": []}
         path = output / "backing_data/q3_low_resource.csv"
         _write_csv(path, REQUIRED_COLUMNS["q3_low_resource.csv"].split(","), q3)
         outputs.append(str(path.relative_to(root)))
     if research_question in {"Q4", "all"}:
         try:
-            if {str(row["summary"].get("system_id")) for row in q4_records} != {"phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"}:
-                raise ValueError("Q4 requires exactly the locked three systems")
-            if {str(row["summary"].get("seed")) for row in q4_records} != {str(seed) for seed in TRAINING_SEEDS}:
-                raise ValueError("Q4 requires exactly the locked three seeds")
+            expected_pairs = {(system, str(seed)) for system in {"phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"} for seed in TRAINING_SEEDS}
+            observed_pairs = {(str(row["summary"].get("system_id")), str(row["summary"].get("seed"))) for row in q4_records}
+            if observed_pairs != expected_pairs or len(q4_records) != len(expected_pairs):
+                raise ValueError(f"Q4 requires exactly the locked 3x3 system-seed matrix; missing={sorted(expected_pairs - observed_pairs)}; extra={sorted(observed_pairs - expected_pairs)}")
             per_seed, reliability, curves = _q4_inputs(q4_records)
             per_seed_path = output / "tables/q4_pragmatic_calibration_per_seed.csv"
             summary_path = output / "tables/q4_pragmatic_calibration_summary.csv"
@@ -463,8 +565,15 @@ def aggregate_approved_scope(root: str | Path, research_question: str) -> dict[s
 
 
 def _backbone_sensitivity_rows(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    rows: list[dict[str, Any]] = []
+    groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
-        summary = record["summary"]
-        rows.append({"system": summary.get("system_id"), "backbone": summary.get("backbone"), "macro_prag_f1": _number(summary.get("macro_pragmatic_f1")), "ord_f1": _number(summary.get("ord_f1")), "polarity_ece": _number(summary.get("polarity_dev_ece")), "gpu_hours": _number(summary.get("successful_gpu_hours")), "relative_cost": _number(summary.get("relative_cost_to_full_phobert"), 1.0), "peak_vram_gb": _number(summary.get("peak_vram_gb")), "batch1_latency_ms": _number(summary.get("batch1_latency_ms")), "batch32_examples_per_second": _number(summary.get("batch32_examples_per_second")), "seed_count": 1})
+        groups[str(record["summary"].get("system_id"))].append(record)
+    rows: list[dict[str, Any]] = []
+    for system, items in sorted(groups.items()):
+        seeds = {item["summary"].get("seed") for item in items}
+        if seeds != set(TRAINING_SEEDS):
+            raise ValueError(f"Backbone sensitivity requires exactly the locked seeds for {system}")
+        def average(field: str) -> float:
+            return mean(_required_number(item["summary"].get(field), f"{system}.{field}") for item in items)
+        rows.append({"system": system, "backbone": items[0]["summary"].get("backbone"), "macro_prag_f1": average("macro_pragmatic_f1"), "ord_f1": average("ord_f1"), "polarity_ece": average("polarity_dev_ece"), "gpu_hours": average("successful_gpu_hours"), "relative_cost": average("relative_cost_to_full_phobert"), "peak_vram_gb": average("peak_vram_gb"), "batch1_latency_ms": average("batch1_latency_ms"), "batch32_examples_per_second": average("batch32_examples_per_second"), "seed_count": len(seeds)})
     return rows

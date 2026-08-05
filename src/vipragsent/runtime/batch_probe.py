@@ -36,10 +36,26 @@ def probe_physical_batch(
         except RuntimeError as exc:
             message = str(exc)
             failures.append({"batch": candidate, "reason": message, "oom": "out of memory" in message.casefold() or "oom" in message.casefold()})
+            if "out of memory" in message.casefold() or "oom" in message.casefold():
+                try:
+                    import torch
+
+                    if torch.cuda.is_available():
+                        torch.cuda.empty_cache()
+                        torch.cuda.reset_peak_memory_stats()
+                except (ImportError, RuntimeError):
+                    pass
         except Exception as exc:
             failures.append({"batch": candidate, "reason": f"{type(exc).__name__}: {exc}", "oom": False})
     successful_batch = max(successes) if successes else None
-    gradient_accumulation = None if successful_batch is None else max(1, (effective_batch_size + successful_batch - 1) // successful_batch)
+    if successful_batch is None:
+        gradient_accumulation = None
+    elif effective_batch_size % successful_batch:
+        failures.append({"batch": successful_batch, "reason": "effective batch is not exactly divisible by physical batch", "oom": False})
+        successful_batch = None
+        gradient_accumulation = None
+    else:
+        gradient_accumulation = effective_batch_size // successful_batch
     result = {
         "model_family": model_family,
         "status": "PASS" if successful_batch is not None else "BLOCKED",

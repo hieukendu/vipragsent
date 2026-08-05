@@ -103,7 +103,7 @@ def build_azure_job_inventory() -> list[dict[str, Any]]:
     jobs: list[dict[str, Any]] = [
         {"job_id": "azure_rationale_generation", "job_type": "rationale_generation", "research_question": "setup", "task": "rationale", "budget": ""},
         {"job_id": "azure_pragmatic_zero_shot", "job_type": "pragmatic_zero_shot", "research_question": "Q1a", "task": "pragmatic", "budget": ""},
-        {"job_id": "azure_pragmatic_8_shot", "job_type": "pragmatic_8_shot", "research_question": "Q1a", "task": "pragmatic", "budget": ""},
+        {"job_id": "azure_gpt41_mini_8shot", "job_type": "pragmatic_8_shot", "research_question": "Q1a", "task": "pragmatic", "budget": ""},
         {"job_id": "azure_polarity_dedicated", "job_type": "polarity_dedicated_prompt", "research_question": "Q1b", "task": "polarity", "budget": ""},
         {"job_id": "azure_emotion_dedicated", "job_type": "emotion_dedicated_prompt", "research_question": "Q1b", "task": "emotion", "budget": ""},
     ]

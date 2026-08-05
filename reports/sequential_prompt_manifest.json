@@ -1156,105 +1156,105 @@
       "id": "azure_rationale_generation",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_rationale_generation.md",
-      "sha256": "CEFC91E990A2DEB161E80B7948F44237664EEF23EE8FE71F807D25E8C36D8101"
+      "sha256": "045A792A625C117F932AC1282F711F6C67174AC2C85FC4CF9620D178DAABBA17"
     },
     {
       "command": "python scripts/run_single_azure_job.py --job-id azure_pragmatic_zero_shot --stage all",
       "id": "azure_pragmatic_zero_shot",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_pragmatic_zero_shot.md",
-      "sha256": "D6AFF3E46BD2A304BCE257CD5DDCB1B817A23A64392DBB4BD6CB07B6907A55D6"
+      "sha256": "810513AB54841CA5DF3DD182C2614A79F9A902AA3CC0A4E8EC0CFB68563F65E2"
     },
     {
-      "command": "python scripts/run_single_azure_job.py --job-id azure_pragmatic_8_shot --stage all",
-      "id": "azure_pragmatic_8_shot",
+      "command": "python scripts/run_single_azure_job.py --job-id azure_gpt41_mini_8shot --stage all",
+      "id": "azure_gpt41_mini_8shot",
       "kind": "azure_job",
-      "path": "prompts/sequential/azure/azure_pragmatic_8_shot.md",
-      "sha256": "212134BAA2626C79935CC8261C0DD0BB9CB06F481CD1B70D08CBF7A10EB52D8F"
+      "path": "prompts/sequential/azure/azure_gpt41_mini_8shot.md",
+      "sha256": "11CFAA6A99CF021624BF1FED6E4BB52B8AF39A6C40007AD668BEAD202A18F305"
     },
     {
       "command": "python scripts/run_single_azure_job.py --job-id azure_polarity_dedicated --stage all",
       "id": "azure_polarity_dedicated",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_polarity_dedicated.md",
-      "sha256": "2B30B4DA0FE246C1BA01CA8E8F45C3D1DC9351CBF69B53F37E5D20EDAD04B014"
+      "sha256": "3AF357D8E08F19EBD415867046784DE014D571314C333B782ECDACE3E796B289"
     },
     {
       "command": "python scripts/run_single_azure_job.py --job-id azure_emotion_dedicated --stage all",
       "id": "azure_emotion_dedicated",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_emotion_dedicated.md",
-      "sha256": "01770E68973C3CDBB1DE3D2C90DDFC26C63EAFAECF95C0BEB217FE8049DFD53E"
+      "sha256": "1D617A2664BFAC620FE7BA1D458F92B7C04FD0E8BB67F81ECED3750EF8199245"
     },
     {
       "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_32 --stage all",
       "id": "azure_q3_pragmatic_8_shot_32",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_32.md",
-      "sha256": "0A62829CD43A3C3FD01DBAD4F48871BC6B390CE28FC9782B50F816CF2516B985"
+      "sha256": "485AFD1D3FDC9933D442E7B6037ABDCCA85A02F69AB4631B79E4782E58397CF0"
     },
     {
       "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_64 --stage all",
       "id": "azure_q3_pragmatic_8_shot_64",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_64.md",
-      "sha256": "1B357DE7B1951050FEDD78DE98E251DEF5843E688F9C49CF8A6F14B1AE335364"
+      "sha256": "A899400F294384D3C3F2F2E69094B842E17D94EE64CF65B0FAF0BEA89C904604"
     },
     {
       "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_128 --stage all",
       "id": "azure_q3_pragmatic_8_shot_128",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_128.md",
-      "sha256": "A84764F793EC75F2952F9F0D2463740EB12ED8A1CB15BFE8E96BA81F97FFFAB5"
+      "sha256": "62DF217E19AF6708151F99D8872DF7FF1AD4C0915ABA2001296920C0EC9A4BB0"
     },
     {
       "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_256 --stage all",
       "id": "azure_q3_pragmatic_8_shot_256",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_256.md",
-      "sha256": "BCD52A5CF8AB6A274A0D220985DEF1C27BCBF72C562E1CE69A14CA8C26D278A1"
+      "sha256": "0B2F43CACBA6FF9108D0C191DDFDD435DC4C39984A0489EB1B16A147C5CF6888"
     },
     {
       "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_512 --stage all",
       "id": "azure_q3_pragmatic_8_shot_512",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_512.md",
-      "sha256": "2680F72D1AE294BA2438CD8166B9AC78C9424996D5C1A52EBC18A25ABF559B1D"
+      "sha256": "43F9EECBC58C398FD1E0F1561845AD9B7D8DF2560D7A5177FF65477EABB43BAF"
     },
     {
       "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_full --stage all",
       "id": "azure_q3_pragmatic_8_shot_full",
       "kind": "azure_job",
       "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_full.md",
-      "sha256": "1DCB23B548435FD80F907368A5274E26A412233621DB691040315D19DFBB61DF"
+      "sha256": "95AFAFF2D0F155FE6B1829B15FCDEA6CA5683685FDDA4DA7A811DFBE698A67CA"
     },
     {
       "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family phobert_base",
       "id": "phobert_base",
       "kind": "phase15",
       "path": "prompts/sequential/phase15/phobert_base.md",
-      "sha256": "76155DC31AB88894FDBB094E5D4037069AC3F28C0CA97471BBDC23E7EF01493E"
+      "sha256": "096D21A647EDC6EEB09DC78E24A3C090E8052E570FB8FA3EB77909B9405BB2AA"
     },
     {
       "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family xlmr_large",
       "id": "xlmr_large",
       "kind": "phase15",
       "path": "prompts/sequential/phase15/xlmr_large.md",
-      "sha256": "9A4C09169C8F3E249998077A559107E85B82D3A718A10277DFCC46931B470120"
+      "sha256": "36DAA7A0D6062EF0D516B0456196F7B3E36C559A8B636008E754F11A824CDE8E"
     },
     {
       "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family sailor_7b",
       "id": "sailor_7b",
       "kind": "phase15",
       "path": "prompts/sequential/phase15/sailor_7b.md",
-      "sha256": "F8F5177DBD5D7D359032A3E389C0E0E4A8F29880F7F6A907E288D9D99E8D7BB7"
+      "sha256": "5DC5B5926608DC3B48F247A6DBA6F2F4E22F5D271FC9229A0692ADCF27FBBD3B"
     },
     {
       "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family vistral_7b",
       "id": "vistral_7b",
       "kind": "phase15",
       "path": "prompts/sequential/phase15/vistral_7b.md",
-      "sha256": "C0EBF768EAD7C7B7F4DF5D86D229A0E3B217DE7CD871DB16E616AD49CC7F9F4D"
+      "sha256": "9D422DF3B3AC7F0A1585F47EBF41BBB1893C2895BB3E620601F1A26B098D0401"
     },
     {
       "command": "python scripts/aggregate_approved_runs.py --research-question Q1a",

@@ -14,6 +14,7 @@ import yaml
 from ..artifacts.schemas import validate_artifact_tree
 from ..data.loaders import load_vipragsent
 from ..protocol import validate_protocol_resolution
+from ..runtime.hardware import validate_hardware
 from .status import RunExitCode
 
 
@@ -120,13 +121,9 @@ def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightRes
     checks["model_weights_verified"] = family_weights_verified
     if mode == "full" and not checks["model_weights_verified"]:
         blockers.append("Every model family must pass cache, actual offline smoke, and frozen physical-batch verification")
-    try:
-        import torch
-
-        device_names = [torch.cuda.get_device_name(index) for index in range(torch.cuda.device_count())] if torch.cuda.is_available() else []
-    except ImportError:
-        device_names = []
-    checks["cuda_a100_or_mig"] = any("A100" in name or "MIG" in name for name in device_names)
+    hardware = validate_hardware(root)
+    checks["cuda_a100_or_mig"] = hardware.get("checks", {}).get("a100_or_approved_mig", False)
+    checks["hardware_runtime_exact"] = hardware.get("status") == "PASS"
     if mode == "full" and not checks["cuda_a100_or_mig"]:
         blockers.append("A100 20 GB or an A100 MIG profile is not available")
     java_output = ""
@@ -136,12 +133,13 @@ def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightRes
     except (OSError, subprocess.TimeoutExpired):
         pass
     java_match = re.search(r'version "(\d+)', java_output)
-    checks["java_17"] = bool(java_match and java_match.group(1) == "17")
-    if mode == "full" and not checks["java_17"]:
+    requires_vncorenlp = (root / "configs/runtime/vncorenlp.yaml").exists()
+    checks["java_17"] = bool(java_match and java_match.group(1) == "17") if requires_vncorenlp else True
+    if mode == "full" and requires_vncorenlp and not checks["java_17"]:
         blockers.append("Java 17 LTS is required for VnCoreNLP")
     vncorenlp_path = Path(os.getenv("VNCORENLP_HOME", str(root / "data/model_cache/vncorenlp")))
-    checks["vncorenlp_resources"] = vncorenlp_path.exists()
-    if mode == "full" and not checks["vncorenlp_resources"]:
+    checks["vncorenlp_resources"] = vncorenlp_path.exists() if requires_vncorenlp else True
+    if mode == "full" and requires_vncorenlp and not checks["vncorenlp_resources"]:
         blockers.append("Pinned VnCoreNLP RDRSegmenter resources are missing")
     checks["peft_installed"] = bool(importlib.util.find_spec("peft"))
     checks["bitsandbytes_installed"] = bool(importlib.util.find_spec("bitsandbytes"))

@@ -85,9 +85,10 @@ This runbook names exactly one Azure job. Do not start another job, experiment, 
 
 1. Run `python scripts/run_single_azure_job.py --job-id {job_id} --stage preflight`.
 2. If preflight is BLOCKED or FAIL, paste the report into the Codex chat and stop.
-3. After preflight passes, run `python scripts/run_single_azure_job.py --job-id {job_id} --stage all`.
-4. On interruption, resume only this job with `python scripts/run_single_azure_job.py --job-id {job_id} --resume`.
-5. Use only the frozen prompt/schema manifest for this job. Do not log secrets, use the direct OpenAI endpoint, or silently change demonstrations, deployment, budget, or retry policy.
+3. After preflight passes, execute exactly this stage order: `preflight` -> `execute_api_job` -> `validate_responses` -> `export_artifacts` -> `validate_artifacts` -> `generate_review_summary`.
+4. Run that locked sequence with `python scripts/run_single_azure_job.py --job-id {job_id} --stage all`.
+5. On interruption, resume only this job with `python scripts/run_single_azure_job.py --job-id {job_id} --resume`.
+6. Use only the frozen prompt/schema manifest for this job. Do not log secrets, use the direct OpenAI endpoint, or silently change demonstrations, deployment, budget, or retry policy.
 
 ## Required review handoff
 
@@ -122,7 +123,7 @@ The setup task that generated this file must not execute Phase 15. Execute this 
 1. Confirm the runtime preflight and server prerequisites from `32_RUNTIME_PREFLIGHT_CHECKLIST.md`.
 2. Download only this family with `python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family {family}`.
 3. Run the offline revision/tokenizer/model verification for this family with `python scripts/verify_model_smoke.py --manifest data/model_cache_manifest.json --model-family {family}`.
-4. Run the locked forward/backward smoke and physical-batch probe for this family when the runtime checklist permits it.
+4. Run the locked forward/backward smoke and physical-batch probe for this family when the runtime checklist permits it. Use exactly `python scripts/probe_model_batch.py --model-family {family}` for the physical-batch probe.
 5. Record the exact local revision, tokenizer revision, quantization, physical batch, and verification hashes.
 6. Print the complete Phase 15 report and paste it into the Codex chat.
 
