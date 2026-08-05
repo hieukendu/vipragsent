@@ -39,6 +39,7 @@
     "reports/training_config_resolution_audit.json",
     "reports/variant_isolation_audit.json",
     "scripts/audit_final_production_correctness.py",
+    "scripts/audit_production_implementation.py",
     "scripts/audit_protocol_changes.py",
     "scripts/audit_sequential_production_readiness.py",
     "scripts/generate_sequential_prompts.py",
@@ -69,6 +70,7 @@
     "src/vipragsent/training/engine.py",
     "src/vipragsent/training/optimizers.py",
     "src/vipragsent/training/schedulers.py",
+    "tests/conftest.py",
     "tests/test_final_production_repair.py",
     "tests/test_models.py"
   ],

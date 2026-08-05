@@ -301,6 +301,7 @@ def main() -> int:
     inventory = build_expected_runs(ROOT)
     data_audit = _tracked_data_audit()
     command_results = [
+        _run(["python", "scripts/run_all_experiments.py", "--config", "configs/master_run.yaml", "--mode", "fixture"], timeout=240),
         _run(["python", "-m", "compileall", "-q", "src", "scripts", "tests"]),
         _run(["python", "-m", "pytest", "-q", "-m", "not server and not gpu and not azure_live and not model_download"], timeout=240),
     ]

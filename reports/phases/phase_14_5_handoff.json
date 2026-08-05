@@ -118,6 +118,7 @@
   "status": "PASS",
   "tests_passed": true,
   "tests_run": [
+    "python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
     "python -m compileall -q src scripts tests",
     "python -m pytest -q -m not server and not gpu and not azure_live and not model_download"
   ]
