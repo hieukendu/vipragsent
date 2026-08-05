@@ -13,10 +13,12 @@ try:
         BRANCH,
         NEXT_ACTION,
         REPOSITORY,
+        REVIEW_SOURCE_PATHS,
         RUNTIME_BLOCKERS,
         git_is_ancestor,
         git_sha,
         load_review,
+        normalize_review,
         read_json,
         snapshot_markdown,
         validate_ci_evidence,
@@ -28,10 +30,12 @@ except ModuleNotFoundError:
         BRANCH,
         NEXT_ACTION,
         REPOSITORY,
+        REVIEW_SOURCE_PATHS,
         RUNTIME_BLOCKERS,
         git_is_ancestor,
         git_sha,
         load_review,
+        normalize_review,
         read_json,
         snapshot_markdown,
         validate_ci_evidence,
@@ -60,6 +64,7 @@ def cross_file_errors(
     review: dict[str, Any],
     inventory_count: int,
     local_closure: dict[str, Any],
+    authoritative_review: dict[str, Any] | None = None,
 ) -> list[str]:
     errors: list[str] = []
     implementation = snapshot.get("implementation", {})
@@ -115,10 +120,28 @@ def cross_file_errors(
         errors.append("report-only provenance flag is not true")
     if validate_ci_evidence(ci, expected_head=snapshot.get("audited_code_commit")):
         errors.append("CI evidence is not exact completed/success evidence")
-    review_expected = {"cycles": 2, "rounds_per_cycle": 5, "consecutive_clean_cycles": 2, "status": "PASS", "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"}
+    review_expected = {
+        "source": "reports/final_cleanup_review_cycles.json",
+        "execution_mode": "SINGLE_AGENT",
+        "subagents_called": False,
+        "cycles": 2,
+        "rounds_per_cycle": 6,
+        "consecutive_clean_cycles": 2,
+        "status": "PASS",
+        "no_new_defects": True,
+        "historical_subagent_profile_verification": "NOT_VERIFIED",
+    }
     for key, expected in review_expected.items():
         if review.get(key) != expected or snapshot.get("review", {}).get(key) != expected:
             errors.append(f"review mismatch: {key}")
+    if review.get("valid") is not True:
+        errors.append("selected review source is not valid")
+    authoritative = authoritative_review if authoritative_review is not None else review
+    for key, expected in review_expected.items():
+        if authoritative.get(key) != expected:
+            errors.append(f"authoritative cleanup review mismatch: {key}")
+    if authoritative.get("valid") is not True:
+        errors.append("authoritative cleanup review is not valid")
     if inventory_count != 162 or scientific.get("inventory_rows") != 162:
         errors.append("inventory count is not 162")
     if scientific.get("scientific_protocol_conflicts") != [] or state.get("scientific_protocol_conflicts") != []:
@@ -130,8 +153,16 @@ def cross_file_errors(
             errors.append(f"{report_name} audited code SHA mismatch")
         if report.get("ci_verified_head_sha") != ci.get("head_sha") or report.get("ci_conclusion") != "success":
             errors.append(f"{report_name} CI provenance mismatch")
-        if report.get("review_summary", {}).get("consecutive_clean_cycles") != 2:
-            errors.append(f"{report_name} review summary mismatch")
+        for summary_name in ("review_summary", "self_review_summary"):
+            summary = report.get(summary_name, {})
+            for key, expected in review_expected.items():
+                if summary.get(key) != expected:
+                    errors.append(f"{report_name} {summary_name} mismatch: {key}")
+        self_review = report.get("self_review")
+        if isinstance(self_review, dict):
+            for key, expected in review_expected.items():
+                if self_review.get(key) != expected:
+                    errors.append(f"{report_name} self_review mismatch: {key}")
         if report.get("runtime_blockers") != RUNTIME_BLOCKERS:
             errors.append(f"{report_name} runtime blockers mismatch")
     if runtime_snapshot.get("LOCAL_CODE_READINESS") != "PASS" or runtime_snapshot.get("SERVER_RUNTIME_READINESS") != "NOT_RUN" or runtime_snapshot.get("REAL_EXPERIMENT_READINESS") is not False:
@@ -154,6 +185,7 @@ def _stale_current_matches(root: Path) -> list[str]:
     patterns = (
         re.compile(r"CI status: `NOT_RUN`"),
         re.compile(r"Self-review: `0 rounds"),
+        re.compile(r"Self-review: `5 rounds"),
         re.compile(r"consecutive clean (?:sequences|cycles): `0"),
         re.compile(r"Code commit at audit: `487134bf0e1b0b3d5f3165f0e7a71785141d4c8d`"),
     )
@@ -168,6 +200,43 @@ def _stale_current_matches(root: Path) -> list[str]:
     return matches
 
 
+def _review_markdown_errors(root: Path, expected: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    expected_lines = {
+        "Review source": f"`{expected['source']}`",
+        "Execution mode": f"`{expected['execution_mode']}`",
+        "Subagents called": "`false`",
+        "No new defects": "`true`",
+        "Historical subagent profile verification": "`NOT_VERIFIED`",
+    }
+    for relative in (
+        "reports/final_readiness_snapshot.md",
+        "reports/final_runtime_integration_audit.md",
+        "reports/final_preexperiment_closure.md",
+        "reports/final_production_correctness_repair.md",
+    ):
+        path = root / relative
+        if not path.exists():
+            errors.append(f"missing review Markdown: {relative}")
+            continue
+        text = path.read_text(encoding="utf-8")
+        for label, value in expected_lines.items():
+            if not re.search(rf"^-\s*{re.escape(label)}:\s*{re.escape(value)}\s*$", text, flags=re.MULTILINE):
+                errors.append(f"{relative} review Markdown mismatch: {label}")
+    return errors
+
+
+def _normalized_review_source(root: Path, relative: str) -> dict[str, Any]:
+    path = root / relative
+    if not path.exists():
+        return normalize_review(None, source=relative)
+    try:
+        payload = read_json(path, None)
+    except (OSError, json.JSONDecodeError, TypeError, ValueError):
+        return normalize_review(None, source=relative)
+    return normalize_review(payload, source=relative)
+
+
 def audit(root: Path = ROOT, *, write_report: bool = True) -> dict[str, Any]:
     snapshot = read_json(root / "reports/final_readiness_snapshot.json", {})
     ci = read_json(root / "reports/ci_verification.json", {})
@@ -176,6 +245,7 @@ def audit(root: Path = ROOT, *, write_report: bool = True) -> dict[str, Any]:
     preexperiment = read_json(root / "reports/final_preexperiment_closure.json", {})
     local_closure = read_json(root / "reports/local_production_correctness_closure.json", {})
     review = load_review(root)
+    authoritative_review = _normalized_review_source(root, REVIEW_SOURCE_PATHS[0])
     setup_text = (root / "SETUP_READY.md").read_text(encoding="utf-8") if (root / "SETUP_READY.md").exists() else ""
     setup = _setup_values(setup_text)
     inventory_count = len(build_expected_runs(root)["rows"])
@@ -184,7 +254,14 @@ def audit(root: Path = ROOT, *, write_report: bool = True) -> dict[str, Any]:
         errors.append("snapshot schema invalid")
     if not snapshot or not ci:
         errors.append("snapshot or CI evidence missing")
-    errors.extend(cross_file_errors(snapshot, ci, state, setup, runtime, preexperiment, review, inventory_count, local_closure))
+    errors.extend(cross_file_errors(snapshot, ci, state, setup, runtime, preexperiment, review, inventory_count, local_closure, authoritative_review))
+    errors.extend(_review_markdown_errors(root, {
+        "source": REVIEW_SOURCE_PATHS[0],
+        "execution_mode": "SINGLE_AGENT",
+        "subagents_called": False,
+        "no_new_defects": True,
+        "historical_subagent_profile_verification": "NOT_VERIFIED",
+    }))
     snapshot_markdown_path = root / "reports/final_readiness_snapshot.md"
     if snapshot and (not snapshot_markdown_path.exists() or snapshot_markdown_path.read_text(encoding="utf-8") != snapshot_markdown(snapshot)):
         errors.append("snapshot JSON and Markdown disagree")
@@ -203,7 +280,16 @@ def audit(root: Path = ROOT, *, write_report: bool = True) -> dict[str, Any]:
     checks = {
         "snapshot_schema": not (snapshot.get("schema_version") != 1),
         "ci_exact_completed_success": not validate_ci_evidence(ci, expected_head=snapshot.get("audited_code_commit")),
-        "cross_file_values": not cross_file_errors(snapshot, ci, state, setup, runtime, preexperiment, review, inventory_count, local_closure),
+        "cross_file_values": not cross_file_errors(snapshot, ci, state, setup, runtime, preexperiment, review, inventory_count, local_closure, authoritative_review),
+        "authoritative_cleanup_review": authoritative_review.get("valid") is True,
+        "review_source_precedence": review.get("source") == REVIEW_SOURCE_PATHS[0],
+        "review_markdown_values": not _review_markdown_errors(root, {
+            "source": REVIEW_SOURCE_PATHS[0],
+            "execution_mode": "SINGLE_AGENT",
+            "subagents_called": False,
+            "no_new_defects": True,
+            "historical_subagent_profile_verification": "NOT_VERIFIED",
+        }),
         "protected_source_unchanged": manifest.get("status") == "PASS" and manifest.get("after_manifest", {}).get("manifest_sha256") == current_manifest["manifest_sha256"],
         "historical_luna_not_verified": read_json(root / "reports/luna_max_subagent_manifest.json", {}).get("actual_profile_verification") == "NOT_VERIFIED",
         "no_stale_current_status": not _stale_current_matches(root),
@@ -219,6 +305,8 @@ def audit(root: Path = ROOT, *, write_report: bool = True) -> dict[str, Any]:
         "snapshot": snapshot,
         "ci_verification": ci,
         "review": review,
+        "authoritative_review": authoritative_review,
+        "review_source_precedence": list(REVIEW_SOURCE_PATHS),
         "inventory_rows": inventory_count,
         "runtime_blockers": RUNTIME_BLOCKERS,
         "next_action": NEXT_ACTION,
@@ -234,6 +322,9 @@ def audit(root: Path = ROOT, *, write_report: bool = True) -> dict[str, Any]:
             f"- Audited code commit: `{snapshot.get('audited_code_commit', 'UNVERIFIED_EXTERNAL')}`",
             f"- CI: `{ci.get('status', 'UNVERIFIED_EXTERNAL')}/{ci.get('conclusion', 'UNVERIFIED_EXTERNAL')}` run `{ci.get('run_id', 0)}`",
             f"- Review: `{review.get('cycles', 0)} cycles x {review.get('rounds_per_cycle', 0)} rounds`; clean `{review.get('consecutive_clean_cycles', 0)}`",
+            f"- Review source: `{review.get('source')}`",
+            f"- Execution mode/subagents: `{review.get('execution_mode')}/{str(review.get('subagents_called')).lower()}`",
+            f"- Historical profile verification: `{review.get('historical_subagent_profile_verification')}`",
             f"- Inventory: `{inventory_count}`",
             f"- Protected source unchanged: `{str(checks['protected_source_unchanged']).lower()}`",
             "",

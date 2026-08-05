@@ -39,6 +39,11 @@ PROTECTED_PATHS = (
     "data/processed",
     "data/manifests",
 )
+REVIEW_SOURCE_PATHS = (
+    "reports/final_cleanup_review_cycles.json",
+    "reports/luna_max_review_cycles.json",
+    "reports/runtime_self_review.json",
+)
 
 
 def read_json(path: str | Path, default: Any = None) -> Any:
@@ -60,34 +65,129 @@ def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 
-def normalize_review(review: dict[str, Any]) -> dict[str, Any]:
-    cycles = review.get("cycle_count")
-    if cycles is None:
-        cycles = len(review.get("cycles", []))
-    rounds = review.get("rounds_per_cycle")
-    if rounds is None:
-        rounds = review.get("completed_rounds_per_sequence", 0)
-    clean = review.get("consecutive_clean_cycles")
-    if clean is None:
-        clean = review.get("consecutive_no_new_defect_sequences", 0)
+def _review_count(review: dict[str, Any], keys: tuple[str, ...], *, label: str, errors: list[str]) -> int:
+    value: Any = None
+    for key in keys:
+        if key in review:
+            value = review[key]
+            break
+    if value is None:
+        errors.append(f"missing review field: {label}")
+        return 0
+    if label == "cycles" and isinstance(value, list):
+        return len(value)
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        errors.append(f"invalid review field: {label}")
+        return 0
+    return value
+
+
+def normalize_review(review: Any, *, source: str | None = None) -> dict[str, Any]:
+    errors: list[str] = []
+    if not isinstance(review, dict):
+        review = {}
+        errors.append("review source is not a JSON object")
+    cycles = _review_count(review, ("cycle_count", "sequence_count", "cycles"), label="cycles", errors=errors)
+    rounds = _review_count(
+        review,
+        ("rounds_per_cycle", "completed_rounds_per_sequence", "required_rounds_per_sequence"),
+        label="rounds_per_cycle",
+        errors=errors,
+    )
+    clean = _review_count(
+        review,
+        ("consecutive_clean_cycles", "consecutive_no_new_defect_sequences", "consecutive_clean_sequences"),
+        label="consecutive_clean_cycles",
+        errors=errors,
+    )
+
+    raw_status = review.get("status")
+    if not isinstance(raw_status, str) or not raw_status:
+        errors.append("missing or invalid review field: status")
+        status = "FAIL"
+    else:
+        status = raw_status
+
+    no_new_value: Any = None
+    for key in ("no_new_defects", "no_new_defects_in_two_complete_cycles"):
+        if key in review:
+            no_new_value = review[key]
+            break
+    if not isinstance(no_new_value, bool):
+        errors.append("missing or invalid review field: no_new_defects")
+        no_new_defects = False
+    else:
+        no_new_defects = no_new_value
+
+    execution_mode = review.get("execution_mode", "HISTORICAL")
+    if not isinstance(execution_mode, str) or not execution_mode:
+        errors.append("invalid review field: execution_mode")
+        execution_mode = "UNKNOWN"
+    subagents_called = review.get("subagents_called")
+    if subagents_called is not None and not isinstance(subagents_called, bool):
+        errors.append("invalid review field: subagents_called")
+        subagents_called = None
+
+    historical_profile: Any = review.get("historical_subagent_profile_verification")
+    if historical_profile is None:
+        historical_profile = review.get("actual_profile_verification")
+    if historical_profile is None:
+        historical_profile = review.get("subagent_profile_verification")
+    if historical_profile is None:
+        historical_profile = review.get("profile_resolution", "NOT_VERIFIED")
+    historical_profile = str(historical_profile)
+    if historical_profile.startswith("NOT_VERIFIED"):
+        historical_profile = "NOT_VERIFIED"
+
+    valid = (
+        not errors
+        and status == "PASS"
+        and cycles >= 2
+        and rounds > 0
+        and clean >= 2
+        and no_new_defects is True
+    )
     return {
-        "cycles": int(cycles or 0),
-        "rounds_per_cycle": int(rounds or 0),
-        "consecutive_clean_cycles": int(clean or 0),
-        "status": str(review.get("status", "FAIL")),
-        "subagent_profile_verification": str(
-            review.get("profile_resolution", review.get("actual_profile_verification", "NOT_VERIFIED"))
-        ),
-        "no_new_defects": bool(review.get("no_new_defects_in_two_complete_cycles", False)),
+        "source": source,
+        "execution_mode": execution_mode,
+        "subagents_called": subagents_called,
+        "cycles": cycles,
+        "rounds_per_cycle": rounds,
+        "consecutive_clean_cycles": clean,
+        "status": status,
+        "no_new_defects": no_new_defects,
+        "historical_subagent_profile_verification": historical_profile,
+        "subagent_profile_verification": historical_profile,
+        "valid": valid,
+        "normalization_errors": errors,
     }
 
 
 def load_review(root: Path) -> dict[str, Any]:
-    path = root / "reports/luna_max_review_cycles.json"
-    review = read_json(path, {})
-    if not review:
-        review = read_json(root / "reports/runtime_self_review.json", {})
-    return normalize_review(review)
+    source_errors: list[str] = []
+    first_present: str | None = None
+    for relative in REVIEW_SOURCE_PATHS:
+        path = root / relative
+        if not path.exists():
+            continue
+        if first_present is None:
+            first_present = relative
+        try:
+            payload = read_json(path, None)
+        except (OSError, json.JSONDecodeError, TypeError, ValueError) as exc:
+            source_errors.append(f"{relative}: unreadable review source ({exc})")
+            continue
+        normalized = normalize_review(payload, source=relative)
+        if normalized["valid"]:
+            normalized["source_selection_errors"] = source_errors
+            return normalized
+        source_errors.extend(f"{relative}: {error}" for error in normalized["normalization_errors"])
+
+    failed = normalize_review({"status": "FAIL"}, source=first_present)
+    failed["source_selection_errors"] = source_errors
+    failed["normalization_errors"] = source_errors or failed["normalization_errors"]
+    failed["valid"] = False
+    return failed
 
 
 def iter_protected_files(root: Path) -> list[Path]:
@@ -240,10 +340,14 @@ def snapshot_markdown(snapshot: dict[str, Any]) -> str:
         "## Review",
         "",
         f"- Status: `{review['status']}`",
+        f"- Review source: `{review['source']}`",
+        f"- Execution mode: `{review['execution_mode']}`",
+        f"- Subagents called: `{str(review['subagents_called']).lower() if review['subagents_called'] is not None else 'unknown'}`",
         f"- Cycles: `{review['cycles']}`",
         f"- Rounds per cycle: `{review['rounds_per_cycle']}`",
         f"- Consecutive clean cycles: `{review['consecutive_clean_cycles']}`",
-        f"- Subagent profile verification: `{review['subagent_profile_verification']}`",
+        f"- No new defects: `{str(review['no_new_defects']).lower()}`",
+        f"- Historical subagent profile verification: `{review['historical_subagent_profile_verification']}`",
         "",
         "## Readiness",
         "",
