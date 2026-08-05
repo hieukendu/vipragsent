@@ -86,6 +86,7 @@
 - `src/vipragsent/orchestration/stage_registry.py`
 - `src/vipragsent/orchestration/system_registry.py`
 - `src/vipragsent/orchestration/variant_diff.py`
+- `src/vipragsent/protocol.py`
 - `src/vipragsent/runtime/batch_probe.py`
 - `src/vipragsent/runtime/disk.py`
 - `src/vipragsent/runtime/hardware.py`
