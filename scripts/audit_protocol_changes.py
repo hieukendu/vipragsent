@@ -12,7 +12,6 @@ from vipragsent.atomic import atomic_write_json
 from vipragsent.orchestration.sequential import load_execution_policy
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
-
 TOP_LEVEL_ALLOWED = {
     "PROJECT_STATE.json", "SETUP_READY.md", "SETUP_FREEZE_MANIFEST.json", "SETUP_CHECKSUMS.sha256",
     "FINAL_CHECKSUMS.sha256", "README.md", "KNOWN_LIMITATIONS.md", "REPRODUCIBILITY_REPORT.md",

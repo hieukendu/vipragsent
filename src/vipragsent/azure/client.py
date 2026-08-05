@@ -4,10 +4,11 @@ import json
 import os
 import time
 import uuid
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Callable, Mapping
+from typing import Any
 
 from ..atomic import atomic_write_json, exclusive_lock
 from ..hashing import sha256_json
@@ -26,7 +27,7 @@ class AzureSettings:
     expected_model_version: str = "2025-04-14"
 
     @classmethod
-    def from_env(cls, env: Mapping[str, str] | None = None) -> "AzureSettings":
+    def from_env(cls, env: Mapping[str, str] | None = None) -> AzureSettings:
         env = env or os.environ
         endpoint = env.get("AZURE_OPENAI_ENDPOINT", "").strip().rstrip("/") + "/"
         base_url = env.get("AZURE_OPENAI_BASE_URL", "").strip()
@@ -217,7 +218,7 @@ class AzureResponsesClient:
                     "prompt_hash": prompt_hash,
                     "schema_hash": schema_hash,
                     "demonstration_manifest_hash": demonstration_manifest_hash,
-                    "request_timestamp": datetime.now(timezone.utc).isoformat(),
+                    "request_timestamp": datetime.now(UTC).isoformat(),
                     "retry_count": retry_count,
                     "usage": payload.get("usage", {}),
                     "content_filter": payload.get("content_filter"),

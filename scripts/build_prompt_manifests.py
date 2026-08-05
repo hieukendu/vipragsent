@@ -4,12 +4,11 @@ import argparse
 import csv
 import json
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 
 from _bootstrap import ROOT
 from vipragsent.azure.prompts import build_demo_manifest, validate_demo_manifest
-from vipragsent.constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS
+from vipragsent.constants import EMOTION_LABELS
 from vipragsent.data.loaders import load_vipragsent
 from vipragsent.hashing import sha256_json
 from vipragsent.phase import write_phase_handoff

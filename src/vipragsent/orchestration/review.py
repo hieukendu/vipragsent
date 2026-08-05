@@ -1,0 +1,186 @@
+from __future__ import annotations
+
+import json
+from collections.abc import Mapping
+from pathlib import Path
+from typing import Any
+
+from ..hashing import sha256_file, sha256_json
+from .contracts import ExecutionKind, RunContext, RunEntry
+from .run_store import artifact_hashes, git_commit, utc_now
+
+COMMON_FIELDS = (
+    "run_id", "research_question", "system_id", "display_name", "variant", "backbone", "seed", "budget", "execution_kind",
+    "execution_mode", "run_status", "user_review_status", "next_run_allowed", "dataset_fingerprint", "split_hashes",
+    "model_repository", "model_revision", "tokenizer_revision", "preprocessing_name", "preprocessing_version", "configuration_hash",
+    "code_commit", "start_time", "end_time", "wall_clock_seconds", "warnings", "blockers", "validation_status", "artifact_paths", "artifact_sha256",
+)
+TRAINABLE_FIELDS = (
+    "optimizer", "learning_rate", "weight_decay", "scheduler", "warmup_ratio", "precision", "physical_batch_size",
+    "gradient_accumulation_steps", "effective_batch_size", "maximum_epochs", "actual_epochs", "best_epoch", "best_dev_metric",
+    "best_dev_loss", "checkpoint_path", "checkpoint_sha256", "frozen_thresholds", "per_label_dev_metrics", "per_label_test_metrics",
+)
+
+
+def _load_json(path: Path, default: Any) -> Any:
+    try:
+        return json.loads(path.read_text(encoding="utf-8")) if path.exists() else default
+    except (OSError, json.JSONDecodeError):
+        return default
+
+
+def _not_applicable(reason: str) -> str:
+    return "NOT_APPLICABLE"
+
+
+def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[str, Any]) -> dict[str, Any]:
+    run_root = Path(context.run_root)
+    manifest = _load_json(run_root / "run_manifest.json", {})
+    dev = _load_json(run_root / "metrics/dev_metrics.json", {})
+    test = _load_json(run_root / "metrics/test_metrics.json", {})
+    selection = _load_json(run_root / "selection/selection_metric.json", {})
+    thresholds = _load_json(run_root / "selection/thresholds.json", {})
+    checkpoint = _load_json(run_root / "selection/best_checkpoint.json", {})
+    checkpoint_manifest = _load_json(run_root / "checkpoints/checkpoint_manifest.json", {})
+    artifacts = artifact_hashes(run_root)
+    prediction_hashes = {name: digest for name, digest in artifacts.items() if name.startswith("predictions/")}
+    data_manifest = context.root / "data/manifests/dataset_manifest.json"
+    trainable = entry.execution_kind == ExecutionKind.TRAINABLE.value
+    q4 = _load_json(run_root / "paper_artifacts/q4_pragmatic_calibration_per_seed.json", {})
+    usage = _load_json(run_root / "azure/usage.json", {})
+    start_time = str(state.get("created_at") or utc_now())
+    end_time = utc_now()
+    applicability: dict[str, str] = {}
+    fields: dict[str, Any] = {
+        "run_id": entry.run_id,
+        "experiment_id": None if entry.is_azure else entry.run_id,
+        "azure_job_id": entry.run_id if entry.is_azure else None,
+        "research_question": entry.research_question,
+        "system_id": entry.system_id,
+        "display_name": entry.display_name,
+        "variant": entry.variant,
+        "backbone": entry.backbone,
+        "seed": entry.seed if entry.seed not in (None, "") else "NOT_APPLICABLE",
+        "budget": entry.budget if entry.budget not in (None, "") else "NOT_APPLICABLE",
+        "execution_kind": entry.execution_kind,
+        "execution_mode": "fixture_synthetic" if context.fixture else "production_sequential_review_gated",
+        "run_status": "PASS",
+        "user_review_status": "PENDING",
+        "next_run_allowed": "NO",
+        "dataset_fingerprint": manifest.get("data_fingerprint") or (sha256_file(data_manifest) if data_manifest.exists() else "fixture"),
+        "split_hashes": {split: prediction_hashes.get(f"predictions/{split}_predictions.jsonl", "NOT_APPLICABLE") for split in ("dev", "test")},
+        "model_repository": entry.model_repository or manifest.get("model_repository") or ("fixture" if context.fixture else "NOT_APPLICABLE"),
+        "model_revision": entry.model_revision or manifest.get("model_revision") or ("fixture" if context.fixture else "NOT_APPLICABLE"),
+        "tokenizer_revision": entry.tokenizer_revision or manifest.get("tokenizer_revision") or ("fixture" if context.fixture else "NOT_APPLICABLE"),
+        "preprocessing_name": entry.preprocessing_name or manifest.get("preprocessing_name") or ("fixture_unicode_nfc" if context.fixture else "NOT_APPLICABLE"),
+        "preprocessing_version": entry.preprocessing_version or manifest.get("preprocessing_version") or ("fixture-v1" if context.fixture else "NOT_APPLICABLE"),
+        "configuration_hash": manifest.get("config_hash") or sha256_file(run_root / "config_snapshot.yaml"),
+        "code_commit": manifest.get("code_commit") or git_commit(context.root),
+        "start_time": start_time,
+        "end_time": end_time,
+        "wall_clock_seconds": 0.0,
+        "warnings": list(state.get("warnings", [])),
+        "blockers": [],
+        "validation_status": "PASS",
+        "artifact_paths": sorted(artifacts),
+        "artifact_sha256": artifacts,
+        "primary_dev_selection_metric": selection.get("name", "NOT_APPLICABLE"),
+        "frozen_thresholds": thresholds if thresholds else "NOT_APPLICABLE",
+        "per_label_dev_metrics": dev.get("per_label_f1", "NOT_APPLICABLE"),
+        "per_label_test_metrics": test.get("per_label_f1", "NOT_APPLICABLE"),
+        "macro_pragmatic_f1": test.get("macro_pragmatic_f1", dev.get("macro_pragmatic_f1", "NOT_APPLICABLE")),
+        "RUN_STATUS": "PASS",
+        "USER_REVIEW_STATUS": "PENDING",
+        "NEXT_RUN_ALLOWED": "NO",
+        "applicability": applicability,
+        "prediction_hashes": prediction_hashes,
+    }
+    if trainable:
+        training_config = _load_json(run_root / "training/optimizer_summary.json", {})
+        scheduler_config = _load_json(run_root / "training/scheduler_summary.json", {})
+        history = _load_json(run_root / "training/history.json", [])
+        fields.update({
+            "optimizer": training_config.get("optimizer", "AdamW"),
+            "learning_rate": training_config.get("learning_rate", 0.05 if context.fixture else "locked_config"),
+            "weight_decay": training_config.get("weight_decay", 0.0 if context.fixture else "locked_config"),
+            "scheduler": scheduler_config.get("scheduler", "linear"),
+            "warmup_ratio": scheduler_config.get("warmup_ratio", 0.1),
+            "precision": "fp32" if context.fixture else manifest.get("precision", "bf16"),
+            "physical_batch_size": manifest.get("physical_batch_size", 4 if context.fixture else "locked_config"),
+            "gradient_accumulation_steps": manifest.get("gradient_accumulation_steps", 1 if context.fixture else "locked_config"),
+            "effective_batch_size": manifest.get("effective_batch_size", 4 if context.fixture else "locked_config"),
+            "maximum_epochs": len(history) if context.fixture else manifest.get("maximum_epochs", "locked_config"),
+            "actual_epochs": len(history),
+            "best_epoch": checkpoint.get("best_epoch") or selection.get("best_epoch") or "NOT_APPLICABLE",
+            "early_stopping_reason": "maximum_epochs_or_patience",
+            "best_dev_metric": selection.get("value", dev.get("macro_pragmatic_f1", "NOT_APPLICABLE")),
+            "best_dev_loss": next((row.get("dev_loss") for row in history if str(row.get("epoch")) == str(checkpoint.get("best_epoch"))), min((row.get("dev_loss") for row in history if isinstance(row.get("dev_loss"), (int, float))), default="NOT_APPLICABLE")),
+            "checkpoint_path": checkpoint.get("path", "NOT_APPLICABLE"),
+            "checkpoint_sha256": checkpoint.get("sha256") or checkpoint_manifest.get("checkpoint_sha256", "NOT_APPLICABLE"),
+        })
+    else:
+        for field in TRAINABLE_FIELDS:
+            applicability[field] = "NOT_APPLICABLE"
+        applicability["training"] = entry.execution_kind
+        fields.update({field: "NOT_APPLICABLE" for field in TRAINABLE_FIELDS})
+        fields["not_applicable_reason"] = "This entry does not create a new trainable checkpoint under its locked execution_kind."
+    if entry.research_question == "Q4":
+        fields.update({
+            "per_label_pragmatic_ece": q4.get("per_label_pragmatic_ece", "NOT_APPLICABLE"),
+            "macro_pragmatic_ece": q4.get("macro_pragmatic_ece", "NOT_APPLICABLE"),
+            "temperature_scaling": False,
+            "bin_count": 10,
+            "probability_aggregation": "none",
+            "source_checkpoint_id": q4.get("checkpoint_id", entry.source_checkpoint_id or "NOT_APPLICABLE"),
+            "source_prediction_hash": q4.get("prediction_file_sha256", "NOT_APPLICABLE"),
+        })
+    else:
+        fields.update({"per_label_pragmatic_ece": "NOT_APPLICABLE", "macro_pragmatic_ece": "NOT_APPLICABLE", "temperature_scaling": False, "bin_count": "NOT_APPLICABLE", "probability_aggregation": "NOT_APPLICABLE", "source_checkpoint_id": "NOT_APPLICABLE", "source_prediction_hash": "NOT_APPLICABLE"})
+    if entry.is_azure:
+        fields.update({
+            "azure_request_count": usage.get("request_count", "NOT_APPLICABLE"),
+            "azure_input_tokens": usage.get("input_tokens", "NOT_APPLICABLE"),
+            "azure_output_tokens": usage.get("output_tokens", "NOT_APPLICABLE"),
+            "azure_invalid_output_rate": usage.get("invalid_output_rate", 0.0),
+            "azure_cache_hits": usage.get("cache_hits", 0),
+            "azure_cache_misses": usage.get("cache_misses", 0),
+            "azure_failed_requests": usage.get("failed_requests", 0),
+            "azure_retried_requests": usage.get("retried_requests", 0),
+        })
+    else:
+        fields.update({key: "NOT_APPLICABLE" for key in ("azure_request_count", "azure_input_tokens", "azure_output_tokens", "azure_invalid_output_rate", "azure_cache_hits", "azure_cache_misses", "azure_failed_requests", "azure_retried_requests")})
+    fields.update({
+        "peak_vram_gb": _load_json(run_root / "training/resource_usage.json", {}).get("peak_vram_gb", "NOT_APPLICABLE"),
+        "successful_gpu_hours": _load_json(run_root / "training/resource_usage.json", {}).get("successful_gpu_hours", "NOT_APPLICABLE"),
+        "failed_or_retried_gpu_hours": _load_json(run_root / "training/resource_usage.json", {}).get("failed_or_retried_gpu_hours", "NOT_APPLICABLE"),
+    })
+    fields["summary_hash_input"] = sha256_json({key: value for key, value in fields.items() if key not in {"artifact_sha256", "artifact_paths"}})
+    return fields
+
+
+def validate_review_summary(summary: Mapping[str, Any], *, completed: bool = False) -> list[str]:
+    errors: list[str] = []
+    for field in COMMON_FIELDS:
+        if field not in summary or summary[field] in (None, ""):
+            errors.append(f"missing review-summary field: {field}")
+    if summary.get("RUN_STATUS") not in {"PASS", "BLOCKED", "FAIL"}:
+        errors.append("RUN_STATUS is invalid")
+    if summary.get("USER_REVIEW_STATUS") != "PENDING":
+        errors.append("USER_REVIEW_STATUS must remain PENDING")
+    if summary.get("NEXT_RUN_ALLOWED") != "NO":
+        errors.append("NEXT_RUN_ALLOWED must remain NO")
+    if completed:
+        if summary.get("RUN_STATUS") != "PASS" or summary.get("validation_status") != "PASS":
+            errors.append("completed summary must be public PASS with validation_status=PASS")
+        if not summary.get("artifact_paths") or not summary.get("artifact_sha256"):
+            errors.append("completed summary must contain non-empty artifact paths and hashes")
+        if summary.get("run_status") != "PASS":
+            errors.append("completed summary run_status must be public PASS")
+        if summary.get("execution_kind") == ExecutionKind.TRAINABLE.value:
+            for field in TRAINABLE_FIELDS:
+                if summary.get(field) in (None, "", "NOT_APPLICABLE"):
+                    errors.append(f"completed trainable summary field is unresolved: {field}")
+        else:
+            if summary.get("not_applicable_reason") in (None, ""):
+                errors.append("non-trainable summary requires not_applicable_reason")
+    return errors

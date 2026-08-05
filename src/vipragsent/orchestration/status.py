@@ -59,13 +59,13 @@ class HandlerResult:
         artifacts: list[dict[str, Any] | str] | None = None,
         hashes: dict[str, str] | None = None,
         summary: dict[str, Any] | None = None,
-    ) -> "HandlerResult":
+    ) -> HandlerResult:
         return cls(NodeStatus.PASS, artifacts or [], hashes or {}, summary or {})
 
     @classmethod
-    def blocked(cls, error: str, *, summary: dict[str, Any] | None = None) -> "HandlerResult":
+    def blocked(cls, error: str, *, summary: dict[str, Any] | None = None) -> HandlerResult:
         return cls(NodeStatus.BLOCKED, error=error, summary=summary or {})
 
     @classmethod
-    def failed(cls, error: str, *, summary: dict[str, Any] | None = None) -> "HandlerResult":
+    def failed(cls, error: str, *, summary: dict[str, Any] | None = None) -> HandlerResult:
         return cls(NodeStatus.FAIL, error=error, summary=summary or {})

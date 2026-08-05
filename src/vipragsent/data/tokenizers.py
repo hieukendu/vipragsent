@@ -6,7 +6,6 @@ from typing import Any
 from ..orchestration.status import RuntimeBlocked
 from .preprocessing import DummyTokenizer
 
-
 BACKBONE_REPOSITORIES = {
     "phobert_base": "vinai/phobert-base",
     "xlmr_large": "FacebookAI/xlm-roberta-large",

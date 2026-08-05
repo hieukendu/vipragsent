@@ -16,7 +16,7 @@ The setup task that generated this file must not execute Phase 15. Execute this 
 
 1. Confirm the runtime preflight and server prerequisites from `32_RUNTIME_PREFLIGHT_CHECKLIST.md`.
 2. Download only this family with `python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family vistral_7b`.
-3. Run the offline revision/tokenizer/model verification for this family with `python scripts/verify_model_smoke.py --manifest data/model_cache_manifest.json`.
+3. Run the offline revision/tokenizer/model verification for this family with `python scripts/verify_model_smoke.py --manifest data/model_cache_manifest.json --model-family vistral_7b`.
 4. Run the locked forward/backward smoke and physical-batch probe for this family when the runtime checklist permits it.
 5. Record the exact local revision, tokenizer revision, quantization, physical batch, and verification hashes.
 6. Print the complete Phase 15 report and paste it into the Codex chat.

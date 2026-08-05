@@ -3,7 +3,6 @@ from __future__ import annotations
 from pathlib import Path
 
 import pytest
-import torch
 
 from vipragsent.constants import PRAGMATIC_LABELS, TRAINING_SEEDS
 from vipragsent.evaluation.production import evaluate_q4_seed, evaluate_q4_seeds

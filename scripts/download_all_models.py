@@ -2,64 +2,87 @@ from __future__ import annotations
 
 import argparse
 import json
-import shutil
 from pathlib import Path
 
 import yaml
 
 from _bootstrap import ROOT
-from vipragsent.hashing import sha256_file
+from vipragsent.atomic import atomic_write_json
 from vipragsent.phase import write_phase_handoff
+from vipragsent.runtime.model_assets import (
+    cache_record_from_snapshot,
+    merge_family_manifest,
+    read_family_status,
+    write_family_status,
+)
+
+
+def _load_models(path: Path) -> dict[str, dict[str, object]]:
+    payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    return {str(item["name"]): dict(item) for item in payload.get("models", [])}
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description="Phase 15 only: download and verify locked model revisions")
+    parser = argparse.ArgumentParser(description="Phase 15 only: prepare exactly one locked model family")
     parser.add_argument("--manifest", default="configs/models/download_manifest.yaml")
     parser.add_argument("--cache-dir", default="data/model_cache")
-    parser.add_argument("--model-family", help="Download exactly one locked model family; omit to process the complete manifest")
+    parser.add_argument("--model-family", help="Prepare exactly one locked model family; omit only for an explicitly approved complete Phase 15 operation")
     args = parser.parse_args()
-    manifest = yaml.safe_load((ROOT / args.manifest).read_text(encoding="utf-8"))
-    all_models = list(manifest.get("models", []))
-    selected_models = all_models
-    if args.model_family:
-        selected_models = [item for item in all_models if item.get("name") == args.model_family]
-    blockers = []
-    if not selected_models:
+    models = _load_models(ROOT / args.manifest)
+    selected_names = [args.model_family] if args.model_family else list(models)
+    blockers: list[str] = []
+    if not selected_names or any(name not in models for name in selected_names):
         blockers.append(f"Unknown model family: {args.model_family}")
-    if any(item.get("revision") in (None, "") for item in selected_models):
-        blockers.append("Model registry contains unresolved revisions; run Phase 04 metadata resolution first")
-    try:
-        from huggingface_hub import snapshot_download
-    except ImportError:
-        snapshot_download = None
-        blockers.append("huggingface_hub is not installed")
-    records_by_name = {}
-    existing_manifest_path = ROOT / "data/model_cache_manifest.json"
-    if args.model_family and existing_manifest_path.exists():
-        try:
-            existing = json.loads(existing_manifest_path.read_text(encoding="utf-8"))
-            records_by_name = {str(item.get("name")): dict(item) for item in existing.get("models", []) if item.get("name")}
-        except (OSError, json.JSONDecodeError):
-            records_by_name = {}
+    records: dict[str, dict[str, object]] = {}
+    for family, spec in models.items():
+        previous = read_family_status(ROOT, family, "cache")
+        if family not in selected_names:
+            records[family] = {"name": family, **spec, "status": previous.get("status", "PENDING_NOT_REQUESTED"), "family_request_status": "PENDING_NOT_REQUESTED"}
     if not blockers:
-        cache_dir = ROOT / args.cache_dir
-        for item in selected_models:
+        try:
+            from huggingface_hub import snapshot_download
+        except ImportError as exc:
+            snapshot_download = None
+            blockers.append(f"huggingface_hub is not installed: {exc}")
+        for family in selected_names:
+            spec = models[family]
+            if not spec.get("revision") or not spec.get("tokenizer_revision"):
+                error = "model registry contains an unresolved revision"
+                blockers.append(f"{family}: {error}")
+                write_family_status(ROOT, family, "cache", {"status": "BLOCKED", "error": error, "revision": spec.get("revision")})
+                continue
+            if snapshot_download is None:
+                error = "huggingface_hub is unavailable"
+                write_family_status(ROOT, family, "cache", {"status": "BLOCKED", "error": error, "revision": spec.get("revision")})
+                continue
             try:
-                path = snapshot_download(item["repo_id"], revision=item["revision"], cache_dir=str(cache_dir), local_dir=str(cache_dir / item["name"]), local_dir_use_symlinks=False, allow_patterns=["*.json", "*.txt", "*.model", "*.safetensors", "*.bin", "*.py", "tokenizer.*", "vocab.*", "merges.txt"])
-                records_by_name[item["name"]] = {"name": item["name"], "repo_id": item["repo_id"], "revision": item["revision"], "local_path": str(path), "status": "PASS"}
+                cache_dir = ROOT / args.cache_dir
+                local_path = snapshot_download(
+                    str(spec["repo_id"]),
+                    revision=str(spec["revision"]),
+                    cache_dir=str(cache_dir),
+                    local_dir=str(cache_dir / family),
+                    local_dir_use_symlinks=False,
+                    allow_patterns=["*.json", "*.txt", "*.model", "*.safetensors", "*.bin", "*.py", "tokenizer.*", "vocab.*", "merges.txt"],
+                )
+                record = cache_record_from_snapshot(family, spec, local_path)
+                write_family_status(ROOT, family, "cache", record)
+                records[family] = {"name": family, **spec, **record, "family_request_status": "PASS"}
             except Exception as exc:
-                blockers.append(f"{item['name']}: {exc}")
-                records_by_name[item["name"]] = {"name": item["name"], "repo_id": item["repo_id"], "revision": item["revision"], "status": "BLOCKED", "error": str(exc)}
-    records = [records_by_name[name] for name in (item["name"] for item in all_models) if name in records_by_name]
-    missing = [item["name"] for item in all_models if not any(record.get("name") == item["name"] and record.get("status") == "PASS" for record in records)]
-    if args.model_family and not blockers and missing:
-        blockers.append("Remaining model families require separate Phase 15 prompts: " + ", ".join(missing))
-    output = {"models": records, "requested_model_family": args.model_family, "weights_downloaded": not blockers and len(records) == len(all_models), "blockers": blockers}
-    (ROOT / "data/model_cache_manifest.json").write_text(json.dumps(output, indent=2) + "\n", encoding="utf-8")
-    status = "PASS" if not blockers else "BLOCKED"
-    write_phase_handoff("15", status, inputs_read=[args.manifest, "32_RUNTIME_PREFLIGHT_CHECKLIST.md"], files_created=["data/model_cache_manifest.json"], blockers=blockers, next_phase_ready=not blockers)
-    print(json.dumps(output, indent=2))
-    return 0 if not blockers else 2
+                error = f"{type(exc).__name__}: {exc}"
+                blockers.append(f"{family}: {error}")
+                write_family_status(ROOT, family, "cache", {"status": "BLOCKED", "error": error, "revision": spec.get("revision")})
+                records[family] = {"name": family, **spec, "status": "BLOCKED", "error": error, "family_request_status": "BLOCKED"}
+    manifest = merge_family_manifest(ROOT, models, requested_family=args.model_family)
+    # Download success is independently reportable; global weights_downloaded remains false until all families pass smoke and batch gates.
+    selected_cache_status = read_family_status(ROOT, args.model_family, "cache").get("status") if args.model_family else manifest.get("global_status")
+    manifest.update({"requested_model_family": args.model_family, "selected_family_status": selected_cache_status, "download_blockers": blockers})
+    atomic_write_json(ROOT / "data/model_cache_manifest.json", manifest)
+    handoff_status = "PASS" if args.model_family and selected_cache_status == "PASS" and not blockers else "BLOCKED" if blockers else "PASS" if manifest.get("weights_downloaded") else "BLOCKED"
+    write_phase_handoff("15", handoff_status, inputs_read=[args.manifest, "32_RUNTIME_PREFLIGHT_CHECKLIST.md"], files_created=["data/model_cache_manifest.json", *[f"data/model_cache_status/{family}.json" for family in selected_names]], blockers=blockers, next_phase_ready=handoff_status == "PASS")
+    output = {"family_status": handoff_status, "selected_model_family": args.model_family, "selected_family_download_status": selected_cache_status, "global_weights_downloaded": manifest.get("weights_downloaded", False), "models": manifest.get("models", []), "blockers": blockers, "other_families": {name: records.get(name, {}).get("status", "PENDING_NOT_REQUESTED") for name in models if name != args.model_family}}
+    print(json.dumps(output, indent=2, ensure_ascii=False))
+    return 0 if handoff_status == "PASS" else 2
 
 
 if __name__ == "__main__":

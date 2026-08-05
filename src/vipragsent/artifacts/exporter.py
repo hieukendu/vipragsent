@@ -19,13 +19,15 @@ from ..evaluation.metrics import (
     multiclass_macro_f1,
     pragmatic_ece,
     pragmatic_reliability_bins,
-    reliability_bins,
 )
 from ..hashing import sha256_file, sha256_json
 from ..manual import ERROR_ANALYSIS_COLUMNS
-from ..statistics.bootstrap import hierarchical_bootstrap, holm_bonferroni, paired_bootstrap_comparison
+from ..statistics.bootstrap import (
+    hierarchical_bootstrap,
+    holm_bonferroni,
+    paired_bootstrap_comparison,
+)
 from .schemas import REQUIRED_COLUMNS, validate_artifact_tree, validate_production_artifact
-
 
 Q3_BUDGETS = ("32", "64", "128", "256", "512", "full")
 PRODUCTION_PAPER_TABLES = (
@@ -492,8 +494,13 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
     run_root = root / "results" / "runs"
     if not run_root.exists():
         raise ValueError("Production result runs are missing")
-    metrics_files = sorted(run_root.glob("*/*/metrics.json"))
-    if not metrics_files:
+    manifest_files = sorted(run_root.glob("*/run_manifest.json"))
+    legacy_adapter = False
+    if not manifest_files:
+        # Fixture/migration adapter only: old system/seed trees are never accepted as production output.
+        manifest_files = sorted(run_root.glob("*/*/metrics.json"))
+        legacy_adapter = True
+    if not manifest_files:
         raise ValueError("No production run manifests were found")
     records: list[dict[str, Any]] = []
     required = {
@@ -502,7 +509,7 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
         "gradient_accumulation_steps", "effective_batch_size", "inference_output_source",
         "rationale_decoder_enabled_at_inference", "data_fingerprint", "config_hash", "code_commit",
     }
-    for path in metrics_files:
+    for path in manifest_files:
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
@@ -527,8 +534,13 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
         known_backbone = SYSTEM_BACKBONES.get(str(payload.get("system")))
         if known_backbone and payload.get("backbone") != known_backbone:
             raise ValueError(f"Production run uses the wrong backbone for {payload['system']}: {path}")
+        if not legacy_adapter:
+            approval_path = path.parent / "approval_status.json"
+            approval = json.loads(approval_path.read_text(encoding="utf-8")) if approval_path.exists() else {}
+            if approval.get("status") != "APPROVED":
+                raise ValueError(f"Production run is not explicitly APPROVED: {path}")
         prediction_paths = _prediction_paths(root, path, payload)
-        records.append({"path": path, **payload, "seed": seed, "prediction_paths": prediction_paths})
+        records.append({"path": path, **payload, "seed": seed, "prediction_paths": prediction_paths, "legacy_fixture_adapter": legacy_adapter})
 
     groups: dict[tuple[str, str, str], set[int]] = defaultdict(set)
     for record in records:

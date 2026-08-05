@@ -1,19 +1,18 @@
 from __future__ import annotations
 
 import subprocess
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass, field
 from pathlib import Path
-from collections.abc import Callable, Mapping
 
 from ...artifacts.exporter import export_fixture_artifacts
 from ...artifacts.schemas import validate_artifact_tree
 from ...hashing import sha256_file, sha256_json
 from ..context import ExecutionContext
 from ..dag import DAGNode
-from ..status import ArtifactContractError, HandlerResult
 from ..production import (
-    handle_artifact_validation,
     handle_artifact_export,
+    handle_artifact_validation,
     handle_azure_baseline,
     handle_azure_rationale,
     handle_evaluation,
@@ -25,13 +24,14 @@ from ..production import (
     handle_statistics,
     handle_validation,
 )
+from ..status import ArtifactContractError, HandlerResult
 
 
 @dataclass(frozen=True)
 class HandlerEnvironment:
     root: Path
     context: ExecutionContext
-    services: Mapping[str, Callable[["HandlerEnvironment", DAGNode], HandlerResult]] = field(default_factory=dict)
+    services: Mapping[str, Callable[[HandlerEnvironment, DAGNode], HandlerResult]] = field(default_factory=dict)
 
     @property
     def run_root(self) -> Path:

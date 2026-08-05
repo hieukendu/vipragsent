@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
-from typing import Any
+from dataclasses import asdict, dataclass
 from pathlib import Path
 
 from ..hashing import sha256_json

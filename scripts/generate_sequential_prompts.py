@@ -12,7 +12,6 @@ from vipragsent.hashing import sha256_file
 from vipragsent.orchestration.inventory import write_expected_runs
 from vipragsent.orchestration.sequential import build_azure_job_inventory, load_execution_policy
 
-
 RESEARCH_QUESTIONS = ("Q1a", "Q1b", "Q2", "Q3", "Q4")
 
 
@@ -36,6 +35,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Split: `{row['split']}`
 - Dependencies: `{row['dependencies']}`
 - Required Phase 15 assets: `{row['required_phase15_assets']}`
+- Execution kind: `{row['execution_kind']}`
 - Expected artifacts: `{row['expected_outputs']}`
 - Selection metric: `{row['selection_metric']}`
 - Evaluation protocol: `{row['evaluation_protocol']}`
@@ -52,7 +52,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 
 ## Required review handoff
 
-The run must complete these stages in order: preflight, train_or_run, evaluate_dev, freeze_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary.
+The run must complete these stages in order: preflight, train_or_reuse, evaluate_dev, freeze_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary.
 
 Print the complete review summary with `python scripts/print_run_review_summary.py --run-id {experiment_id}` and paste it into the Codex chat. It must include `RUN_STATUS`, `USER_REVIEW_STATUS`, `NEXT_RUN_ALLOWED`, artifact hashes, and blockers.
 
@@ -121,7 +121,7 @@ The setup task that generated this file must not execute Phase 15. Execute this 
 
 1. Confirm the runtime preflight and server prerequisites from `32_RUNTIME_PREFLIGHT_CHECKLIST.md`.
 2. Download only this family with `python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family {family}`.
-3. Run the offline revision/tokenizer/model verification for this family with `python scripts/verify_model_smoke.py --manifest data/model_cache_manifest.json`.
+3. Run the offline revision/tokenizer/model verification for this family with `python scripts/verify_model_smoke.py --manifest data/model_cache_manifest.json --model-family {family}`.
 4. Run the locked forward/backward smoke and physical-batch probe for this family when the runtime checklist permits it.
 5. Record the exact local revision, tokenizer revision, quantization, physical batch, and verification hashes.
 6. Print the complete Phase 15 report and paste it into the Codex chat.
@@ -205,7 +205,7 @@ def main() -> int:
     ))
 
     manifest = {
-        "schema_version": 2,
+        "schema_version": 3,
         "execution_policy": policy,
         "experiment_count": len(inventory["rows"]),
         "azure_job_count": len(jobs),

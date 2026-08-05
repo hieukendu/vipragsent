@@ -3,7 +3,7 @@ from .preflight import PreflightResult, run_preflight
 
 __all__ = ["DAGNode", "ExperimentDAG", "PreflightResult", "load_master_dag", "run_preflight"]
 from .context import ExecutionContext
-from .status import HandlerResult, NodeStatus, ProtocolConflict, RuntimeBlocked, RunExitCode
+from .status import HandlerResult, NodeStatus, ProtocolConflict, RunExitCode, RuntimeBlocked
 
 __all__ = [
     "ExecutionContext",

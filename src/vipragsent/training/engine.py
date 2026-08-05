@@ -316,7 +316,7 @@ class TrainingEngine:
             reference = next(self.model.parameters(), None)
             return equal_weight_loss(losses, rationale_loss, rationale_beta=self.config.rationale_beta, reference=reference)
 
-    def _default_selection(self, batches: list[dict[str, Any]]) -> SelectionResult:
+    def _default_selection(self, batches: list[dict[str, Any]], *, thresholds_override: Mapping[str, float] | None = None) -> SelectionResult:
         self.model.eval()
         true_prag = {key: [] for key in PRAGMATIC_LABELS}
         prob_prag = {key: [] for key in PRAGMATIC_LABELS}
@@ -355,7 +355,10 @@ class TrainingEngine:
         if active_prag:
             pragmatic_true = {key: true_prag[key] for key in active_prag}
             pragmatic_prob = {key: prob_prag[key] for key in active_prag}
-            thresholds = {key: tune_binary_threshold(pragmatic_true[key], pragmatic_prob[key]) for key in active_prag}
+            thresholds = dict(thresholds_override or {key: tune_binary_threshold(pragmatic_true[key], pragmatic_prob[key]) for key in active_prag})
+            missing_thresholds = [key for key in active_prag if key not in thresholds]
+            if missing_thresholds:
+                raise ValueError(f"Frozen threshold set is missing pragmatic labels: {missing_thresholds}")
             predictions.update({key: [int(value >= thresholds[key]) for value in pragmatic_prob[key]] for key in active_prag})
         if primary in {"dev_sarcasm_macro_f1", "dev_sarcasm_binary_macro_f1"}:
             if "sarcasm" not in predictions:
@@ -387,8 +390,18 @@ class TrainingEngine:
             probabilities["emotion"] = prob_emotion
         return SelectionResult(float(metric), float(np.mean(losses) if losses else 0.0), thresholds, true, probabilities, predictions, logits_export)
 
-    def _evaluate_dev(self, batches: list[dict[str, Any]], selection_callback: SelectionCallback | None = None) -> SelectionResult:
-        return selection_callback(self, batches) if selection_callback else self._default_selection(batches)
+    def _evaluate_dev(
+        self,
+        batches: list[dict[str, Any]],
+        selection_callback: SelectionCallback | None = None,
+        *,
+        thresholds_override: Mapping[str, float] | None = None,
+    ) -> SelectionResult:
+        if selection_callback:
+            if thresholds_override:
+                raise ValueError("Custom selection callbacks cannot retune or override frozen thresholds")
+            return selection_callback(self, batches)
+        return self._default_selection(batches, thresholds_override=thresholds_override)
 
     @staticmethod
     def _prediction_rows(selection: SelectionResult, *, sample_ids: list[str] | None = None) -> list[dict[str, Any]]:
@@ -432,7 +445,7 @@ class TrainingEngine:
         test_selection = None
         if test_batches is not None:
             self.gate.assert_test_allowed()
-            test_selection = self._evaluate_dev(test_batches, selection_callback)
+            test_selection = self._evaluate_dev(test_batches, selection_callback, thresholds_override=state.thresholds)
             test_ids = [sample_id for batch in test_batches for sample_id in batch.get("sample_ids", [])]
             self._write_prediction_jsonl(output_root / "test_predictions.jsonl", self._prediction_rows(test_selection, sample_ids=test_ids))
         atomic_write_json(output_root / "thresholds.json", state.thresholds)

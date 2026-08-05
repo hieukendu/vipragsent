@@ -1,13 +1,15 @@
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import re
 import subprocess
-import importlib.util
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Any
+
+import yaml
 
 from ..artifacts.schemas import validate_artifact_tree
 from ..data.loaders import load_vipragsent
@@ -89,14 +91,35 @@ def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightRes
     if mode == "full" and not checks["model_revisions_pinned"]:
         blockers.append("Immutable Hugging Face model revisions are not pinned")
     weights_manifest = root / "data" / "model_cache_manifest.json"
-    try:
-        weights_payload = json.loads(weights_manifest.read_text(encoding="utf-8")) if weights_manifest.exists() else {}
-    except json.JSONDecodeError:
-        weights_payload = {}
-        blockers.append("Model cache manifest is invalid JSON")
-    checks["model_weights_verified"] = bool(weights_payload.get("weights_downloaded") is True and all(item.get("status") == "PASS" for item in weights_payload.get("models", [])))
+    if weights_manifest.exists():
+        try:
+            json.loads(weights_manifest.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            blockers.append("Model cache manifest is invalid JSON")
+    registry_payload = yaml.safe_load((root / "configs/models/model_registry.yaml").read_text(encoding="utf-8")) if (root / "configs/models/model_registry.yaml").exists() else {}
+    model_families = [str(name) for name in (registry_payload or {}).get("models", {})]
+    from ..runtime.model_assets import read_family_status
+
+    family_records = {
+        family: {
+            "cache": read_family_status(root, family, "cache"),
+            "smoke": read_family_status(root, family, "smoke"),
+            "batch": read_family_status(root, family, "batch"),
+        }
+        for family in model_families
+    }
+    family_weights_verified = bool(family_records) and all(
+        record["cache"].get("status") == "PASS"
+        and record["smoke"].get("status") == "PASS"
+        and record["smoke"].get("actual_local_loads") is True
+        and record["batch"].get("status") == "PASS"
+        and record["batch"].get("frozen") is True
+        for record in family_records.values()
+    )
+    checks["model_family_statuses"] = family_weights_verified
+    checks["model_weights_verified"] = family_weights_verified
     if mode == "full" and not checks["model_weights_verified"]:
-        blockers.append("Model weights have not passed Phase 15 offline verification")
+        blockers.append("Every model family must pass cache, actual offline smoke, and frozen physical-batch verification")
     try:
         import torch
 
@@ -131,15 +154,12 @@ def run_preflight(root: str | Path = ".", *, mode: str = "full") -> PreflightRes
     checks["prompt_manifests"] = all(path.exists() for path in required_prompts)
     if mode == "full" and not checks["prompt_manifests"]:
         blockers.append("Frozen task-specific Azure prompt manifests are incomplete")
-    smoke_path = root / "data/model_smoke_report.json"
-    try:
-        smoke_payload = json.loads(smoke_path.read_text(encoding="utf-8")) if smoke_path.exists() else {}
-    except json.JSONDecodeError:
-        smoke_payload = {}
-        blockers.append("Model smoke report is invalid JSON")
-    checks["model_smoke_report"] = bool(smoke_payload.get("offline_load_smoke") is True and smoke_payload.get("actual_local_loads") is True)
+    checks["model_smoke_report"] = bool(family_records) and all(
+        record["smoke"].get("status") == "PASS" and record["smoke"].get("actual_local_loads") is True
+        for record in family_records.values()
+    )
     if mode == "full" and not checks["model_smoke_report"]:
-        blockers.append("Phase 15 model/tokenizer smoke report is missing")
+        blockers.append("Phase 15 actual per-family model/tokenizer smoke reports are missing or incomplete")
     checks["azure_direct_endpoint_absent"] = "api.openai.com" not in " ".join(path.read_text(encoding="utf-8", errors="ignore") for path in (root / "configs").rglob("*.yaml"))
     artifact_root = root / "experiment_artifacts"
     artifact_errors = validate_artifact_tree(artifact_root) if artifact_root.exists() and any(path.is_file() for path in artifact_root.rglob("*")) else []

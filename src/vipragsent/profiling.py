@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import statistics
 import time
-from dataclasses import dataclass, field
+from collections.abc import Callable, Iterable
+from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Callable, Iterable
+from typing import Any
 
 from .atomic import atomic_write_json
 

@@ -10,8 +10,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
-from ..constants import MAX_SEQUENCE_LENGTH
 from ..atomic import atomic_write_text
+from ..constants import MAX_SEQUENCE_LENGTH
 from ..hashing import sha256_file, sha256_json
 from ..orchestration.status import RuntimeBlocked
 
@@ -47,7 +47,7 @@ class VnCoreNLPSegmenter:
         self.client = client or self._build_client()
 
     @classmethod
-    def from_env(cls, resource_dir: str | Path | None = None) -> "VnCoreNLPSegmenter":
+    def from_env(cls, resource_dir: str | Path | None = None) -> VnCoreNLPSegmenter:
         configured = resource_dir or os.getenv("VNCORENLP_HOME")
         if not configured:
             raise RuntimeBlocked("VNCORENLP_HOME is required for production PhoBERT preprocessing")

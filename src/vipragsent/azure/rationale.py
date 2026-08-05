@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable, Mapping
 from pathlib import Path
-from typing import Any, Callable, Mapping
+from typing import Any
 
-from ..data.rationales import rationale_only_target, rationale_plus_labels_target
-from ..hashing import sha256_file, sha256_json
+from ..data.rationales import rationale_only_target
+from ..hashing import sha256_json
 
 
 def validate_rationale_text(text: str) -> str:

@@ -5,7 +5,6 @@ from dataclasses import dataclass
 
 import numpy as np
 
-
 APPROVED_P_VALUE_METHOD = "paired_hierarchical_bootstrap_sign_plus_one_v1"
 
 

@@ -4,14 +4,13 @@ import argparse
 import csv
 import json
 from collections import Counter
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 from _bootstrap import ROOT
 from vipragsent.hashing import sha256_file
 from vipragsent.phase import write_phase_handoff
-
 
 MANUAL_READMES = {
     "uit_vsfc": """# UIT-VSFC manual drop\n\nOfficial source folder: `https://drive.google.com/drive/folders/1xclbjHHK58zk2X6iqbvMPS2rcy9y9E0X`\n\nPlace the official test-folder files `sents.txt`, `sentiments.txt`, and `topics.txt` in this directory. The normalizer maps `0=negative`, `1=neutral`, and `2=positive`, and writes `data/processed/external/uit_vsfc/test.csv` with columns `sample_id,text,polarity`.\n\nKeep the author-contact permission evidence privately. Do not substitute an unsplit mirror or a random split.\n""",
@@ -257,7 +256,7 @@ def main() -> int:
     aivivn = _inspect_aivivn(ROOT / "data/external/manual_drop/aivivn_original")
     bundled = ROOT / "data/processed/external/aivivn_human_derived_3way/test.csv"
     manifest = {
-        "generated_at_utc": datetime.now(timezone.utc).isoformat(),
+        "generated_at_utc": datetime.now(UTC).isoformat(),
         "datasets": {
             "uit_vsfc": _external_entry("uit_vsfc", normalized["uit_vsfc"]),
             "uit_vsmec": _external_entry("uit_vsmec", normalized["uit_vsmec"]),

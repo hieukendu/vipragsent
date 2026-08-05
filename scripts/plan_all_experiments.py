@@ -5,9 +5,9 @@ import json
 
 from _bootstrap import ROOT
 from vipragsent.config import load_yaml
+from vipragsent.data.loaders import load_vipragsent
 from vipragsent.orchestration.dag import load_master_dag
 from vipragsent.orchestration.inventory import write_expected_runs
-from vipragsent.data.loaders import load_vipragsent
 
 
 def main() -> int:

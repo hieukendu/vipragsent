@@ -7,7 +7,6 @@ from typing import Any
 from ..constants import EXPECTED_SPLIT_COUNTS
 from ..hashing import sha256_file
 
-
 REQUIRED_MASK_COLUMNS = {
     "sample_id",
     "is_sarcasm_positive",
