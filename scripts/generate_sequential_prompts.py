@@ -18,6 +18,19 @@ RESEARCH_QUESTIONS = ("Q1a", "Q1b", "Q2", "Q3", "Q4")
 
 def _experiment_prompt(row: dict[str, Any], stage_plan: Any) -> str:
     experiment_id = row["experiment_id"]
+    generation_contract = ""
+    if row.get("system_id") == "cot_only_vistral":
+        generation_contract = """
+## Locked reasoning-generation contract
+
+Use the exact Vietnamese reasoning prompt, causal generation-only objective, greedy decoding, and the shared zero-shot reasoning judge. The judge receives generated reasoning only and emits the strict six-key JSON schema. Select only on the full-split all-zero-fallback dev metric; do not inspect test data before `freeze_selection`. Do not use a direct label parser or generated label target.
+"""
+    elif row.get("system_id") == "explanation_only_vistral":
+        generation_contract = """
+## Locked explanation-only contract
+
+Resolve exactly one approved `vipragsent_full_vistral:{seed}` source for the same seed, validate its checkpoint and approval hashes, and use only the full model rationale decoder. Do not create an optimizer, scheduler, or new checkpoint. Ignore classification-head outputs and send only the generated rationale to the shared zero-shot judge.
+"""
     return f"""# ViPragSent sequential experiment run: {experiment_id}
 
 This runbook names exactly one inventory entry. Do not start another experiment or Azure job.
@@ -44,6 +57,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Protocol resolution: `{row['protocol_resolution_status']}`
 - CLI kind: `experiment`
 - Resolved execution stage plan: `{stage_plan.plan_id}`
+{generation_contract}
 
 ## Required command sequence
 

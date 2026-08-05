@@ -157,7 +157,7 @@ def _write_run(results_root: Path, system: str, seed: int, prediction: dict[str,
         "polarity_macro_f1": multiclass_macro_f1(prediction["true_polarity"], prediction["polarity_probs"].argmax(axis=1), range(3)),
         "emotion_macro_f1": multiclass_macro_f1(prediction["true_emotion"], prediction["emotion_probs"].argmax(axis=1), range(7)),
         "polarity_ece": expected_calibration_error(prediction["true_polarity"], prediction["polarity_probs"]),
-        "inference_output_source": "parsed_generated_labels" if "cot" in system else "classification_heads",
+        "inference_output_source": "judge_of_generated_reasoning" if "cot" in system else "classification_heads",
         "rationale_decoder_enabled_at_inference": False,
         "preprocessing_name": "fixture_unicode_nfc",
         "preprocessing_version": "fixture-v1",
@@ -520,7 +520,7 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
             raise ValueError(f"Fixture or synthetic run cannot enter production export: {path}")
         if payload.get("external_finetuning") is True:
             raise ValueError(f"External fine-tuning is prohibited for this production run: {path}")
-        if payload.get("inference_output_source") not in {"classification_heads", "parsed_generated_labels"}:
+        if payload.get("inference_output_source") not in {"classification_heads", "judge_of_generated_reasoning", "judge_of_rationale_decoder_output", "parsed_generated_labels"}:
             raise ValueError(f"Production run has an invalid inference output source: {path}")
         if payload.get("rationale_decoder_enabled_at_inference") is not False:
             raise ValueError(f"Rationale decoder must be disabled at inference: {path}")

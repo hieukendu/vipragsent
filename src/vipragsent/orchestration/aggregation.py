@@ -151,6 +151,27 @@ def _table2(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
         if expected_seed_count and seeds != set(TRAINING_SEEDS):
             raise ValueError(f"Table 2 requires exactly the locked seeds for {system}: {sorted(seeds)}")
         row: dict[str, Any] = {"system": system, "backbone": backbone, "seed_count": len(seeds) if expected_seed_count else 0}
+        if system in {"cot_only_vistral", "explanation_only_vistral"}:
+            short_names = {"implicit_sentiment": "implicit", "sarcasm": "sarcasm", "irony": "irony", "idiom_figurative": "idiom", "code_switching": "code_switching", "mocking": "mocking"}
+            per_label_values: dict[str, list[float]] = defaultdict(list)
+            invalid_rates: list[float] = []
+            for summary in summaries:
+                primary = summary.get("primary_per_label_f1") or {}
+                for label in PRAGMATIC_LABELS:
+                    if label in primary:
+                        per_label_values[label].append(_required_number(primary[label], f"{system}.{label}.primary_f1"))
+                invalid_rates.append(_number(summary.get("invalid_generation_rate")) + _number(summary.get("invalid_judge_output_rate")))
+            for label in PRAGMATIC_LABELS:
+                if not per_label_values[label]:
+                    raise ValueError(f"Table 2 is missing approved primary generation metric for {system}.{label}")
+                short = short_names[label]
+                row[f"{short}_f1"] = mean(per_label_values[label])
+                row[f"{short}_ci_low"] = "NOT_APPLICABLE"
+                row[f"{short}_ci_high"] = "NOT_APPLICABLE"
+            primary_macros = [_required_number(summary.get("primary_macro_f1"), f"{system}.primary_macro_f1") for summary in summaries]
+            row.update({"macro_prag_f1": mean(primary_macros), "macro_prag_ci_low": "NOT_APPLICABLE", "macro_prag_ci_high": "NOT_APPLICABLE", "invalid_output_rate": mean(invalid_rates) if invalid_rates else 0.0})
+            rows.append(row)
+            continue
         per_label: dict[str, list[float]] = defaultdict(list)
         intervals: dict[str, list[tuple[float, float]]] = defaultdict(list)
         for summary in summaries:
@@ -185,12 +206,41 @@ def _table3(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
         summary = record["summary"]
-        metrics = _load(Path(record["run_root"]) / "metrics/external_retention_metrics.json", {}) or {}
+        metrics = _load(Path(record["run_root"]) / "metrics/external_retention_metrics.json", {}) or _load(Path(record["run_root"]) / "metrics/partial_external_retention_metrics.json", {}) or {}
         if not metrics:
             raise ValueError(f"{record['run_id']}: Q1b external retention metrics are missing")
         groups[str(summary.get("system_id"))].append({"record": record, "summary": summary, "metrics": metrics})
     rows: list[dict[str, Any]] = []
+    component_groups = {"phobert_pol_single", "phobert_emo_single"}
+    if component_groups & set(groups):
+        polarity_by_seed = {str(item["summary"].get("seed")): item for item in groups.get("phobert_pol_single", [])}
+        emotion_by_seed = {str(item["summary"].get("seed")): item for item in groups.get("phobert_emo_single", [])}
+        if set(polarity_by_seed) != set(emotion_by_seed) or set(polarity_by_seed) != {str(seed) for seed in TRAINING_SEEDS}:
+            raise ValueError("ordinary single-task Table 3 composition requires matching polarity/emotion sources for all locked seeds")
+        for seed in sorted(polarity_by_seed):
+            polarity = polarity_by_seed[seed]
+            emotion = emotion_by_seed[seed]
+            polarity_metric = polarity["metrics"]
+            emotion_metric = emotion["metrics"]
+            if set(polarity_metric.get("applicable_external_datasets", [])) != {"vsfc", "aivivn"} or set(emotion_metric.get("applicable_external_datasets", [])) != {"vsmec"}:
+                raise ValueError(f"ordinary single-task source applicability is incomplete for seed {seed}")
+            for dataset in ("vsfc", "aivivn"):
+                if f"{dataset}_macro_f1" not in polarity_metric:
+                    raise ValueError(f"ordinary single-task polarity metric is missing for {dataset}, seed {seed}")
+            if "vsmec_macro_f1" not in emotion_metric:
+                raise ValueError(f"ordinary single-task emotion metric is missing for seed {seed}")
+        composed_scores = []
+        for seed in sorted(polarity_by_seed):
+            polarity = polarity_by_seed[seed]["metrics"]
+            emotion = emotion_by_seed[seed]["metrics"]
+            vsfc = _required_number(polarity.get("vsfc_macro_f1"), f"ordinary.{seed}.vsfc")
+            vsmec = _required_number(emotion.get("vsmec_macro_f1"), f"ordinary.{seed}.vsmec")
+            aivivn = _required_number(polarity.get("aivivn_macro_f1"), f"ordinary.{seed}.aivivn")
+            composed_scores.append({"seed": seed, "vsfc": vsfc, "vsmec": vsmec, "aivivn": aivivn, "ord": (vsfc + vsmec + aivivn) / 3.0})
+        rows.append({"system": "phobert_ordinary_single_task", "polarity_checkpoint": "phobert_pol_single", "emotion_checkpoint": "phobert_emo_single", "vsfc_macro_f1": mean(item["vsfc"] for item in composed_scores), "vsmec_macro_f1": mean(item["vsmec"] for item in composed_scores), "aivivn_macro_f1": mean(item["aivivn"] for item in composed_scores), "ord_f1": mean(item["ord"] for item in composed_scores), "seed_count": len(composed_scores), "training_data": "ViPragSent", "external_finetuning": False})
     for system, values in sorted(groups.items()):
+        if system in component_groups:
+            continue
         seeds = {item["summary"].get("seed") for item in values if item["summary"].get("seed") not in (None, "NOT_APPLICABLE")}
         if seeds and seeds != set(TRAINING_SEEDS) and {str(seed) for seed in seeds} != {str(seed) for seed in TRAINING_SEEDS}:
             raise ValueError(f"Table 3 requires exactly the locked seeds for {system}: {sorted(seeds)}")
@@ -396,10 +446,11 @@ def _prediction_pairs(record: Mapping[str, Any]) -> tuple[dict[str, list[int]], 
             raise ValueError(f"{record['run_id']}: test prediction IDs are not unique")
         seen.add(sample_id)
         for label in PRAGMATIC_LABELS:
-            if label not in row.get("gold", {}) or label not in row.get("predictions", {}):
+            effective = row.get("effective_full_split_all_zero_fallback", row.get("predictions", {}))
+            if label not in row.get("gold", {}) or label not in effective:
                 raise ValueError(f"{record['run_id']}: missing pragmatic prediction label {label}")
             true[label].append(int(row["gold"][label]))
-            pred[label].append(int(row["predictions"][label]))
+            pred[label].append(int(effective[label]))
     if not seen:
         raise ValueError(f"{record['run_id']}: test prediction file is empty")
     return true, pred

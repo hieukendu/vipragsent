@@ -49,6 +49,18 @@ def _validate_prompt_text(path: Path, item: dict[str, Any], expected: dict[str, 
             errors.append(f"{path}: Q1b prompt contains a training/selection stage")
         if expected.get("research_question") == "Q4" and any(stage in plan.stages for stage in ("train", "train_generation", "execute_components")):
             errors.append(f"{path}: Q4 prompt contains a training stage")
+        if expected.get("system_id") == "cot_only_vistral":
+            for fragment in ("cot-only", "shared zero-shot reasoning judge", "generated reasoning only", "full-split all-zero-fallback", "Do not use a direct label parser"):
+                if fragment.casefold() not in text.casefold():
+                    errors.append(f"{path}: cot-only reasoning contract is missing {fragment!r}")
+            if "<LABELS>" in text or "parse_cot_generation" in text:
+                errors.append(f"{path}: direct generated-label parsing appears in the cot-only prompt")
+        if expected.get("system_id") == "explanation_only_vistral":
+            for fragment in ("approved `vipragsent_full_vistral:{seed}` source", "same seed", "Do not create an optimizer", "rationale decoder", "classification-head outputs"):
+                if fragment.casefold() not in text.casefold():
+                    errors.append(f"{path}: explanation-only contract is missing {fragment!r}")
+            if "train_generation" in text or "--stage train" in text or "create a new checkpoint" in text.casefold():
+                errors.append(f"{path}: explanation-only prompt contains a training/new-checkpoint instruction")
     elif kind == "azure_job":
         required = (identifier, "--stage preflight", "--stage all", "execute_api_job", "validate_responses", "export_artifacts", "validate_artifacts", "generate_review_summary", "--resume", "PENDING_USER_APPROVAL", "stop")
     elif kind == "phase15":

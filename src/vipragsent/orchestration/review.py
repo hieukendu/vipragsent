@@ -5,6 +5,8 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 from ..hashing import sha256_file, sha256_json
 from .contracts import ExecutionKind, RunContext, RunEntry
 from .run_store import artifact_hashes, git_commit, utc_now
@@ -21,12 +23,26 @@ TRAINABLE_FIELDS = (
     "gradient_accumulation_steps", "effective_batch_size", "maximum_epochs", "actual_epochs", "best_epoch", "best_dev_metric",
     "best_dev_loss", "checkpoint_path", "checkpoint_sha256", "frozen_thresholds", "per_label_dev_metrics", "per_label_test_metrics",
 )
+GENERATION_FIELDS = (
+    "generation_protocol_id", "generation_prompt_hash", "judge_protocol_id", "judge_prompt_hash", "judge_schema_hash",
+    "judge_model", "judge_model_version", "judge_temperature", "decoding", "rationale_source_hash",
+    "primary_metric_name", "primary_macro_f1", "primary_per_label_f1", "valid_only_macro_f1", "valid_only_per_label_f1",
+    "coverage_rate", "invalid_generation_rate", "invalid_judge_output_rate", "missing_prediction_rate", "truncation_rate",
+    "judge_usage", "judge_cache_statistics",
+)
 
 
 def _load_json(path: Path, default: Any) -> Any:
     try:
         return json.loads(path.read_text(encoding="utf-8")) if path.exists() else default
     except (OSError, json.JSONDecodeError):
+        return default
+
+
+def _load_yaml(path: Path, default: Any) -> Any:
+    try:
+        return yaml.safe_load(path.read_text(encoding="utf-8")) if path.exists() else default
+    except (OSError, yaml.YAMLError):
         return default
 
 
@@ -37,8 +53,9 @@ def _not_applicable(reason: str) -> str:
 def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[str, Any]) -> dict[str, Any]:
     run_root = Path(context.run_root)
     manifest = _load_json(run_root / "run_manifest.json", {})
-    dev = _load_json(run_root / "metrics/dev_metrics.json", {})
-    test = _load_json(run_root / "metrics/test_metrics.json", {})
+    generation = entry.system_id in {"cot_only_vistral", "explanation_only_vistral"}
+    dev = _load_json(run_root / ("metrics/dev_reasoning_metrics.json" if generation else "metrics/dev_metrics.json"), {})
+    test = _load_json(run_root / ("metrics/test_reasoning_metrics.json" if generation else "metrics/test_metrics.json"), {})
     selection = _load_json(run_root / "selection/selection_metric.json", {})
     thresholds = _load_json(run_root / "selection/thresholds.json", {})
     checkpoint = _load_json(run_root / "selection/best_checkpoint.json", {})
@@ -98,6 +115,48 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
         "applicability": applicability,
         "prediction_hashes": prediction_hashes,
     }
+    if generation:
+        protocol = _load_yaml(context.root / "configs/experiments/generation_reasoning_protocol.yaml", {})
+        judge_usage = _load_json(run_root / "judge/usage.json", {})
+        fields.update({
+            "generation_protocol_id": protocol.get("protocol_version", "NOT_APPLICABLE"),
+            "generation_prompt_hash": protocol.get("generation_prompt_hash", "NOT_APPLICABLE"),
+            "judge_protocol_id": protocol.get("judge_protocol_id", "NOT_APPLICABLE"),
+            "judge_prompt_hash": protocol.get("judge_prompt_hash", "NOT_APPLICABLE"),
+            "judge_schema_hash": protocol.get("judge_schema_hash", "NOT_APPLICABLE"),
+            "judge_model": protocol.get("judge_model", "NOT_APPLICABLE"),
+            "judge_model_version": protocol.get("judge_model_version", "NOT_APPLICABLE"),
+            "judge_temperature": protocol.get("judge_temperature", "NOT_APPLICABLE"),
+            "decoding": protocol.get("decoding", "NOT_APPLICABLE"),
+            "rationale_source_hash": checkpoint_manifest.get("rationale_source_hash", protocol.get("systems", {}).get("cot_only_vistral", {}).get("rationale_source", "NOT_APPLICABLE")),
+            "primary_metric_name": test.get("primary_metric_name", "full_split_macro_pragmatic_f1_all_zero_fallback"),
+            "primary_macro_f1": test.get("primary_macro_f1", "NOT_APPLICABLE"),
+            "primary_per_label_f1": test.get("primary_per_label_f1", "NOT_APPLICABLE"),
+            "valid_only_macro_f1": test.get("valid_only_macro_f1", "NOT_APPLICABLE"),
+            "valid_only_per_label_f1": test.get("valid_only_per_label_f1", "NOT_APPLICABLE"),
+            "coverage_rate": test.get("coverage_rate", "NOT_APPLICABLE"),
+            "invalid_generation_rate": test.get("invalid_generation_rate", "NOT_APPLICABLE"),
+            "invalid_judge_output_rate": test.get("invalid_judge_output_rate", "NOT_APPLICABLE"),
+            "missing_prediction_rate": test.get("missing_prediction_rate", "NOT_APPLICABLE"),
+            "truncation_rate": test.get("truncation_rate", "NOT_APPLICABLE"),
+            "judge_usage": judge_usage,
+            "judge_cache_statistics": {key: judge_usage.get(key, 0) for key in ("judge_cache_hits", "judge_cache_misses", "judge_retry_count", "judge_request_count")},
+            "additional_training": entry.system_id == "cot_only_vistral",
+            "direct_classification_outputs_used": False,
+            "inference_output_source": "judge_of_generated_reasoning" if entry.system_id == "cot_only_vistral" else "judge_of_rationale_decoder_output",
+        })
+        if entry.system_id == "explanation_only_vistral":
+            source = _load_json(run_root / "source/source_provenance.json", {})
+            source_data = source.get("source", source)
+            fields.update({
+                "source_run_id": source_data.get("run_id", source.get("source_run_id", "NOT_APPLICABLE")),
+                "source_checkpoint_path": source_data.get("checkpoint_path", "NOT_APPLICABLE"),
+                "source_checkpoint_sha256": source_data.get("checkpoint_sha256", source.get("source_checkpoint_sha256", "NOT_APPLICABLE")),
+                "source_approval_sha256": source_data.get("approval_sha256", source.get("source_approval_sha256", "NOT_APPLICABLE")),
+                "additional_training": False,
+                "direct_classification_outputs_used": False,
+            })
+            fields["rationale_source_hash"] = source_data.get("checkpoint_sha256", source.get("source_checkpoint_sha256", "NOT_APPLICABLE"))
     if trainable:
         training_config = _load_json(run_root / "training/optimizer_summary.json", {})
         scheduler_config = _load_json(run_root / "training/scheduler_summary.json", {})
@@ -196,7 +255,15 @@ def validate_review_summary(summary: Mapping[str, Any], *, completed: bool = Fal
             errors.append("completed summary must contain non-empty artifact paths and hashes")
         if summary.get("run_status") != "PASS":
             errors.append("completed summary run_status must be public PASS")
-        if summary.get("execution_kind") == ExecutionKind.TRAINABLE.value:
+        if summary.get("system_id") in {"cot_only_vistral", "explanation_only_vistral"}:
+            for field in GENERATION_FIELDS:
+                if summary.get(field) in (None, "", "NOT_APPLICABLE"):
+                    errors.append(f"completed generation summary field is unresolved: {field}")
+            if summary.get("inference_output_source") == "classification_heads" or summary.get("direct_classification_outputs_used") is not False:
+                errors.append("generation summary exposes direct classification outputs")
+            if summary.get("system_id") == "explanation_only_vistral" and summary.get("additional_training") is not False:
+                errors.append("explanation-only summary declares additional training")
+        elif summary.get("execution_kind") == ExecutionKind.TRAINABLE.value:
             for field in TRAINABLE_FIELDS:
                 if summary.get(field) in (None, "", "NOT_APPLICABLE"):
                     errors.append(f"completed trainable summary field is unresolved: {field}")

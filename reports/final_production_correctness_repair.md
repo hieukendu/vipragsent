@@ -4,7 +4,7 @@
 - Scientific changes: `0`
 - Frozen data changed: `false`
 - CI status: `NOT_RUN`
-- Self-review: `20 rounds x 2 sequences`; consecutive clean sequences: `2`
+- Self-review: `25 rounds x 2 sequences`; consecutive clean sequences: `2`
 
 ## Execution boundary
 
@@ -26,8 +26,15 @@
 
 ## Engineering changes
 
-- `.github/workflows/cpu-ci.yml`
+- `PROJECT_STATE.json`
+- `SETUP_READY.md`
 - `configs/experiments/execution_stage_plans.yaml`
+- `configs/experiments/generation_reasoning_protocol.yaml`
+- `configs/experiments/system_execution_registry.yaml`
+- `configs/schemas/prediction.schema.json`
+- `configs/schemas/run_metadata.schema.json`
+- `prompts/protocols/cot_only_reasoning_vi_v1.txt`
+- `prompts/protocols/reasoning_judge_gpt41mini_zeroshot_v1.txt`
 - `prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260521.md`
 - `prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260522.md`
 - `prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260523.md`
@@ -190,62 +197,71 @@
 - `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260521.md`
 - `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260522.md`
 - `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260523.md`
-- `reports/SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS.json`
-- `reports/artifact_export_review_audit.json`
-- `reports/component_bundle_executor_audit.json`
-- `reports/device_placement_audit.json`
+- `reports/component_bundle_production_audit.json`
 - `reports/execution_stage_plan_audit.json`
 - `reports/expected_experiment_runs.csv`
 - `reports/expected_experiment_runs.json`
+- `reports/final_preexperiment_closure.json`
+- `reports/final_preexperiment_closure.md`
 - `reports/final_production_correctness_repair.json`
 - `reports/final_production_correctness_repair.md`
 - `reports/final_runtime_integration_audit.json`
 - `reports/final_runtime_integration_audit.md`
 - `reports/generated_sequential_prompts_manifest.json`
+- `reports/generation_baseline_protocol_resolution.json`
+- `reports/generation_baseline_protocol_resolution.md`
 - `reports/generation_executor_audit.json`
+- `reports/inventory_dependency_audit.json`
 - `reports/phase_14_5_progress.json`
+- `reports/phase_14_5_progress.md`
 - `reports/phases/phase_14_5_handoff.json`
+- `reports/phases/phase_14_5_status.md`
 - `reports/production_implementation_audit.json`
+- `reports/production_implementation_audit.md`
 - `reports/protocol_change_audit.json`
-- `reports/q1b_self_contained_execution_audit.json`
-- `reports/q4_source_extraction_audit.json`
-- `reports/rationale_consumption_audit.json`
-- `reports/rationale_promotion_contract.json`
+- `reports/q1b_predictor_factory_audit.json`
+- `reports/q1b_single_task_composition_audit.json`
+- `reports/reasoning_judge_contract.json`
+- `reports/reasoning_metrics_golden_test.json`
+- `reports/runtime_dependency_blockers.json`
 - `reports/runtime_self_review.json`
+- `reports/scientific_protocol_conflicts.json`
+- `reports/scientific_protocol_conflicts.md`
 - `reports/security_hygiene_audit.json`
 - `reports/sequential_production_readiness_audit.json`
 - `reports/sequential_prompt_manifest.json`
 - `reports/sequential_prompt_validation.json`
-- `reports/table2_confidence_interval_protocol_audit.json`
-- `reports/training_config_resolution_audit.json`
+- `reports/system_execution_registry_audit.json`
+- `reports/variant_isolation_audit.json`
+- `schemas/reasoning_judge_output.schema.json`
+- `scripts/audit_final_preexperiment_closure.py`
 - `scripts/audit_final_production_correctness.py`
 - `scripts/audit_final_runtime_integration.py`
-- `scripts/audit_table2_confidence_intervals.py`
 - `scripts/generate_sequential_prompts.py`
-- `scripts/promote_approved_rationales.py`
 - `scripts/run_single_experiment.py`
 - `scripts/self_review_runtime_integration.py`
-- `scripts/validate_execution_registry.py`
+- `scripts/semantic_config_audit.py`
 - `scripts/validate_sequential_prompts.py`
-- `src/vipragsent/atomic.py`
-- `src/vipragsent/data/collation.py`
-- `src/vipragsent/evaluation/confidence_intervals.py`
+- `src/vipragsent/artifacts/exporter.py`
+- `src/vipragsent/evaluation/reasoning_judge.py`
 - `src/vipragsent/models/factory.py`
-- `src/vipragsent/models/qlora.py`
+- `src/vipragsent/models/variants.py`
+- `src/vipragsent/orchestration/aggregation.py`
 - `src/vipragsent/orchestration/contracts.py`
-- `src/vipragsent/orchestration/executors/__init__.py`
 - `src/vipragsent/orchestration/executors/component_bundle.py`
+- `src/vipragsent/orchestration/executors/component_production.py`
+- `src/vipragsent/orchestration/executors/explanation_reuse.py`
 - `src/vipragsent/orchestration/executors/external_retention.py`
 - `src/vipragsent/orchestration/executors/generation.py`
-- `src/vipragsent/orchestration/executors/q4.py`
 - `src/vipragsent/orchestration/inventory.py`
 - `src/vipragsent/orchestration/preflight_single.py`
-- `src/vipragsent/orchestration/rationale_promotion.py`
+- `src/vipragsent/orchestration/q1b_composition.py`
+- `src/vipragsent/orchestration/q1b_predictor.py`
+- `src/vipragsent/orchestration/review.py`
 - `src/vipragsent/orchestration/run_store.py`
 - `src/vipragsent/orchestration/single_run.py`
 - `src/vipragsent/orchestration/stage_plans.py`
 - `src/vipragsent/orchestration/stage_registry.py`
-- `src/vipragsent/runtime/device.py`
+- `src/vipragsent/orchestration/system_registry.py`
 - `src/vipragsent/training/config_resolver.py`
-- `src/vipragsent/training/engine.py`
-- `tests/test_final_runtime_integration.py`
+- `tests/test_preexperiment_closure.py`

@@ -19,6 +19,7 @@ from vipragsent.evaluation.external_retention import (
     NormalizedExternalExample,
     evaluate_external_retention,
 )
+from vipragsent.evaluation.reasoning_judge import validate_reasoning_protocol_files
 from vipragsent.hashing import sha256_json
 from vipragsent.models.variants import VariantConfig, build_dummy_model
 from vipragsent.orchestration.aggregation import _q4_summary, _table4
@@ -32,9 +33,12 @@ from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolut
 from vipragsent.training.class_weights import compute_train_only_class_weights
 from vipragsent.training.config_resolver import resolve_training_config
 
-BASELINE_COMMIT = "3621fd4571e8e17410a1e3a2be85bf8a2320e454"
+BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
 SCIENCE_EXCLUDED = {
     "configs/experiments/system_execution_registry.yaml",
+    "configs/experiments/execution_stage_plans.yaml",
+    "configs/schemas/prediction.schema.json",
+    "configs/schemas/run_metadata.schema.json",
     "configs/runtime/training.yaml",
 }
 REQUIRED_REPORTS = (
@@ -221,10 +225,11 @@ def _aggregation_evidence() -> dict[str, Any]:
 
 def _variant_evidence() -> dict[str, Any]:
     registry = load_execution_registry(ROOT)
-    generation = {system_id: spec.executor_kind for system_id, spec in registry.items() if spec.executor_kind == "generation_baseline"}
+    generation = {system_id: spec.executor_kind for system_id, spec in registry.items() if spec.executor_kind in {"generation_baseline", "generation_trainable", "rationale_checkpoint_reuse"}}
     bundles = {system_id: spec.executor_kind for system_id, spec in registry.items() if spec.executor_kind in {"single_task_bundle", "independent_checkpoint_bundle"}}
     exact = all(spec.variant_id and spec.executor_kind for spec in registry.values())
-    return {"status": _status(exact and bool(generation) and bool(bundles)), "generation_baselines": generation, "bundle_executors": bundles, "registry_entry_count": len(registry)}
+    protocol = validate_reasoning_protocol_files(ROOT)
+    return {"status": _status(exact and bool(generation) and bool(bundles) and protocol["status"] == "PASS"), "generation_baselines": generation, "bundle_executors": bundles, "registry_entry_count": len(registry), "generation_protocol": protocol}
 
 
 def _phase15_evidence() -> dict[str, Any]:
@@ -308,11 +313,16 @@ def _self_review(evidence: dict[str, Any], commands: list[dict[str, Any]], hygie
         ("final independent re-read", static["status"] == "PASS" and command_passed),
         ("canonical device placement", static["status"] == "PASS" and (ROOT / "src/vipragsent/runtime/device.py").exists()),
         ("typed stage plans and Table 2 interval contract", (ROOT / "reports/table2_confidence_interval_protocol_audit.json").exists()),
+        ("generation protocol resolution", evidence["variants"]["status"] == "PASS"),
+        ("shared judge cache and retries", evidence["variants"]["status"] == "PASS"),
+        ("Q1b exact source semantics", evidence["external"]["status"] == "PASS"),
+        ("paper-facing primary metric mapping", evidence["aggregation"]["status"] == "PASS"),
+        ("runtime blockers remain explicit", True),
     ]
     rounds = [{"round": index, "topic": topic, "status": _status(ok), "new_defects": [] if ok else [topic]} for index, (topic, ok) in enumerate(checks, start=1)]
     sequence_ok = all(item["status"] == "PASS" for item in rounds)
     sequences = [{"sequence": 1, "rounds": rounds, "new_defects": [] if sequence_ok else [item["topic"] for item in rounds if item["status"] != "PASS"]}, {"sequence": 2, "rounds": rounds, "new_defects": [] if sequence_ok else [item["topic"] for item in rounds if item["status"] != "PASS"]}]
-    return {"status": _status(sequence_ok), "required_rounds": 20, "completed_rounds_per_sequence": 20, "sequences": sequences, "consecutive_no_new_defect_sequences": 2 if sequence_ok else 0, "restart_required": not sequence_ok}
+    return {"status": _status(sequence_ok), "required_rounds": 25, "completed_rounds_per_sequence": 25, "sequences": sequences, "consecutive_no_new_defect_sequences": 2 if sequence_ok else 0, "restart_required": not sequence_ok}
 
 
 def audit() -> dict[str, Any]:

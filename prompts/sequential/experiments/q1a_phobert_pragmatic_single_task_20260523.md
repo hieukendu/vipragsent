@@ -14,7 +14,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Budget: ``
 - Task: `pragmatic`
 - Split: `vipragsent_test`
-- Dependencies: `preflight_validation;rationale_generation`
+- Dependencies: `preflight_validation`
 - Required Phase 15 assets: `model_weights;tokenizer;runtime_profile`
 - Execution kind: `component_bundle`
 - Expected artifacts: `predictions;metrics;history`
@@ -24,6 +24,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Protocol resolution: `RESOLVED`
 - CLI kind: `experiment`
 - Resolved execution stage plan: `component_bundle`
+
 
 ## Required command sequence
 

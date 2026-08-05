@@ -1,5 +1,7 @@
 {
-  "blockers": [],
+  "blockers": [
+    "compile or CPU pytest command failed"
+  ],
   "deferred_server_requirements": [
     "Java 17 and VnCoreNLP resources",
     "PEFT",
@@ -53,6 +55,7 @@
     "src/vipragsent/evaluation/external_retention.py",
     "src/vipragsent/evaluation/metrics.py",
     "src/vipragsent/evaluation/production.py",
+    "src/vipragsent/evaluation/reasoning_judge.py",
     "src/vipragsent/evaluation/thresholds.py",
     "src/vipragsent/hashing.py",
     "src/vipragsent/manual.py",
@@ -73,6 +76,8 @@
     "src/vipragsent/orchestration/dag.py",
     "src/vipragsent/orchestration/executors/__init__.py",
     "src/vipragsent/orchestration/executors/component_bundle.py",
+    "src/vipragsent/orchestration/executors/component_production.py",
+    "src/vipragsent/orchestration/executors/explanation_reuse.py",
     "src/vipragsent/orchestration/executors/external_retention.py",
     "src/vipragsent/orchestration/executors/generation.py",
     "src/vipragsent/orchestration/executors/q4.py",
@@ -81,6 +86,8 @@
     "src/vipragsent/orchestration/preflight.py",
     "src/vipragsent/orchestration/preflight_single.py",
     "src/vipragsent/orchestration/production.py",
+    "src/vipragsent/orchestration/q1b_composition.py",
+    "src/vipragsent/orchestration/q1b_predictor.py",
     "src/vipragsent/orchestration/rationale_promotion.py",
     "src/vipragsent/orchestration/review.py",
     "src/vipragsent/orchestration/run_store.py",
@@ -119,13 +126,13 @@
     "31_IMPLEMENTATION_DECISIONS.md",
     "32_RUNTIME_PREFLIGHT_CHECKLIST.md"
   ],
-  "next_phase": "15",
-  "next_phase_ready": true,
+  "next_phase": null,
+  "next_phase_ready": false,
   "phase": "14.5",
-  "production_implementation_audit_passed": true,
+  "production_implementation_audit_passed": false,
   "scientific_protocol_conflicts": [],
-  "status": "PASS",
-  "tests_passed": true,
+  "status": "FAIL",
+  "tests_passed": false,
   "tests_run": [
     "python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
     "python -m compileall -q src scripts tests",

@@ -144,15 +144,37 @@ def build_expected_runs(root: str | Path = ".") -> dict[str, Any]:
     execution_registry_path = root / "configs/experiments/system_execution_registry.yaml"
     if execution_registry_path.exists():
         execution_registry = yaml.safe_load(execution_registry_path.read_text(encoding="utf-8")) or {}
-        execution_by_system = {str(item.get("system_id")): str(item.get("executor_kind")) for item in execution_registry.get("systems", [])}
+        execution_specs = {str(item.get("system_id")): dict(item) for item in execution_registry.get("systems", [])}
+        execution_by_system = {system_id: str(item.get("executor_kind")) for system_id, item in execution_specs.items()}
         for row in rows:
-            executor_kind = execution_by_system.get(str(row.get("system_id")))
+            system_id = str(row.get("system_id"))
+            registry_spec = execution_specs.get(system_id, {})
+            executor_kind = execution_by_system.get(system_id)
             if executor_kind in {"single_task_bundle", "independent_checkpoint_bundle"}:
                 row["execution_kind"] = "component_bundle"
-            elif executor_kind == "generation_baseline":
+            elif executor_kind in {"generation_baseline", "generation_trainable"}:
                 row["execution_kind"] = "generation"
-            if row.get("execution_kind") in {"component_bundle", "generation"}:
-                row["training_applicability"] = "APPLICABLE"
+            elif executor_kind == "rationale_checkpoint_reuse":
+                row["execution_kind"] = "checkpoint_reuse"
+            if row.get("research_question") == "Q1a":
+                if bool(registry_spec.get("rationale_training", False)):
+                    row["dependencies"] = "preflight_validation;rationale_generation"
+                elif system_id == "explanation_only_vistral":
+                    row["dependencies"] = "preflight_validation;approved_full_vistral_same_seed_source"
+                else:
+                    row["dependencies"] = "preflight_validation"
+            elif row.get("research_question") == "Q1b":
+                row["dependencies"] = "approved_azure_output" if row.get("backbone") == "azure" else "approved_source_checkpoint"
+            elif row.get("research_question") == "Q4":
+                row["dependencies"] = "approved_source_predictions;approved_source_training_history"
+            dependencies = [item for item in str(row.get("dependencies", "")).split(";") if item]
+            rationale_required = bool(registry_spec.get("rationale_training", False)) and row.get("execution_kind") in {"trainable", "component_bundle", "generation"}
+            if rationale_required and "rationale_generation" not in dependencies:
+                dependencies.append("rationale_generation")
+            if not rationale_required:
+                dependencies = [item for item in dependencies if item != "rationale_generation"]
+            row["dependencies"] = ";".join(dependencies)
+            row["training_applicability"] = "APPLICABLE" if bool(registry_spec.get("additional_training", row.get("execution_kind") in {"trainable", "component_bundle", "generation"})) else "NOT_APPLICABLE"
     protocol = validate_protocol_resolution(root)
     inventory = {"schema_version": 1, "source": "configs/experiments/master_matrix.yaml and locked supporting registry", "training_seeds": list(TRAINING_SEEDS), "q3_budgets": list(Q3_BUDGETS), "scientific_protocol_conflicts": protocol["scientific_protocol_conflicts"], "rows": rows, "counts_by_question": {question: sum(row["research_question"] == question for row in rows) for question in ("Q1a", "Q1b", "Q2", "Q3", "Q4", "backbone_sensitivity")}, "derived_run_count": len(rows), "inventory_hash": sha256_json(rows)}
     validate_inventory(inventory)
@@ -193,6 +215,20 @@ def validate_inventory(inventory: dict[str, Any]) -> None:
         raise ValueError("Q1b must contain exactly one non-seeded Azure row")
     if any(row.get("execution_kind") not in {"trainable", "component_bundle", "generation", "checkpoint_reuse", "evaluation_only", "azure", "artifact_extraction"} for row in rows):
         raise ValueError("Inventory contains an unsupported execution_kind")
+    for row in rows:
+        dependencies = {item for item in str(row.get("dependencies", "")).split(";") if item}
+        system_id = str(row.get("system_id"))
+        if row.get("research_question") == "Q1a":
+            if system_id == "cot_only_vistral" and "rationale_generation" not in dependencies:
+                raise ValueError("cot_only_vistral must depend on the approved rationale source")
+            if system_id == "explanation_only_vistral" and "approved_full_vistral_same_seed_source" not in dependencies:
+                raise ValueError("explanation_only_vistral must depend on an exact same-seed full Vistral source")
+            if system_id not in {"cot_only_vistral", "explanation_only_vistral", "full_phobert", "no_emotion_auxiliary_phobert", "no_polarity_auxiliary_phobert", "no_uncertainty_weighting_phobert", "vipragsent_full_vistral"} and "rationale_generation" in dependencies:
+                raise ValueError(f"non-rationale Q1a system has a rationale dependency: {system_id}")
+        if row.get("research_question") == "Q1b" and not ({"approved_source_checkpoint", "approved_azure_output"} & dependencies):
+            raise ValueError(f"Q1b row lacks an approved source dependency: {row.get('run_id')}")
+        if row.get("research_question") == "Q4" and not {"approved_source_predictions", "approved_source_training_history"}.issubset(dependencies):
+            raise ValueError(f"Q4 row lacks approved source dependencies: {row.get('run_id')}")
 
 
 def write_expected_runs(root: str | Path = ".") -> dict[str, Any]:

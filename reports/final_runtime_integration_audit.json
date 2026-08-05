@@ -1,7 +1,7 @@
 {
   "CI_STATUS": "NOT_RUN",
-  "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
-  "code_commit_at_audit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+  "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+  "code_commit_at_audit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
   "contract_reports": {
     "artifacts": {
       "checks": {
@@ -40,35 +40,31 @@
     },
     "generation": {
       "checks": {
-        "blocker_scope_isolated": true,
         "classifier_fallback_absent": true,
         "dedicated_causal_executor_present": true,
-        "strict_raw_generation_and_parser_outputs": true,
-        "teacher_forced_cross_entropy": true,
-        "undefined_targets_blocked_exactly": true
+        "generation_resolution_active": true,
+        "protocol_files_valid": true,
+        "reasoning_artifacts_and_primary_metric": true,
+        "teacher_forced_cross_entropy": true
       },
-      "protocol_blocker": {
-        "blocker": "SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS",
-        "exact_cot_target_template_found": false,
-        "exact_explanation_target_template_found": false,
-        "phase15_blocked": false,
-        "resolution": "Block only the two generation-baseline systems; do not substitute a classifier or invent a target format.",
-        "scope": [
+      "protocol_resolution": {
+        "former_blocker": "SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS",
+        "resolution": {
+          "checkpoint_semantics": "own generation checkpoint for cot-only; approved same-seed vipragsent_full_vistral reuse for explanation-only",
+          "generation": "causal generation-only training with approved rationale targets",
+          "judge": "one shared frozen zero-shot GPT-4.1-mini judge receiving generated reasoning only",
+          "primary_metric": "full_split_macro_pragmatic_f1_all_zero_fallback",
+          "secondary_metric": "valid_only_macro_pragmatic_f1"
+        },
+        "schema_version": 1,
+        "scientific_decisions_source": "explicit user-approved protocol",
+        "status": "RESOLVED",
+        "systems": [
           "cot_only_vistral",
           "explanation_only_vistral"
-        ],
-        "sources_checked": [
-          "configs/experiments/system_execution_registry.yaml",
-          "configs/experiments/master_matrix.yaml",
-          "configs/runtime/training.yaml",
-          "src/vipragsent/data/rationales.py",
-          "src/vipragsent/models/generation.py",
-          "approved project-context Markdown and prompt files"
-        ],
-        "status": "BLOCKED",
-        "unrelated_runs_blocked": false
+        ]
       },
-      "runtime_status": "BLOCKED_FOR_TWO_UNDEFINED_GENERATION_BASELINES_ONLY",
+      "runtime_status": "READY_FOR_EXPLICIT_PHASE15_ONLY",
       "status": "PASS"
     },
     "q1b": {
@@ -140,7 +136,7 @@
     },
     "stage_plans": {
       "errors": [],
-      "plan_count": 7,
+      "plan_count": 8,
       "plans": {
         "azure": {
           "evaluation_strategy": null,
@@ -190,20 +186,43 @@
             "generate_review_summary"
           ]
         },
-        "generation": {
-          "evaluation_strategy": null,
+        "cot_only_vistral_generation": {
+          "evaluation_strategy": "reasoning_generation_shared_judge",
           "execution_kind": "generation",
-          "executor_kind": "generation_baseline",
-          "plan_id": "generation",
+          "executor_kind": "generation_trainable",
+          "plan_id": "cot_only_vistral_generation",
           "research_question": null,
           "stages": [
             "preflight",
             "train_generation",
-            "generate_dev",
-            "parse_dev",
+            "generate_dev_reasoning",
+            "judge_dev_reasoning",
+            "compute_dev_reasoning_metrics",
             "freeze_selection",
-            "generate_test",
-            "parse_test",
+            "generate_test_reasoning",
+            "judge_test_reasoning",
+            "compute_test_reasoning_metrics",
+            "export_artifacts",
+            "validate_artifacts",
+            "generate_review_summary"
+          ]
+        },
+        "explanation_only_vistral_reuse": {
+          "evaluation_strategy": "rationale_only_shared_judge",
+          "execution_kind": "checkpoint_reuse",
+          "executor_kind": "rationale_checkpoint_reuse",
+          "plan_id": "explanation_only_vistral_reuse",
+          "research_question": null,
+          "stages": [
+            "preflight",
+            "resolve_approved_full_vistral_source",
+            "validate_source_checkpoint",
+            "generate_dev_reasoning_from_rationale_decoder",
+            "judge_dev_reasoning",
+            "compute_dev_reasoning_metrics",
+            "generate_test_reasoning_from_rationale_decoder",
+            "judge_test_reasoning",
+            "compute_test_reasoning_metrics",
             "export_artifacts",
             "validate_artifacts",
             "generate_review_summary"
@@ -259,8 +278,8 @@
           ]
         }
       },
-      "registry_hash": "7F65D0E5EB211AB7D890509DE46194A0444EFAA3B0628040AC784C40908CBF58",
-      "registry_sha256": "024835961CEF8B5E687DD7662E7CD66C45ADAB4A8B1FB1F081D7082FF21832AC",
+      "registry_hash": "FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F",
+      "registry_sha256": "93C97500AC34C14E109D9F48D3B6D21CC28FAD454B4C44C3529A14FB2AC3ED41",
       "status": "PASS"
     },
     "table2": {
@@ -320,17 +339,17 @@
     "SETUP_CODE_READY": true,
     "approval_recorded": false,
     "azure_request_made": false,
-    "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+    "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
     "baseline_is_ancestor": true,
     "expected_run_count": 162,
     "frozen_hashes_unchanged": true,
-    "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+    "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
     "phase15_executed": false,
     "real_test_predictions_generated": false,
     "runtime_blockers": [
-      "Phase 15 model weights and actual offline smoke reports remain intentionally unavailable",
-      "No approved production run exists",
-      "SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS"
+      "Phase 15 has not been executed on the target server",
+      "Model-family runtime assets are not prepared",
+      "No real approved production run exists"
     ],
     "runtime_status": "BLOCKED",
     "safe_commands": [
@@ -371,7 +390,7 @@
         ],
         "returncode": 0,
         "stderr_tail": "",
-        "stdout_tail": "...........................................................              [100%]\n"
+        "stdout_tail": "...................................................................      [100%]\n"
       },
       {
         "command": [
@@ -389,7 +408,7 @@
         ],
         "returncode": 0,
         "stderr_tail": "",
-        "stdout_tail": "t_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"generation\",\n        \"executor_kind\": \"generation_baseline\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"7F65D0E5EB211AB7D890509DE46194A0444EFAA3B0628040AC784C40908CBF58\"\n  },\n  \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\"\n}\n"
+        "stdout_tail": "facts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  },\n  \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\"\n}\n"
       },
       {
         "command": [
@@ -398,7 +417,7 @@
         ],
         "returncode": 0,
         "stderr_tail": "",
-        "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\"\n}\n"
+        "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\"\n}\n"
       },
       {
         "command": [
@@ -407,7 +426,7 @@
         ],
         "returncode": 0,
         "stderr_tail": "",
-        "stdout_tail": " \"freeze_selection\",\n          \"generate_test\",\n          \"parse_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"generation\",\n        \"executor_kind\": \"generation_baseline\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"7F65D0E5EB211AB7D890509DE46194A0444EFAA3B0628040AC784C40908CBF58\"\n  }\n}\n"
+        "stdout_tail": "\"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  }\n}\n"
       },
       {
         "command": [
@@ -424,16 +443,16 @@
           "scripts/self_review_runtime_integration.py"
         ],
         "returncode": 0,
-        "stderr_tail": "",
-        "stdout_tail": "us\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"3621fd4571e8e17410a1e3a2be85bf8a2320e454\",\n          \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_blocker_isolated\": true\n        },\n        {\n          \"round\": 18,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"3621fd4571e8e17410a1e3a2be85bf8a2320e454\",\n          \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_blocker_isolated\": true\n        },\n        {\n          \"round\": 19,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"3621fd4571e8e17410a1e3a2be85bf8a2320e454\",\n          \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_blocker_isolated\": true\n        },\n        {\n          \"round\": 20,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"3621fd4571e8e17410a1e3a2be85bf8a2320e454\",\n          \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_blocker_isolated\": true\n        }\n      ],\n      \"new_defects\": []\n    }\n  ]\n}\n"
+        "skipped": true,
+        "status": "PASS"
       }
     ],
     "scientific_protocol_conflicts": [],
     "self_review": {
-      "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
-      "completed_rounds_per_sequence": 20,
+      "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+      "completed_rounds_per_sequence": 25,
       "consecutive_clean_sequences": 2,
-      "required_rounds_per_sequence": 20,
+      "required_rounds_per_sequence": 25,
       "schema_version": 1,
       "sequence_count": 2,
       "sequences": [
@@ -441,12 +460,12 @@
           "new_defects": [],
           "rounds": [
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 1,
@@ -454,12 +473,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 2,
@@ -467,12 +486,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 3,
@@ -480,12 +499,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 4,
@@ -493,12 +512,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 5,
@@ -506,12 +525,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 6,
@@ -519,12 +538,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 7,
@@ -532,12 +551,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 8,
@@ -545,12 +564,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 9,
@@ -558,12 +577,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 10,
@@ -571,12 +590,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 11,
@@ -584,12 +603,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 12,
@@ -597,12 +616,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 13,
@@ -610,12 +629,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 14,
@@ -623,12 +642,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 15,
@@ -636,12 +655,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 16,
@@ -649,12 +668,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 17,
@@ -662,12 +681,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 18,
@@ -675,12 +694,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 19,
@@ -688,15 +707,80 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 20,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 21,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 22,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 23,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 24,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 25,
               "stage_plan_status": "PASS",
               "status": "PASS"
             }
@@ -708,12 +792,12 @@
           "new_defects": [],
           "rounds": [
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 1,
@@ -721,12 +805,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 2,
@@ -734,12 +818,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 3,
@@ -747,12 +831,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 4,
@@ -760,12 +844,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 5,
@@ -773,12 +857,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 6,
@@ -786,12 +870,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 7,
@@ -799,12 +883,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 8,
@@ -812,12 +896,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 9,
@@ -825,12 +909,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 10,
@@ -838,12 +922,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 11,
@@ -851,12 +935,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 12,
@@ -864,12 +948,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 13,
@@ -877,12 +961,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 14,
@@ -890,12 +974,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 15,
@@ -903,12 +987,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 16,
@@ -916,12 +1000,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 17,
@@ -929,12 +1013,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 18,
@@ -942,12 +1026,12 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 19,
@@ -955,15 +1039,80 @@
               "status": "PASS"
             },
             {
-              "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
               "findings": [],
               "frozen_hashes_unchanged": true,
-              "generation_blocker_isolated": true,
+              "generation_protocol_resolved": true,
               "inventory_count": 162,
-              "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
               "prompt_status": "PASS",
               "registry_status": "PASS",
               "round": 20,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 21,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 22,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 23,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 24,
+              "stage_plan_status": "PASS",
+              "status": "PASS"
+            },
+            {
+              "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+              "findings": [],
+              "frozen_hashes_unchanged": true,
+              "generation_protocol_resolved": true,
+              "inventory_count": 162,
+              "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+              "prompt_status": "PASS",
+              "registry_status": "PASS",
+              "round": 25,
               "stage_plan_status": "PASS",
               "status": "PASS"
             }
@@ -1015,7 +1164,7 @@
       ],
       "returncode": 0,
       "stderr_tail": "",
-      "stdout_tail": "...........................................................              [100%]\n"
+      "stdout_tail": "...................................................................      [100%]\n"
     },
     {
       "command": [
@@ -1033,7 +1182,7 @@
       ],
       "returncode": 0,
       "stderr_tail": "",
-      "stdout_tail": "t_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"generation\",\n        \"executor_kind\": \"generation_baseline\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"7F65D0E5EB211AB7D890509DE46194A0444EFAA3B0628040AC784C40908CBF58\"\n  },\n  \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\"\n}\n"
+      "stdout_tail": "facts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  },\n  \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\"\n}\n"
     },
     {
       "command": [
@@ -1042,7 +1191,7 @@
       ],
       "returncode": 0,
       "stderr_tail": "",
-      "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\"\n}\n"
+      "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\"\n}\n"
     },
     {
       "command": [
@@ -1051,7 +1200,7 @@
       ],
       "returncode": 0,
       "stderr_tail": "",
-      "stdout_tail": " \"freeze_selection\",\n          \"generate_test\",\n          \"parse_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"generation\",\n        \"executor_kind\": \"generation_baseline\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"7F65D0E5EB211AB7D890509DE46194A0444EFAA3B0628040AC784C40908CBF58\"\n  }\n}\n"
+      "stdout_tail": "\"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  }\n}\n"
     },
     {
       "command": [
@@ -1068,17 +1217,17 @@
         "scripts/self_review_runtime_integration.py"
       ],
       "returncode": 0,
-      "stderr_tail": "",
-      "stdout_tail": "us\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"3621fd4571e8e17410a1e3a2be85bf8a2320e454\",\n          \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_blocker_isolated\": true\n        },\n        {\n          \"round\": 18,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"3621fd4571e8e17410a1e3a2be85bf8a2320e454\",\n          \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_blocker_isolated\": true\n        },\n        {\n          \"round\": 19,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"3621fd4571e8e17410a1e3a2be85bf8a2320e454\",\n          \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_blocker_isolated\": true\n        },\n        {\n          \"round\": 20,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"3621fd4571e8e17410a1e3a2be85bf8a2320e454\",\n          \"inventory_hash\": \"FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_blocker_isolated\": true\n        }\n      ],\n      \"new_defects\": []\n    }\n  ]\n}\n"
+      "skipped": true,
+      "status": "PASS"
     }
   ],
   "schema_version": 1,
   "scientific_changes": [],
   "self_review": {
-    "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
-    "completed_rounds_per_sequence": 20,
+    "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+    "completed_rounds_per_sequence": 25,
     "consecutive_clean_sequences": 2,
-    "required_rounds_per_sequence": 20,
+    "required_rounds_per_sequence": 25,
     "schema_version": 1,
     "sequence_count": 2,
     "sequences": [
@@ -1086,12 +1235,12 @@
         "new_defects": [],
         "rounds": [
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 1,
@@ -1099,12 +1248,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 2,
@@ -1112,12 +1261,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 3,
@@ -1125,12 +1274,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 4,
@@ -1138,12 +1287,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 5,
@@ -1151,12 +1300,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 6,
@@ -1164,12 +1313,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 7,
@@ -1177,12 +1326,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 8,
@@ -1190,12 +1339,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 9,
@@ -1203,12 +1352,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 10,
@@ -1216,12 +1365,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 11,
@@ -1229,12 +1378,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 12,
@@ -1242,12 +1391,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 13,
@@ -1255,12 +1404,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 14,
@@ -1268,12 +1417,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 15,
@@ -1281,12 +1430,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 16,
@@ -1294,12 +1443,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 17,
@@ -1307,12 +1456,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 18,
@@ -1320,12 +1469,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 19,
@@ -1333,15 +1482,80 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 20,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 21,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 22,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 23,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 24,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 25,
             "stage_plan_status": "PASS",
             "status": "PASS"
           }
@@ -1353,12 +1567,12 @@
         "new_defects": [],
         "rounds": [
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 1,
@@ -1366,12 +1580,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 2,
@@ -1379,12 +1593,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 3,
@@ -1392,12 +1606,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 4,
@@ -1405,12 +1619,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 5,
@@ -1418,12 +1632,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 6,
@@ -1431,12 +1645,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 7,
@@ -1444,12 +1658,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 8,
@@ -1457,12 +1671,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 9,
@@ -1470,12 +1684,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 10,
@@ -1483,12 +1697,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 11,
@@ -1496,12 +1710,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 12,
@@ -1509,12 +1723,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 13,
@@ -1522,12 +1736,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 14,
@@ -1535,12 +1749,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 15,
@@ -1548,12 +1762,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 16,
@@ -1561,12 +1775,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 17,
@@ -1574,12 +1788,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 18,
@@ -1587,12 +1801,12 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 19,
@@ -1600,15 +1814,80 @@
             "status": "PASS"
           },
           {
-            "baseline_commit": "3621fd4571e8e17410a1e3a2be85bf8a2320e454",
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
             "findings": [],
             "frozen_hashes_unchanged": true,
-            "generation_blocker_isolated": true,
+            "generation_protocol_resolved": true,
             "inventory_count": 162,
-            "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
             "prompt_status": "PASS",
             "registry_status": "PASS",
             "round": 20,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 21,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 22,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 23,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 24,
+            "stage_plan_status": "PASS",
+            "status": "PASS"
+          },
+          {
+            "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+            "findings": [],
+            "frozen_hashes_unchanged": true,
+            "generation_protocol_resolved": true,
+            "inventory_count": 162,
+            "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+            "prompt_status": "PASS",
+            "registry_status": "PASS",
+            "round": 25,
             "stage_plan_status": "PASS",
             "status": "PASS"
           }

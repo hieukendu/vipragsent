@@ -9,17 +9,20 @@ from typing import Any
 from _bootstrap import ROOT
 from validate_sequential_prompts import validate as validate_prompts
 from vipragsent.atomic import atomic_write_json
+from vipragsent.evaluation.reasoning_judge import validate_reasoning_protocol_files
 from vipragsent.orchestration.inventory import build_expected_runs
 from vipragsent.orchestration.sequential import load_execution_policy
 from vipragsent.orchestration.stage_plans import validate_stage_plan_registry
 from vipragsent.orchestration.system_registry import validate_execution_registry
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
-BASELINE_COMMIT = "3621fd4571e8e17410a1e3a2be85bf8a2320e454"
-ROUNDS_PER_SEQUENCE = 20
+BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
+ROUNDS_PER_SEQUENCE = 25
 SEQUENCES = 2
 REQUIRED_REPORTS = (
-    "reports/SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS.json",
+    "reports/generation_baseline_protocol_resolution.json",
+    "reports/reasoning_judge_contract.json",
+    "reports/reasoning_metrics_golden_test.json",
     "reports/table2_confidence_interval_protocol_audit.json",
     "reports/generated_sequential_prompts_manifest.json",
     "reports/sequential_prompt_validation.json",
@@ -86,17 +89,13 @@ def _contract_check(root: Path, *, prompts: dict[str, Any] | None = None) -> dic
         findings.extend(prompts["errors"][:10])
     if policy != expected_policy:
         findings.append("sequential execution policy differs from the locked review-gated policy")
-    blocker_path = root / "reports/SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS.json"
-    if not blocker_path.exists():
-        findings.append("generation target protocol blocker is missing")
-    else:
-        blocker = json.loads(blocker_path.read_text(encoding="utf-8"))
-        if blocker.get("status") != "BLOCKED" or blocker.get("blocker") != "SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS":
-            findings.append("generation target blocker has the wrong status or code")
-        if set(blocker.get("scope", [])) != {"cot_only_vistral", "explanation_only_vistral"}:
-            findings.append("generation target blocker scope is not isolated to the two undefined systems")
-        if blocker.get("phase15_blocked") is not False or blocker.get("unrelated_runs_blocked") is not False:
-            findings.append("generation target blocker leaks into unrelated execution")
+    protocol_files = validate_reasoning_protocol_files(root)
+    if protocol_files["status"] != "PASS":
+        findings.extend(protocol_files["errors"])
+    resolution_path = root / "reports/generation_baseline_protocol_resolution.json"
+    resolution = json.loads(resolution_path.read_text(encoding="utf-8")) if resolution_path.exists() else {}
+    if resolution.get("status") != "RESOLVED" or set(resolution.get("systems", [])) != {"cot_only_vistral", "explanation_only_vistral"}:
+        findings.append("generation protocol resolution is missing or incomplete")
     for relative in REQUIRED_REPORTS:
         if not (root / relative).exists():
             findings.append(f"required implementation contract is missing: {relative}")
@@ -111,7 +110,7 @@ def _contract_check(root: Path, *, prompts: dict[str, Any] | None = None) -> dic
         "registry_status": registry["status"],
         "stage_plan_status": stage_plans["status"],
         "frozen_hashes_unchanged": frozen["unchanged"],
-        "generation_blocker_isolated": not any("generation target blocker" in item for item in findings),
+        "generation_protocol_resolved": not any("generation protocol resolution" in item for item in findings),
     }
 
 

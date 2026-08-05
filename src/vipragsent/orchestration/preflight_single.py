@@ -149,12 +149,13 @@ def run_single_preflight(
         if spec is None and not fixture:
             blockers.append(f"exact model family is not in the locked registry: {model_family}")
         if spec is not None:
-            if execution_spec and execution_spec.executor_kind == "generation_baseline":
-                generation_blocker = root / "reports/SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS.json"
-                generation_ready = not generation_blocker.exists()
-                _check(checks, "generation_target_protocol", generation_ready, detail="exact approved generation targets are present" if generation_ready else "SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS")
+            if execution_spec and execution_spec.executor_kind in {"generation_baseline", "generation_trainable", "rationale_checkpoint_reuse"}:
+                from .executors.generation import generation_targets_available
+
+                generation_ready = generation_targets_available(root)
+                _check(checks, "generation_reasoning_protocol", generation_ready, detail="versioned reasoning prompt/schema/config hashes are valid" if generation_ready else "generation reasoning protocol files are incomplete")
                 if not generation_ready:
-                    blockers.append("SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS")
+                    blockers.append("generation reasoning protocol files are incomplete")
             pinned = bool(spec.get("revision")) and bool(spec.get("tokenizer_revision"))
             _check(checks, "model_revisions_pinned", pinned, detail=f"revision={spec.get('revision')}; tokenizer_revision={spec.get('tokenizer_revision')}")
             if not pinned:

@@ -1,33 +1,29 @@
 {
   "checks": {
-    "blocker_scope_isolated": true,
     "classifier_fallback_absent": true,
     "dedicated_causal_executor_present": true,
-    "strict_raw_generation_and_parser_outputs": true,
-    "teacher_forced_cross_entropy": true,
-    "undefined_targets_blocked_exactly": true
+    "generation_resolution_active": true,
+    "protocol_files_valid": true,
+    "reasoning_artifacts_and_primary_metric": true,
+    "teacher_forced_cross_entropy": true
   },
-  "protocol_blocker": {
-    "blocker": "SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS",
-    "exact_cot_target_template_found": false,
-    "exact_explanation_target_template_found": false,
-    "phase15_blocked": false,
-    "resolution": "Block only the two generation-baseline systems; do not substitute a classifier or invent a target format.",
-    "scope": [
+  "protocol_resolution": {
+    "former_blocker": "SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS",
+    "resolution": {
+      "checkpoint_semantics": "own generation checkpoint for cot-only; approved same-seed vipragsent_full_vistral reuse for explanation-only",
+      "generation": "causal generation-only training with approved rationale targets",
+      "judge": "one shared frozen zero-shot GPT-4.1-mini judge receiving generated reasoning only",
+      "primary_metric": "full_split_macro_pragmatic_f1_all_zero_fallback",
+      "secondary_metric": "valid_only_macro_pragmatic_f1"
+    },
+    "schema_version": 1,
+    "scientific_decisions_source": "explicit user-approved protocol",
+    "status": "RESOLVED",
+    "systems": [
       "cot_only_vistral",
       "explanation_only_vistral"
-    ],
-    "sources_checked": [
-      "configs/experiments/system_execution_registry.yaml",
-      "configs/experiments/master_matrix.yaml",
-      "configs/runtime/training.yaml",
-      "src/vipragsent/data/rationales.py",
-      "src/vipragsent/models/generation.py",
-      "approved project-context Markdown and prompt files"
-    ],
-    "status": "BLOCKED",
-    "unrelated_runs_blocked": false
+    ]
   },
-  "runtime_status": "BLOCKED_FOR_TWO_UNDEFINED_GENERATION_BASELINES_ONLY",
+  "runtime_status": "READY_FOR_EXPLICIT_PHASE15_ONLY",
   "status": "PASS"
 }

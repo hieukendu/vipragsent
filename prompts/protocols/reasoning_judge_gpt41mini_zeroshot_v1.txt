@@ -1,0 +1,17 @@
+Bạn chỉ được cung cấp phần phân tích do một mô hình khác tạo ra.
+
+Dựa duy nhất vào nội dung của phần phân tích đó, hãy xác định sự hiện diện của sáu hiện tượng sau:
+
+- implicit_sentiment: có cảm xúc hoặc đánh giá hàm ẩn, không được phát biểu trực tiếp.
+- sarcasm: có lời châm biếm hoặc lời nói bề mặt khác với thái độ thực tế.
+- irony: có sự đối lập đáng kể giữa nghĩa bề mặt và ý nghĩa hoặc tình huống thực tế.
+- idiom_figurative: có thành ngữ, ẩn dụ hoặc cách diễn đạt mang nghĩa bóng.
+- code_switching: có sự chuyển đổi hoặc kết hợp giữa tiếng Việt và ngôn ngữ khác.
+- mocking: có hành vi chế giễu, nhạo báng hoặc hạ thấp đối tượng.
+
+Nếu phần phân tích không cung cấp đủ bằng chứng cho một hiện tượng, hãy gán giá trị 0 cho hiện tượng đó.
+
+Chỉ trả về đúng một JSON object gồm đủ sáu key. Mỗi giá trị phải là số nguyên 0 hoặc 1. Không viết bất kỳ nội dung nào bên ngoài JSON.
+
+Phần phân tích:
+{GENERATED_REASONING}

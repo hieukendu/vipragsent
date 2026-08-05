@@ -1,0 +1,49 @@
+{
+  "checks": {
+    "coverage_rate": true,
+    "invalid_generation_rate": true,
+    "invalid_row_preserved": true,
+    "primary_macro_f1": true,
+    "truncation_rate": true,
+    "valid_only_macro_f1": true
+  },
+  "expected": {
+    "coverage_rate": 0.6666666666666666,
+    "invalid_generation_rate": 0.3333333333333333,
+    "primary_macro_f1": 1.0,
+    "truncation_rate": 0.3333333333333333,
+    "valid_only_macro_f1": 1.0
+  },
+  "observed": {
+    "coverage_rate": 0.6666666666666666,
+    "invalid_count": 1,
+    "invalid_generation_rate": 0.3333333333333333,
+    "invalid_judge_output_rate": 0.0,
+    "missing_prediction_rate": 0.0,
+    "primary_macro_f1": 1.0,
+    "primary_metric_name": "full_split_macro_pragmatic_f1_all_zero_fallback",
+    "primary_per_label_f1": {
+      "code_switching": 1.0,
+      "idiom_figurative": 1.0,
+      "implicit_sentiment": 1.0,
+      "irony": 1.0,
+      "mocking": 1.0,
+      "sarcasm": 1.0
+    },
+    "requested_count": 3,
+    "significance_prediction_source": "effective_full_split_all_zero_fallback",
+    "truncation_rate": 0.3333333333333333,
+    "valid_count": 2,
+    "valid_only_macro_f1": 1.0,
+    "valid_only_metric_name": "valid_only_macro_pragmatic_f1",
+    "valid_only_per_label_f1": {
+      "code_switching": 1.0,
+      "idiom_figurative": 1.0,
+      "implicit_sentiment": 1.0,
+      "irony": 1.0,
+      "mocking": 1.0,
+      "sarcasm": 1.0
+    }
+  },
+  "status": "PASS"
+}

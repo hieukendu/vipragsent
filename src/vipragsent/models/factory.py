@@ -16,6 +16,9 @@ from .backbones import load_pretrained_backbone
 from .qlora import build_qlora_backbone
 from .variants import (
     GenerationBaselineModel,
+    IndependentCheckpointBundle,
+    SingleTaskClassifier,
+    SingleTaskPragmaticBundle,
     VariantConfig,
     ViPragSentModel,
 )
@@ -71,8 +74,6 @@ def build_production_model(
         raise ValueError("Use build_dummy_model explicitly for fixture mode")
     if not local_snapshot:
         raise RuntimeBlocked(f"Pinned local snapshot is required before loading {backbone}")
-    if variant in {"phobert_pragmatic_single_task", "no_multitask"}:
-        raise RuntimeBlocked("independent bundle variants must use the component bundle executor")
     family = "encoder" if spec.architecture == "encoder" else "causal"
     selected = resolve_selected_cuda_device(selected_device)
 
@@ -103,10 +104,67 @@ def build_production_model(
     )
     if config.hidden_size <= 0 or config.vocab_size <= 0:
         raise RuntimeBlocked("Loaded backbone did not expose hidden_size and vocab_size")
-    if variant in {"cot_only_vistral", "explanation_only_vistral"}:
+    if variant == "phobert_pragmatic_single_task":
+        model = SingleTaskPragmaticBundle(load_base, config)
+    elif variant == "no_multitask":
+        model = IndependentCheckpointBundle(load_base, config)
+    elif variant == "cot_only_vistral":
         model = GenerationBaselineModel(base, config)
+    elif variant == "explanation_only_vistral":
+        full_config = VariantConfig(
+            name="vipragsent_full_vistral",
+            backbone_family=family,
+            hidden_size=config.hidden_size,
+            vocab_size=config.vocab_size,
+            rationale_vocab_size=config.vocab_size,
+        )
+        model = ViPragSentModel(base, full_config)
+        model.baseline_variant = "explanation_only_vistral"  # type: ignore[attr-defined]
     else:
         model = ViPragSentModel(base, config)
+    if spec.quantization == "nf4":
+        place_task_modules(model, selected)
+    else:
+        place_non_quantized_model(model, selected, model_family=backbone)
+    return model, spec
+
+
+def build_production_component_model(
+    backbone: str,
+    component: str,
+    *,
+    registry_path: str | Path = "configs/models/model_registry.yaml",
+    local_snapshot: str | Path | None = None,
+    execution_mode: str = "production",
+    selected_device: str | int | None = None,
+) -> tuple[nn.Module, ModelRuntimeSpec]:
+    """Build exactly one independent component model for bundle execution."""
+    allowed = {"implicit_sentiment", "sarcasm", "irony", "idiom_figurative", "code_switching", "mocking", "polarity", "emotion"}
+    if component not in allowed:
+        raise ValueError(f"Unknown component: {component}")
+    specs = load_model_registry(registry_path)
+    if backbone not in specs:
+        raise ValueError(f"Unknown locked backbone {backbone}")
+    spec = specs[backbone]
+    if execution_mode == "fixture":
+        raise ValueError("Use build_dummy_model explicitly for fixture mode")
+    if not local_snapshot:
+        raise RuntimeBlocked(f"Pinned local snapshot is required before loading {backbone}")
+    selected = resolve_selected_cuda_device(selected_device)
+    family = "encoder" if spec.architecture == "encoder" else "causal"
+    if spec.quantization == "nf4":
+        base = build_qlora_backbone(spec.repo_id, revision=spec.revision, local_path=str(local_snapshot), selected_device=selected)
+    else:
+        base = load_pretrained_backbone(spec.repo_id, revision=spec.revision, family=family, trust_remote_code=spec.trust_remote_code, local_path=local_snapshot, local_files_only=True)
+    config = VariantConfig(
+        name=f"component_{component}",
+        backbone_family=family,
+        hidden_size=int(getattr(base.config, "hidden_size", 0)),
+        vocab_size=int(getattr(base.config, "vocab_size", 0)),
+    )
+    if config.hidden_size <= 0 or config.vocab_size <= 0:
+        raise RuntimeBlocked("Loaded backbone did not expose hidden_size and vocab_size")
+    model = SingleTaskClassifier(base, config, output_key=component)
     if spec.quantization == "nf4":
         place_task_modules(model, selected)
     else:

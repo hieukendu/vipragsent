@@ -1,0 +1,17 @@
+{
+  "former_blocker": "SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS",
+  "resolution": {
+    "checkpoint_semantics": "own generation checkpoint for cot-only; approved same-seed vipragsent_full_vistral reuse for explanation-only",
+    "generation": "causal generation-only training with approved rationale targets",
+    "judge": "one shared frozen zero-shot GPT-4.1-mini judge receiving generated reasoning only",
+    "primary_metric": "full_split_macro_pragmatic_f1_all_zero_fallback",
+    "secondary_metric": "valid_only_macro_pragmatic_f1"
+  },
+  "schema_version": 1,
+  "scientific_decisions_source": "explicit user-approved protocol",
+  "status": "RESOLVED",
+  "systems": [
+    "cot_only_vistral",
+    "explanation_only_vistral"
+  ]
+}

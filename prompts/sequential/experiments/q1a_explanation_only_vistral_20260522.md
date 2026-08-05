@@ -14,16 +14,21 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Budget: ``
 - Task: `pragmatic`
 - Split: `vipragsent_test`
-- Dependencies: `preflight_validation;rationale_generation`
+- Dependencies: `preflight_validation;approved_full_vistral_same_seed_source`
 - Required Phase 15 assets: `model_weights;tokenizer;runtime_profile`
-- Execution kind: `generation`
+- Execution kind: `checkpoint_reuse`
 - Expected artifacts: `predictions;metrics;history`
 - Selection metric: `macro_prag_f1_dev`
 - Evaluation protocol: `q1a_frozen_dev_threshold_v1`
 - Reusable checkpoint key: `explanation_only_vistral:20260522`
 - Protocol resolution: `RESOLVED`
 - CLI kind: `experiment`
-- Resolved execution stage plan: `generation`
+- Resolved execution stage plan: `explanation_only_vistral_reuse`
+
+## Locked explanation-only contract
+
+Resolve exactly one approved `vipragsent_full_vistral:{seed}` source for the same seed, validate its checkpoint and approval hashes, and use only the full model rationale decoder. Do not create an optimizer, scheduler, or new checkpoint. Ignore classification-head outputs and send only the generated rationale to the shared zero-shot judge.
+
 
 ## Required command sequence
 
@@ -35,7 +40,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 
 ## Required review handoff
 
-The run must complete these stages in order: `preflight, train_generation, generate_dev, parse_dev, freeze_selection, generate_test, parse_test, export_artifacts, validate_artifacts, generate_review_summary`.
+The run must complete these stages in order: `preflight, resolve_approved_full_vistral_source, validate_source_checkpoint, generate_dev_reasoning_from_rationale_decoder, judge_dev_reasoning, compute_dev_reasoning_metrics, generate_test_reasoning_from_rationale_decoder, judge_test_reasoning, compute_test_reasoning_metrics, export_artifacts, validate_artifacts, generate_review_summary`.
 
 Print the complete review summary with `python scripts/print_run_review_summary.py --run-id q1a_explanation_only_vistral_20260522` and paste it into the Codex chat. It must include `RUN_STATUS`, `USER_REVIEW_STATUS`, `NEXT_RUN_ALLOWED`, artifact hashes, and blockers.
 

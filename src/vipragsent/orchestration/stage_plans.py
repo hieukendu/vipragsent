@@ -69,6 +69,11 @@ def resolve_stage_plan(root: str | Path, entry: Mapping[str, Any], execution_spe
                 evaluation_strategy = resolved_spec.evaluation_strategy
         except ValueError:
             registry_executor = ""
+    system_id = str(entry.get("system_id", ""))
+    if system_id == "cot_only_vistral":
+        return plans["cot_only_vistral_generation"]
+    if system_id == "explanation_only_vistral":
+        return plans["explanation_only_vistral_reuse"]
     if research_question == "Q1b" and execution_kind == "evaluation_only" and evaluation_strategy in {"q1b_external_retention", "q1b_external_retention_v1"}:
         return plans["q1b_evaluation_only"]
     if research_question == "Q4" and execution_kind == "artifact_extraction":
@@ -77,8 +82,8 @@ def resolve_stage_plan(root: str | Path, entry: Mapping[str, Any], execution_spe
         return plans["checkpoint_reuse"]
     if execution_kind == "component_bundle" or registry_executor in {"single_task_bundle", "independent_checkpoint_bundle"}:
         return plans["component_bundle"]
-    if execution_kind == "generation" or registry_executor == "generation_baseline":
-        return plans["generation"]
+    if execution_kind == "generation" or registry_executor in {"generation_baseline", "generation_trainable", "rationale_checkpoint_reuse"}:
+        raise ValueError(f"generation baseline {system_id!r} has no exact registered system plan")
     if execution_kind == "trainable" and registry_executor == "single_model_trainable":
         return plans["trainable_classifier"]
     raise ValueError(
@@ -94,7 +99,8 @@ def validate_stage_plan_registry(root: str | Path = ".") -> dict[str, Any]:
     expected = {
         "trainable_classifier": ("preflight", "train", "evaluate_dev", "freeze_selection", "evaluate_test", "export_artifacts", "validate_artifacts", "generate_review_summary"),
         "component_bundle": ("preflight", "execute_components", "combine_component_predictions", "evaluate_dev", "freeze_component_selection", "evaluate_test", "export_artifacts", "validate_artifacts", "generate_review_summary"),
-        "generation": ("preflight", "train_generation", "generate_dev", "parse_dev", "freeze_selection", "generate_test", "parse_test", "export_artifacts", "validate_artifacts", "generate_review_summary"),
+        "cot_only_vistral_generation": ("preflight", "train_generation", "generate_dev_reasoning", "judge_dev_reasoning", "compute_dev_reasoning_metrics", "freeze_selection", "generate_test_reasoning", "judge_test_reasoning", "compute_test_reasoning_metrics", "export_artifacts", "validate_artifacts", "generate_review_summary"),
+        "explanation_only_vistral_reuse": ("preflight", "resolve_approved_full_vistral_source", "validate_source_checkpoint", "generate_dev_reasoning_from_rationale_decoder", "judge_dev_reasoning", "compute_dev_reasoning_metrics", "generate_test_reasoning_from_rationale_decoder", "judge_test_reasoning", "compute_test_reasoning_metrics", "export_artifacts", "validate_artifacts", "generate_review_summary"),
         "q1b_evaluation_only": ("preflight", "resolve_approved_source", "evaluate_external_tests", "export_artifacts", "validate_artifacts", "generate_review_summary"),
         "q4_source_extraction": ("preflight", "resolve_approved_source", "validate_source_predictions", "extract_pragmatic_calibration", "extract_learning_history", "export_artifacts", "validate_artifacts", "generate_review_summary"),
         "checkpoint_reuse": ("preflight", "resolve_approved_source", "evaluate_reused_test", "export_artifacts", "validate_artifacts", "generate_review_summary"),

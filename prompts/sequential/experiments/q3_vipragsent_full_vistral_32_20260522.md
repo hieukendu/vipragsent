@@ -14,7 +14,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Budget: `32`
 - Task: `sarcasm;rationale;other_tasks`
 - Split: `dev;test`
-- Dependencies: `q3_low_resource`
+- Dependencies: `q3_low_resource;rationale_generation`
 - Required Phase 15 assets: `model_weights;tokenizer;runtime_profile`
 - Execution kind: `trainable`
 - Expected artifacts: `q3_metrics;thresholds;mask_provenance`
@@ -24,6 +24,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Protocol resolution: `RESOLVED`
 - CLI kind: `experiment`
 - Resolved execution stage plan: `trainable_classifier`
+
 
 ## Required command sequence
 
