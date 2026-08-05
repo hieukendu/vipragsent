@@ -11,6 +11,7 @@ from typing import Any
 import yaml
 
 from ..atomic import atomic_write_json, atomic_write_text
+from ..azure.client import AzureCache, AzureResponsesClient, AzureSettings
 from ..constants import PRAGMATIC_LABELS
 from ..hashing import sha256_file
 from .metrics import binary_macro_f1
@@ -225,6 +226,7 @@ class ReasoningJudge:
         root: str | Path,
         *,
         transport: Callable[..., Any] | None = None,
+        client: AzureResponsesClient | None = None,
         cache_root: str | Path | None = None,
         sleep_fn: Callable[[float], None] = time.sleep,
         max_attempts: int = 5,
@@ -239,28 +241,44 @@ class ReasoningJudge:
             validate_azure_judge_manifest(self.root)
         self.prompt_template = (self.root / str(self.protocol["judge_prompt_path"])).read_text(encoding="utf-8")
         self.schema = json.loads((self.root / str(self.protocol["judge_schema_path"])).read_text(encoding="utf-8"))
-        self.transport = transport or self._azure_transport
         self.sleep_fn = sleep_fn
         self.max_attempts = int(max_attempts)
         if self.max_attempts != 5:
             raise ValueError("the locked reasoning judge allows exactly five total attempts")
         self.cache_root = Path(cache_root) if cache_root is not None else self.root / "results/reasoning_judge_cache"
         self.cache_root.mkdir(parents=True, exist_ok=True)
+        if client is not None and transport is not None:
+            raise ValueError("pass either client or transport, not both")
+        if client is None:
+            if transport is not None:
+                settings = AzureSettings(
+                    endpoint="https://fixture.azure.com/",
+                    base_url="https://fixture.azure.com/openai/v1/",
+                    deployment="gpt-4.1-mini",
+                    batch_deployment=None,
+                    auth_mode="api_key",
+                    model_family="GPT-4.1-mini",
+                    expected_model_version=str(self.protocol["judge_model_version"]),
+                )
+
+                def fixture_transport(**kwargs: Any) -> Any:
+                    return transport(
+                        prompt=kwargs["input"],
+                        schema=self.schema,
+                        temperature=kwargs["temperature"],
+                        max_output_tokens=kwargs["max_output_tokens"],
+                        metadata=kwargs.get("metadata", {}),
+                    )
+
+                client = AzureResponsesClient(settings, transport=fixture_transport, cache=AzureCache(self.cache_root))
+            else:
+                settings = AzureSettings.from_env()
+                client = AzureResponsesClient(settings, cache=AzureCache(self.cache_root))
+        elif client.cache is None:
+            client.cache = AzureCache(self.cache_root)
+        self.client = client
+        self.transport = transport
         self.diagnostics = _empty_diagnostics()
-        self._cache_records: dict[str, dict[str, Any]] = {}
-
-    def _azure_transport(self, **kwargs: Any) -> Any:
-        from ..azure.client import AzureResponsesClient, AzureSettings
-
-        settings = AzureSettings.from_env()
-        client = AzureResponsesClient(settings)
-        return client._default_transport(
-            input=kwargs["prompt"],
-            text={"format": {"type": "json_schema", "name": "vipragsent_reasoning_judge", "strict": True, "schema": self.schema}},
-            max_output_tokens=int(self.protocol["judge_max_output_tokens"]),
-            temperature=int(self.protocol["judge_temperature"]),
-            metadata={"judge_protocol_id": self.protocol["judge_protocol_id"], "prompt_hash": self.prompt_hash, "schema_hash": self.schema_hash},
-        )
 
     @property
     def prompt_hash(self) -> str:
@@ -280,21 +298,34 @@ class ReasoningJudge:
         return hashlib.sha256(identity.encode("utf-8")).hexdigest()
 
     def _cache_path(self, key: str) -> Path:
-        return self.cache_root / f"{key}.json"
+        return self.client.cache.path_for(key) if self.client.cache is not None else self.cache_root / f"{key}.json"
 
     def _read_cache(self, key: str) -> dict[str, Any] | None:
-        path = self._cache_path(key)
-        if not path.exists():
+        if self.client.cache is None:
             return None
-        try:
-            value = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
-            return None
-        return value if isinstance(value, dict) else None
+        return self.client.cache.get(key, expected_model_family=self.client.settings.model_family, expected_model_version=str(self.protocol["judge_model_version"]))
 
     def _write_cache(self, key: str, value: Mapping[str, Any]) -> None:
-        atomic_write_json(self._cache_path(key), dict(value))
-        self._cache_records[key] = dict(value)
+        if self.client.cache is not None:
+            self.client.cache.put(key, dict(value))
+
+    def _invalid_generation_record(self, key: str, reason: str) -> dict[str, Any]:
+        return {
+            "valid": False,
+            "labels": None,
+            "raw_response": None,
+            "invalid_stage": "generation",
+            "invalid_reason": reason,
+            "cache_key": key,
+            "cache_hit": False,
+            "retry_count": 0,
+            "normalized_reasoning_sha256": hashlib.sha256(b"").hexdigest(),
+            "usage": {},
+            "observed_model": self.client.settings.model_family,
+            "observed_model_version": str(self.protocol["judge_model_version"]),
+            "expected_model_family": self.client.settings.model_family,
+            "expected_model_version": str(self.protocol["judge_model_version"]),
+        }
 
     def _render(self, reasoning: str) -> str:
         return self.prompt_template.replace("{GENERATED_REASONING}", normalize_reasoning(reasoning))
@@ -327,43 +358,41 @@ class ReasoningJudge:
             return dict(cached) | {"cache_hit": True}
         self.diagnostics["judge_cache_misses"] += 1
         if not normalized:
-            record = {"valid": False, "labels": None, "raw_response": None, "invalid_stage": "generation", "invalid_reason": "empty_reasoning", "cache_key": key, "cache_hit": False, "retry_count": 0, "normalized_reasoning_sha256": hashlib.sha256(b"").hexdigest(), "usage": {}}
+            record = self._invalid_generation_record(key, "empty_reasoning")
             self._write_cache(key, record)
             return record
         prompt = self._render(normalized)
         request_id = hashlib.sha256((key + prompt).encode("utf-8")).hexdigest()[:24]
-        retries = 0
-        for attempt in range(self.max_attempts):
-            response: Any = None
-            self.diagnostics["judge_request_count"] += 1
-            try:
-                response = self.transport(prompt=prompt, schema=self.schema, temperature=0, max_output_tokens=int(self.protocol["judge_max_output_tokens"]), metadata={"judge_protocol_id": self.judge_protocol_id, "cache_key": key, "request_id": request_id})
-                transport_error = _transport_error(response)
-                if transport_error is not None:
-                    raise transport_error
-                record = self._judge_response(response, request_id=request_id, retry_count=retries, key=key, normalized=normalized)
-                usage = record.get("usage", {})
-                self.diagnostics["judge_input_tokens"] += int(usage.get("input_tokens", usage.get("prompt_tokens", 0)) or 0)
-                self.diagnostics["judge_output_tokens"] += int(usage.get("output_tokens", usage.get("completion_tokens", 0)) or 0)
-                self.diagnostics["judge_retry_count"] += retries
-                return record
-            except JudgeSemanticError as exc:
-                record = {"valid": False, "labels": None, "raw_response": response, "invalid_stage": "judge_response", "invalid_reason": str(exc), "cache_key": key, "cache_hit": False, "retry_count": retries, "normalized_reasoning_sha256": hashlib.sha256(normalized.encode("utf-8")).hexdigest(), "usage": (response.get("usage", {}) if isinstance(response, Mapping) else {})}
-                self._write_cache(key, record)
-                self.diagnostics["judge_retry_count"] += retries
-                return record
-            except Exception as exc:
-                if not _retryable(exc) or attempt == self.max_attempts - 1:
-                    record = {"valid": False, "labels": None, "raw_response": None, "invalid_stage": "judge_request", "invalid_reason": str(exc), "cache_key": key, "cache_hit": False, "retry_count": retries, "normalized_reasoning_sha256": hashlib.sha256(normalized.encode("utf-8")).hexdigest(), "usage": {}}
-                    self._write_cache(key, record)
-                    self.diagnostics["judge_retry_count"] += retries
-                    return record
-                delay = _retry_after(exc)
-                if delay is None:
-                    delay = float((2, 4, 8, 16)[min(attempt, 3)])
-                retries += 1
-                self.sleep_fn(delay)
-        raise AssertionError("reasoning judge retry loop exhausted unexpectedly")
+        record = self.client.create_structured(
+            prompt=prompt,
+            task="reasoning_judge",
+            schema={"strict": True, "schema": self.schema},
+            max_output_tokens=int(self.protocol["judge_max_output_tokens"]),
+            input_payload=normalized,
+            expected_model_version=str(self.protocol["judge_model_version"]),
+            cache_identity={
+                "judge_protocol_id": self.judge_protocol_id,
+                "request_id": request_id,
+            },
+            cache_key=key,
+            output_validator=validate_judge_labels,
+            return_invalid=True,
+            terminal_invalid_stage="judge_response",
+            retries=self.max_attempts - 1,
+            sleep=self.sleep_fn,
+        )
+        record = dict(record)
+        retry_count = int(record.get("retry_count", 0) or 0)
+        record["cache_key"] = key
+        record["normalized_reasoning_sha256"] = hashlib.sha256(normalized.encode("utf-8")).hexdigest()
+        record.setdefault("cache_hit", False)
+        self._write_cache(key, record)
+        self.diagnostics["judge_request_count"] += 1 + retry_count
+        self.diagnostics["judge_retry_count"] += retry_count
+        usage = record.get("usage", {})
+        self.diagnostics["judge_input_tokens"] += int(usage.get("input_tokens", usage.get("prompt_tokens", 0)) or 0) if isinstance(usage, Mapping) else 0
+        self.diagnostics["judge_output_tokens"] += int(usage.get("output_tokens", usage.get("completion_tokens", 0)) or 0) if isinstance(usage, Mapping) else 0
+        return record
 
     def write_artifacts(self, run_root: str | Path, split: str, rows: Iterable[Mapping[str, Any]], decisions: Iterable[Mapping[str, Any]]) -> None:
         run_root = Path(run_root)

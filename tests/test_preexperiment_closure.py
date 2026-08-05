@@ -113,6 +113,30 @@ def test_reasoning_judge_is_reasoning_only_strict_cached_and_transport_retrying(
     assert invalid["retry_count"] == 0
 
 
+def test_reasoning_judge_uses_public_client_for_nested_responses_payload(tmp_path: Path) -> None:
+    _copy_reasoning_protocol(tmp_path)
+    calls: list[dict[str, object]] = []
+
+    def transport(**kwargs: object) -> dict[str, object]:
+        calls.append(kwargs)
+        return {
+            "id": "judge_nested",
+            "model": "gpt-4.1-mini-2025-04-14",
+            "output": [{"type": "message", "content": [{"type": "output_text", "text": json.dumps(_labels(1))}]}],
+            "usage": {"input_tokens": 11, "output_tokens": 6},
+        }
+
+    judge = ReasoningJudge(tmp_path, transport=transport, cache_root=tmp_path / "nested-cache", sleep_fn=lambda _: None)
+    result = judge.judge("nested reasoning")
+
+    assert result["valid"] is True
+    assert result["labels"] == _labels(1)
+    assert result["observed_model_version"] == "2025-04-14"
+    assert result["normalized_reasoning_sha256"]
+    assert len(calls) == 1
+    assert "generated_reasoning" not in str(calls[0]["prompt"])
+
+
 def test_invalid_reasoning_metrics_keep_status_and_apply_primary_fallback() -> None:
     valid_one = build_reasoning_prediction_row("one", _labels(1), "valid", {"valid": True, "labels": _labels(1), "raw_response": {"labels": _labels(1)}}, truncated=False)
     invalid = build_reasoning_prediction_row("two", _labels(0), "", {"valid": False, "labels": None, "raw_response": None, "invalid_stage": "generation", "invalid_reason": "empty_reasoning"})
