@@ -18,6 +18,11 @@ from vipragsent.orchestration.stage_plans import validate_stage_plan_registry
 from vipragsent.orchestration.system_registry import validate_execution_registry
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
+try:
+    from readiness_utils import merge_snapshot_into_report, read_json
+except ModuleNotFoundError:
+    from scripts.readiness_utils import merge_snapshot_into_report, read_json
+
 BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
 SAFE_TEST_SELECTOR = "not server and not gpu and not azure_live and not model_download"
 RUNTIME_BLOCKERS = [
@@ -292,15 +297,24 @@ def main() -> int:
         "safe_commands": safe_commands + [self_review_command],
         "next_action": NEXT_ACTION,
     }
+    snapshot = read_json(root / "reports/final_readiness_snapshot.json")
+    if snapshot:
+        final = merge_snapshot_into_report(final, snapshot)
     atomic_write_json(root / "reports/final_runtime_integration_audit.json", final)
+    review_summary = final.get("review_summary", {})
+    ci_display = f"{final.get('ci_status', ci_status)}/{final.get('ci_conclusion', ci_status)}"
+    audited_commit = final.get("audited_code_commit", final.get("code_commit_at_audit", code_commit))
     atomic_write_text(root / "reports/final_runtime_integration_audit.md", "\n".join([
         "# Final runtime integration audit",
         "",
         f"- Implementation status: `{final['status']}`",
-        f"- CI status: `{ci_status}`",
-        f"- Baseline commit: `{BASELINE_COMMIT}`",
+        f"- Local code readiness: `{final.get('LOCAL_CODE_READINESS', final['status'])}`",
+        f"- Server runtime readiness: `{final.get('SERVER_RUNTIME_READINESS', 'NOT_RUN')}`",
+        f"- CI status/conclusion: `{ci_display}`",
+        f"- Audited code commit: `{audited_commit}`",
+        f"- Report generation parent SHA: `{final.get('report_generation_parent_sha', code_commit)}`",
         f"- Frozen data changed: `{str(final['frozen_data_changed']).lower()}`",
-        f"- Self-review: `{self_review.get('completed_rounds_per_sequence', 0)} rounds x {self_review.get('sequence_count', 0)} sequences`; consecutive clean sequences: `{self_review.get('consecutive_clean_sequences', 0)}`",
+        f"- Self-review: `{review_summary.get('rounds_per_cycle', 0)} rounds x {review_summary.get('cycles', 0)} cycles`; consecutive clean cycles: `{review_summary.get('consecutive_clean_cycles', 0)}`",
         "",
         "## Execution boundary",
         "",
