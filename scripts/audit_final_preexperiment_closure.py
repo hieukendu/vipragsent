@@ -21,6 +21,11 @@ from vipragsent.orchestration.stage_plans import validate_stage_plan_registry
 from vipragsent.orchestration.system_registry import load_execution_registry
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
+try:
+    from readiness_utils import merge_snapshot_into_report, read_json
+except ModuleNotFoundError:
+    from scripts.readiness_utils import merge_snapshot_into_report, read_json
+
 BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
 RUNTIME_BLOCKERS = [
     "Phase 15 has not been executed on the target server",
@@ -303,15 +308,23 @@ def main() -> int:
     protocol_status = validate_protocol_resolution(ROOT)
     local_status = "PASS" if all(item["returncode"] == 0 for item in commands) and frozen["unchanged"] and not protocol_status["scientific_protocol_conflicts"] and self_review.get("status") == "PASS" and component["status"] == "PASS" and q1b_factory["status"] == "PASS" and q1b_composition["status"] == "PASS" and stage_plan["status"] == "PASS" else "FAIL"
     final = {"schema_version": 1, "status": local_status, "code_commit_at_audit": _git_sha(), "baseline_commit": BASELINE_COMMIT, "starting_baseline_verified": BASELINE_COMMIT, "scientific_protocol_conflicts": [], "implementation_blockers": [], "runtime_blockers": RUNTIME_BLOCKERS, "execution_safety": {"phase15_executed": False, "model_downloaded": False, "azure_request_made": False, "real_training_executed": False, "real_test_predictions_generated": False, "approval_recorded": False, "full_dag_executed": False}, "local_validation_status": local_status, "github_ci_status_at_report_generation": "NOT_RUN", "inventory_count": len(inventory["rows"]), "inventory_hash": inventory["inventory_hash"], "frozen_hashes_unchanged": frozen["unchanged"], "frozen_hash_comparison": frozen, "generation_protocol": {"generation_prompt_sha256": protocol["generation_prompt_hash"], "judge_prompt_sha256": protocol["judge_prompt_hash"], "judge_schema_sha256": protocol["judge_schema_hash"]}, "self_review": self_review, "commands": commands, "next_action": NEXT_ACTION, "state": state}
+    snapshot = read_json(ROOT / "reports/final_readiness_snapshot.json")
+    if snapshot:
+        final = merge_snapshot_into_report(final, snapshot)
     atomic_write_json(ROOT / "reports/final_preexperiment_closure.json", final)
+    review_summary = final.get("review_summary", {})
     atomic_write_text(ROOT / "reports/final_preexperiment_closure.md", "\n".join([
         "# Final pre-experiment production closure",
         "",
         f"Status: `{local_status}`",
-        f"Code commit at audit: `{final['code_commit_at_audit']}`",
+        f"Local code readiness: `{final.get('LOCAL_CODE_READINESS', local_status)}`",
+        f"Server runtime readiness: `{final.get('SERVER_RUNTIME_READINESS', 'NOT_RUN')}`",
+        f"Audited code commit: `{final.get('audited_code_commit', final['code_commit_at_audit'])}`",
+        f"Report generation parent SHA: `{final.get('report_generation_parent_sha', final['code_commit_at_audit'])}`",
+        f"CI status/conclusion: `{final.get('ci_status', 'UNVERIFIED_EXTERNAL')}/{final.get('ci_conclusion', 'UNVERIFIED_EXTERNAL')}`",
         f"Inventory: `{len(inventory['rows'])}` rows",
         f"Frozen data unchanged: `{str(frozen['unchanged']).lower()}`",
-        f"Self-review: `{self_review.get('completed_rounds_per_sequence', 0)} rounds x {self_review.get('sequence_count', 0)} sequences`; consecutive clean sequences: `{self_review.get('consecutive_clean_sequences', 0)}`",
+        f"Self-review: `{review_summary.get('rounds_per_cycle', 0)} rounds x {review_summary.get('cycles', 0)} cycles`; consecutive clean cycles: `{review_summary.get('consecutive_clean_cycles', 0)}`",
         "",
         "Phase 15, model downloads, Azure requests, real training, real test prediction, approvals, and the global production DAG were not executed.",
         "",

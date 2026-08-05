@@ -45,3 +45,5 @@ jobs:
         run: python scripts/audit_table2_confidence_intervals.py
       - name: Final runtime integration audit
         run: python scripts/audit_final_runtime_integration.py
+      - name: Test final readiness consistency
+        run: python -m pytest -q tests/test_final_readiness_consistency.py
