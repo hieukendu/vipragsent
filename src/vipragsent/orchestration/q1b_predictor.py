@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from collections.abc import Mapping
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -12,16 +12,13 @@ import yaml
 from ..constants import EMOTION_LABELS, POLARITY_LABELS
 from ..hashing import sha256_file
 from ..orchestration.status import RuntimeBlocked
+from .q1b_dependencies import (
+    Q1B_MATRIX_KEY_BY_SYSTEM,
+    q1b_dependency_graph_is_available,
+    resolve_q1b_producer,
+)
 
-MATRIX_KEY_BY_SYSTEM = {
-    "phobert_pol_single": "phobert_ordinary_single_task",
-    "phobert_emo_single": "phobert_ordinary_single_task",
-    "phobert_multitask_8head": "phobert_multitask",
-    "xlmr_multitask_8head": "xlmr_multitask",
-    "sailor_multitask_8head": "sailor_multitask",
-    "vistral_multitask_8head": "vistral_multitask",
-    "vipragsent_full_phobert": "vipragsent",
-}
+MATRIX_KEY_BY_SYSTEM = Q1B_MATRIX_KEY_BY_SYSTEM
 DATASET_TASK = {"vsfc": "polarity", "aivivn": "polarity", "vsmec": "emotion"}
 
 
@@ -39,6 +36,9 @@ class Q1BSource:
     approval_sha256: str
     checksum_file_sha256: str
     variant_fingerprint: str
+    producer_id: str = ""
+    producer_run_id: str = ""
+    dependency_graph_sha256: str = ""
 
     def as_dict(self, root: Path) -> dict[str, Any]:
         return {
@@ -54,6 +54,9 @@ class Q1BSource:
             "approval_sha256": self.approval_sha256,
             "checksum_file_sha256": self.checksum_file_sha256,
             "variant_fingerprint": self.variant_fingerprint,
+            "producer_id": self.producer_id,
+            "producer_run_id": self.producer_run_id,
+            "dependency_graph_sha256": self.dependency_graph_sha256,
         }
 
 
@@ -92,7 +95,16 @@ def resolve_exact_q1b_source(root: str | Path, entry: Mapping[str, Any]) -> Q1BS
     matrix_key, matrix = resolve_checkpoint_matrix_entry(root, entry)
     system_id = str(entry.get("system_id"))
     seed = entry.get("seed")
+    producer: dict[str, Any] = {}
+    graph_hash = ""
+    if q1b_dependency_graph_is_available(root):
+        producer = resolve_q1b_producer(root, entry)
+        graph_hash = str(producer.get("graph_sha256", ""))
     checkpoint_key = str(entry.get("source_checkpoint_id") or entry.get("reusable_checkpoint_key") or f"{matrix['checkpoint_key']}:{seed}")
+    graph_edge = producer.get("edge", {})
+    graph_checkpoint_key = str(graph_edge.get("expected_checkpoint_key", ""))
+    if graph_checkpoint_key and checkpoint_key != graph_checkpoint_key:
+        raise RuntimeBlocked(f"Q1b source key disagrees with dependency graph: expected {graph_checkpoint_key}, got {checkpoint_key}")
     expected_key = f"{matrix['checkpoint_key']}:{seed}"
     if checkpoint_key != expected_key:
         raise RuntimeBlocked(f"Q1b source key mismatch: expected {expected_key}, got {checkpoint_key}")
@@ -139,7 +151,15 @@ def resolve_exact_q1b_source(root: str | Path, entry: Mapping[str, Any]) -> Q1BS
         candidates.append(Q1BSource(system_id, matrix_key, checkpoint_key, run_id, run_root, seed, checkpoint_path, sha256_file(checkpoint_path), summary_hash, sha256_file(approval_path), checksum_hash, variant_fingerprint))
     if len(candidates) != 1:
         raise RuntimeBlocked(f"Q1b requires exactly one approved source for exact system {system_id}, seed {seed}; found {len(candidates)}")
-    return candidates[0]
+    source = candidates[0]
+    if graph_edge:
+        source = replace(
+            source,
+            producer_id=str(graph_edge.get("producer_id", "")),
+            producer_run_id=str(graph_edge.get("producer_run_id", "")),
+            dependency_graph_sha256=graph_hash,
+        )
+    return source
 
 
 class DiskBackedQ1BPredictor:
@@ -213,4 +233,4 @@ class DiskBackedQ1BPredictor:
         return (POLARITY_LABELS if task == "polarity" else EMOTION_LABELS)[index]
 
     def provenance(self) -> dict[str, Any]:
-        return {"source": self.source.as_dict(self.root), "matrix": {"key": self.matrix_key, **self.matrix}, "applicable_datasets": list(self.applicable_datasets), "external_finetuning": False, "optimizer_steps": 0, "backward_calls": 0, "predictor_factory": "disk_backed_q1b_v1"}
+        return {"source": self.source.as_dict(self.root), "producer": {"producer_id": self.source.producer_id, "producer_run_id": self.source.producer_run_id, "dependency_graph_sha256": self.source.dependency_graph_sha256}, "matrix": {"key": self.matrix_key, **self.matrix}, "applicable_datasets": list(self.applicable_datasets), "external_finetuning": False, "optimizer_steps": 0, "backward_calls": 0, "predictor_factory": "disk_backed_q1b_v2"}
