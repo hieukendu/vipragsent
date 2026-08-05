@@ -127,7 +127,7 @@ class ViPragSentModel(nn.Module):
 
     @property
     def inference_output_source(self) -> str:
-        return "parsed_generated_labels" if self.config.name.startswith("cot_only") else "classification_heads"
+        return "classification_heads"
 
     @property
     def rationale_decoder_enabled_at_inference(self) -> bool:
@@ -279,14 +279,17 @@ class GenerationBaselineModel(nn.Module):
     model deliberately exposes no classification heads.
     """
 
-    def __init__(self, backbone: nn.Module, config: VariantConfig) -> None:
+    def __init__(self, backbone: nn.Module, config: VariantConfig, *, fixture_compatibility: bool = False) -> None:
         super().__init__()
         self.backbone = backbone
         self.config = config
+        self.fixture_compatibility = fixture_compatibility
 
     @property
     def inference_output_source(self) -> str:
-        return "parsed_generated_labels"
+        if self.fixture_compatibility:
+            return "parsed_generated_labels"
+        return "judge_of_generated_reasoning"
 
     @property
     def rationale_decoder_enabled_at_inference(self) -> bool:
@@ -304,5 +307,5 @@ def build_dummy_model(config: VariantConfig | None = None) -> nn.Module:
     if config.name == "phobert_pragmatic_single_task":
         return SingleTaskPragmaticBundle(lambda: DummyBackbone(config.vocab_size, config.hidden_size), config)
     if config.name in {"cot_only_vistral", "explanation_only_vistral"}:
-        return GenerationBaselineModel(DummyBackbone(config.vocab_size, config.hidden_size), config)
+        return GenerationBaselineModel(DummyBackbone(config.vocab_size, config.hidden_size), config, fixture_compatibility=True)
     return ViPragSentModel(DummyBackbone(config.vocab_size, config.hidden_size), config)

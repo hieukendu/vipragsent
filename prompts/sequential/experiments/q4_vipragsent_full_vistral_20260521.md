@@ -14,7 +14,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Budget: ``
 - Task: `pragmatic_ece;learning_curve`
 - Split: `vipragsent_test;vipragsent_dev_history`
-- Dependencies: `reused_predictions;reused_histories`
+- Dependencies: `approved_source_predictions;approved_source_training_history`
 - Required Phase 15 assets: `model_weights;tokenizer;runtime_profile`
 - Execution kind: `artifact_extraction`
 - Expected artifacts: `q4_per_seed;reliability_bins;learning_curve`
@@ -24,6 +24,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Protocol resolution: `RESOLVED`
 - CLI kind: `experiment`
 - Resolved execution stage plan: `q4_source_extraction`
+
 
 ## Required command sequence
 

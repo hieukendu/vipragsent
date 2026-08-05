@@ -6,8 +6,10 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
-from ...atomic import atomic_write_json
+from ...atomic import atomic_write_json, atomic_write_text
+from ...constants import EMOTION_LABELS, POLARITY_LABELS
 from ...evaluation.external_retention import NormalizedExternalExample, evaluate_external_retention
+from ...evaluation.metrics import multiclass_macro_f1
 from ...hashing import sha256_file, sha256_json
 from ...orchestration.status import RuntimeBlocked
 
@@ -28,7 +30,8 @@ def _load_csv(path: Path, dataset: str) -> list[NormalizedExternalExample]:
     return examples
 
 
-def _approved_source(root: Path, entry: Mapping[str, Any]) -> tuple[Path, dict[str, Any], dict[str, Any]]:
+def _approved_source_fixture_compatibility(root: Path, entry: Mapping[str, Any]) -> tuple[Path, dict[str, Any], dict[str, Any]]:
+    """Legacy injected-predictor path retained only for existing CPU fixtures."""
     requested_system = str(entry.get("system_id", ""))
     requested_seed = entry.get("seed")
     requested_source = str(entry.get("source_checkpoint_id") or entry.get("checkpoint_role") or "")
@@ -42,7 +45,7 @@ def _approved_source(root: Path, entry: Mapping[str, Any]) -> tuple[Path, dict[s
         approval = json.loads(approval_path.read_text(encoding="utf-8"))
         if approval.get("status") != "APPROVED":
             continue
-        system_match = str(summary.get("system_id", "")) in {requested_system, requested_source} or requested_source in str(summary.get("checkpoint_path", ""))
+        system_match = str(summary.get("system_id", "")) in {requested_system, requested_source} if requested_source else str(summary.get("system_id", "")) == requested_system
         seed_match = requested_seed in (None, "", "NOT_APPLICABLE") or str(summary.get("seed")) == str(requested_seed)
         if system_match and seed_match:
             candidates.append((run_root, summary, approval))
@@ -83,30 +86,62 @@ def evaluate_external_retention_from_disk(
             raise RuntimeBlocked(f"official external test hash mismatch for {dataset}")
         datasets[dataset] = _load_csv(path, dataset)
         source_files[dataset] = sha256_file(path)
-    source_root, source_summary, source_approval = _approved_source(root, entry)
+    factory = None
     if predictor is None:
-        raise RuntimeBlocked("Q1b approved source predictor is not available in the disk-only executor")
-    predictions = {dataset: {example.sample_id: str(predictor(dataset, example)) for example in examples} for dataset, examples in datasets.items()}
-    result = evaluate_external_retention(
-        datasets,
-        predictions,
-        source_checkpoint_id=str(source_summary.get("checkpoint_path") or entry.get("source_checkpoint_id") or source_summary.get("system_id")),
-        source_seed=source_summary.get("seed"),
-        external_manifest_hash=sha256_file(manifest_path),
-        output_root=output_root,
-    )
+        from ..q1b_predictor import DiskBackedQ1BPredictor
+
+        factory = DiskBackedQ1BPredictor(root, entry)
+        source_root = factory.source.run_root
+        source_summary = {"checkpoint_path": factory.source.checkpoint_key, "seed": factory.source.seed, "system_id": factory.source.system_id}
+        source_approval = {"sha256": factory.source.approval_sha256}
+        source_checkpoint_sha256 = factory.source.checkpoint_sha256
+        source_variant_fingerprint = factory.source.variant_fingerprint
+        applicable = set(factory.applicable_datasets)
+        predictions = {dataset: {example.sample_id: str(factory.predict(dataset, example)) for example in examples} for dataset, examples in datasets.items() if dataset in applicable}
+    else:
+        source_root, source_summary, source_approval = _approved_source_fixture_compatibility(root, entry)
+        source_checkpoint_sha256 = str(source_summary.get("checkpoint_sha256", ""))
+        source_variant_fingerprint = str(source_summary.get("variant_fingerprint", ""))
+        applicable = set(DATASET_KEYS)
+        predictions = {dataset: {example.sample_id: str(predictor(dataset, example)) for example in examples} for dataset, examples in datasets.items()}
+    if applicable == set(DATASET_KEYS):
+        result = evaluate_external_retention(
+            datasets,
+            predictions,
+            source_checkpoint_id=str(source_summary.get("checkpoint_path") or entry.get("source_checkpoint_id") or source_summary.get("system_id")),
+            source_seed=source_summary.get("seed"),
+            external_manifest_hash=sha256_file(manifest_path),
+            output_root=output_root,
+        ) | {"source_checkpoint_sha256": source_checkpoint_sha256, "source_variant_fingerprint": source_variant_fingerprint}
+    else:
+        partial_scores: dict[str, float] = {}
+        for dataset in sorted(applicable):
+            task = "emotion" if dataset == "vsmec" else "polarity"
+            labels = EMOTION_LABELS if task == "emotion" else POLARITY_LABELS
+            gold = [row.label for row in datasets[dataset]]
+            pred = [predictions[dataset][row.sample_id] for row in datasets[dataset]]
+            partial_scores[f"{dataset}_macro_f1"] = multiclass_macro_f1(gold, pred, labels)
+            filename = {"vsfc": "uit_vsfc_test_predictions.jsonl", "vsmec": "uit_vsmec_test_predictions.jsonl", "aivivn": "aivivn_test_predictions.jsonl"}[dataset]
+            atomic_write_text(output_root / "predictions" / filename, "".join(json.dumps({"sample_id": row.sample_id, "text": row.text, "gold": row.label, "prediction": predictions[dataset][row.sample_id]}, ensure_ascii=False, sort_keys=True) + "\n" for row in datasets[dataset]))
+        result = {**partial_scores, "ord_f1": "NOT_APPLICABLE", "partial": True, "applicable_external_datasets": sorted(applicable), "source_checkpoint_id": str(source_summary.get("checkpoint_path") or entry.get("source_checkpoint_id") or source_summary.get("system_id")), "source_seed": source_summary.get("seed"), "source_checkpoint_sha256": source_checkpoint_sha256, "source_variant_fingerprint": source_variant_fingerprint, "external_finetuning": False, "external_manifest_hash": sha256_file(manifest_path), "optimizer_steps": 0, "train_loader_created": False}
+        atomic_write_json(output_root / "metrics/partial_external_retention_metrics.json", result)
     external_manifest = {
         "status": "PASS",
         "research_question": "Q1b",
         "source_run_id": source_root.name,
         "source_summary_sha256": sha256_file(source_root / "review_summary.json"),
         "source_approval_sha256": sha256_json(source_approval),
+        "source_checkpoint_sha256": source_checkpoint_sha256,
+        "source_variant_fingerprint": source_variant_fingerprint,
         "external_dataset_manifest_sha256": sha256_file(manifest_path),
         "normalized_test_hashes": source_files,
         "external_finetuning": False,
         "optimizer_steps": 0,
         "backward_calls": 0,
         "label_routing": {"vsfc": "polarity", "vsmec": "emotion", "aivivn": "polarity"},
+        "applicable_external_datasets": sorted(applicable),
+        "partial": applicable != set(DATASET_KEYS),
+        "predictor_factory": factory.provenance() if factory is not None else "fixture_injected_predictor_compatibility",
     }
     atomic_write_json(output_root / "external/external_evaluation_manifest.json", external_manifest)
     return result | {"external_evaluation_manifest": external_manifest}

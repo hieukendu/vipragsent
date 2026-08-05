@@ -6,7 +6,7 @@
   "properties": {
     "sample_id": {"type": "string", "minLength": 1},
     "labels": {"$ref": "label_output.schema.json"},
-    "inference_output_source": {"enum": ["classification_heads", "parsed_generated_labels"]},
+    "inference_output_source": {"enum": ["classification_heads", "judge_of_generated_reasoning", "judge_of_rationale_decoder_output", "parsed_generated_labels"]},
     "rationale_decoder_enabled_at_inference": {"type": "boolean"}
   }
 }

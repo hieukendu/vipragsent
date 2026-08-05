@@ -5,8 +5,10 @@
       "azure": 3,
       "checkpoint_reuse": 0,
       "evaluation_only": 7,
-      "generation_baseline": 2,
+      "generation_baseline": 0,
+      "generation_trainable": 1,
       "independent_checkpoint_bundle": 1,
+      "rationale_checkpoint_reuse": 1,
       "single_model_trainable": 11,
       "single_task_bundle": 1
     },
@@ -15,15 +17,16 @@
     "inventory_row_count": 162,
     "inventory_system_count": 25,
     "missing_system_ids": [],
-    "registry_file_sha256": "2A85DE7F1B530F758B65987F459B4F9326265619CD0D1D2F23BC907C0959E2B3",
-    "registry_hash": "DA139C82E8B20F3504A8FC11D97E621B8AD5E11BEA4C717C56A860AB934B8CDC",
+    "registry_file_sha256": "1DE8DF8823815FD0DE96EFA3887A5319ABA3997DDF94E1ACE93022F0B86EC3B1",
+    "registry_hash": "C210B1DC9F3AFFF49FF6CE05477BB5DDEDA96FB159D21826D650DDF3B11AC3C0",
     "registry_system_count": 25,
+    "semantic_errors": [],
     "status": "PASS"
   },
-  "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+  "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
   "stage_plan_registry": {
     "errors": [],
-    "plan_count": 7,
+    "plan_count": 8,
     "plans": {
       "azure": {
         "evaluation_strategy": null,
@@ -73,20 +76,43 @@
           "generate_review_summary"
         ]
       },
-      "generation": {
-        "evaluation_strategy": null,
+      "cot_only_vistral_generation": {
+        "evaluation_strategy": "reasoning_generation_shared_judge",
         "execution_kind": "generation",
-        "executor_kind": "generation_baseline",
-        "plan_id": "generation",
+        "executor_kind": "generation_trainable",
+        "plan_id": "cot_only_vistral_generation",
         "research_question": null,
         "stages": [
           "preflight",
           "train_generation",
-          "generate_dev",
-          "parse_dev",
+          "generate_dev_reasoning",
+          "judge_dev_reasoning",
+          "compute_dev_reasoning_metrics",
           "freeze_selection",
-          "generate_test",
-          "parse_test",
+          "generate_test_reasoning",
+          "judge_test_reasoning",
+          "compute_test_reasoning_metrics",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      },
+      "explanation_only_vistral_reuse": {
+        "evaluation_strategy": "rationale_only_shared_judge",
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "rationale_checkpoint_reuse",
+        "plan_id": "explanation_only_vistral_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_full_vistral_source",
+          "validate_source_checkpoint",
+          "generate_dev_reasoning_from_rationale_decoder",
+          "judge_dev_reasoning",
+          "compute_dev_reasoning_metrics",
+          "generate_test_reasoning_from_rationale_decoder",
+          "judge_test_reasoning",
+          "compute_test_reasoning_metrics",
           "export_artifacts",
           "validate_artifacts",
           "generate_review_summary"
@@ -142,8 +168,8 @@
         ]
       }
     },
-    "registry_hash": "7F65D0E5EB211AB7D890509DE46194A0444EFAA3B0628040AC784C40908CBF58",
-    "registry_sha256": "024835961CEF8B5E687DD7662E7CD66C45ADAB4A8B1FB1F081D7082FF21832AC",
+    "registry_hash": "FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F",
+    "registry_sha256": "93C97500AC34C14E109D9F48D3B6D21CC28FAD454B4C44C3529A14FB2AC3ED41",
     "status": "PASS"
   },
   "status": "PASS"

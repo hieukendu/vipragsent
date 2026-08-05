@@ -14,7 +14,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Budget: ``
 - Task: `pragmatic;polarity;emotion`
 - Split: `dev;external_test`
-- Dependencies: `phobert_jobs;table3_checkpoint_training`
+- Dependencies: `phobert_jobs;table3_checkpoint_training;rationale_generation`
 - Required Phase 15 assets: `model_weights;tokenizer;runtime_profile`
 - Execution kind: `trainable`
 - Expected artifacts: `metrics;predictions;history`
@@ -24,6 +24,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Protocol resolution: `RESOLVED`
 - CLI kind: `experiment`
 - Resolved execution stage plan: `trainable_classifier`
+
 
 ## Required command sequence
 

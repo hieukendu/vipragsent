@@ -14,7 +14,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Budget: ``
 - Task: `polarity;emotion`
 - Split: `external_test`
-- Dependencies: `azure_prompted_baselines`
+- Dependencies: `approved_azure_output`
 - Required Phase 15 assets: `azure_deployment;prompt_manifest`
 - Execution kind: `azure`
 - Expected artifacts: `external_predictions;metrics`
@@ -24,6 +24,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Protocol resolution: `RESOLVED`
 - CLI kind: `experiment`
 - Resolved execution stage plan: `azure`
+
 
 ## Required command sequence
 

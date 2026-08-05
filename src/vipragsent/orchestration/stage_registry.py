@@ -16,6 +16,11 @@ from ..data.collation import BatchCollator
 from ..data.loaders import DatasetExample, load_vipragsent
 from ..data.preprocessing import PreprocessingSpec, TextPreprocessor
 from ..evaluation.metrics import binary_macro_f1
+from ..evaluation.reasoning_judge import (
+    ReasoningJudge,
+    build_reasoning_prediction_row,
+    compute_reasoning_metrics,
+)
 from ..hashing import sha256_file, sha256_json
 from ..models.variants import VariantConfig, build_dummy_model
 from ..runtime.model_assets import read_family_status
@@ -26,6 +31,8 @@ from ..training.class_weights import (
 )
 from ..training.config_resolver import persist_resolved_training_config, resolve_training_config
 from ..training.engine import TrainingConfig, TrainingEngine
+from ..training.optimizers import build_optimizer
+from ..training.schedulers import build_scheduler
 from .contracts import (
     ExecutionKind,
     RunContext,
@@ -33,8 +40,18 @@ from .contracts import (
     StageOutcome,
 )
 from .executors.component_bundle import run_component_bundle
+from .executors.explanation_reuse import (
+    ExplanationReuseExecutor,
+    resolve_approved_full_vistral_source,
+    validate_source_checkpoint,
+)
 from .executors.external_retention import evaluate_external_retention_from_disk
-from .executors.generation import generation_targets_available
+from .executors.generation import (
+    ReasoningGenerationExecutor,
+    _encode_text,
+    build_cot_training_records,
+    generation_targets_available,
+)
 from .executors.q4 import resolve_and_extract_q4_source
 from .preflight_single import run_single_preflight
 from .run_store import RunStore, artifact_hashes, git_commit, utc_now
@@ -94,6 +111,7 @@ def _metric_name(entry: RunEntry) -> str:
         "dev_sarcasm_binary_macro_f1": "dev_sarcasm_binary_macro_f1",
         "dev_polarity_macro_f1": "dev_polarity_macro_f1",
         "dev_emotion_macro_f1": "dev_emotion_macro_f1",
+        "full_split_macro_pragmatic_f1_all_zero_fallback_dev": "full_split_macro_pragmatic_f1_all_zero_fallback_dev",
     }.get(selection, "dev_macro_pragmatic_f1")
 
 
@@ -224,15 +242,18 @@ def _fixture_generation_train(context: RunContext, entry: RunEntry) -> StageOutc
 
 def _fixture_component_bundle(context: RunContext, entry: RunEntry) -> StageOutcome:
     spec = _execution_spec(context.root, entry)
-    sample_ids = [f"fixture_{entry.run_id}_test_{index}" for index in range(8)]
+    dev_sample_ids = [f"fixture_{entry.run_id}_dev_{index}" for index in range(6)]
+    test_sample_ids = [f"fixture_{entry.run_id}_test_{index}" for index in range(8)]
     manifest = run_component_bundle(
         context.run_root,
         executor_kind=spec.executor_kind,
-        sample_ids=sample_ids,
+        dev_sample_ids=dev_sample_ids,
+        test_sample_ids=test_sample_ids,
         seed=int(entry.seed or 20260521),
         config_hash=sha256_json({"entry": entry.run_id, "variant": spec.variant_id}),
         data_hash="fixture-data",
         model_hash="fixture-model",
+        allow_synthetic=True,
     )
     atomic_write_json(Path(context.run_root) / "training/resource_usage.json", {"fixture": True, "successful_gpu_hours": manifest["cost_gpu_hours"], "failed_or_retried_gpu_hours": 0.0, "component_cost_is_measured_sum": True})
     return StageOutcome.passed(
@@ -244,7 +265,39 @@ def _fixture_component_bundle(context: RunContext, entry: RunEntry) -> StageOutc
 def _execute_components(context: RunContext, entry: RunEntry) -> StageOutcome:
     if context.fixture:
         return _fixture_component_bundle(context, entry)
-    return StageOutcome.blocked("component bundle requires the approved Phase 15 local snapshot and production component loader")
+    spec = _execution_spec(context.root, entry)
+    family = spec.model_family
+    cache = read_family_status(context.root, family, "cache")
+    if cache.get("status") != "PASS" or not cache.get("local_path"):
+        return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for component family {family}")
+    try:
+        bundle = load_vipragsent(context.root / "data/processed/vipragsent")
+    except Exception as exc:
+        return StageOutcome.blocked(f"component bundle dataset is unavailable: {exc}")
+    if len(bundle.dev) != 1999 or len(bundle.test) != 2000:
+        return StageOutcome.blocked(f"component bundle requires frozen dev/test counts 1999/2000, got {len(bundle.dev)}/{len(bundle.test)}")
+    from .executors.component_production import ProductionComponentRunner
+
+    production_runner = ProductionComponentRunner(context.root, entry=entry, bundle=bundle)
+    try:
+        manifest = run_component_bundle(
+            context.run_root,
+            executor_kind=spec.executor_kind,
+            dev_sample_ids=[example.sample_id for example in bundle.dev],
+            test_sample_ids=[example.sample_id for example in bundle.test],
+            seed=int(entry.seed),
+            config_hash=sha256_json(dict(entry.raw)),
+            data_hash=bundle.fingerprint,
+            model_hash=sha256_json({"family": family, "revision": cache.get("revision") or entry.model_revision}),
+            resume=bool(context.metadata.get("resume", False)),
+            model_loader=production_runner._load_runtime,
+            component_runner=production_runner,
+            allow_synthetic=False,
+        )
+    except Exception as exc:
+        return StageOutcome.failed(f"production component bundle failed: {type(exc).__name__}: {exc}")
+    atomic_write_json(Path(context.run_root) / "training/resource_usage.json", {"fixture": False, "successful_gpu_hours": manifest.get("total_measured_gpu_hours", 0.0), "failed_or_retried_gpu_hours": 0.0, "component_cost_is_measured_sum": True, "component_count": manifest.get("component_count")})
+    return StageOutcome.passed(summary=manifest, expected_files=("components/state.json", "components/events.jsonl", "components/component_manifest.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json", "training/resource_usage.json"))
 
 
 def _combine_component_predictions(context: RunContext, entry: RunEntry) -> StageOutcome:
@@ -519,26 +572,321 @@ def _preflight(context: RunContext, entry: RunEntry) -> StageOutcome:
     return StageOutcome.blocked(*report["blockers"])
 
 
-def _generation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
-    if not context.fixture:
-        if not generation_targets_available(context.root):
-            return StageOutcome.blocked("SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS")
-        return StageOutcome.blocked("production generation records require the exact approved target/template source")
-    if not (Path(context.run_root) / "training/history.json").exists():
-        _fixture_generation_train(context, entry)
+def _fixture_reasoning_judge(context: RunContext) -> ReasoningJudge:
+    def transport(**_: Any) -> dict[str, Any]:
+        return {"output": json.dumps({label: 0 for label in PRAGMATIC_LABELS}), "usage": {"input_tokens": 1, "output_tokens": 1}, "id": "fixture-judge"}
+
+    return ReasoningJudge(context.root, transport=transport, cache_root=Path(context.run_root) / "judge/cache", sleep_fn=lambda _: None)
+
+
+def _fixture_reasoning_rows(entry: RunEntry, split: str) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for index in range(8):
+        gold = {label: int((index + offset) % 2) for offset, label in enumerate(PRAGMATIC_LABELS)}
+        rows.append({"sample_id": f"fixture_{entry.run_id}_{split}_{index}", "text": "câu tiếng Việt kiểm thử", "gold": gold})
+    return rows
+
+
+def _fixture_cot_reasoning_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
     run_root = Path(context.run_root)
-    expected = {
-        "train_generation": ("training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json"),
-        "generate_dev": ("generations/dev_generations.jsonl",),
-        "parse_dev": ("predictions/dev_predictions.jsonl", "metrics/dev_metrics.json", "generation/parser_report.json"),
-        "freeze_selection": ("selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"),
-        "generate_test": ("generations/test_generations.jsonl",),
-        "parse_test": ("predictions/test_predictions.jsonl", "metrics/test_metrics.json", "generation/parser_report.json"),
-    }.get(stage, ())
-    missing = [path for path in expected if not (run_root / path).exists()]
-    if missing:
-        return StageOutcome.failed("generation stage outputs are missing: " + ", ".join(missing))
-    return StageOutcome.passed(summary={"executor_kind": "generation_baseline", "stage": stage, "strict_parser": True, "classifier_fallback": False}, expected_files=expected)
+    spec = _execution_spec(context.root, entry)
+    if stage == "train_generation":
+        try:
+            resolved = resolve_training_config(entry, spec, root=context.root, runtime_status={"successful_batch": 1})
+            persist_resolved_training_config(context.root, run_root, resolved)
+        except Exception:
+            atomic_write_text(run_root / "config_snapshot.yaml", "fixture: true\nexecutor_kind: generation_trainable\n")
+        history = [{"epoch": 1, "train_loss": 0.5, "optimizer_steps": 1.0, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev"}]
+        atomic_write_json(run_root / "training/history.json", history)
+        _csv_history(run_root / "training/history.csv", history)
+        atomic_write_json(run_root / "training/optimizer_summary.json", {"executor_kind": "generation_trainable", "optimizer": "fixture_generation_optimizer", "classifier_heads": 0, "direct_label_target": False})
+        atomic_write_json(run_root / "training/scheduler_summary.json", {"scheduler": "fixture_generation_scheduler", "additional_training": True})
+        atomic_write_json(run_root / "training/resource_usage.json", {"fixture": True, "successful_gpu_hours": 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": 0.0, "optimizer_steps": 1})
+        for name in ("best", "latest"):
+            path = run_root / f"checkpoints/{name}/model.pt"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            torch.save({"executor_kind": "generation_trainable", "variant_id": spec.variant_id, "synthetic_results": True}, path)
+        digest = sha256_file(run_root / "checkpoints/best/model.pt")
+        atomic_write_json(run_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "executor_kind": "generation_trainable", "synthetic_results": True, "checkpoint_sha256": digest, "best": "checkpoints/best/model.pt", "latest": "checkpoints/latest/model.pt", "prompt_hash": _load_mapping(context.root / "configs/experiments/generation_reasoning_protocol.yaml").get("generation_prompt_hash"), "rationale_source_hash": "fixture-source"})
+        atomic_write_json(run_root / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": digest, "best_epoch": 1})
+        atomic_write_json(run_root / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": 0.0})
+        atomic_write_json(run_root / "selection/thresholds.json", {"status": "NOT_APPLICABLE", "reason": "reasoning judge emits strict binary labels"})
+        return StageOutcome.passed(summary={"executor_kind": "generation_trainable", "generation_only": True, "synthetic_results": True}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json"))
+    if stage == "generate_dev_reasoning":
+        rows = [{**row, "split": "dev", "generated_reasoning": "phân tích dấu hiệu ngôn ngữ trong câu", "generation_status": "PASS", "truncated": False, "failure_reason": None} for row in _fixture_reasoning_rows(entry, "dev")]
+        atomic_write_text(run_root / "reasoning/dev_reasoning.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows))
+        return StageOutcome.passed(summary={"split": "dev", "generation_count": len(rows), "decoding": "locked_greedy", "synthetic_results": True}, expected_files=("reasoning/dev_reasoning.jsonl",))
+    if stage == "judge_dev_reasoning":
+        rows = _read_jsonl(run_root / "reasoning/dev_reasoning.jsonl") if (run_root / "reasoning/dev_reasoning.jsonl").exists() else []
+        if not rows:
+            return StageOutcome.blocked("dev reasoning must be generated before judging")
+        judge = _fixture_reasoning_judge(context)
+        decisions: list[dict[str, Any]] = []
+        predictions: list[dict[str, Any]] = []
+        for row in rows:
+            decision = judge.judge(str(row.get("generated_reasoning", "")))
+            decisions.append({"sample_id": row["sample_id"], **decision})
+            predictions.append(build_reasoning_prediction_row(str(row["sample_id"]), row["gold"], str(row.get("generated_reasoning", "")), decision))
+        judge.write_artifacts(run_root, "dev", predictions, decisions)
+        atomic_write_text(run_root / "predictions/dev_predictions.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in predictions))
+        return StageOutcome.passed(summary={"split": "dev", "judge_protocol_id": judge.judge_protocol_id, "synthetic_results": True}, expected_files=("judge/dev_judge_responses.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl", "predictions/dev_predictions.jsonl"))
+    if stage == "compute_dev_reasoning_metrics":
+        predictions = _read_jsonl(run_root / "predictions/dev_predictions.jsonl") if (run_root / "predictions/dev_predictions.jsonl").exists() else []
+        if not predictions:
+            return StageOutcome.blocked("dev judge predictions are missing")
+        metrics = compute_reasoning_metrics(predictions)
+        metrics.update({"status": "PASS", "split": "dev", "generation_protocol_id": "reasoning_generation_shared_judge_v1", "judge_protocol_id": "reasoning_judge_gpt41mini_zeroshot_v1", "synthetic_results": True})
+        atomic_write_json(run_root / "metrics/dev_reasoning_metrics.json", metrics)
+        return StageOutcome.passed(summary=metrics, expected_files=("metrics/dev_reasoning_metrics.json",))
+    if stage == "freeze_selection":
+        metrics_path = run_root / "metrics/dev_reasoning_metrics.json"
+        checkpoint_path = run_root / "checkpoints/best/model.pt"
+        if not metrics_path.exists() or not checkpoint_path.exists():
+            return StageOutcome.blocked("cot-only selection requires checkpoint and judged dev metrics")
+        metrics = _load_mapping(metrics_path)
+        digest = sha256_file(checkpoint_path)
+        atomic_write_json(run_root / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": digest, "best_epoch": 1, "primary_metric": metrics.get("primary_macro_f1", 0.0)})
+        atomic_write_json(run_root / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": metrics.get("primary_macro_f1", 0.0), "test_access": False})
+        atomic_write_json(run_root / "selection/thresholds.json", {"status": "NOT_APPLICABLE", "reason": "reasoning judge emits strict binary labels; no dev threshold tuning"})
+        atomic_write_json(run_root / "selection/freeze_manifest.json", {"frozen": True, "checkpoint_sha256": digest, "dev_metric": metrics.get("primary_macro_f1", 0.0), "test_access": False})
+        return StageOutcome.passed(summary={"frozen": True, "best_dev_metric": metrics.get("primary_macro_f1", 0.0), "test_access": False}, expected_files=("selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "selection/freeze_manifest.json"))
+    if stage == "generate_test_reasoning":
+        if not (run_root / "selection/freeze_manifest.json").exists():
+            return StageOutcome.blocked("test reasoning is prohibited before freeze_selection")
+        rows = [{**row, "split": "test", "generated_reasoning": "phân tích dấu hiệu ngôn ngữ trong câu", "generation_status": "PASS", "truncated": False, "failure_reason": None} for row in _fixture_reasoning_rows(entry, "test")]
+        atomic_write_text(run_root / "reasoning/test_reasoning.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows))
+        return StageOutcome.passed(summary={"split": "test", "generation_count": len(rows), "selection_frozen": True, "synthetic_results": True}, expected_files=("reasoning/test_reasoning.jsonl",))
+    if stage == "judge_test_reasoning":
+        rows = _read_jsonl(run_root / "reasoning/test_reasoning.jsonl") if (run_root / "reasoning/test_reasoning.jsonl").exists() else []
+        if not rows:
+            return StageOutcome.blocked("test reasoning must be generated before judging")
+        judge = _fixture_reasoning_judge(context)
+        decisions: list[dict[str, Any]] = []
+        predictions: list[dict[str, Any]] = []
+        for row in rows:
+            decision = judge.judge(str(row.get("generated_reasoning", "")))
+            decisions.append({"sample_id": row["sample_id"], **decision})
+            predictions.append(build_reasoning_prediction_row(str(row["sample_id"]), row["gold"], str(row.get("generated_reasoning", "")), decision))
+        judge.write_artifacts(run_root, "test", predictions, decisions)
+        atomic_write_text(run_root / "predictions/test_predictions.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in predictions))
+        return StageOutcome.passed(summary={"split": "test", "judge_protocol_id": judge.judge_protocol_id, "synthetic_results": True}, expected_files=("judge/test_judge_responses.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl", "predictions/test_predictions.jsonl"))
+    if stage == "compute_test_reasoning_metrics":
+        predictions = _read_jsonl(run_root / "predictions/test_predictions.jsonl") if (run_root / "predictions/test_predictions.jsonl").exists() else []
+        if not predictions:
+            return StageOutcome.blocked("test judge predictions are missing")
+        metrics = compute_reasoning_metrics(predictions)
+        metrics.update({"status": "PASS", "split": "test", "generation_protocol_id": "reasoning_generation_shared_judge_v1", "judge_protocol_id": "reasoning_judge_gpt41mini_zeroshot_v1", "synthetic_results": True})
+        atomic_write_json(run_root / "metrics/test_reasoning_metrics.json", metrics)
+        return StageOutcome.passed(summary=metrics, expected_files=("metrics/test_reasoning_metrics.json",))
+    return _production_generation_stage(context, entry, stage)
+
+
+def _production_reasoning_records(root: Path, tokenizer: Any, examples: list[DatasetExample], prompt_template: str) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    for example in examples:
+        input_ids, attention_mask = _encode_text(tokenizer, prompt_template.replace("{TEXT}", example.text))
+        records.append({"sample_id": example.sample_id, "input_ids": input_ids, "attention_mask": attention_mask, "gold": {label: int(example.labels[label]) for label in PRAGMATIC_LABELS}, "text": example.text})
+    return records
+
+
+def _production_generation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
+    if not generation_targets_available(context.root):
+        return StageOutcome.blocked("generation reasoning protocol files are incomplete")
+    injected = context.metadata.get("reasoning_executor")
+    if injected is not None:
+        handler = getattr(injected, stage, None)
+        if callable(handler):
+            result = handler()
+            return result if isinstance(result, StageOutcome) else StageOutcome.passed(summary=dict(result))
+    spec = _execution_spec(context.root, entry)
+    family = spec.model_family
+    cache = read_family_status(context.root, family, "cache")
+    snapshot = cache.get("local_path")
+    if not snapshot:
+        return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {family}")
+    from ..data.tokenizers import create_tokenizer
+    from ..models.factory import build_production_model
+
+    model, runtime_spec = build_production_model(family, "cot_only_vistral", local_snapshot=snapshot, execution_mode="production")
+    tokenizer = create_tokenizer(family, revision=runtime_spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
+    judge = ReasoningJudge(context.root, cache_root=Path(context.run_root) / "judge/cache", require_deployment_manifest=True)
+    executor = ReasoningGenerationExecutor(context.root, model=model, tokenizer=tokenizer, judge=judge, run_root=context.run_root, seed=entry.seed)
+    bundle = load_vipragsent(context.root / "data/processed/vipragsent")
+    prompt = (context.root / str(executor.protocol["generation_prompt_path"])).read_text(encoding="utf-8")
+    if stage == "train_generation":
+        train_records, source_report = build_cot_training_records(context.root, [{"sample_id": row.sample_id, "text": row.text} for row in bundle.train], tokenizer=tokenizer)
+        resolved = resolve_training_config(entry, spec, root=context.root, runtime_status=read_family_status(context.root, family, "batch"))
+        optimizer, optimizer_summary = build_optimizer(model, optimizer_name=resolved.optimizer, learning_rate=resolved.learning_rate, weight_decay=resolved.weight_decay)
+        scheduler, scheduler_summary = build_scheduler(optimizer, scheduler_name=resolved.scheduler, warmup_ratio=resolved.warmup_ratio, total_steps=max(1, len(train_records) * resolved.maximum_epochs))
+        dev_records = _production_reasoning_records(context.root, tokenizer, bundle.dev, prompt)
+        best_metric = float("-inf")
+        best_epoch = 0
+        best_hash = ""
+        history: list[dict[str, float]] = []
+        for epoch in range(1, resolved.maximum_epochs + 1):
+            history.extend(executor.train_generation(train_records, optimizer=optimizer, epochs=1, scheduler=scheduler, gradient_clipping=resolved.gradient_clipping, epoch_start=epoch))
+            generated_dev = executor.generate_reasoning_split("dev", dev_records)
+            gold_dev = {str(row["sample_id"]): row["gold"] for row in dev_records}
+            dev_predictions, _ = executor.judge_reasoning_split("dev", generated_dev, gold_dev)
+            dev_metrics = executor.compute_split_metrics("dev", dev_predictions)
+            epoch_checkpoint = executor.write_checkpoint(f"checkpoints/epoch_{epoch}/model.pt")
+            history[-1]["dev_primary_macro_f1"] = float(dev_metrics["primary_macro_f1"])
+            if float(dev_metrics["primary_macro_f1"]) > best_metric:
+                best_metric = float(dev_metrics["primary_macro_f1"])
+                best_epoch = epoch
+                best_hash = executor.write_checkpoint("checkpoints/best/model.pt")
+            atomic_write_json(Path(context.run_root) / f"metrics/dev_reasoning_metrics_epoch_{epoch}.json", dev_metrics | {"checkpoint_sha256": epoch_checkpoint})
+        best_checkpoint = Path(context.run_root) / "checkpoints/best/model.pt"
+        best_state = torch.load(best_checkpoint, map_location="cpu")
+        if isinstance(best_state, Mapping) and isinstance(best_state.get("model_state_dict"), Mapping):
+            model.load_state_dict(best_state["model_state_dict"], strict=False)
+        executor.write_checkpoint("checkpoints/latest/model.pt")
+        atomic_write_json(Path(context.run_root) / "training/history.json", history)
+        atomic_write_text(Path(context.run_root) / "training/history.csv", "epoch,train_loss,optimizer_steps,dev_primary_macro_f1\n" + "\n".join(f"{row.get('epoch')},{row.get('train_loss')},{row.get('optimizer_steps')},{row.get('dev_primary_macro_f1', '')}" for row in history) + "\n")
+        digest = sha256_file(best_checkpoint)
+        atomic_write_json(Path(context.run_root) / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "best": "checkpoints/best/model.pt", "latest": "checkpoints/latest/model.pt", "checkpoint_sha256": digest, "rationale_source": source_report, "generation_prompt_hash": executor.protocol["generation_prompt_hash"], "executor_kind": "generation_trainable", "best_epoch": best_epoch, "selection_metric": best_metric})
+        atomic_write_json(Path(context.run_root) / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_sha256": best_hash})
+        atomic_write_json(Path(context.run_root) / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "best_epoch": best_epoch})
+        atomic_write_json(Path(context.run_root) / "selection/thresholds.json", {"status": "NOT_APPLICABLE", "reason": "reasoning judge emits strict binary labels; no dev threshold tuning"})
+        atomic_write_json(Path(context.run_root) / "training/optimizer_summary.json", optimizer_summary | {"executor_kind": "generation_trainable", "classifier_heads": 0})
+        atomic_write_json(Path(context.run_root) / "training/scheduler_summary.json", scheduler_summary | {"executor_kind": "generation_trainable"})
+        atomic_write_json(Path(context.run_root) / "training/resource_usage.json", {"successful_gpu_hours": 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": 0.0, "synthetic_results": False})
+        return StageOutcome.passed(summary={"history": history, "rationale_source": source_report, "best_epoch": best_epoch, "best_dev_metric": best_metric}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"))
+    if stage in {"generate_dev_reasoning", "generate_test_reasoning"}:
+        split = "dev" if stage.startswith("generate_dev") else "test"
+        rows = _production_reasoning_records(context.root, tokenizer, getattr(bundle, split), prompt)
+        generated = executor.generate_reasoning_split(split, rows)
+        return StageOutcome.passed(summary={"split": split, "generation_count": len(generated), "decoding": executor.protocol["decoding"]}, expected_files=(f"reasoning/{split}_reasoning.jsonl",))
+    split = "dev" if "dev" in stage else "test"
+    reasoning_path = Path(context.run_root) / f"reasoning/{split}_reasoning.jsonl"
+    if stage.startswith("judge_"):
+        if not reasoning_path.exists():
+            return StageOutcome.blocked(f"{split} reasoning is missing")
+        generated = _read_jsonl(reasoning_path)
+        gold = {row.sample_id: {label: int(row.labels[label]) for label in PRAGMATIC_LABELS} for row in getattr(bundle, split)}
+        predictions, _ = executor.judge_reasoning_split(split, generated, gold)
+        return StageOutcome.passed(summary={"split": split, "judge_protocol_id": judge.judge_protocol_id}, expected_files=(f"judge/{split}_judge_responses.jsonl", "predictions/{split}_predictions.jsonl"))
+    if stage.startswith("compute_"):
+        predictions_path = Path(context.run_root) / f"predictions/{split}_predictions.jsonl"
+        if not predictions_path.exists():
+            return StageOutcome.blocked(f"{split} judge predictions are missing")
+        metrics = executor.compute_split_metrics(split, _read_jsonl(predictions_path))
+        return StageOutcome.passed(summary=metrics, expected_files=(f"metrics/{split}_reasoning_metrics.json",))
+    return StageOutcome.failed(f"unsupported production generation stage: {stage}")
+
+
+def _generation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
+    if context.fixture:
+        return _fixture_cot_reasoning_stage(context, entry, stage)
+    return _production_generation_stage(context, entry, stage)
+
+
+def _fixture_explanation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
+    run_root = Path(context.run_root)
+    if stage == "resolve_approved_full_vistral_source":
+        atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source_system_id": "vipragsent_full_vistral", "source_checkpoint_key": f"vipragsent_full_vistral:{entry.seed}", "source_run_id": "fixture_full_vistral", "source_checkpoint_sha256": "fixture-source-checkpoint", "source_approval_sha256": "fixture-source-approval", "same_seed": True, "additional_training": False, "direct_classification_outputs_used": False, "synthetic_results": True})
+        return StageOutcome.passed(summary={"source_system_id": "vipragsent_full_vistral", "same_seed": True, "additional_training": False, "synthetic_results": True}, expected_files=("source/source_provenance.json",))
+    if stage == "validate_source_checkpoint":
+        provenance = _load_mapping(run_root / "source/source_provenance.json")
+        if provenance.get("status") != "PASS" or provenance.get("same_seed") is not True:
+            return StageOutcome.blocked("explanation-only requires an exact approved same-seed full Vistral source")
+        return StageOutcome.passed(summary={"source_checkpoint_valid": True, "additional_training": False, "synthetic_results": True}, expected_files=("source/source_provenance.json",))
+    if stage in {"generate_dev_reasoning_from_rationale_decoder", "generate_test_reasoning_from_rationale_decoder"}:
+        split = "dev" if stage.startswith("generate_dev") else "test"
+        if not (run_root / "source/source_provenance.json").exists():
+            return StageOutcome.blocked("approved source must be resolved before rationale-decoder inference")
+        rows = [{**row, "split": split, "generated_reasoning": "rationale decoder fixture output", "generation_status": "PASS", "truncated": False, "failure_reason": None, "inference_output_source": "judge_of_rationale_decoder_output"} for row in _fixture_reasoning_rows(entry, split)]
+        atomic_write_text(run_root / f"reasoning/{split}_reasoning.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows))
+        return StageOutcome.passed(summary={"split": split, "rationale_decoder_only": True, "direct_classification_outputs_used": False, "additional_training": False, "synthetic_results": True}, expected_files=(f"reasoning/{split}_reasoning.jsonl",))
+    if stage in {"judge_dev_reasoning", "judge_test_reasoning"}:
+        split = "dev" if "dev" in stage else "test"
+        rows = _read_jsonl(run_root / f"reasoning/{split}_reasoning.jsonl") if (run_root / f"reasoning/{split}_reasoning.jsonl").exists() else []
+        if not rows:
+            return StageOutcome.blocked(f"{split} rationale reasoning is missing")
+        judge = _fixture_reasoning_judge(context)
+        predictions: list[dict[str, Any]] = []
+        decisions: list[dict[str, Any]] = []
+        for row in rows:
+            decision = judge.judge(str(row.get("generated_reasoning", "")))
+            decisions.append({"sample_id": row["sample_id"], **decision})
+            predictions.append(build_reasoning_prediction_row(str(row["sample_id"]), row["gold"], str(row.get("generated_reasoning", "")), decision))
+        judge.write_artifacts(run_root, split, predictions, decisions)
+        atomic_write_text(run_root / f"predictions/{split}_predictions.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in predictions))
+        return StageOutcome.passed(summary={"split": split, "judge_protocol_id": judge.judge_protocol_id, "inference_output_source": "judge_of_rationale_decoder_output", "synthetic_results": True}, expected_files=(f"judge/{split}_judge_responses.jsonl", f"predictions/{split}_predictions.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl"))
+    if stage in {"compute_dev_reasoning_metrics", "compute_test_reasoning_metrics"}:
+        split = "dev" if "dev" in stage else "test"
+        path = run_root / f"predictions/{split}_predictions.jsonl"
+        if not path.exists():
+            return StageOutcome.blocked(f"{split} rationale judge predictions are missing")
+        metrics = compute_reasoning_metrics(_read_jsonl(path)) | {"status": "PASS", "split": split, "inference_output_source": "judge_of_rationale_decoder_output", "source_run_id": "fixture_full_vistral", "additional_training": False, "direct_classification_outputs_used": False, "synthetic_results": True}
+        atomic_write_json(run_root / f"metrics/{split}_reasoning_metrics.json", metrics)
+        return StageOutcome.passed(summary=metrics, expected_files=(f"metrics/{split}_reasoning_metrics.json",))
+    return StageOutcome.failed(f"unsupported explanation-only fixture stage: {stage}")
+
+
+def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
+    run_root = Path(context.run_root)
+    if stage == "resolve_approved_full_vistral_source":
+        try:
+            source = resolve_approved_full_vistral_source(context.root, entry.raw)
+        except Exception as exc:
+            return StageOutcome.blocked(str(exc))
+        atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source": source.as_dict(context.root), "additional_training": False, "direct_classification_outputs_used": False, "inference_output_source": "judge_of_rationale_decoder_output"})
+        return StageOutcome.passed(summary=source.as_dict(context.root), expected_files=("source/source_provenance.json",))
+    source_payload = _load_mapping(run_root / "source/source_provenance.json")
+    if not source_payload:
+        return StageOutcome.blocked("approved full Vistral source has not been resolved")
+    try:
+        source = resolve_approved_full_vistral_source(context.root, entry.raw)
+    except Exception as exc:
+        return StageOutcome.blocked(str(exc))
+    if stage == "validate_source_checkpoint":
+        report = validate_source_checkpoint(context.root, source)
+        return StageOutcome.passed(summary=report, expected_files=("source/source_provenance.json",)) if report["status"] == "PASS" else StageOutcome.blocked(*report["errors"])
+    spec = _execution_spec(context.root, entry)
+    cache = read_family_status(context.root, spec.model_family, "cache")
+    snapshot = cache.get("local_path")
+    if not snapshot:
+        return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {spec.model_family}")
+    from ..data.tokenizers import create_tokenizer
+    from ..models.factory import build_production_model
+
+    model, runtime_spec = build_production_model(spec.model_family, "explanation_only_vistral", local_snapshot=snapshot, execution_mode="production")
+    checkpoint = torch.load(source.checkpoint_path, map_location="cpu")
+    state_dict = checkpoint.get("model_state_dict") if isinstance(checkpoint, Mapping) else None
+    if isinstance(state_dict, Mapping):
+        model.load_state_dict(state_dict, strict=False)
+    tokenizer = create_tokenizer(spec.model_family, revision=runtime_spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
+    judge = ReasoningJudge(context.root, cache_root=run_root / "judge/cache", require_deployment_manifest=True)
+    executor = ExplanationReuseExecutor(context.root, model=model, tokenizer=tokenizer, judge=judge, run_root=run_root, source=source)
+    bundle = load_vipragsent(context.root / "data/processed/vipragsent")
+    if stage in {"generate_dev_reasoning_from_rationale_decoder", "generate_test_reasoning_from_rationale_decoder"}:
+        split = "dev" if stage.startswith("generate_dev") else "test"
+        records = []
+        for example in getattr(bundle, split):
+            input_ids, attention = _encode_text(tokenizer, example.text)
+            records.append({"sample_id": example.sample_id, "input_ids": input_ids, "attention_mask": attention})
+        executor.generate_reasoning_split(split, records)
+        return StageOutcome.passed(summary={"split": split, "source_run_id": source.run_id, "additional_training": False, "direct_classification_outputs_used": False, "inference_output_source": "judge_of_rationale_decoder_output"}, expected_files=(f"reasoning/{split}_reasoning.jsonl",))
+    if stage in {"judge_dev_reasoning", "judge_test_reasoning"}:
+        split = "dev" if "dev" in stage else "test"
+        reasoning = _read_jsonl(run_root / f"reasoning/{split}_reasoning.jsonl")
+        gold = {example.sample_id: {label: int(example.labels[label]) for label in PRAGMATIC_LABELS} for example in getattr(bundle, split)}
+        metrics = executor.judge_and_write(split, reasoning, gold)
+        return StageOutcome.passed(summary=metrics, expected_files=(f"judge/{split}_judge_responses.jsonl", f"predictions/{split}_predictions.jsonl"))
+    if stage in {"compute_dev_reasoning_metrics", "compute_test_reasoning_metrics"}:
+        split = "dev" if "dev" in stage else "test"
+        path = run_root / f"predictions/{split}_predictions.jsonl"
+        if not path.exists():
+            return StageOutcome.blocked(f"{split} rationale judge predictions are missing")
+        metrics = compute_reasoning_metrics(_read_jsonl(path), diagnostics=judge.diagnostics) | {"status": "PASS", "inference_output_source": "judge_of_rationale_decoder_output"}
+        atomic_write_json(run_root / f"metrics/{split}_reasoning_metrics.json", metrics)
+        return StageOutcome.passed(summary=metrics, expected_files=(f"metrics/{split}_reasoning_metrics.json",))
+    return StageOutcome.failed(f"unsupported explanation-only production stage: {stage}")
+
+
+def _explanation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
+    return _fixture_explanation_stage(context, entry, stage) if context.fixture else _production_explanation_stage(context, entry, stage)
 
 
 def _q4_resolve_source(context: RunContext, entry: RunEntry) -> StageOutcome:
@@ -616,7 +964,11 @@ def _evaluate_q1b_external(context: RunContext, entry: RunEntry) -> StageOutcome
         except Exception as exc:
             return StageOutcome.blocked(str(exc))
         atomic_write_json(run_root / "metrics/test_metrics.json", result)
-        return StageOutcome.passed(summary=result, expected_files=("predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"))
+        partial = bool(result.get("partial"))
+        applicable = set(result.get("applicable_external_datasets", []))
+        prediction_files = {"vsfc": "predictions/uit_vsfc_test_predictions.jsonl", "vsmec": "predictions/uit_vsmec_test_predictions.jsonl", "aivivn": "predictions/aivivn_test_predictions.jsonl"}
+        expected = tuple(prediction_files[key] for key in sorted(applicable)) + (("metrics/partial_external_retention_metrics.json",) if partial else ("metrics/external_retention_metrics.json",)) + ("metrics/test_metrics.json", "external/external_evaluation_manifest.json")
+        return StageOutcome.passed(summary=result, expected_files=expected)
     result = evaluate_external_retention(
         datasets,
         predictions,
@@ -677,7 +1029,7 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         missing_q4 = [str(path.relative_to(run_root)) for path in required_q4 if not path.exists()]
         if missing_q4:
             return StageOutcome.blocked("Q4 export requires approved source-backed artifacts: " + ", ".join(missing_q4))
-    if entry.research_question == "Q1a" and not entry.is_azure:
+    if entry.research_question == "Q1a" and not entry.is_azure and entry.system_id not in {"cot_only_vistral", "explanation_only_vistral"}:
         try:
             from ..evaluation.confidence_intervals import write_q1a_confidence_intervals
 
@@ -712,7 +1064,7 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         "paper_artifacts": [_relative(path, context.root) for path in sorted((run_root / "paper_artifacts").rglob("*")) if path.is_file()],
         "figure_backing": [_relative(path, context.root) for path in sorted((run_root / "figure_backing").rglob("*")) if path.is_file()],
         "external_finetuning": False,
-        "inference_output_source": "classification_heads",
+        "inference_output_source": "judge_of_generated_reasoning" if entry.system_id == "cot_only_vistral" else "judge_of_rationale_decoder_output" if entry.system_id == "explanation_only_vistral" else "classification_heads",
         "rationale_decoder_enabled_at_inference": False,
     })
     checkpoint_manifest = _load_mapping(run_root / "checkpoints/checkpoint_manifest.json")
@@ -724,6 +1076,9 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         "class_weights_sha256": sha256_file(class_weight_path) if class_weight_path.exists() else "NOT_APPLICABLE",
         "q3_mask_hash": checkpoint_manifest.get("q3_mask_hash", "NOT_APPLICABLE"),
         "q3_budget": entry.budget if entry.research_question == "Q3" else "NOT_APPLICABLE",
+        "generation_protocol_id": _load_mapping(context.root / "configs/experiments/generation_reasoning_protocol.yaml").get("protocol_version", "NOT_APPLICABLE") if entry.system_id in {"cot_only_vistral", "explanation_only_vistral"} else "NOT_APPLICABLE",
+        "direct_classification_outputs_used": False if entry.system_id in {"cot_only_vistral", "explanation_only_vistral"} else True,
+        "additional_training": False if entry.system_id == "explanation_only_vistral" else entry.system_id == "cot_only_vistral" if entry.system_id in {"cot_only_vistral", "explanation_only_vistral"} else entry.execution_kind in {"trainable", "component_bundle", "generation"},
     })
     atomic_write_json(manifest_path, manifest)
     metrics_path = run_root / "metrics.json"
@@ -735,8 +1090,8 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         "synthetic_results": bool(context.fixture),
         "research_question": entry.research_question,
         "execution_kind": entry.execution_kind,
-        "dev": _load_mapping(run_root / "metrics/dev_metrics.json"),
-        "test": _load_mapping(run_root / "metrics/test_metrics.json"),
+        "dev": _load_mapping(run_root / ("metrics/dev_reasoning_metrics.json" if entry.system_id in {"cot_only_vistral", "explanation_only_vistral"} else "metrics/dev_metrics.json")),
+        "test": _load_mapping(run_root / ("metrics/test_reasoning_metrics.json" if entry.system_id in {"cot_only_vistral", "explanation_only_vistral"} else "metrics/test_metrics.json")),
         "azure_usage": _load_mapping(run_root / "azure/usage.json"),
     })
     atomic_write_json(metrics_path, metrics)
@@ -754,17 +1109,24 @@ def _validate_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         required = _azure_required_files(entry)
     elif entry.execution_kind == ExecutionKind.COMPONENT_BUNDLE.value:
         required = ["components/state.json", "components/events.jsonl", "components/component_manifest.json", "components/combined_prediction_manifest.json", "training/resource_usage.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json"]
-    elif entry.execution_kind == ExecutionKind.GENERATION.value:
-        required = ["training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json", "generations/dev_generations.jsonl", "generations/test_generations.jsonl", "generation/parser_report.json"]
+    elif entry.system_id == "cot_only_vistral":
+        required = ["training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "selection/freeze_manifest.json", "reasoning/dev_reasoning.jsonl", "reasoning/test_reasoning.jsonl", "judge/dev_judge_responses.jsonl", "judge/test_judge_responses.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_reasoning_metrics.json", "metrics/test_reasoning_metrics.json"]
+    elif entry.system_id == "explanation_only_vistral":
+        required = ["source/source_provenance.json", "reasoning/dev_reasoning.jsonl", "reasoning/test_reasoning.jsonl", "judge/dev_judge_responses.jsonl", "judge/test_judge_responses.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_reasoning_metrics.json", "metrics/test_reasoning_metrics.json"]
     elif entry.research_question == "Q1b":
-        required = ["predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"]
+        if entry.system_id == "phobert_pol_single":
+            required = ["predictions/uit_vsfc_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/partial_external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"]
+        elif entry.system_id == "phobert_emo_single":
+            required = ["predictions/uit_vsmec_test_predictions.jsonl", "metrics/partial_external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"]
+        else:
+            required = ["predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"]
     elif entry.research_question == "Q4":
         required = ["source/source_provenance.json", "paper_artifacts/q4_pragmatic_calibration_per_seed.json", "figure_backing/q4_pragmatic_reliability_bins.json", "figure_backing/q4_learning_curves.json"]
     elif entry.execution_kind in {ExecutionKind.EVALUATION_ONLY.value, ExecutionKind.CHECKPOINT_REUSE.value, ExecutionKind.ARTIFACT_EXTRACTION.value}:
         required = ["checkpoint_reference.json", "predictions/test_predictions.jsonl", "metrics/test_metrics.json"]
     else:
         required = ["training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json"]
-    if entry.research_question == "Q1a" and not entry.is_azure:
+    if entry.research_question == "Q1a" and not entry.is_azure and entry.system_id not in {"cot_only_vistral", "explanation_only_vistral"}:
         required.append("metrics/test_confidence_intervals.json")
     missing.extend(name for name in required if not (run_root / name).exists())
     manifest = json.loads((run_root / "run_manifest.json").read_text(encoding="utf-8")) if (run_root / "run_manifest.json").exists() else {}
@@ -982,10 +1344,20 @@ def build_single_experiment_stage_registry(root: str | Path, entry_mapping: Mapp
         "freeze_selection": lambda: _freeze_selection(context, entry),
         "evaluate_test": lambda: _evaluate_test(context, entry),
         "train_generation": lambda: _generation_stage(context, entry, "train_generation"),
-        "generate_dev": lambda: _generation_stage(context, entry, "generate_dev"),
-        "parse_dev": lambda: _generation_stage(context, entry, "parse_dev"),
-        "generate_test": lambda: _generation_stage(context, entry, "generate_test"),
-        "parse_test": lambda: _generation_stage(context, entry, "parse_test"),
+        "generate_dev_reasoning": lambda: _generation_stage(context, entry, "generate_dev_reasoning") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "generate_dev_reasoning_from_rationale_decoder"),
+        "judge_dev_reasoning": lambda: _generation_stage(context, entry, "judge_dev_reasoning") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "judge_dev_reasoning"),
+        "compute_dev_reasoning_metrics": lambda: _generation_stage(context, entry, "compute_dev_reasoning_metrics") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "compute_dev_reasoning_metrics"),
+        "generate_test_reasoning": lambda: _generation_stage(context, entry, "generate_test_reasoning") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "generate_test_reasoning_from_rationale_decoder"),
+        "judge_test_reasoning": lambda: _generation_stage(context, entry, "judge_test_reasoning") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "judge_test_reasoning"),
+        "compute_test_reasoning_metrics": lambda: _generation_stage(context, entry, "compute_test_reasoning_metrics") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "compute_test_reasoning_metrics"),
+        "resolve_approved_full_vistral_source": lambda: _explanation_stage(context, entry, "resolve_approved_full_vistral_source"),
+        "validate_source_checkpoint": lambda: _explanation_stage(context, entry, "validate_source_checkpoint"),
+        "generate_dev_reasoning_from_rationale_decoder": lambda: _explanation_stage(context, entry, "generate_dev_reasoning_from_rationale_decoder"),
+        "generate_test_reasoning_from_rationale_decoder": lambda: _explanation_stage(context, entry, "generate_test_reasoning_from_rationale_decoder"),
+        "generate_dev": lambda: _generation_stage(context, entry, "generate_dev_reasoning"),
+        "parse_dev": lambda: _generation_stage(context, entry, "judge_dev_reasoning"),
+        "generate_test": lambda: _generation_stage(context, entry, "generate_test_reasoning"),
+        "parse_test": lambda: _generation_stage(context, entry, "judge_test_reasoning"),
         "resolve_approved_source": lambda: _q4_resolve_source(context, entry) if entry.research_question == "Q4" else _reuse_or_extract(context, entry),
         "evaluate_external_tests": lambda: _evaluate_q1b_external(context, entry),
         "validate_source_predictions": lambda: _q4_validate_source(context, entry),

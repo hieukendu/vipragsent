@@ -51,36 +51,42 @@ systems:
     approved_source_reference: configs/experiments/master_matrix.yaml
   - system_id: cot_only_vistral
     model_family: vistral_7b
-    executor_kind: generation_baseline
+    executor_kind: generation_trainable
     variant_id: cot_only_vistral
     active_heads: []
     active_losses: [generation_cross_entropy]
     uncertainty_tasks: []
     rationale_training: true
     rationale_inference: true
-    checkpoint_semantics: generated_label_checkpoint
-    selection_metric: macro_prag_f1_dev
-    evaluation_strategy: generated_label_parser
+    checkpoint_semantics: own_generation_checkpoint
+    selection_metric: full_split_macro_pragmatic_f1_all_zero_fallback_dev
+    evaluation_strategy: reasoning_generation_shared_judge
     external_evaluation_strategy: not_applicable
-    output_source: parsed_generated_labels
+    output_source: judged_generated_reasoning
     reusable_checkpoint_key_pattern: cot_only_vistral:{seed}
-    approved_source_reference: configs/experiments/master_matrix.yaml
+    approved_source_reference: configs/experiments/generation_reasoning_protocol.yaml
+    additional_training: true
+    direct_classification_outputs_used: false
   - system_id: explanation_only_vistral
     model_family: vistral_7b
-    executor_kind: generation_baseline
+    executor_kind: rationale_checkpoint_reuse
     variant_id: explanation_only_vistral
     active_heads: []
-    active_losses: [generation_cross_entropy]
+    active_losses: []
     uncertainty_tasks: []
-    rationale_training: true
+    rationale_training: false
     rationale_inference: true
-    checkpoint_semantics: generated_explanation_checkpoint
-    selection_metric: macro_prag_f1_dev
-    evaluation_strategy: generated_label_parser
+    checkpoint_semantics: reuse_approved_full_vistral_same_seed
+    selection_metric: inherited_from_source_checkpoint
+    evaluation_strategy: rationale_only_shared_judge
     external_evaluation_strategy: not_applicable
-    output_source: parsed_generated_labels
-    reusable_checkpoint_key_pattern: explanation_only_vistral:{seed}
-    approved_source_reference: configs/experiments/master_matrix.yaml
+    output_source: judged_rationale_decoder_output
+    reusable_checkpoint_key_pattern: vipragsent_full_vistral:{seed}
+    approved_source_reference: configs/experiments/q1a/system_roles.yaml
+    source_system_id: vipragsent_full_vistral
+    source_checkpoint_key_pattern: vipragsent_full_vistral:{seed}
+    additional_training: false
+    direct_classification_outputs_used: false
   - system_id: full_phobert
     model_family: phobert_base
     executor_kind: single_model_trainable

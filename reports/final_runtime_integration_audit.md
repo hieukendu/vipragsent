@@ -2,9 +2,9 @@
 
 - Implementation status: `PASS`
 - CI status: `NOT_RUN`
-- Baseline commit: `3621fd4571e8e17410a1e3a2be85bf8a2320e454`
+- Baseline commit: `cb5cde04cd3e3c546d1b35711197a82b6d5bb254`
 - Frozen data changed: `false`
-- Self-review: `20 rounds x 2 sequences`; consecutive clean sequences: `2`
+- Self-review: `25 rounds x 2 sequences`; consecutive clean sequences: `2`
 
 ## Execution boundary
 
@@ -12,9 +12,9 @@ Phase 15, model downloads, Azure requests, real training, real test predictions,
 
 ## Runtime blockers
 
-- Phase 15 model weights and actual offline smoke reports remain intentionally unavailable
-- No approved production run exists
-- SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS
+- Phase 15 has not been executed on the target server
+- Model-family runtime assets are not prepared
+- No real approved production run exists
 
 ## Next action
 

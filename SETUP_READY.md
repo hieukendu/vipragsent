@@ -2,20 +2,27 @@
 
 SETUP_IMPLEMENTATION_READY=true
 SETUP_FROZEN=true
-RUNTIME_DEPENDENCIES_PENDING=true
+PHASE15_CODE_READY=true
+SEQUENTIAL_RUNTIME_CODE_READY=true
+FULL_MATRIX_CODE_READY=true
+PHASE15_RUNTIME_READY=false
+RUNTIME_ENVIRONMENT_READY=false
+WEIGHTS_DOWNLOADED=false
+REAL_EXPERIMENT_READY=false
+FINAL_AGGREGATION_READY=false
+REAL_RUN_COUNT=0
+APPROVED_RUN_COUNT=0
 
-Phase 15 model download and runtime smoke are intentionally deferred.
-
-## Scientific protocol conflicts
-- `None`
+## Active scientific protocol conflicts
+None
 
 ## Implementation blockers
-- None
+None
 
-## Deferred runtime requirements
-- A100 or A100 MIG runtime
-- Java 17 and VnCoreNLP resources
-- PEFT
-- bitsandbytes
-- model downloads
-- real Phase 15 model/tokenizer/QLoRA smoke
+## Runtime blockers
+- Phase 15 has not been executed on the target server
+- Model-family runtime assets are not prepared
+- No real approved production run exists
+
+## Exact next action
+Run exactly one approved Phase 15 model-family prompt on the target server, print the complete report, and stop for user review.

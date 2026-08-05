@@ -78,6 +78,7 @@ def _selection_metric(entry: RunEntry, spec: SystemExecutionSpec) -> str:
         "dev_sarcasm_binary_macro_f1": "dev_sarcasm_binary_macro_f1",
         "dev_polarity_macro_f1": "dev_polarity_macro_f1",
         "dev_emotion_macro_f1": "dev_emotion_macro_f1",
+        "full_split_macro_pragmatic_f1_all_zero_fallback_dev": "full_split_macro_pragmatic_f1_all_zero_fallback_dev",
     }
     key = str(entry.raw.get("selection_metric") or spec.selection_metric)
     try:
@@ -107,7 +108,7 @@ def resolve_training_config(
     runtime_status: dict[str, Any] | None = None,
 ) -> ResolvedTrainingConfig:
     root = Path(root)
-    if execution_spec.executor_kind not in {"single_model_trainable", "single_task_bundle", "independent_checkpoint_bundle", "generation_baseline"}:
+    if execution_spec.executor_kind not in {"single_model_trainable", "single_task_bundle", "independent_checkpoint_bundle", "generation_baseline", "generation_trainable"}:
         raise ValueError(f"Training configuration is not applicable to executor {execution_spec.executor_kind}")
     values = _family_values(_load_training_values(root), execution_spec.model_family)
     physical = _physical_batch(values, execution_spec.model_family, runtime_status)

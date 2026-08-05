@@ -1,60 +1,15 @@
 {
-  "deferred_runtime_requirements": [
-    "Java 17 and VnCoreNLP resources",
-    "PEFT",
-    "bitsandbytes",
-    "A100 or A100 MIG runtime",
-    "model downloads",
-    "real Phase 15 model/tokenizer/QLoRA smoke"
-  ],
-  "full_run_invoked": false,
-  "phase": "14.5",
-  "preflight": {
-    "blockers": [
-      "Every model family must pass cache, actual offline smoke, and frozen physical-batch verification",
-      "A100 20 GB or an A100 MIG profile is not available",
-      "Java 17 LTS is required for VnCoreNLP",
-      "PEFT is not installed for QLoRA",
-      "bitsandbytes is not installed for NF4 QLoRA",
-      "Phase 15 actual per-family model/tokenizer smoke reports are missing or incomplete"
-    ],
-    "checks": {
-      "active_rationale_manifest_sanitized": true,
-      "artifact_schema": true,
-      "azure_credentials": true,
-      "azure_deployment_verified": true,
-      "azure_direct_endpoint_absent": true,
-      "azure_live_smoke": true,
-      "bitsandbytes_installed": false,
-      "cuda_a100_or_mig": false,
-      "expected_run_inventory": true,
-      "external_manifest": true,
-      "external_official_tests": true,
-      "external_provenance_complete": true,
-      "hardware_runtime_exact": false,
-      "java_17": false,
-      "model_family_statuses": false,
-      "model_revisions_pinned": true,
-      "model_smoke_report": false,
-      "model_weights_verified": false,
-      "peft_installed": false,
-      "prompt_manifests": true,
-      "vipragsent_processed": true,
-      "vncorenlp_resources": true
-    },
-    "exit_code": 2,
-    "passed": false,
-    "scientific_protocol_conflicts": [],
-    "warnings": []
-  },
+  "approved_run_count": 0,
+  "implementation_blockers": [],
+  "next_action": "Run exactly one approved Phase 15 model-family prompt on the target server, print the complete report, and stop for user review.",
+  "phase": "15",
+  "real_run_count": 0,
   "runtime_blockers": [
-    "Every model family must pass cache, actual offline smoke, and frozen physical-batch verification",
-    "A100 20 GB or an A100 MIG profile is not available",
-    "Java 17 LTS is required for VnCoreNLP",
-    "PEFT is not installed for QLoRA",
-    "bitsandbytes is not installed for NF4 QLoRA",
-    "Phase 15 actual per-family model/tokenizer smoke reports are missing or incomplete"
+    "Phase 15 has not been executed on the target server",
+    "Model-family runtime assets are not prepared",
+    "No real approved production run exists"
   ],
   "scientific_protocol_conflicts": [],
+  "status": "BLOCKED",
   "weights_downloaded": false
 }

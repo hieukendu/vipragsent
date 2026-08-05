@@ -23,7 +23,12 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Reusable checkpoint key: `cot_only_vistral:20260522`
 - Protocol resolution: `RESOLVED`
 - CLI kind: `experiment`
-- Resolved execution stage plan: `generation`
+- Resolved execution stage plan: `cot_only_vistral_generation`
+
+## Locked reasoning-generation contract
+
+Use the exact Vietnamese reasoning prompt, causal generation-only objective, greedy decoding, and the shared zero-shot reasoning judge. The judge receives generated reasoning only and emits the strict six-key JSON schema. Select only on the full-split all-zero-fallback dev metric; do not inspect test data before `freeze_selection`. Do not use a direct label parser or generated label target.
+
 
 ## Required command sequence
 
@@ -35,7 +40,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 
 ## Required review handoff
 
-The run must complete these stages in order: `preflight, train_generation, generate_dev, parse_dev, freeze_selection, generate_test, parse_test, export_artifacts, validate_artifacts, generate_review_summary`.
+The run must complete these stages in order: `preflight, train_generation, generate_dev_reasoning, judge_dev_reasoning, compute_dev_reasoning_metrics, freeze_selection, generate_test_reasoning, judge_test_reasoning, compute_test_reasoning_metrics, export_artifacts, validate_artifacts, generate_review_summary`.
 
 Print the complete review summary with `python scripts/print_run_review_summary.py --run-id q1a_cot_only_vistral_20260522` and paste it into the Codex chat. It must include `RUN_STATUS`, `USER_REVIEW_STATUS`, `NEXT_RUN_ALLOWED`, artifact hashes, and blockers.
 
