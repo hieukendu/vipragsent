@@ -1,6 +1,4 @@
 {
-  "azure_fixed_prediction_behavior": "test-example resampling only",
-  "bootstrap_seed": 20260525,
   "checks": {
     "approved_method_exact": true,
     "dedicated_evaluator": true,
@@ -12,11 +10,6 @@
     "prediction_hash_binding": true,
     "production_aggregator_uses_joint_evaluator": true
   },
-  "confidence_level": 0.95,
-  "conflicts": [],
-  "cross_seed_behavior": "compute the joint hierarchical interval; do not average interval bounds",
-  "exact_method_found": true,
-  "final_aggregation_ready": false,
   "golden_aggregation": {
     "checks": {
       "bounds_are_not_averaged": true,
@@ -43,23 +36,21 @@
       "cot_only_vistral"
     ]
   },
-  "individual_q1a_ci_output": "metrics/test_confidence_intervals.json",
-  "method_id": "paired_hierarchical_bootstrap_sign_plus_one_v1",
-  "per_seed_behavior": "hierarchical seed-then-test-example resampling",
-  "resampling_count": 1000,
-  "resampling_unit": "seed_then_test_example",
-  "source_references": [
-    "configs/statistics/significance_method.yaml",
-    "configs/statistics.yaml"
-  ],
-  "sources_checked": [
-    "configs/statistics.yaml",
-    "configs/statistics/significance_method.yaml",
-    "src/vipragsent/statistics/bootstrap.py",
-    "src/vipragsent/evaluation/confidence_intervals.py",
-    "src/vipragsent/orchestration/aggregation.py",
-    "configs/schemas/result.schema.json"
-  ],
-  "status": "PASS",
-  "table2_aggregation_status": "READY_FOR_APPROVED_RUN_INPUTS"
+  "method": {
+    "approval_source": "21_MASTER_EXPERIMENT_MATRIX.md; configs/statistics.yaml",
+    "bootstrap_seed": 20260525,
+    "confidence_interval": "percentile_95",
+    "difference_direction": "left_minus_right",
+    "evidence": "User-approved paired hierarchical bootstrap sign p-value with plus-one finite-resample correction.",
+    "finite_resample_correction": "plus_one",
+    "method_id": "paired_hierarchical_bootstrap_sign_plus_one_v1",
+    "multiple_comparisons": "holm_within_7_metric_family",
+    "p_lower_definition": "(1 + count(delta <= 0)) / (B + 1)",
+    "p_upper_definition": "(1 + count(delta >= 0)) / (B + 1)",
+    "raw_p_value_definition": "two_sided_sign_test_plus_one",
+    "resamples": 1000,
+    "resolution_status": "RESOLVED",
+    "two_sided_p_value_definition": "min(1, 2 * min(p_lower, p_upper))"
+  },
+  "status": "PASS"
 }

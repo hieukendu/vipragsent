@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import subprocess
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +13,7 @@ from ..statistics.bootstrap import hierarchical_bootstrap
 from .metrics import binary_macro_f1, macro_pragmatic_f1
 
 METHOD_ID = "paired_hierarchical_bootstrap_sign_plus_one_v1"
+EFFECTIVE_FALLBACK_FIELD = "effective_full_split_all_zero_fallback"
 
 
 def _code_commit(root: Path) -> str:
@@ -22,19 +23,58 @@ def _code_commit(root: Path) -> str:
         return "unknown"
 
 
-def _rows_to_pair(rows: Sequence[dict[str, Any]]) -> tuple[dict[str, list[int]], dict[str, list[int]]]:
+def prediction_row_alignment_signature(
+    rows: Sequence[Mapping[str, Any]],
+) -> tuple[tuple[str, tuple[tuple[str, int], ...]], ...]:
+    if not rows:
+        raise ValueError("Table 2 confidence intervals require non-empty predictions")
+    seen: set[str] = set()
+    signature: list[tuple[str, tuple[tuple[str, int], ...]]] = []
+    for index, row in enumerate(rows):
+        sample_id = str(row.get("sample_id", f"__position_{index}"))
+        if sample_id in seen:
+            raise ValueError(f"Table 2 confidence intervals require unique sample_id values: {sample_id}")
+        seen.add(sample_id)
+        gold = row.get("gold", {})
+        if not isinstance(gold, Mapping) or any(label not in gold for label in PRAGMATIC_LABELS):
+            raise ValueError("Table 2 confidence intervals require all six pragmatic gold labels per prediction row")
+        signature.append((sample_id, tuple((label, int(gold[label])) for label in PRAGMATIC_LABELS)))
+    return tuple(signature)
+
+
+def validate_prediction_row_alignment(seed_rows: Sequence[Sequence[Mapping[str, Any]]]) -> None:
+    if not seed_rows:
+        raise ValueError("Table 2 confidence intervals require at least one seed prediction set")
+    reference = prediction_row_alignment_signature(seed_rows[0])
+    for rows in seed_rows[1:]:
+        if prediction_row_alignment_signature(rows) != reference:
+            raise ValueError("Table 2 confidence interval inputs are not aligned by sample order/gold labels")
+
+
+def _prediction_values(row: Mapping[str, Any]) -> Mapping[str, Any]:
+    if EFFECTIVE_FALLBACK_FIELD in row:
+        values = row.get(EFFECTIVE_FALLBACK_FIELD)
+    else:
+        values = row.get("predictions")
+    if not isinstance(values, Mapping):
+        raise ValueError("Table 2 confidence intervals require prediction labels per prediction row")
+    return values
+
+
+def prediction_rows_to_pair(
+    rows: Sequence[Mapping[str, Any]],
+) -> tuple[dict[str, list[int]], dict[str, list[int]]]:
+    prediction_row_alignment_signature(rows)
     true = {label: [] for label in PRAGMATIC_LABELS}
     predicted = {label: [] for label in PRAGMATIC_LABELS}
     for row in rows:
         gold = row.get("gold", {})
-        values = row.get("predictions", {})
+        values = _prediction_values(row)
         if any(label not in gold or label not in values for label in PRAGMATIC_LABELS):
             raise ValueError("Table 2 confidence intervals require all six pragmatic labels per prediction row")
         for label in PRAGMATIC_LABELS:
             true[label].append(int(gold[label]))
             predicted[label].append(int(values[label]))
-    if not rows:
-        raise ValueError("Table 2 confidence intervals require non-empty predictions")
     return true, predicted
 
 
@@ -49,7 +89,8 @@ def evaluate_q1a_confidence_intervals(
 ) -> dict[str, Any]:
     if not seed_rows:
         raise ValueError("Table 2 confidence intervals require at least one seed prediction set")
-    pairs = [_rows_to_pair(rows) for rows in seed_rows]
+    validate_prediction_row_alignment(seed_rows)
+    pairs = [prediction_rows_to_pair(rows) for rows in seed_rows]
     labels: dict[str, dict[str, float]] = {}
     for label in PRAGMATIC_LABELS:
         result = hierarchical_bootstrap(
@@ -75,6 +116,8 @@ def evaluate_q1a_confidence_intervals(
             "confidence_level": 0.95,
             "cross_seed_behavior": "hierarchical resampling; estimate and interval computed jointly, bounds are not averaged",
             "azure_fixed_prediction_behavior": "test-example resampling only",
+            "prediction_source": f"{EFFECTIVE_FALLBACK_FIELD}_when_present_else_predictions",
+            "valid_only_usage": "diagnostic_only",
         },
         "labels": labels,
         "macro": {"estimate": macro.observed, "low": macro.ci_low, "high": macro.ci_high},

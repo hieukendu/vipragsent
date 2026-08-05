@@ -215,7 +215,14 @@ def test_q4_extracts_only_approved_source_backing_artifacts(tmp_path: Path) -> N
 
 
 def test_table2_interval_and_exact_stage_plans_are_resolved() -> None:
-    rows = [{"gold": {label: 1 for label in PRAGMATIC_LABELS}, "predictions": {label: 1 for label in PRAGMATIC_LABELS}} for _ in range(4)]
+    rows = [
+        {
+            "sample_id": f"s{index}",
+            "gold": {label: 1 for label in PRAGMATIC_LABELS},
+            "predictions": {label: 1 for label in PRAGMATIC_LABELS},
+        }
+        for index in range(4)
+    ]
     report = evaluate_q1a_confidence_intervals([rows], prediction_hash="prediction", config_hash="config", code_commit="commit", resamples=10, bootstrap_seed=20260525)
     assert report["method"]["method_id"] == "paired_hierarchical_bootstrap_sign_plus_one_v1"
     assert report["method"]["resampling_unit"] == "seed_then_test_example"

@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 import json
 from collections import defaultdict
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
 from statistics import mean, stdev
 from typing import Any
@@ -12,7 +12,13 @@ import numpy as np
 
 from ..artifacts.schemas import REQUIRED_COLUMNS
 from ..atomic import atomic_write_json
-from ..constants import PRAGMATIC_LABELS, TRAINING_SEEDS
+from ..constants import BOOTSTRAP_RESAMPLES, BOOTSTRAP_SEED, PRAGMATIC_LABELS, TRAINING_SEEDS
+from ..evaluation.confidence_intervals import (
+    evaluate_q1a_confidence_intervals,
+    prediction_row_alignment_signature,
+    prediction_rows_to_pair,
+    validate_prediction_row_alignment,
+)
 from ..evaluation.metrics import binary_macro_f1, macro_pragmatic_f1
 from ..hashing import sha256_file, sha256_json
 from ..protocol import validate_protocol_resolution
@@ -139,65 +145,98 @@ def _required_number(value: Any, field: str) -> float:
     return result
 
 
+def _table2_prediction_rows(record: Mapping[str, Any]) -> tuple[Path, list[dict[str, Any]]]:
+    """Load the exact test rows used by the Table 2 primary metric."""
+    path = Path(record["run_root"]) / "predictions/test_predictions.jsonl"
+    if not path.exists():
+        raise ValueError(f"{record.get('run_id', 'run')}: Table 2 test predictions are missing")
+    rows: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        try:
+            raw = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"{record.get('run_id', 'run')}: invalid Table 2 JSONL at line {line_number}") from exc
+        if not isinstance(raw, Mapping):
+            raise ValueError(f"{record.get('run_id', 'run')}: Table 2 prediction row is not an object")
+        sample_id = str(raw.get("sample_id", ""))
+        gold = raw.get("gold")
+        predictions = raw.get("effective_full_split_all_zero_fallback") if "effective_full_split_all_zero_fallback" in raw else raw.get("predictions")
+        if not sample_id or sample_id in seen:
+            raise ValueError(f"{record.get('run_id', 'run')}: Table 2 sample IDs must be unique and non-empty")
+        if not isinstance(gold, Mapping) or not isinstance(predictions, Mapping):
+            raise ValueError(f"{record.get('run_id', 'run')}: Table 2 rows require gold and predictions mappings")
+        if any(label not in gold or label not in predictions for label in PRAGMATIC_LABELS):
+            raise ValueError(f"{record.get('run_id', 'run')}: Table 2 rows require all six pragmatic labels")
+        seen.add(sample_id)
+        normalized = dict(raw)
+        normalized["sample_id"] = sample_id
+        normalized["gold"] = {label: int(gold[label]) for label in PRAGMATIC_LABELS}
+        normalized["predictions"] = {label: int(predictions[label]) for label in PRAGMATIC_LABELS}
+        rows.append(normalized)
+    if not rows:
+        raise ValueError(f"{record.get('run_id', 'run')}: Table 2 test predictions are empty")
+    return path, rows
+
+
+def _joint_table2_confidence_intervals(records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+    """Compute one approved interval over all aligned approved seed predictions."""
+    if not records:
+        raise ValueError("Table 2 requires at least one approved prediction set")
+    ordered = sorted(records, key=lambda record: str(record["summary"].get("seed", "NOT_APPLICABLE")))
+    seed_rows: list[list[dict[str, Any]]] = []
+    prediction_hashes: list[dict[str, Any]] = []
+    config_hashes: list[dict[str, Any]] = []
+    code_commits: list[dict[str, Any]] = []
+    for record in ordered:
+        path, rows = _table2_prediction_rows(record)
+        seed_rows.append(rows)
+        prediction_hashes.append({"seed": record["summary"].get("seed", "NOT_APPLICABLE"), "sha256": sha256_file(path)})
+        config_path = Path(record["run_root"]) / "config_snapshot.yaml"
+        config_hashes.append({"seed": record["summary"].get("seed", "NOT_APPLICABLE"), "sha256": sha256_file(config_path) if config_path.exists() else "NOT_APPLICABLE"})
+        code_commits.append({"seed": record["summary"].get("seed", "NOT_APPLICABLE"), "code_commit": str(record["summary"].get("code_commit", "NOT_APPLICABLE"))})
+    validate_prediction_row_alignment(seed_rows)
+    return evaluate_q1a_confidence_intervals(
+        seed_rows,
+        prediction_hash=sha256_json(prediction_hashes),
+        config_hash=sha256_json(config_hashes),
+        code_commit=sha256_json(code_commits),
+        resamples=BOOTSTRAP_RESAMPLES,
+        bootstrap_seed=BOOTSTRAP_SEED,
+    )
+
+
 def _table2(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
     groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     for record in records:
         summary = record["summary"]
-        groups[(str(summary.get("system_id")), str(summary.get("backbone")))].append(summary)
+        groups[(str(summary.get("system_id")), str(summary.get("backbone")))].append(record)
     rows: list[dict[str, Any]] = []
-    for (system, backbone), summaries in sorted(groups.items()):
+    for (system, backbone), group_records in sorted(groups.items()):
+        summaries = [record["summary"] for record in group_records]
         seeds = {summary.get("seed") for summary in summaries if summary.get("seed") not in (None, "NOT_APPLICABLE")}
         expected_seed_count = 0 if any(summary.get("seed") == "NOT_APPLICABLE" for summary in summaries) else len(TRAINING_SEEDS)
         if expected_seed_count and seeds != set(TRAINING_SEEDS):
             raise ValueError(f"Table 2 requires exactly the locked seeds for {system}: {sorted(seeds)}")
+        if not expected_seed_count and len(group_records) != 1:
+            raise ValueError(f"Table 2 fixed-prediction system {system} must have exactly one approved run")
         row: dict[str, Any] = {"system": system, "backbone": backbone, "seed_count": len(seeds) if expected_seed_count else 0}
-        if system in {"cot_only_vistral", "explanation_only_vistral"}:
-            short_names = {"implicit_sentiment": "implicit", "sarcasm": "sarcasm", "irony": "irony", "idiom_figurative": "idiom", "code_switching": "code_switching", "mocking": "mocking"}
-            per_label_values: dict[str, list[float]] = defaultdict(list)
-            invalid_rates: list[float] = []
-            for summary in summaries:
-                primary = summary.get("primary_per_label_f1") or {}
-                for label in PRAGMATIC_LABELS:
-                    if label in primary:
-                        per_label_values[label].append(_required_number(primary[label], f"{system}.{label}.primary_f1"))
-                invalid_rates.append(_number(summary.get("invalid_generation_rate")) + _number(summary.get("invalid_judge_output_rate")))
-            for label in PRAGMATIC_LABELS:
-                if not per_label_values[label]:
-                    raise ValueError(f"Table 2 is missing approved primary generation metric for {system}.{label}")
-                short = short_names[label]
-                row[f"{short}_f1"] = mean(per_label_values[label])
-                row[f"{short}_ci_low"] = "NOT_APPLICABLE"
-                row[f"{short}_ci_high"] = "NOT_APPLICABLE"
-            primary_macros = [_required_number(summary.get("primary_macro_f1"), f"{system}.primary_macro_f1") for summary in summaries]
-            row.update({"macro_prag_f1": mean(primary_macros), "macro_prag_ci_low": "NOT_APPLICABLE", "macro_prag_ci_high": "NOT_APPLICABLE", "invalid_output_rate": mean(invalid_rates) if invalid_rates else 0.0})
-            rows.append(row)
-            continue
-        per_label: dict[str, list[float]] = defaultdict(list)
-        intervals: dict[str, list[tuple[float, float]]] = defaultdict(list)
-        for summary in summaries:
-            for label, value in (summary.get("per_label_test_metrics") or {}).items():
-                if label.endswith("_f1"):
-                    canonical = label.removesuffix("_f1")
-                    per_label[canonical].append(_required_number(value, f"{system}.{canonical}.f1"))
-            ci_payload = summary.get("test_confidence_intervals") or summary.get("per_label_test_ci") or {}
-            for label, interval in ci_payload.items():
-                if not isinstance(interval, Mapping) or "low" not in interval or "high" not in interval:
-                    raise ValueError(f"Table 2 confidence interval is incomplete for {system}.{label}")
-                intervals[str(label)].append((_required_number(interval["low"], f"{system}.{label}.ci_low"), _required_number(interval["high"], f"{system}.{label}.ci_high")))
+        confidence = _joint_table2_confidence_intervals(group_records)
         short_names = {"implicit_sentiment": "implicit", "sarcasm": "sarcasm", "irony": "irony", "idiom_figurative": "idiom", "code_switching": "code_switching", "mocking": "mocking"}
         for label in PRAGMATIC_LABELS:
-            values = per_label.get(label)
-            if not values or label not in intervals:
-                raise ValueError(f"Table 2 is missing approved metric or confidence interval for {system}.{label}")
             short = short_names[label]
-            row[f"{short}_f1"] = mean(values)
-            row[f"{short}_ci_low"] = mean(interval[0] for interval in intervals[label])
-            row[f"{short}_ci_high"] = mean(interval[1] for interval in intervals[label])
-        macros = [_required_number(summary.get("macro_pragmatic_f1"), f"{system}.macro_prag_f1") for summary in summaries]
-        macro_intervals = [summary.get("macro_confidence_interval") for summary in summaries]
-        if any(not isinstance(interval, Mapping) for interval in macro_intervals):
-            raise ValueError(f"Table 2 is missing approved macro confidence intervals for {system}")
-        row.update({"macro_prag_f1": mean(macros), "macro_prag_ci_low": mean(_required_number(interval["low"], f"{system}.macro.ci_low") for interval in macro_intervals), "macro_prag_ci_high": mean(_required_number(interval["high"], f"{system}.macro.ci_high") for interval in macro_intervals), "invalid_output_rate": mean(_required_number(summary.get("invalid_output_rate", 0.0), f"{system}.invalid_output_rate") for summary in summaries)})
+            interval = confidence["labels"][label]
+            row[f"{short}_f1"] = interval["estimate"]
+            row[f"{short}_ci_low"] = interval["low"]
+            row[f"{short}_ci_high"] = interval["high"]
+        macro = confidence["macro"]
+        if system in {"cot_only_vistral", "explanation_only_vistral"}:
+            invalid_rates = [_number(summary.get("invalid_generation_rate")) + _number(summary.get("invalid_judge_output_rate")) for summary in summaries]
+        else:
+            invalid_rates = [_required_number(summary.get("invalid_output_rate", 0.0), f"{system}.invalid_output_rate") for summary in summaries]
+        row.update({"macro_prag_f1": macro["estimate"], "macro_prag_ci_low": macro["low"], "macro_prag_ci_high": macro["high"], "invalid_output_rate": mean(invalid_rates) if invalid_rates else 0.0})
         rows.append(row)
     return rows
 
@@ -431,29 +470,7 @@ def _write_index(root: Path, records: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def _prediction_pairs(record: Mapping[str, Any]) -> tuple[dict[str, list[int]], dict[str, list[int]]]:
-    path = Path(record["run_root"]) / "predictions/test_predictions.jsonl"
-    if not path.exists():
-        raise ValueError(f"{record['run_id']}: pragmatic prediction file is missing")
-    true = {label: [] for label in PRAGMATIC_LABELS}
-    pred = {label: [] for label in PRAGMATIC_LABELS}
-    seen: set[str] = set()
-    for line in path.read_text(encoding="utf-8").splitlines():
-        if not line.strip():
-            continue
-        row = json.loads(line)
-        sample_id = str(row.get("sample_id", ""))
-        if not sample_id or sample_id in seen:
-            raise ValueError(f"{record['run_id']}: test prediction IDs are not unique")
-        seen.add(sample_id)
-        for label in PRAGMATIC_LABELS:
-            effective = row.get("effective_full_split_all_zero_fallback", row.get("predictions", {}))
-            if label not in row.get("gold", {}) or label not in effective:
-                raise ValueError(f"{record['run_id']}: missing pragmatic prediction label {label}")
-            true[label].append(int(row["gold"][label]))
-            pred[label].append(int(effective[label]))
-    if not seen:
-        raise ValueError(f"{record['run_id']}: test prediction file is empty")
-    return true, pred
+    return prediction_rows_to_pair(_table2_prediction_rows(record)[1])
 
 
 def _significance_rows(records: list[dict[str, Any]], root: Path) -> list[dict[str, Any]]:
@@ -518,18 +535,9 @@ def _significance_rows(records: list[dict[str, Any]], root: Path) -> list[dict[s
 
 
 def _validate_significance_alignment(left_records: list[dict[str, Any]], right_records: list[dict[str, Any]]) -> None:
-    def rows(record: Mapping[str, Any]) -> list[dict[str, Any]]:
-        path = Path(record["run_root"]) / "predictions/test_predictions.jsonl"
-        return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-
-    reference = rows(left_records[0])
-    reference_ids = [str(row.get("sample_id")) for row in reference]
-    reference_gold = [row.get("gold") for row in reference]
+    reference = prediction_row_alignment_signature(_table2_prediction_rows(left_records[0])[1])
     for record in [*left_records[1:], *right_records]:
-        candidate = rows(record)
-        ids = [str(row.get("sample_id")) for row in candidate]
-        gold = [row.get("gold") for row in candidate]
-        if ids != reference_ids or gold != reference_gold:
+        if prediction_row_alignment_signature(_table2_prediction_rows(record)[1]) != reference:
             raise ValueError(f"Significance inputs are not aligned by sample order/gold labels: {record['run_id']}")
 
 
