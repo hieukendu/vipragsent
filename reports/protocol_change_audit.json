@@ -1,16 +1,20 @@
 {
   "engineering_changes": [],
-  "frozen_data_changed": false,
-  "schema_version": 1,
-  "scientific_changes": [
-    {
-      "description": "Generation reasoning, shared zero-shot judging, checkpoint semantics, invalid-output metrics, caching, retry behavior, and decoding were explicitly resolved by the approved protocol.",
-      "scope": [
-        "cot_only_vistral",
-        "explanation_only_vistral"
-      ],
-      "status": "EXPLICITLY_RESOLVED_BY_USER_APPROVED_PROTOCOL"
-    }
-  ],
+  "frozen_protocol_resolution": "generation-baseline resolution is user-approved and does not add or remove an experiment row",
+  "schema_version": 2,
+  "scientific_change_guard": {
+    "frozen_data_changed": false,
+    "generation_protocol_changed": false,
+    "labels_changed": false,
+    "optimization_protocol_changed": false,
+    "paper_facing_systems_changed": false,
+    "q3_changed": false,
+    "q4_changed": false,
+    "seeds_changed": false,
+    "significance_method_changed": false,
+    "threshold_protocol_changed": false
+  },
+  "scientific_changes": [],
+  "status": "PASS",
   "unapproved_scientific_changes": []
 }

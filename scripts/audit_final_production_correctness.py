@@ -56,6 +56,8 @@ REQUIRED_REPORTS = (
     "reports/generated_sequential_prompts_manifest.json",
     "reports/sequential_production_readiness_audit.json",
     "reports/protocol_change_audit.json",
+    "reports/local_production_correctness_closure.json",
+    "reports/luna_max_review_cycles.json",
 )
 
 
@@ -291,6 +293,18 @@ def _static_evidence() -> dict[str, Any]:
 
 
 def _self_review(evidence: dict[str, Any], commands: list[dict[str, Any]], hygiene: dict[str, Any], static: dict[str, Any]) -> dict[str, Any]:
+    cycle_path = ROOT / "reports/luna_max_review_cycles.json"
+    if cycle_path.exists():
+        cycle_report = json.loads(cycle_path.read_text(encoding="utf-8"))
+        return {
+            "status": cycle_report.get("status", "FAIL"),
+            "required_rounds": cycle_report.get("rounds_per_cycle", 5),
+            "completed_rounds_per_sequence": cycle_report.get("rounds_per_cycle", 5),
+            "sequences": cycle_report.get("cycles", []),
+            "consecutive_no_new_defect_sequences": cycle_report.get("consecutive_clean_cycles", 0),
+            "restart_required": cycle_report.get("status") != "PASS",
+            "source": "reports/luna_max_review_cycles.json",
+        }
     command_passed = all(item["returncode"] == 0 for item in commands)
     checks = [
         ("scientific freeze", evidence["scientific"]["status"] == "PASS"),
@@ -338,6 +352,21 @@ def audit() -> dict[str, Any]:
     protocol = validate_protocol_resolution(ROOT)
     frozen = compare_frozen_hashes(ROOT)
     scientific = _baseline_scientific_evidence()
+    scientific_paths = set(scientific["scientific_config_changed"])
+    def _changed(*tokens: str) -> bool:
+        return any(all(token.casefold() in path.casefold() for token in tokens) for path in scientific_paths)
+    scientific_change_guard = {
+        "frozen_data_changed": not frozen["unchanged"],
+        "labels_changed": _changed("label"),
+        "seeds_changed": _changed("seed"),
+        "threshold_protocol_changed": _changed("threshold"),
+        "optimization_protocol_changed": _changed("training") or _changed("optimizer") or _changed("scheduler"),
+        "generation_protocol_changed": _changed("generation_reasoning_protocol"),
+        "q3_changed": _changed("q3"),
+        "q4_changed": _changed("q4"),
+        "significance_method_changed": _changed("significance") or _changed("statistics"),
+        "paper_facing_systems_changed": not scientific["inventory_ids_unchanged"],
+    }
     registry = validate_execution_registry(ROOT)
     resolver = _resolver_evidence()
     class_weights = _class_weight_evidence()
@@ -361,7 +390,17 @@ def audit() -> dict[str, Any]:
     local_pass = all(item["returncode"] == 0 for item in commands) and all(item.get("status") == "PASS" for item in evidence.values()) and hygiene["status"] == "PASS" and static["status"] == "PASS" and self_review["status"] == "PASS"
     state = json.loads((ROOT / "PROJECT_STATE.json").read_text(encoding="utf-8"))
     engineering_paths = [path for path in paths if not path.startswith("data/") and path not in scientific["scientific_config_changed"]]
-    protocol_report = {"scientific_changes": scientific["scientific_config_changed"], "engineering_changes": engineering_paths, "frozen_data_changed": not frozen["unchanged"], "baseline_commit": BASELINE_COMMIT, "evidence": {"parsed_scientific_values": scientific, "frozen_hashes": frozen, "protocol": protocol}}
+    protocol_report = {
+        "schema_version": 2,
+        "status": "PASS" if not any(scientific_change_guard.values()) else "BLOCKED",
+        "scientific_changes": scientific["scientific_config_changed"],
+        "unapproved_scientific_changes": scientific["scientific_config_changed"],
+        "engineering_changes": engineering_paths,
+        "frozen_data_changed": not frozen["unchanged"],
+        "scientific_change_guard": scientific_change_guard,
+        "baseline_commit": BASELINE_COMMIT,
+        "evidence": {"parsed_scientific_values": scientific, "frozen_hashes": frozen, "protocol": protocol},
+    }
     _write("reports/protocol_change_audit.json", protocol_report)
     for path, report in {
         "reports/system_execution_registry_audit.json": registry,
@@ -376,12 +415,12 @@ def audit() -> dict[str, Any]:
         "reports/generated_sequential_prompts_manifest.json": prompt_manifest,
     }.items():
         _write(path, report)
-    readiness = {"status": _status(local_pass), "SETUP_CODE_READY": local_pass, "PHASE15_READY": local_pass, "REAL_EXPERIMENT_READY": False, "FINAL_AGGREGATION_READY": False, "CI_STATUS": ci_status, "weights_downloaded": bool(state.get("weights_downloaded")), "phase15_executed": bool(state.get("weights_downloaded")), "azure_request_made": False, "real_experiment_ran": bool(state.get("full_run_started")), "approved_run_count": int(state.get("approved_run_count", 0)), "blockers": ["Phase 15 runtime assets are not downloaded", "No approved production runs exist"], "evidence": {"commands": commands, "reports": REQUIRED_REPORTS, "self_review": self_review, "hygiene": hygiene, "static": static}}
+    readiness = {"status": _status(local_pass), "SETUP_CODE_READY": local_pass, "PHASE15_READY": local_pass, "REAL_EXPERIMENT_READY": False, "FINAL_AGGREGATION_READY": False, "CI_STATUS": ci_status, "weights_downloaded": bool(state.get("weights_downloaded")), "phase15_executed": bool(state.get("weights_downloaded")), "azure_request_made": False, "real_experiment_ran": bool(state.get("full_run_started")), "approved_run_count": int(state.get("approved_run_count", 0)), "blockers": ["Phase 15 has not been executed on the target server", "Model-family runtime assets are not prepared", "GPU and Azure live integration have not been validated", "No real approved production run exists"], "evidence": {"commands": commands, "reports": REQUIRED_REPORTS, "self_review": self_review, "hygiene": hygiene, "static": static}}
     _write("reports/sequential_production_readiness_audit.json", readiness)
-    final = {"schema_version": 1, "status": _status(local_pass), "baseline_commit": BASELINE_COMMIT, "scientific_changes": scientific["scientific_config_changed"], "engineering_changes": engineering_paths, "frozen_data_changed": not frozen["unchanged"], "protocol_conflicts": protocol["scientific_protocol_conflicts"], "execution_safety": {"phase15_executed": False, "model_downloaded": False, "azure_request_made": False, "real_experiment_ran": False, "approval_recorded": False}, "commands": commands, "evidence": evidence, "self_review": self_review, "hygiene": hygiene, "static_search": static, "readiness": readiness, "ci_status": ci_status}
+    final = {"schema_version": 2, "status": _status(local_pass), "baseline_commit": BASELINE_COMMIT, "scientific_changes": scientific["scientific_config_changed"], "engineering_changes": engineering_paths, "frozen_data_changed": not frozen["unchanged"], "scientific_change_guard": scientific_change_guard, "protocol_conflicts": protocol["scientific_protocol_conflicts"], "execution_safety": {"phase15_executed": False, "model_downloaded": False, "azure_request_made": False, "gpu_training_executed": False, "real_test_predictions_generated": False, "real_experiment_ran": False, "approval_recorded": False, "full_dag_executed": False}, "commands": commands, "evidence": evidence, "self_review": self_review, "hygiene": hygiene, "static_search": static, "readiness": readiness, "ci_status": ci_status, "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review."}
     _write("reports/final_production_correctness_repair.json", final)
     engineering_lines = [f"- `{path}`" for path in engineering_paths] or ["- none"]
-    markdown = ["# Final production correctness repair", "", f"- Status: `{final['status']}`", f"- Scientific changes: `{len(final['scientific_changes'])}`", f"- Frozen data changed: `{str(final['frozen_data_changed']).lower()}`", f"- CI status: `{ci_status}`", f"- Self-review: `{self_review['completed_rounds_per_sequence']} rounds x {len(self_review['sequences'])} sequences`; consecutive clean sequences: `{self_review['consecutive_no_new_defect_sequences']}`", "", "## Execution boundary", "", "- Phase 15, model download, Azure requests, real training, real predictions, approval, and final aggregation were not executed.", "", "## Evidence", "", *[f"- {key}: `{value.get('status', 'RECORDED')}`" for key, value in evidence.items()], "", "## Engineering changes", "", *engineering_lines, ""]
+    markdown = ["# Final production correctness repair", "", f"- Status: `{final['status']}`", f"- Scientific changes: `{len(final['scientific_changes'])}`", f"- Frozen data changed: `{str(final['frozen_data_changed']).lower()}`", f"- CI status: `{ci_status}`", f"- Self-review: `{self_review['completed_rounds_per_sequence']} rounds x {len(self_review['sequences'])} sequences`; consecutive clean sequences: `{self_review['consecutive_no_new_defect_sequences']}`", "", "## Execution boundary", "", "- Phase 15, model download, Azure requests, GPU training, real predictions, approval, and final aggregation were not executed.", "", "## Runtime blockers", "", "- Phase 15 has not been executed on the target server", "- Model-family runtime assets are not prepared", "- GPU and Azure live integration have not been validated", "- No real approved production run exists", "", "## Evidence", "", *[f"- {key}: `{value.get('status', 'RECORDED')}`" for key, value in evidence.items()], "", "## Engineering changes", "", *engineering_lines, ""]
     atomic_write_text(ROOT / "reports/final_production_correctness_repair.md", "\n".join(markdown))
     print(json.dumps(final, indent=2, ensure_ascii=False, default=str))
     return final

@@ -23,7 +23,13 @@ from ..evaluation.reasoning_judge import (
 )
 from ..hashing import sha256_file, sha256_json
 from ..models.variants import VariantConfig, build_dummy_model
+from ..runtime.device import (
+    assert_runtime_device_contract,
+    resolve_model_input_device,
+    write_device_report,
+)
 from ..runtime.model_assets import read_family_status
+from ..training.checkpoints import infer_required_head_prefixes, load_checkpoint
 from ..training.class_weights import (
     compute_train_only_class_weights,
     persist_class_weights,
@@ -871,10 +877,18 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
     from ..models.factory import build_production_model
 
     model, runtime_spec = build_production_model(spec.model_family, "explanation_only_vistral", local_snapshot=snapshot, execution_mode="production")
-    checkpoint = torch.load(source.checkpoint_path, map_location="cpu")
-    state_dict = checkpoint.get("model_state_dict") if isinstance(checkpoint, Mapping) else None
-    if isinstance(state_dict, Mapping):
-        model.load_state_dict(state_dict, strict=False)
+    load_checkpoint(
+        source.checkpoint_path,
+        model,
+        allow_legacy_fixture=context.fixture,
+        required_head_prefixes=infer_required_head_prefixes(model),
+        report_path=run_root / "checkpoints/source_load_report.json",
+    )
+    device = resolve_model_input_device(model)
+    write_device_report(
+        run_root / "training/device_report.json",
+        assert_runtime_device_contract(model, device, model_family=str(spec.model_family)),
+    )
     tokenizer = create_tokenizer(spec.model_family, revision=runtime_spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
     judge = ReasoningJudge(context.root, cache_root=run_root / "judge/cache", require_deployment_manifest=True)
     executor = ExplanationReuseExecutor(context.root, model=model, tokenizer=tokenizer, judge=judge, run_root=run_root, source=source)

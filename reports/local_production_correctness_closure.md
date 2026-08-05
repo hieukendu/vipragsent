@@ -1,19 +1,65 @@
 # Local production correctness closure
 
 Status: `PASS`
-Audited code SHA: `4e11f569dcfacf8242135cabd77cf44f4994f41a`
+Code SHA: `487134bf0e1b0b3d5f3165f0e7a71785141d4c8d`
 
-This is production-shaped synthetic evidence only. It is not a real production run, approval, or claim that Phase 15 has passed.
+This report is CPU-only, network-free, Azure-live-free, model-download-free synthetic evidence. It is not production proof.
 
-## Evidence
+## Defect evidence
 
 | Defect | Test | Input hash | Output hash | Status |
 |---|---|---|---|---|
-| Defect 9 | `tests/test_provenance_artifacts.py::test_explanation_manifest_truthful_rationale_inference` | `10E4020725D7BFE270011A046A870BD31B8D7F4ABE424D56BE4FB69A94A5FC18` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
-| Defect 9 | `tests/test_provenance_artifacts.py::test_explanation_validator_accepts_truthful_provenance` | `9112723FFC990AF814CAE84A61FEA9DED406735CE5E13E5103185372321D88BA` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
-| Defect 9 | `tests/test_provenance_artifacts.py::test_cot_manifest_marks_native_causal_generation` | `DEAD54B1D1472217873930299A60D0FDA67E568F583E2E5FADA540C57C31F847` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
-| Defect 10 | `tests/test_provenance_artifacts.py::test_generation_provenance_system_specific` | `0666BA8D81BB9250AFD89D9D874A2C61D9027FE40728F7DF4A28AB9C9BF09AD0` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 1 | `tests/test_component_production_runner.py::test_component_runner_consumes_all_training_examples` | `BE1D130F99F40C4BA5B33C83BD8B4767D37C76FCE45D4E7F59A22C804EE46D64` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 1 | `tests/test_component_production_runner.py::test_component_runner_runs_locked_epochs_or_early_stops` | `76CD185598CB404CBC8EC887206D6C9337B6003B7CE5C35875EDE712BB61101D` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 1 | `tests/test_component_production_runner.py::test_component_runner_writes_real_checkpoint` | `83A9B6C5DDC92FE68ABCBB5F0C7C028827D3E6CC9E7B62AED976FD95246AC1C8` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 2 | `tests/test_luna_max_01_generation.py::test_cot_factory_uses_causal_lm_loader` | `3839B2B799E94457A5DE0D3FF5DB0FF9992AA0A6687D116F227B0B84C4BCD29F` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 2 | `tests/test_luna_max_01_generation.py::test_cot_model_has_generate` | `0F8C2BE12311D5B93416A0393B24712C79E962B5358B3F4D5EEB905233603C91` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 3 | `tests/test_luna_max_01_generation.py::test_generation_test_stage_loads_frozen_best_checkpoint` | `5F682E21757A2DCFA0B2F3D86FA3C2C2F4421CDFBFB090CB3B406E9EE029781B` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 3 | `tests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best` | `CAEEDF80A945490152CE493825BB20AAD0AB4A48952A2192769183FA4A40CCF2` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 4 | `tests/test_checkpoint_device_contract.py::test_checkpoint_v2_round_trip` | `7E9BE0110850B6A4408D2BA4E43EC090AF4CD2B7CD3EAB099DA068C1A4D19E9D` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 4 | `tests/test_checkpoint_device_contract.py::test_checkpoint_zero_matching_keys_fails` | `C4C9CE8C710D0A3910298897B4802769A556C6E8FA64E1F978F326E6054659C6` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 4 | `tests/test_checkpoint_device_contract.py::test_checkpoint_load_report_written` | `A4372D5D80A06A97DE23DFEA9673C9C997DC1231AAE2350F80E75E97ED2B24A1` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 4 | `tests/test_luna_max_08_red_team.py::test_red_team_q1b_loader_rejects_zero_matching_keys` | `174C2FC9A0D4B4A9FBDDC292BFE5E920931046C1E8D782E957CA91BB8A1B8A9E` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 5 | `tests/test_checkpoint_device_contract.py::test_custom_executor_moves_batch_to_model_device` | `CB6DD5515FD37457738D0F73F0FFE3D31AE8F6CE1784566538B951C60F5824A8` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 5 | `tests/test_checkpoint_device_contract.py::test_custom_executor_device_report` | `016F8F41E0D44BB87C28968577FCD64371042DB60781D75C67424EA3E3D241D5` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 5 | `tests/test_luna_max_08_red_team.py::test_red_team_custom_q1b_predictor_moves_inputs_and_rejects_zero_matching_checkpoint` | `89578A11E5FBC93693C4274EAE7A4ACEB923F02866C8ED31E1F82CC01152B088` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 6 | `tests/test_q1b_dependencies.py::test_q1b_every_consumer_has_exact_producer` | `52AE30555BD0050729BBC0E2A37BFEB2CD79CD188A94B8C8C25B0A7BDFA4A3C1` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 6 | `tests/test_q1b_dependencies.py::test_q1b_dependency_graph_is_acyclic` | `7B96C66E71563E8A33B4284AF3EE24458575E218C72382AD492FA1D2A5A53BA7` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 6 | `tests/test_q1b_dependencies.py::test_q1b_ordinary_single_task_same_seed_composition` | `74112FCB21C3113FF1A25A266F1F2BECE6D78667AE39959BAE5D567B5EF8E922` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 6 | `tests/test_luna_max_08_red_team.py::test_red_team_q1b_inventory_has_real_trainable_producers_for_every_consumer` | `329C76B7DC84EB88EC1B58A959854B1DF6F312641577AC7275726AAC408DCF8B` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 7 | `tests/test_table2_statistics.py::test_table2_uses_joint_hierarchical_interval` | `D9B4C823896A211FA20E54754D5DFFE3E08F4F44131ED3B046364486F68E077C` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 7 | `tests/test_table2_statistics.py::test_table2_does_not_average_seed_bounds` | `CA9639B1AEE638447ECA0B088D161737A6B2F4DD5DBEA9981F491EA030DD0FF9` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 7 | `tests/test_table2_statistics.py::test_table2_ci_golden_counterexample` | `C44DBC19C03B2C4808B2626D0F2234E0E1D14DA1C4075FC3F007BD51C0659141` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 7 | `tests/test_luna_max_08_red_team.py::test_red_team_table2_generation_uses_joint_ci_and_all_zero_fallback` | `570C39BD9420DFE32429937EDA374BC9C4E5604A4E31B050DFFBD75326D11DC5` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 8 | `tests/test_azure.py::test_public_client_parses_nested_responses_payload_and_caches` | `331EE719F6EF720AEA8D05F6311E6F06E1AC13EE1EC0E0C91A80161D98BC9168` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 8 | `tests/test_azure.py::test_public_client_retries_payload_status_and_uses_retry_after` | `B736C1FAF43B1A6DF124DC0689ED68BB6E5ECCDA8393F9B0D6725815FB5F7319` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 8 | `tests/test_azure.py::test_public_client_caches_terminal_invalid_response_without_retry` | `A87CAA3213BD219661129632EC64CF943EEA05B4DF294309A87743076EA6C0D3` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 8 | `tests/test_preexperiment_closure.py::test_reasoning_judge_is_reasoning_only_strict_cached_and_transport_retrying` | `DD1A13BEA587CF6AC8105105CC8486869EF99AEBFBBF0A6E83E522AFFBE48BD5` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 9 | `tests/test_provenance_artifacts.py::test_explanation_manifest_truthful_rationale_inference` | `B1858C770C442C8958D2C25AAE1F404744589AE812ACCBAA8CA1761500C1AF82` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 9 | `tests/test_provenance_artifacts.py::test_explanation_validator_accepts_truthful_provenance` | `F2305B4583251021CD28DE0DCDA563C34CF68AE2B4E364FFEFCF1F74BF32EF15` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 9 | `tests/test_provenance_artifacts.py::test_cot_manifest_marks_native_causal_generation` | `052BA97B9F0DD7C1B581304459CACA3CB01B56564A398C6CB9DFAA716DCECFB8` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 9 | `tests/test_provenance_artifacts.py::test_generation_provenance_system_specific` | `B78A0610258A54D387A869B05FAD30C493C31C5A4C331CCF11B9E80D36908BAF` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 10 | `tests/test_final_production_repair.py::test_synthetic_full_sequential_run_is_review_gated_and_hash_valid` | `B140D28C8816181FB91E7320B3F3E59317E20756F242F6289632445A79AD418A` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 10 | `tests/test_final_runtime_integration.py::test_generation_executor_trains_causally_and_records_invalid_parser_rows` | `649AB4AD0838CF3D9767BFAC95B774A3FBB9A954CE35B3DE468F46EA9768E615` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| synthetic_closure | `tests/test_training_engine.py::test_training_engine_selects_dev_checkpoint_and_freezes_thresholds` | `93BB6D35900875E1A4AC95B1927C9297ECD00A0CE62232B3B4FA065DFB5FDDD8` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| synthetic_closure | `tests/test_preexperiment_closure.py::test_component_bundle_production_shape_covers_six_eight_split_alignment_and_resume` | `E0988449CFE4961D9BDDDD01409A0B85ABFBD5862FEEDC44384DBB8466C2B813` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| synthetic_closure | `tests/test_preexperiment_closure.py::test_cot_executor_trains_selects_on_dev_and_seals_test_until_after_selection` | `295F5981BE4CE5D4AEBA9C960C7E605C8ADEFE93BDDEED27DD95A7F54D021511` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| synthetic_closure | `tests/test_preexperiment_closure.py::test_explanation_executor_reuses_source_and_uses_only_rationale_decoder` | `E705D4937ED8C2FAD6B0B3F0D6676D1E2DDFBD954D5D0DC487C1F990F240FE82` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| synthetic_closure | `tests/test_q1b_dependencies.py::test_q1b_no_fake_non_applicable_predictions` | `257602A7355694EDF6E6A01CC894BC5E01D1E474CBC9A687AF821069E91A7639` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| synthetic_closure | `tests/test_q1b_dependencies.py::test_q1b_every_consumer_has_exact_producer` | `0FBDB559728F74B04680BC95879EEDCCFDAABA77E8BE7B22CE2EC16C538441EE` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| synthetic_closure | `tests/test_table2_statistics.py::test_table2_ci_prediction_alignment` | `7040C82809B1A978B36011181E19280640BC4C5368DF2C8E6DEA4F9BB7B5AF7B` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| synthetic_closure | `tests/test_preexperiment_closure.py::test_reasoning_judge_is_reasoning_only_strict_cached_and_transport_retrying` | `52EDC9D92E45D9E2C2DC8A995E1CE2F17120164066F0E6D130CE33308AD35F7B` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| synthetic_closure | `tests/test_final_production_repair.py::test_synthetic_full_sequential_run_is_review_gated_and_hash_valid` | `D79C6C68A378CBECE929B1B270C6127AC4186DAA1BBC9788207F6AE67900DBEC` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+| Defect 10 | `tests/test_luna_max_08_red_team.py::test_red_team_audits_bind_executable_test_and_observed_hashes` | `1AE78551E52D8FE73909486646BC6635CC4D7A953815C3EAF18E535CE47874A2` | `0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420` | `PASS` |
+
+## Synthetic closure
+
+The named ordinary, component-bundle, generation, explanation-reuse, Q1b, Table 2, judge, and review-gate cases were executed as temporary-directory CPU tests.
+
+`RUN_STATUS=PASS`
+`USER_REVIEW_STATUS=PENDING`
+`NEXT_RUN_ALLOWED=NO`
 
 ## Safety boundary
 
-Phase 15, model downloads, live Azure requests, GPU training, real predictions, approvals, and experiments were not executed.
+No Phase 15, model download, live Azure request, GPU training, real test prediction, approval, or production aggregation was executed.

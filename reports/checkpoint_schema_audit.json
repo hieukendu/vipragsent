@@ -1,0 +1,122 @@
+{
+  "canonical_keys": [
+    "schema_version",
+    "model_state_dict",
+    "optimizer_state_dict",
+    "scheduler_state_dict",
+    "loss_aggregator_state_dict",
+    "run_state",
+    "rng_state",
+    "metadata"
+  ],
+  "checkpoint_schema_version": 2,
+  "code_commit_at_audit": "487134bf0e1b0b3d5f3165f0e7a71785141d4c8d",
+  "legacy_fixture_compatibility": "explicit allow_legacy_fixture=True only",
+  "missing_unexpected_key_policy": "strict preflight; only explicitly allow-listed keys may differ",
+  "production_proof": false,
+  "round_trip_evidence": [
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_checkpoint_device_contract.py::test_checkpoint_v2_round_trip",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 4",
+      "fixture_input_sha256": "7E9BE0110850B6A4408D2BA4E43EC090AF4CD2B7CD3EAB099DA068C1A4D19E9D",
+      "golden_input_sha256": null,
+      "label": "Defect 4",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_checkpoint_device_contract.py::test_checkpoint_v2_round_trip",
+      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_checkpoint_device_contract.py::test_checkpoint_zero_matching_keys_fails",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 4",
+      "fixture_input_sha256": "C4C9CE8C710D0A3910298897B4802769A556C6E8FA64E1F978F326E6054659C6",
+      "golden_input_sha256": null,
+      "label": "Defect 4",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_checkpoint_device_contract.py::test_checkpoint_zero_matching_keys_fails",
+      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_checkpoint_device_contract.py::test_checkpoint_load_report_written",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 4",
+      "fixture_input_sha256": "A4372D5D80A06A97DE23DFEA9673C9C997DC1231AAE2350F80E75E97ED2B24A1",
+      "golden_input_sha256": null,
+      "label": "Defect 4",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_checkpoint_device_contract.py::test_checkpoint_load_report_written",
+      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_luna_max_08_red_team.py::test_red_team_q1b_loader_rejects_zero_matching_keys",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 4",
+      "fixture_input_sha256": "174C2FC9A0D4B4A9FBDDC292BFE5E920931046C1E8D782E957CA91BB8A1B8A9E",
+      "golden_input_sha256": null,
+      "label": "Defect 4",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_luna_max_08_red_team.py::test_red_team_q1b_loader_rejects_zero_matching_keys",
+      "test_source_sha256": "A2DC74385C75B42AD32E8AC7678B2C64669ED09665CC136723C89195CCE2007D"
+    }
+  ],
+  "schema_version": 1,
+  "status": "PASS",
+  "zero_match_policy": "BLOCKED"
+}

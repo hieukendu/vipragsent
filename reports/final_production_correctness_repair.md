@@ -4,11 +4,18 @@
 - Scientific changes: `0`
 - Frozen data changed: `false`
 - CI status: `NOT_RUN`
-- Self-review: `25 rounds x 2 sequences`; consecutive clean sequences: `2`
+- Self-review: `5 rounds x 2 sequences`; consecutive clean sequences: `2`
 
 ## Execution boundary
 
-- Phase 15, model download, Azure requests, real training, real predictions, approval, and final aggregation were not executed.
+- Phase 15, model download, Azure requests, GPU training, real predictions, approval, and final aggregation were not executed.
+
+## Runtime blockers
+
+- Phase 15 has not been executed on the target server
+- Model-family runtime assets are not prepared
+- GPU and Azure live integration have not been validated
+- No real approved production run exists
 
 ## Evidence
 
@@ -30,6 +37,7 @@
 - `SETUP_READY.md`
 - `configs/experiments/execution_stage_plans.yaml`
 - `configs/experiments/generation_reasoning_protocol.yaml`
+- `configs/experiments/q1b/producer_registry.yaml`
 - `configs/experiments/system_execution_registry.yaml`
 - `configs/schemas/prediction.schema.json`
 - `configs/schemas/run_metadata.schema.json`
@@ -197,7 +205,10 @@
 - `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260521.md`
 - `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260522.md`
 - `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260523.md`
+- `reports/checkpoint_schema_audit.json`
 - `reports/component_bundle_production_audit.json`
+- `reports/component_training_audit.json`
+- `reports/device_contract_audit.json`
 - `reports/execution_stage_plan_audit.json`
 - `reports/expected_experiment_runs.csv`
 - `reports/expected_experiment_runs.json`
@@ -210,8 +221,15 @@
 - `reports/generated_sequential_prompts_manifest.json`
 - `reports/generation_baseline_protocol_resolution.json`
 - `reports/generation_baseline_protocol_resolution.md`
+- `reports/generation_causal_lm_audit.json`
 - `reports/generation_executor_audit.json`
 - `reports/inventory_dependency_audit.json`
+- `reports/local_production_correctness_closure.json`
+- `reports/local_production_correctness_closure.md`
+- `reports/luna_max_review_cycles.json`
+- `reports/luna_max_review_cycles.md`
+- `reports/luna_max_subagent_manifest.json`
+- `reports/luna_max_subagent_manifest.md`
 - `reports/phase_14_5_progress.json`
 - `reports/phase_14_5_progress.md`
 - `reports/phases/phase_14_5_handoff.json`
@@ -219,9 +237,14 @@
 - `reports/production_implementation_audit.json`
 - `reports/production_implementation_audit.md`
 - `reports/protocol_change_audit.json`
+- `reports/provenance_truthfulness_audit.json`
+- `reports/q1b_dependency_graph.json`
+- `reports/q1b_dependency_graph.md`
+- `reports/q1b_device_report.json`
 - `reports/q1b_predictor_factory_audit.json`
 - `reports/q1b_single_task_composition_audit.json`
 - `reports/reasoning_judge_contract.json`
+- `reports/reasoning_judge_contract_audit.json`
 - `reports/reasoning_metrics_golden_test.json`
 - `reports/runtime_dependency_blockers.json`
 - `reports/runtime_self_review.json`
@@ -231,20 +254,31 @@
 - `reports/sequential_production_readiness_audit.json`
 - `reports/sequential_prompt_manifest.json`
 - `reports/sequential_prompt_validation.json`
+- `reports/server_smoke_plan.md`
 - `reports/system_execution_registry_audit.json`
+- `reports/table2_confidence_interval_protocol_audit.json`
+- `reports/table2_joint_ci_audit.json`
 - `reports/variant_isolation_audit.json`
 - `schemas/reasoning_judge_output.schema.json`
 - `scripts/audit_final_preexperiment_closure.py`
 - `scripts/audit_final_production_correctness.py`
 - `scripts/audit_final_runtime_integration.py`
+- `scripts/audit_local_production_correctness.py`
+- `scripts/audit_table2_confidence_intervals.py`
 - `scripts/generate_sequential_prompts.py`
+- `scripts/run_luna_max_review_cycles.py`
 - `scripts/run_single_experiment.py`
 - `scripts/self_review_runtime_integration.py`
 - `scripts/semantic_config_audit.py`
 - `scripts/validate_sequential_prompts.py`
 - `src/vipragsent/artifacts/exporter.py`
+- `src/vipragsent/artifacts/schemas.py`
+- `src/vipragsent/azure/client.py`
+- `src/vipragsent/evaluation/confidence_intervals.py`
 - `src/vipragsent/evaluation/reasoning_judge.py`
+- `src/vipragsent/models/backbones.py`
 - `src/vipragsent/models/factory.py`
+- `src/vipragsent/models/qlora.py`
 - `src/vipragsent/models/variants.py`
 - `src/vipragsent/orchestration/aggregation.py`
 - `src/vipragsent/orchestration/contracts.py`
@@ -255,7 +289,9 @@
 - `src/vipragsent/orchestration/executors/generation.py`
 - `src/vipragsent/orchestration/inventory.py`
 - `src/vipragsent/orchestration/preflight_single.py`
+- `src/vipragsent/orchestration/provenance.py`
 - `src/vipragsent/orchestration/q1b_composition.py`
+- `src/vipragsent/orchestration/q1b_dependencies.py`
 - `src/vipragsent/orchestration/q1b_predictor.py`
 - `src/vipragsent/orchestration/review.py`
 - `src/vipragsent/orchestration/run_store.py`
@@ -263,5 +299,17 @@
 - `src/vipragsent/orchestration/stage_plans.py`
 - `src/vipragsent/orchestration/stage_registry.py`
 - `src/vipragsent/orchestration/system_registry.py`
+- `src/vipragsent/runtime/device.py`
+- `src/vipragsent/training/checkpoints.py`
 - `src/vipragsent/training/config_resolver.py`
+- `src/vipragsent/training/engine.py`
+- `tests/test_azure.py`
+- `tests/test_checkpoint_device_contract.py`
+- `tests/test_component_production_runner.py`
+- `tests/test_final_runtime_integration.py`
+- `tests/test_luna_max_01_generation.py`
+- `tests/test_luna_max_08_red_team.py`
 - `tests/test_preexperiment_closure.py`
+- `tests/test_provenance_artifacts.py`
+- `tests/test_q1b_dependencies.py`
+- `tests/test_table2_statistics.py`

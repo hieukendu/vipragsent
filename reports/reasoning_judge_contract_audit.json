@@ -1,0 +1,111 @@
+{
+  "cache_retry_evidence": [
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_azure.py::test_public_client_parses_nested_responses_payload_and_caches",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 8",
+      "fixture_input_sha256": "331EE719F6EF720AEA8D05F6311E6F06E1AC13EE1EC0E0C91A80161D98BC9168",
+      "golden_input_sha256": null,
+      "label": "Defect 8",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_azure.py::test_public_client_parses_nested_responses_payload_and_caches",
+      "test_source_sha256": "40DFA4951815F06752D2C13B139AA0D7C5DC1FE1AB6E57C760D0474F2B141D01"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_azure.py::test_public_client_retries_payload_status_and_uses_retry_after",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 8",
+      "fixture_input_sha256": "B736C1FAF43B1A6DF124DC0689ED68BB6E5ECCDA8393F9B0D6725815FB5F7319",
+      "golden_input_sha256": null,
+      "label": "Defect 8",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_azure.py::test_public_client_retries_payload_status_and_uses_retry_after",
+      "test_source_sha256": "40DFA4951815F06752D2C13B139AA0D7C5DC1FE1AB6E57C760D0474F2B141D01"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_azure.py::test_public_client_caches_terminal_invalid_response_without_retry",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 8",
+      "fixture_input_sha256": "A87CAA3213BD219661129632EC64CF943EEA05B4DF294309A87743076EA6C0D3",
+      "golden_input_sha256": null,
+      "label": "Defect 8",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_azure.py::test_public_client_caches_terminal_invalid_response_without_retry",
+      "test_source_sha256": "40DFA4951815F06752D2C13B139AA0D7C5DC1FE1AB6E57C760D0474F2B141D01"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_preexperiment_closure.py::test_reasoning_judge_is_reasoning_only_strict_cached_and_transport_retrying",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 8",
+      "fixture_input_sha256": "DD1A13BEA587CF6AC8105105CC8486869EF99AEBFBBF0A6E83E522AFFBE48BD5",
+      "golden_input_sha256": null,
+      "label": "Defect 8",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_preexperiment_closure.py::test_reasoning_judge_is_reasoning_only_strict_cached_and_transport_retrying",
+      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+    }
+  ],
+  "code_commit_at_audit": "487134bf0e1b0b3d5f3165f0e7a71785141d4c8d",
+  "live_calls": false,
+  "original_sentence_visible": false,
+  "production_proof": false,
+  "public_structured_client": true,
+  "schema_version": 1,
+  "status": "PASS"
+}

@@ -6,6 +6,7 @@ from types import SimpleNamespace
 
 import pytest
 import torch
+from scripts.audit_final_runtime_integration import _device_report
 from torch import nn
 
 from vipragsent.constants import PRAGMATIC_LABELS
@@ -32,6 +33,8 @@ from vipragsent.runtime.device import (
     place_non_quantized_model,
 )
 
+ROOT = Path(__file__).resolve().parents[1]
+
 
 def _labels(index: int = 0) -> dict[str, int | str]:
     return {label: (index + offset) % 2 for offset, label in enumerate(PRAGMATIC_LABELS)} | {"polarity": "positive", "emotion": "enjoyment"}
@@ -47,6 +50,12 @@ def test_device_contract_moves_nested_batches_and_rejects_mismatch() -> None:
     assert report["first_batch_tensor_devices"] == ["cpu"]
     with pytest.raises(RuntimeBlocked, match="incompatible devices"):
         assert_runtime_device_contract(model, "cpu", batch={"input_ids": torch.ones(1, 3, device="meta")})
+
+
+def test_runtime_audit_accepts_training_engine_model_device_wrapper() -> None:
+    report = _device_report(ROOT)
+    assert report["status"] == "PASS", report
+    assert report["checks"]["training_engine_uses_contract"] is True
 
 
 def test_qlora_loader_uses_one_explicit_device_map_without_post_load_move() -> None:

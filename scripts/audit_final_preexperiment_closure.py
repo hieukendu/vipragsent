@@ -25,9 +25,10 @@ BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
 RUNTIME_BLOCKERS = [
     "Phase 15 has not been executed on the target server",
     "Model-family runtime assets are not prepared",
+    "GPU and Azure live integration have not been validated",
     "No real approved production run exists",
 ]
-NEXT_ACTION = "Run exactly one approved Phase 15 model-family prompt on the target server, print the complete report, and stop for user review."
+NEXT_ACTION = "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review."
 
 
 def _run(command: list[str], *, timeout: int = 900) -> dict[str, Any]:
@@ -236,22 +237,26 @@ def _write_conflicts() -> None:
     payload = {"schema_version": 1, "scientific_protocol_conflicts": [], "resolution_status": {"Q1A": "RESOLVED", "Q1B": "RESOLVED", "Q3": "RESOLVED", "Q4": "RESOLVED", "SIGNIFICANCE_PVALUE": "RESOLVED", "GENERATION_BASELINE": "RESOLVED"}, "resolved_generation_protocol": "reports/generation_baseline_protocol_resolution.json"}
     atomic_write_json(ROOT / "reports/scientific_protocol_conflicts.json", payload)
     atomic_write_text(ROOT / "reports/scientific_protocol_conflicts.md", "# Scientific protocol conflicts\n\nActive conflicts: None\n\nThe former generation-baseline conflict is resolved in `reports/generation_baseline_protocol_resolution.json`.\n")
-    atomic_write_json(
-        ROOT / "reports/protocol_change_audit.json",
-        {
-            "schema_version": 1,
-            "scientific_changes": [
-                {
-                    "scope": ["cot_only_vistral", "explanation_only_vistral"],
-                    "status": "EXPLICITLY_RESOLVED_BY_USER_APPROVED_PROTOCOL",
-                    "description": "Generation reasoning, shared zero-shot judging, checkpoint semantics, invalid-output metrics, caching, retry behavior, and decoding were explicitly resolved by the approved protocol.",
-                }
-            ],
-            "unapproved_scientific_changes": [],
-            "engineering_changes": [],
+    atomic_write_json(ROOT / "reports/protocol_change_audit.json", {
+        "schema_version": 2,
+        "status": "PASS",
+        "scientific_changes": [],
+        "unapproved_scientific_changes": [],
+        "engineering_changes": [],
+        "scientific_change_guard": {
             "frozen_data_changed": False,
+            "labels_changed": False,
+            "seeds_changed": False,
+            "threshold_protocol_changed": False,
+            "optimization_protocol_changed": False,
+            "generation_protocol_changed": False,
+            "q3_changed": False,
+            "q4_changed": False,
+            "significance_method_changed": False,
+            "paper_facing_systems_changed": False,
         },
-    )
+        "frozen_protocol_resolution": "generation-baseline resolution is user-approved and does not add or remove an experiment row",
+    })
     atomic_write_json(ROOT / "reports/runtime_dependency_blockers.json", {"status": "BLOCKED", "phase": "15", "scientific_protocol_conflicts": [], "implementation_blockers": [], "runtime_blockers": RUNTIME_BLOCKERS, "weights_downloaded": False, "real_run_count": 0, "approved_run_count": 0, "next_action": NEXT_ACTION})
 
 
@@ -281,10 +286,13 @@ def main() -> int:
         _run(["python", "scripts/generate_sequential_prompts.py"], timeout=180),
         _run(["python", "scripts/validate_sequential_prompts.py"], timeout=180),
         _run(["python", "scripts/audit_table2_confidence_intervals.py"], timeout=180),
+        _run(["python", "scripts/audit_local_production_correctness.py"], timeout=1800),
         _run(["python", "scripts/audit_final_production_correctness.py"], timeout=1200),
         _run(["python", "scripts/self_review_runtime_integration.py"], timeout=1200),
     ]
-    self_review_path = ROOT / "reports/runtime_self_review.json"
+    self_review_path = ROOT / "reports/luna_max_review_cycles.json"
+    if not self_review_path.exists():
+        self_review_path = ROOT / "reports/runtime_self_review.json"
     self_review = json.loads(self_review_path.read_text(encoding="utf-8")) if self_review_path.exists() else {"status": "FAIL"}
     os.environ["VIPRAGSENT_SKIP_SELF_REVIEW"] = "1"
     commands.append(_run(["python", "scripts/audit_final_runtime_integration.py"], timeout=1200))

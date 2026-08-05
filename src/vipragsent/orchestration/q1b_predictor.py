@@ -12,6 +12,13 @@ import yaml
 from ..constants import EMOTION_LABELS, POLARITY_LABELS
 from ..hashing import sha256_file
 from ..orchestration.status import RuntimeBlocked
+from ..runtime.device import (
+    assert_runtime_device_contract,
+    move_batch_to_model_device,
+    resolve_model_input_device,
+    write_device_report,
+)
+from ..training.checkpoints import infer_required_head_prefixes, load_checkpoint
 from .q1b_dependencies import (
     Q1B_MATRIX_KEY_BY_SYSTEM,
     q1b_dependency_graph_is_available,
@@ -174,6 +181,8 @@ class DiskBackedQ1BPredictor:
         self.model = model
         self.tokenizer = tokenizer
         self._loaded = model is not None
+        self._checkpoint_validated = False
+        self._device_report_written = False
         self.applicable_datasets = tuple(dataset for dataset, task in DATASET_TASK.items() if self._task_applicable(task))
 
     def _task_applicable(self, task: str) -> bool:
@@ -192,6 +201,7 @@ class DiskBackedQ1BPredictor:
             self.model = loaded[0] if isinstance(loaded, tuple) else loaded
             if isinstance(loaded, tuple) and len(loaded) > 1:
                 self.tokenizer = loaded[1]
+            self.validate_checkpoint()
             self._loaded = True
             return
         system_id = str(self.entry.get("system_id"))
@@ -206,11 +216,23 @@ class DiskBackedQ1BPredictor:
             raise RuntimeBlocked(f"Phase 15 local snapshot is unavailable for {family}")
         self.model, runtime_spec = build_production_model(family, variant, local_snapshot=snapshot, execution_mode="production")
         self.tokenizer = create_tokenizer(family, revision=runtime_spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
-        state = torch.load(self.source.checkpoint_path, map_location="cpu")
-        state_dict = state.get("model_state_dict") if isinstance(state, Mapping) else None
-        if isinstance(state_dict, Mapping):
-            self.model.load_state_dict(state_dict, strict=False)
+        self.validate_checkpoint()
         self._loaded = True
+
+    def validate_checkpoint(self) -> dict[str, Any]:
+        """Validate and load the approved source checkpoint without silent fallback."""
+        if self.model is None:
+            raise RuntimeBlocked("Q1b checkpoint validation requires a loaded model")
+        report_path = self.source.checkpoint_path.parent / "q1b_checkpoint_load_report.json"
+        result = load_checkpoint(
+            self.source.checkpoint_path,
+            self.model,
+            allow_legacy_fixture=str(self.entry.get("mode", "")) == "fixture",
+            required_head_prefixes=infer_required_head_prefixes(self.model),
+            report_path=report_path,
+        )
+        self._checkpoint_validated = True
+        return result.report.as_dict()
 
     def predict(self, dataset: str, example: Any) -> str:
         if dataset not in DATASET_TASK or dataset not in self.applicable_datasets:
@@ -221,8 +243,32 @@ class DiskBackedQ1BPredictor:
         from ..orchestration.executors.generation import _encode_text
 
         input_ids, attention = _encode_text(self.tokenizer, str(example.text))
+        raw_batch = {"input_ids": input_ids, "attention_mask": attention}
+        if isinstance(self.model, torch.nn.Module):
+            device = resolve_model_input_device(self.model)
+            batch = move_batch_to_model_device(raw_batch, self.model, device=device)
+        else:
+            device = torch.device("cpu")
+            batch = raw_batch
+        if not self._device_report_written:
+            report_root = getattr(self.source, "run_root", None)
+            report_path = Path(report_root) / "training/device_report.json" if report_root is not None else self.root / "reports/q1b_device_report.json"
+            if isinstance(self.model, torch.nn.Module):
+                report = assert_runtime_device_contract(self.model, device, model_family=str(self.entry.get("backbone", "unknown")), batch=batch)
+            else:
+                report = {
+                    "selected_device": str(device),
+                    "input_device": str(device),
+                    "model_family": str(self.entry.get("backbone", "unknown")),
+                    "first_batch_tensor_devices": [str(device)],
+                    "status": "PASS",
+                    "blockers": [],
+                    "synthetic_fixture_model": True,
+                }
+            write_device_report(report_path, report)
+            self._device_report_written = True
         with torch.no_grad():
-            output = self.model(input_ids=input_ids, attention_mask=attention)
+            output = self.model(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
         logits = output.get("logits", {}) if isinstance(output, Mapping) else getattr(output, "logits", {})
         task = DATASET_TASK[dataset]
         task_logits = logits.get(task) if isinstance(logits, Mapping) else None
