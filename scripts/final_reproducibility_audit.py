@@ -32,7 +32,7 @@ def _tracked_files() -> list[str]:
 
 
 def _stable_checksum_files() -> list[Path]:
-    roots = ("src", "scripts", "configs", "schemas", "docs", "tests", "data/manifests", "data/processed/vipragsent", "data/processed/q3_low_resource_sarcasm")
+    roots = ("src", "scripts", "configs", "schemas", "docs", "tests", "prompts", "data/manifests", "data/processed/vipragsent", "data/processed/q3_low_resource_sarcasm")
     root_files = ("README.md", "LICENSE", "Makefile", ".gitignore", ".env.example", "pyproject.toml", "reports/phase_14_5_frozen_hash_baseline.json")
     paths: list[Path] = []
     for relative in roots:
@@ -152,7 +152,7 @@ def main() -> int:
     atomic_write_json(ROOT / "RELEASE_MANIFEST.json", report)
     atomic_write_text(ROOT / "EXPERIMENT_MODEL_REGISTRY.md", "# Experiment model registry\n\nThe locked model and tokenizer revisions are recorded in `configs/models/model_registry.yaml`. Weight download and offline smoke verification remain Phase 15 operations.\n")
     atomic_write_text(ROOT / "DATASET_CARD.md", "# Dataset card\n\nThe frozen ViPragSent V8 processed splits and Q3 masks are validated from the supplied archive. Official external test inputs remain access-controlled manual-drop data and are not redistributed by this repository.\n")
-    atomic_write_text(ROOT / "KNOWN_LIMITATIONS.md", "# Known limitations\n\nThis audit is blocked until the Phase 15 runtime prerequisites and unresolved scientific protocol decisions are supplied. Human error analysis and qualitative approval remain manual by design.\n")
+    atomic_write_text(ROOT / "KNOWN_LIMITATIONS.md", "# Known limitations\n\nThis audit is blocked until the Phase 15 runtime prerequisites are supplied and sequential runs receive explicit user approval. Human error analysis and qualitative approval remain manual by design.\n")
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0 if report["status"] == "PASS" else 2
 

@@ -34,6 +34,9 @@ data = [
   "kaggle>=1.6",
   "huggingface-hub>=0.25",
 ]
+viz = [
+  "matplotlib>=3.8",
+]
 dev = [
   "pytest>=8.0",
   "ruff>=0.6",

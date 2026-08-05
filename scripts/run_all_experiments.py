@@ -26,11 +26,20 @@ def main() -> int:
     parser.add_argument("--mode", choices=("fixture", "full"), required=True)
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--enable-global-full-dag", action="store_true", help="Explicit future override for the disabled global production DAG")
     parser.add_argument("--preflight-only", action="store_true", help="Validate full runtime without creating DAG state")
     args = parser.parse_args()
 
     if args.preflight_only and args.mode != "full":
         parser.error("--preflight-only is valid only with --mode full")
+
+    master_config = load_yaml(ROOT / args.config)
+    if args.mode == "full" and not args.preflight_only and not master_config.get("global_full_dag_enabled", False) and not args.enable_global_full_dag:
+        print("BLOCKED: global full-DAG execution is disabled by the sequential_review_gated policy.")
+        print("Run exactly one experiment with scripts/run_single_experiment.py --experiment-id <EXPERIMENT_ID>.")
+        print("Run exactly one Azure job with scripts/run_single_azure_job.py --job-id <AZURE_JOB_ID>.")
+        print("After review, record explicit approval before using scripts/aggregate_approved_runs.py.")
+        return RunExitCode.BLOCKED
 
     if args.mode == "full":
         preflight = run_preflight(ROOT, mode="full")
@@ -49,7 +58,6 @@ def main() -> int:
     artifact_root = fixture_root if args.mode == "fixture" else ROOT / "experiment_artifacts"
     context = build_execution_context(ROOT, mode=args.mode, run_id=run_id, artifact_root=artifact_root)
     environment = HandlerEnvironment(ROOT, context)
-    master_config = load_yaml(ROOT / args.config)
     matrix_path = ROOT / master_config.get("matrix", args.config)
     dag = load_master_dag(matrix_path)
     state_path = fixture_root / "dag_state.json" if args.mode == "fixture" else ROOT / "runs" / "full" / "dag_state.json"

@@ -30,7 +30,7 @@ def _git_clean() -> bool:
 
 
 def _setup_checksum_files() -> list[Path]:
-    roots = ("src", "scripts", "configs", "schemas", "docs", "tests", "data/manifests", "data/processed/vipragsent", "data/processed/q3_low_resource_sarcasm")
+    roots = ("src", "scripts", "configs", "schemas", "docs", "tests", "prompts", "data/manifests", "data/processed/vipragsent", "data/processed/q3_low_resource_sarcasm")
     root_files = ("pyproject.toml", "README.md", "LICENSE", "Makefile", ".gitignore", ".env.example", "reports/phase_14_5_frozen_hash_baseline.json")
     paths: list[Path] = []
     for relative in roots:

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Q4 pragmatic calibration contract",
+  "type": "object",
+  "required": ["systems", "labels", "split", "probability", "bins", "temperature_scaling", "seed_aggregation"],
+  "properties": {
+    "systems": {"type": "array", "const": ["phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"]},
+    "labels": {"type": "array", "minItems": 6, "maxItems": 6},
+    "split": {"type": "string", "const": "vipragsent_test"},
+    "probability": {"type": "string", "const": "raw_positive_class_probability_sigmoid"},
+    "bins": {"type": "integer", "const": 10},
+    "temperature_scaling": {"type": "boolean", "const": false},
+    "seed_aggregation": {"type": "string", "const": "arithmetic_mean_and_sample_std_ddof_1"},
+    "required_artifacts": {"type": "array", "minItems": 10}
+  },
+  "additionalProperties": true
+}

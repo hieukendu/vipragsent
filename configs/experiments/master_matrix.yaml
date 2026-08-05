@@ -1,4 +1,8 @@
 version: 1
+execution_policy: sequential_review_gated
+global_full_dag_enabled: false
+automatic_next_run: false
+approval_gate_after_each_run: true
 nodes:
   - id: preflight_validation
     kind: validation

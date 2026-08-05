@@ -1,0 +1,28 @@
+schema_version: 1
+inventory_source: src/vipragsent/orchestration/inventory.py
+generated_inventory_json: reports/expected_experiment_runs.json
+generated_inventory_csv: reports/expected_experiment_runs.csv
+total_count_is_derived: true
+execution_policy: sequential_review_gated
+global_full_dag_enabled: false
+required_entry_fields:
+  - experiment_id
+  - research_question
+  - system_id
+  - display_name
+  - variant
+  - backbone
+  - seed
+  - budget
+  - task
+  - split
+  - dependencies
+  - required_phase15_assets
+  - expected_outputs
+  - selection_metric
+  - evaluation_protocol
+  - approval_required
+  - execution_status
+  - approval_status
+  - reusable_checkpoint_key
+  - protocol_resolution_status

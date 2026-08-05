@@ -1,0 +1,40 @@
+schema_version: 1
+q4_pragmatic_calibration:
+  title: Q4 - Pragmatic Calibration and Learning Dynamics
+  systems:
+    - phobert_pragmatic_finetune
+    - vistral_pragmatic_sft
+    - vipragsent_full_vistral
+  labels:
+    - implicit_sentiment
+    - sarcasm
+    - irony
+    - idiom_figurative
+    - code_switching
+    - mocking
+  calibration:
+    split: vipragsent_test
+    probability: raw_positive_class_probability_sigmoid
+    bins: 10
+    binning: equal_width
+    temperature_scaling: false
+    seed_aggregation: arithmetic_mean_and_sample_std_ddof_1
+    probability_pooling_across_seeds: false
+    lower_is_better: true
+  learning_dynamics:
+    split: vipragsent_dev
+    metric: dev_macro_pragmatic_f1
+    align_by: epoch
+    seed_aggregation: arithmetic_mean_and_sample_std_ddof_1
+    test_metrics_forbidden: true
+  required_artifacts:
+    - experiment_artifacts/tables/q4_pragmatic_calibration_per_seed.csv
+    - experiment_artifacts/tables/q4_pragmatic_calibration_summary.csv
+    - experiment_artifacts/backing_data/q4_pragmatic_reliability_bins.csv
+    - experiment_artifacts/backing_data/q4_learning_curves.csv
+    - experiment_artifacts/figures/q4_pragmatic_ece_heatmap.pdf
+    - experiment_artifacts/figures/q4_pragmatic_ece_heatmap.png
+    - experiment_artifacts/figures/q4_pragmatic_reliability_by_label.pdf
+    - experiment_artifacts/figures/q4_pragmatic_reliability_by_label.png
+    - experiment_artifacts/figures/q4_learning_curves.pdf
+    - experiment_artifacts/figures/q4_learning_curves.png

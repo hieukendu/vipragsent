@@ -1,21 +1,24 @@
 q4_checkpoint_resolution:
-  - display_label: phobert_finetune
-    requested_system_id: phobert_finetune
+  - display_label: phobert_pragmatic_finetune
+    requested_system_id: phobert_pragmatic_finetune
     resolved_checkpoint_id: phobert_pragmatic_finetune
-    required_output: polarity_head
-    resolution_status: CONFLICT
+    backbone: phobert_base
+    required_output: six_pragmatic_probabilities
+    resolution_status: RESOLVED
     approval_source: 21_MASTER_EXPERIMENT_MATRIX.md; 28_PAPER_EXPERIMENT_ROLE_REGISTRY.md; 31_IMPLEMENTATION_DECISIONS.md
-    evidence: The locked pragmatic fine-tune has six pragmatic heads only and does not expose a polarity head.
-  - display_label: vistral_7b_sft
-    requested_system_id: vistral_7b_sft
+    evidence: Q4 now evaluates raw positive probabilities from the six pragmatic heads.
+  - display_label: vistral_pragmatic_sft
+    requested_system_id: vistral_pragmatic_sft
     resolved_checkpoint_id: vistral_pragmatic_sft
-    required_output: polarity_head
-    resolution_status: CONFLICT
+    backbone: vistral_7b
+    required_output: six_pragmatic_probabilities
+    resolution_status: RESOLVED
     approval_source: 21_MASTER_EXPERIMENT_MATRIX.md; 28_PAPER_EXPERIMENT_ROLE_REGISTRY.md; 31_IMPLEMENTATION_DECISIONS.md
-    evidence: The locked Vistral SFT has six pragmatic heads only and does not expose a polarity head.
+    evidence: Q4 now evaluates raw positive probabilities from the six pragmatic heads.
   - display_label: vipragsent_full_vistral
     requested_system_id: vipragsent_full_vistral
     resolved_checkpoint_id: vipragsent_full_vistral
-    required_output: polarity_head
+    backbone: vistral_7b
+    required_output: six_pragmatic_probabilities
     resolution_status: RESOLVED
     approval_source: 28_PAPER_EXPERIMENT_ROLE_REGISTRY.md; 31_IMPLEMENTATION_DECISIONS.md

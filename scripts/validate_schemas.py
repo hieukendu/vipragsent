@@ -10,7 +10,8 @@ from vipragsent.config_validation import validate_config_tree
 
 def main() -> int:
     errors = []
-    for path in (ROOT / "configs/schemas").glob("*.schema.json"):
+    schema_paths = list((ROOT / "configs/schemas").glob("*.schema.json")) + list((ROOT / "schemas").glob("*.schema.json"))
+    for path in schema_paths:
         try:
             value = json.loads(path.read_text(encoding="utf-8"))
             if value.get("type") != "object" or "required" not in value:

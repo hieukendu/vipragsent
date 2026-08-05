@@ -16,10 +16,10 @@
 - Repair N: `PASS` - setup checksums and Git data hygiene audit
 - Repair O: `PASS` - backbone/model factory
 - Repair P: `PASS` - Azure rationale and prompted-baseline runners
-- Repair Q: `BLOCKED` - production evaluation/statistics and conflict gates
+- Repair Q: `PASS` - production evaluation/statistics and conflict gates
 - Repair R: `PASS` - profiling and cost accounting
-- Repair S: `BLOCKED` - matrix and expected-run inventory
+- Repair S: `PASS` - matrix and expected-run inventory
 - Repair T: `PASS` - execution-context isolation
 
 Implementation passed: `true`
-Phase 14 ready: `false`
+Phase 14 ready: `true`

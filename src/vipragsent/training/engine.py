@@ -229,7 +229,11 @@ class TrainingEngine:
         self.config = config
         self.run_id = run_id
         self.runtime_hooks = dict(runtime_hooks or {})
-        self.loss_aggregator = UncertaintyWeightedMultiTaskLoss(config.rationale_beta)
+        variant_config = getattr(model, "config", None)
+        variant_uncertainty = bool(getattr(variant_config, "has_uncertainty_weighting", True))
+        self.uses_uncertainty_weighting = bool(config.use_uncertainty_weighting and variant_uncertainty)
+        uncertainty_tasks = getattr(variant_config, "uncertainty_task_keys", None) or (*PRAGMATIC_LABELS, "polarity", "emotion")
+        self.loss_aggregator = UncertaintyWeightedMultiTaskLoss(config.rationale_beta, tasks=uncertainty_tasks)
         try:
             device = next(model.parameters()).device
             self.loss_aggregator.to(device)
@@ -250,7 +254,7 @@ class TrainingEngine:
             optimizer_groups.append({"params": decay, "weight_decay": config.weight_decay, "name": "model_decay"})
         if no_decay:
             optimizer_groups.append({"params": no_decay, "weight_decay": 0.0, "name": "model_no_decay"})
-        if config.use_uncertainty_weighting:
+        if self.uses_uncertainty_weighting:
             optimizer_groups.append({"params": list(self.loss_aggregator.parameters()), "weight_decay": 0.0, "name": "uncertainty_no_decay"})
         self.optimizer = torch.optim.AdamW(optimizer_groups, lr=config.learning_rate)
         self.checkpoints = CheckpointManager(checkpoint_root, run_id)
@@ -307,7 +311,7 @@ class TrainingEngine:
                         rationale_targets,
                         sample_mask=batch.get("rationale_loss_mask"),
                     )
-            if self.config.use_uncertainty_weighting:
+            if self.uses_uncertainty_weighting:
                 return self.loss_aggregator(losses, rationale_loss)
             reference = next(self.model.parameters(), None)
             return equal_weight_loss(losses, rationale_loss, rationale_beta=self.config.rationale_beta, reference=reference)

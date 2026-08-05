@@ -11,7 +11,8 @@ from ..hashing import sha256_file
 from ..protocol import validate_protocol_resolution
 from ..orchestration.status import ProtocolConflict
 from ..statistics.bootstrap import BootstrapResult, paired_bootstrap_comparison
-from .metrics import align_prediction_rows, binary_macro_f1, expected_calibration_error, macro_pragmatic_f1, multiclass_macro_f1, reliability_bins
+from ..statistics.significance import load_p_value_strategy
+from .metrics import align_prediction_rows, binary_macro_f1, expected_calibration_error, macro_pragmatic_f1, multiclass_macro_f1, pragmatic_ece, reliability_bins
 from .thresholds import tune_pragmatic_thresholds
 
 
@@ -52,18 +53,51 @@ def evaluate_q3(true: Sequence[int], probabilities: Sequence[float], *, threshol
     return {"sarcasm_macro_f1": binary_macro_f1(true, (np.asarray(probabilities) >= threshold).astype(int)), "selected_positive_count": selected_positive_count, "fixed_negative_count": fixed_negative_count, "dev_threshold": threshold, "pos_weight": fixed_negative_count / selected_positive_count, "data_hash": data_hash, "mask_hash": mask_hash}
 
 
-def evaluate_q4_seed(probabilities: Sequence[Sequence[float]], true: Sequence[int], *, seed: int) -> dict[str, Any]:
-    return {"seed": seed, "polarity_test_ece": expected_calibration_error(true, probabilities), "reliability_bins": reliability_bins(true, probabilities, bins=10)}
+def evaluate_q4_seed(probabilities: Mapping[str, Sequence[float]], true: Mapping[str, Sequence[int]], *, seed: int) -> dict[str, Any]:
+    ece_by_label, macro_ece, bins = pragmatic_ece(true, probabilities, bins=10)
+    return {
+        "seed": seed,
+        "split": "vipragsent_test",
+        "temperature_scaling": False,
+        "ece_by_label": ece_by_label,
+        "macro_pragmatic_ece": macro_ece,
+        "reliability_bins": bins,
+    }
 
 
 def evaluate_q4_seeds(per_seed: Sequence[dict[str, Any]]) -> dict[str, Any]:
     if not per_seed or {item.get("seed") for item in per_seed} != set(TRAINING_SEEDS):
         raise ValueError("Q4 trainable systems require exactly the three locked training seeds")
-    return {"polarity_test_ece": float(np.mean([item["polarity_test_ece"] for item in per_seed])), "per_seed": per_seed, "probability_aggregation": "none"}
+    labels = tuple(PRAGMATIC_LABELS)
+    summary = {
+        label: {
+            "mean_ece": float(np.mean([item["ece_by_label"][label] for item in per_seed])),
+            "std_ece": float(np.std([item["ece_by_label"][label] for item in per_seed], ddof=1)),
+        }
+        for label in labels
+    }
+    macro_values = [item["macro_pragmatic_ece"] for item in per_seed]
+    return {
+        "split": "vipragsent_test",
+        "temperature_scaling": False,
+        "per_label": summary,
+        "mean_macro_pragmatic_ece": float(np.mean(macro_values)),
+        "std_macro_pragmatic_ece": float(np.std(macro_values, ddof=1)),
+        "per_seed": per_seed,
+        "probability_aggregation": "none",
+    }
 
 
 def paired_significance(left: Sequence[tuple[Sequence[Any], Sequence[Any]]], right: Sequence[tuple[Sequence[Any], Sequence[Any]]], metric: Any, *, root: str | Path = ".", resamples: int = 1000) -> BootstrapResult:
     resolution = validate_protocol_resolution(root)
     if "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE" in resolution["scientific_protocol_conflicts"]:
         raise ProtocolConflict("SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE")
-    return paired_bootstrap_comparison(left, right, metric, resamples=resamples, p_value_method="mid_p_two_sided")
+    strategy = load_p_value_strategy(Path(root) / "configs/statistics/significance_method.yaml")
+    return paired_bootstrap_comparison(
+        left,
+        right,
+        metric,
+        resamples=int(strategy["resamples"] if resamples == 1000 else resamples),
+        seed=int(strategy["bootstrap_seed"]),
+        p_value_method=strategy["method_id"],
+    )

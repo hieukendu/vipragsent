@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import base64
 import csv
 import json
 from collections import defaultdict
@@ -16,6 +17,8 @@ from ..evaluation.metrics import (
     expected_calibration_error,
     macro_pragmatic_f1,
     multiclass_macro_f1,
+    pragmatic_ece,
+    pragmatic_reliability_bins,
     reliability_bins,
 )
 from ..hashing import sha256_file, sha256_json
@@ -30,7 +33,8 @@ PRODUCTION_PAPER_TABLES = (
     "table_3_external_retention.csv",
     "table_4_ablation.csv",
     "q3_low_resource.csv",
-    "q4_calibration.csv",
+    "q4_pragmatic_calibration_per_seed.csv",
+    "q4_pragmatic_calibration_summary.csv",
     "significance.csv",
     "cost_latency.csv",
     "backbone_sensitivity.csv",
@@ -72,6 +76,17 @@ def _svg_bar(path: Path, labels: list[str], values: list[float], title: str) -> 
     svg = f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}"><text x="20" y="28" font-size="20">{title}</text>{"".join(bars)}</svg>'
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(svg, encoding="utf-8", newline="\n")
+
+
+def _fixture_visual(path: Path, *, kind: str) -> None:
+    """Write a tiny deterministic binary fixture for required PDF/PNG paths."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if kind == "png":
+        path.write_bytes(base64.b64decode("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII="))
+    elif kind == "pdf":
+        path.write_bytes(b"%PDF-1.4\n1 0 obj<<>>endobj\ntrailer<<>>\n%%EOF\n")
+    else:
+        raise ValueError(f"Unsupported fixture visual kind: {kind}")
 
 
 def _synthetic_bundle() -> DatasetBundle:
@@ -224,6 +239,12 @@ def _export_fixture_tables(output: Path, results_root: Path, bundle: DatasetBund
             prediction = _fixture_predictions(bundle, system, seed)
             predictions[system].append(prediction)
             _write_run(results_root, system, seed, prediction)
+    # Q4 uses the approved concrete system IDs while the legacy fixture table rows
+    # remain available for the broader synthetic artifact rehearsal.
+    for approved_system, legacy_system in (("phobert_pragmatic_finetune", "phobert_finetune"), ("vistral_pragmatic_sft", "vistral_7b_sft")):
+        predictions[approved_system] = list(predictions[legacy_system])
+        for seed, prediction in zip(TRAINING_SEEDS, predictions[approved_system], strict=True):
+            _write_run(results_root, approved_system, seed, prediction)
 
     table2_rows: list[dict[str, Any]] = []
     short_names = {"implicit_sentiment": "implicit", "sarcasm": "sarcasm", "irony": "irony", "idiom_figurative": "idiom", "code_switching": "code_switching", "mocking": "mocking"}
@@ -259,11 +280,59 @@ def _export_fixture_tables(output: Path, results_root: Path, bundle: DatasetBund
                 q3_rows.append({"system": system, "budget": budget, "selected_positive_count": selected, "fixed_negative_count": 16, "seed": seed, "sarcasm_dev_f1": table2_rows[0]["sarcasm_f1"], "sarcasm_test_f1": table2_rows[0]["sarcasm_f1"], "dev_threshold": 0.5, "pos_weight": 16 / selected, "data_hash": bundle.fingerprint, "mask_hash": sha256_json({"budget": budget, "source": "synthetic-fixture"})})
     _write_csv(output / "backing_data" / "q3_low_resource.csv", REQUIRED_COLUMNS["q3_low_resource.csv"].split(","), q3_rows)
 
-    q4_rows = []
-    for system, backbone in (("phobert_finetune", "phobert_base"), ("vistral_7b_sft", "vistral_7b"), ("vipragsent_full_vistral", "vistral_7b")):
-        ece = float(np.mean([expected_calibration_error(run["true_polarity"], run["polarity_probs"]) for run in predictions[system]]))
-        q4_rows.append({"system": system, "backbone": backbone, "polarity_test_ece": ece, "bin_count": 10, "binning": "equal_width", "confidence_definition": "maximum_softmax_probability", "temperature_scaling": False, "seed_count": len(predictions[system])})
-    _write_csv(output / "tables" / "q4_calibration.csv", REQUIRED_COLUMNS["q4_calibration.csv"].split(","), q4_rows)
+    q4_systems = (("phobert_pragmatic_finetune", "PhoBERT pragmatic fine-tune", "phobert_base"), ("vistral_pragmatic_sft", "Vistral-7B pragmatic SFT", "vistral_7b"), ("vipragsent_full_vistral", "Full ViPragSent Vistral", "vistral_7b"))
+    q4_per_seed_rows: list[dict[str, Any]] = []
+    q4_summary_rows: list[dict[str, Any]] = []
+    q4_reliability_rows: list[dict[str, Any]] = []
+    q4_macro_by_system: dict[str, float] = {}
+    for system, display_name, _ in q4_systems:
+        per_seed: list[dict[str, Any]] = []
+        for seed, run in zip(TRAINING_SEEDS, predictions[system], strict=True):
+            ece_by_label, macro_ece, reliability = pragmatic_ece(run["true_pragmatic"], run["prob_pragmatic"], bins=10)
+            per_seed.append({"seed": seed, "ece_by_label": ece_by_label, "macro_pragmatic_ece": macro_ece})
+            prediction_path = results_root / "runs" / system / str(seed) / "predictions.jsonl"
+            prediction_hash = sha256_file(prediction_path)
+            for label in PRAGMATIC_LABELS:
+                q4_per_seed_rows.append({
+                    "system": system,
+                    "display_name": display_name,
+                    "checkpoint_id": system,
+                    "seed": seed,
+                    "split": "vipragsent_test",
+                    "label": label,
+                    "ece": ece_by_label[label],
+                    "macro_pragmatic_ece": macro_ece,
+                    "bin_count": 10,
+                    "temperature_scaling": False,
+                    "prediction_file": prediction_path.relative_to(results_root).as_posix(),
+                    "prediction_file_sha256": prediction_hash,
+                    "config_hash": "fixture",
+                    "code_commit": "fixture",
+                })
+                for row in reliability[label]:
+                    q4_reliability_rows.append({"system": system, "seed": seed, "label": label, **row})
+        q4_macro_values = [item["macro_pragmatic_ece"] for item in per_seed]
+        q4_macro_by_system[system] = float(np.mean(q4_macro_values))
+        for label in PRAGMATIC_LABELS:
+            values = [item["ece_by_label"][label] for item in per_seed]
+            q4_summary_rows.append({
+                "system": system,
+                "display_name": display_name,
+                "label": label,
+                "mean_ece": float(np.mean(values)),
+                "std_ece": float(np.std(values, ddof=1)),
+                "mean_macro_pragmatic_ece": float(np.mean(q4_macro_values)),
+                "std_macro_pragmatic_ece": float(np.std(q4_macro_values, ddof=1)),
+                "seed_count": len(per_seed),
+                "split": "vipragsent_test",
+                "bin_count": 10,
+                "temperature_scaling": False,
+            })
+    _write_csv(output / "tables" / "q4_pragmatic_calibration_per_seed.csv", REQUIRED_COLUMNS["q4_pragmatic_calibration_per_seed.csv"].split(","), q4_per_seed_rows)
+    _write_csv(output / "tables" / "q4_pragmatic_calibration_summary.csv", REQUIRED_COLUMNS["q4_pragmatic_calibration_summary.csv"].split(","), q4_summary_rows)
+    _write_csv(output / "backing_data" / "q4_pragmatic_reliability_bins.csv", REQUIRED_COLUMNS["q4_pragmatic_reliability_bins.csv"].split(","), q4_reliability_rows)
+    q4_learning_rows = [{"system": system, "seed": seed, "epoch": epoch, "dev_macro_pragmatic_f1": min(0.9, 0.45 + 0.04 * epoch), "dev_loss": max(0.1, 1.0 - 0.1 * epoch), "wall_seconds": float(epoch)} for system, _, _ in q4_systems for seed in TRAINING_SEEDS for epoch in range(1, 4)]
+    _write_csv(output / "backing_data" / "q4_learning_curves.csv", REQUIRED_COLUMNS["q4_learning_curves.csv"].split(","), q4_learning_rows)
 
     sig_rows: list[dict[str, Any]] = []
     for left_name, right_name in (("vipragsent_full_vistral", "phobert_finetune"), ("vipragsent_full_vistral", "azure_gpt41_mini_8shot"), ("vipragsent_full_vistral", "vistral_7b_sft")):
@@ -281,7 +350,7 @@ def _export_fixture_tables(output: Path, results_root: Path, bundle: DatasetBund
                 metric = binary_macro_f1
                 left = [(run["true_pragmatic"][key], run["pred_pragmatic"][key]) for run in left_runs]
                 right = [(run["true_pragmatic"][key], run["pred_pragmatic"][key]) for run in right_runs]
-            result = paired_bootstrap_comparison(left, right, metric, resamples=40, p_value_method="mid_p_two_sided")
+            result = paired_bootstrap_comparison(left, right, metric, resamples=40, p_value_method="paired_hierarchical_bootstrap_sign_plus_one_v1")
             family.append(result)
             sig_rows.append({"comparison": f"{left_name}_vs_{right_name}", "metric": key, "observed_delta": result.observed, "ci_low": result.ci_low, "ci_high": result.ci_high, "raw_p_value": result.p_value, "holm_adjusted_p_value": 0.0, "resamples": 40, "bootstrap_seed": 20260525, "prediction_files": f"runs/{left_name};runs/{right_name}"})
         corrected = holm_bonferroni([float(result.p_value) for result in family])
@@ -292,7 +361,7 @@ def _export_fixture_tables(output: Path, results_root: Path, bundle: DatasetBund
     cost_rows = [{"system": system, "backbone": backbone, "gpu_hours": 0.0, "relative_cost_to_full_phobert": 1.0, "batch1_latency_ms": 0.0, "batch32_examples_per_second": 0.0, "peak_vram_gb": 0.0, "gpu_model": "fixture", "mig_profile": "none", "azure_request_count": 0, "input_tokens": 0, "output_tokens": 0, "azure_cost_status": "not-priced-fixture" if backbone == "azure" else "not-applicable"} for system, backbone, _ in systems]
     _write_csv(output / "tables" / "cost_latency.csv", REQUIRED_COLUMNS["cost_latency.csv"].split(","), cost_rows)
     _write_csv(output / "backing_data" / "latency_measurements.csv", ["system", "batch_size", "repetition", "latency_ms", "examples_per_second", "warmup_iterations_excluded"], [{"system": row["system"], "batch_size": 1, "repetition": repetition, "latency_ms": 0.0, "examples_per_second": 0.0, "warmup_iterations_excluded": 50} for row in cost_rows for repetition in range(3)])
-    backbone_rows = [{"system": system, "backbone": "phobert_base" if "phobert" in system else "vistral_7b", "macro_prag_f1": next(row for row in table2_rows if row["system"] == system)["macro_prag_f1"], "ord_f1": table3_rows[2]["ord_f1"], "polarity_ece": q4_rows[2 if "vistral" in system else 0]["polarity_test_ece"], "gpu_hours": 0.0, "relative_cost": 1.0, "peak_vram_gb": 0.0, "batch1_latency_ms": 0.0, "batch32_examples_per_second": 0.0, "seed_count": 3} for system in ("vipragsent_full_phobert", "vipragsent_full_vistral")]
+    backbone_rows = [{"system": system, "backbone": "phobert_base" if "phobert" in system else "vistral_7b", "macro_prag_f1": next(row for row in table2_rows if row["system"] == system)["macro_prag_f1"], "ord_f1": table3_rows[2]["ord_f1"], "polarity_ece": float(np.mean([expected_calibration_error(run["true_polarity"], run["polarity_probs"]) for run in predictions["vipragsent_full_phobert" if "phobert" in system else "vipragsent_full_vistral"]])), "gpu_hours": 0.0, "relative_cost": 1.0, "peak_vram_gb": 0.0, "batch1_latency_ms": 0.0, "batch32_examples_per_second": 0.0, "seed_count": 3} for system in ("vipragsent_full_phobert", "vipragsent_full_vistral")]
     _write_csv(output / "tables" / "backbone_sensitivity.csv", REQUIRED_COLUMNS["backbone_sensitivity.csv"].split(","), backbone_rows)
 
     manual = output / "manual"
@@ -309,8 +378,8 @@ def _export_fixture_tables(output: Path, results_root: Path, bundle: DatasetBund
             handle.write(json.dumps({"sample_id": example.sample_id, "text": example.text, "candidate_reason": "synthetic fixture candidate", "approval": "pending"}, ensure_ascii=False) + "\n")
     (manual / "qualitative_final.jsonl").write_text("", encoding="utf-8")
     _write_csv(manual / "qualitative_approval_template.csv", ["sample_id", "reviewer", "approved", "notes"], [])
-    _write_csv(output / "backing_data" / "dev_learning_curves.csv", ["system", "seed", "epoch", "dev_macro_pragmatic_f1"], [{"system": system, "seed": seed, "epoch": epoch, "dev_macro_pragmatic_f1": min(0.9, 0.45 + 0.04 * epoch)} for system in ("phobert_finetune", "vistral_7b_sft", "vipragsent_full_vistral") for seed in TRAINING_SEEDS for epoch in range(1, 4)])
-    _write_csv(output / "backing_data" / "reliability_bins.csv", ["system", "seed", "bin", "lower", "upper", "count", "mean_confidence", "accuracy"], [{"system": system, "seed": TRAINING_SEEDS[0], **row} for system in ("phobert_finetune", "vistral_7b_sft", "vipragsent_full_vistral") for row in reliability_bins(predictions[system][0]["true_polarity"], predictions[system][0]["polarity_probs"])])
+    _write_csv(output / "backing_data" / "dev_learning_curves.csv", ["system", "seed", "epoch", "dev_macro_pragmatic_f1"], [{"system": system, "seed": seed, "epoch": epoch, "dev_macro_pragmatic_f1": min(0.9, 0.45 + 0.04 * epoch)} for system, _, _ in q4_systems for seed in TRAINING_SEEDS for epoch in range(1, 4)])
+    _write_csv(output / "backing_data" / "reliability_bins.csv", ["system", "seed", "bin", "lower", "upper", "count", "mean_confidence", "accuracy"], [{"system": system, "seed": seed, "bin": row["bin_index"], "lower": row["bin_lower"], "upper": row["bin_upper"], "count": row["count"], "mean_confidence": row["mean_confidence"], "accuracy": row["empirical_positive_rate"]} for system, _, _ in q4_systems for seed in TRAINING_SEEDS for row in pragmatic_reliability_bins(predictions[system][0]["true_pragmatic"], predictions[system][0]["prob_pragmatic"])[PRAGMATIC_LABELS[0]]])
     _write_csv(output / "backing_data" / "per_phenomenon_f1.csv", ["label", "f1"], [{"label": key, "f1": table2_rows[2][f"{short}_f1"]} for key, short in (("implicit_sentiment", "implicit"), ("sarcasm", "sarcasm"), ("irony", "irony"), ("idiom_figurative", "idiom"), ("code_switching", "code_switching"), ("mocking", "mocking"))])
     _write_csv(output / "backing_data" / "multi_task_gain.csv", ["system", "macro_prag_f1"], [{"system": table2_rows[index]["system"], "macro_prag_f1": table2_rows[index]["macro_prag_f1"]} for index in (0, 2)])
     _write_csv(output / "backing_data" / "q3_low_resource_curve.csv", ["budget", "sarcasm_test_f1"], [{"budget": row["budget"], "sarcasm_test_f1": row["sarcasm_test_f1"]} for row in q3_rows])
@@ -318,7 +387,13 @@ def _export_fixture_tables(output: Path, results_root: Path, bundle: DatasetBund
     _svg_bar(output / "figures" / "multi_task_gain.svg", ["PhoBERT", "Full"], [float(table2_rows[0]["macro_prag_f1"]), float(table2_rows[2]["macro_prag_f1"])], "Multi-task gain")
     _svg_bar(output / "figures" / "q3_low_resource_learning_curve.svg", [str(budget) for budget in (32, 64, 128, 256, 512, "full")], [0.5 + 0.02 * index for index in range(6)], "Q3 low-resource curve")
     _svg_bar(output / "figures" / "dev_learning_curves.svg", ["1", "2", "3"], [0.49, 0.54, 0.58], "Dev-set learning curves")
-    _svg_bar(output / "figures" / "reliability_diagrams.svg", ["PhoBERT", "Vistral SFT", "Full Vistral"], [row["polarity_test_ece"] for row in q4_rows], "Reliability diagrams")
+    _svg_bar(output / "figures" / "reliability_diagrams.svg", ["PhoBERT", "Vistral SFT", "Full Vistral"], [q4_macro_by_system[system] for system, _, _ in q4_systems], "Pragmatic reliability diagrams")
+    _fixture_visual(output / "figures" / "q4_pragmatic_ece_heatmap.pdf", kind="pdf")
+    _fixture_visual(output / "figures" / "q4_pragmatic_ece_heatmap.png", kind="png")
+    _fixture_visual(output / "figures" / "q4_pragmatic_reliability_by_label.pdf", kind="pdf")
+    _fixture_visual(output / "figures" / "q4_pragmatic_reliability_by_label.png", kind="png")
+    _fixture_visual(output / "figures" / "q4_learning_curves.pdf", kind="pdf")
+    _fixture_visual(output / "figures" / "q4_learning_curves.png", kind="png")
     return len(list(output.rglob("*")))
 
 
@@ -506,6 +581,104 @@ def _write_sidecar_rows(output: Path, filename: str, columns: list[str], rows: l
     return path
 
 
+def _write_q4_production_figures(
+    output: Path,
+    calibration_rows: list[dict[str, Any]],
+    reliability_rows: list[dict[str, Any]],
+    learning_rows: list[dict[str, Any]],
+) -> None:
+    """Render the locked Q4 figures from real backing rows; never use fixture bytes."""
+    try:
+        import matplotlib
+
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError as exc:
+        raise ValueError("Production Q4 figure export requires the optional matplotlib dependency") from exc
+
+    figure_root = output / "figures"
+    figure_root.mkdir(parents=True, exist_ok=True)
+    system_order = ("phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral")
+    display_order = {"phobert_pragmatic_finetune": "PhoBERT pragmatic fine-tune", "vistral_pragmatic_sft": "Vistral-7B pragmatic SFT", "vipragsent_full_vistral": "Full ViPragSent Vistral"}
+    label_order = ("implicit_sentiment", "sarcasm", "irony", "idiom_figurative", "code_switching", "mocking")
+    label_display = {"implicit_sentiment": "implicit sentiment", "sarcasm": "sarcasm", "irony": "irony", "idiom_figurative": "idiom/figurative", "code_switching": "code-switching", "mocking": "mocking"}
+
+    summary_by_system: dict[str, dict[str, dict[str, Any]]] = {}
+    for row in calibration_rows:
+        summary_by_system.setdefault(str(row["system"]), {})[str(row["label"])] = row
+    heatmap_values = []
+    for system in system_order:
+        by_label = summary_by_system.get(system, {})
+        values = [float(by_label[label]["mean_ece"]) for label in label_order]
+        macro = float(next(iter(by_label.values()))["mean_macro_pragmatic_ece"])
+        heatmap_values.append(values + [macro])
+    fig, axis = plt.subplots(figsize=(11, 3.5))
+    image = axis.imshow(np.asarray(heatmap_values), aspect="auto", cmap="viridis")
+    axis.set_xticks(range(7), [label_display[label] for label in label_order] + ["macro"])
+    axis.set_yticks(range(3), [display_order[system] for system in system_order])
+    axis.set_title("Q4 pragmatic expected calibration error")
+    for row_index, values in enumerate(heatmap_values):
+        for column_index, value in enumerate(values):
+            axis.text(column_index, row_index, f"{value:.3f}", ha="center", va="center", color="white")
+    fig.colorbar(image, ax=axis, label="ECE")
+    fig.tight_layout()
+    fig.savefig(figure_root / "q4_pragmatic_ece_heatmap.pdf")
+    fig.savefig(figure_root / "q4_pragmatic_ece_heatmap.png", dpi=160)
+    plt.close(fig)
+
+    fig, axes = plt.subplots(2, 3, figsize=(12, 7), sharex=True, sharey=True)
+    axes_flat = list(axes.flat)
+    for axis, label in zip(axes_flat, label_order, strict=True):
+        for system in system_order:
+            rows = [row for row in reliability_rows if str(row["system"]) == system and str(row["label"]) == label and int(row["count"]) > 0]
+            grouped: dict[int, list[dict[str, Any]]] = defaultdict(list)
+            for row in rows:
+                grouped[int(row["bin_index"])].append(row)
+            points = [(float(np.mean([float(item["mean_confidence"]) for item in items])), float(np.mean([float(item["empirical_positive_rate"]) for item in items]))) for items in grouped.values()]
+            points.sort()
+            if points:
+                axis.plot([point[0] for point in points], [point[1] for point in points], marker="o", label=display_order[system])
+        axis.plot([0, 1], [0, 1], linestyle="--", color="black", linewidth=0.8)
+        axis.set_title(label_display[label])
+        axis.set_xlim(0, 1)
+        axis.set_ylim(0, 1)
+        axis.grid(alpha=0.2)
+    axes[1, 0].set_xlabel("mean predicted positive probability")
+    axes[1, 1].set_xlabel("mean predicted positive probability")
+    axes[1, 2].set_xlabel("mean predicted positive probability")
+    axes[0, 0].set_ylabel("empirical positive frequency")
+    axes[1, 0].set_ylabel("empirical positive frequency")
+    handles, labels = axes_flat[0].get_legend_handles_labels()
+    if handles:
+        fig.legend(handles, labels, loc="upper center", ncol=3)
+    fig.suptitle("Q4 pragmatic reliability by label")
+    fig.tight_layout(rect=(0, 0, 1, 0.93))
+    fig.savefig(figure_root / "q4_pragmatic_reliability_by_label.pdf")
+    fig.savefig(figure_root / "q4_pragmatic_reliability_by_label.png", dpi=160)
+    plt.close(fig)
+
+    fig, axis = plt.subplots(figsize=(9, 5))
+    for system in system_order:
+        grouped: dict[int, list[dict[str, Any]]] = defaultdict(list)
+        for row in learning_rows:
+            if str(row["system"]) == system:
+                grouped[int(row["epoch"])].append(row)
+        epochs = sorted(grouped)
+        means = [float(np.mean([float(item["dev_macro_pragmatic_f1"]) for item in grouped[epoch]])) for epoch in epochs]
+        stds = [float(np.std([float(item["dev_macro_pragmatic_f1"]) for item in grouped[epoch]], ddof=1)) if len(grouped[epoch]) > 1 else 0.0 for epoch in epochs]
+        axis.plot(epochs, means, marker="o", label=display_order[system])
+        axis.fill_between(epochs, np.asarray(means) - np.asarray(stds), np.asarray(means) + np.asarray(stds), alpha=0.15)
+    axis.set_xlabel("epoch")
+    axis.set_ylabel("dev macro pragmatic F1")
+    axis.set_title("Q4 pragmatic learning dynamics")
+    axis.grid(alpha=0.2)
+    axis.legend()
+    fig.tight_layout()
+    fig.savefig(figure_root / "q4_learning_curves.pdf")
+    fig.savefig(figure_root / "q4_learning_curves.png", dpi=160)
+    plt.close(fig)
+
+
 def export_production_artifacts(*, repo_root: str | Path = ".", run_id: str = "full", output_root: str | Path | None = None) -> dict[str, Any]:
     root = Path(repo_root)
     output = Path(output_root) if output_root else root / "experiment_artifacts"
@@ -559,9 +732,17 @@ def export_production_artifacts(*, repo_root: str | Path = ".", run_id: str = "f
         "q3_low_resource_curve.csv": (["budget", "sarcasm_test_f1"], [{"budget": row["budget"], "sarcasm_test_f1": row["sarcasm_test_f1"]} for row in table_rows["q3_low_resource.csv"]]),
         "dev_learning_curves.csv": (["system", "seed", "epoch", "dev_macro_pragmatic_f1"], _sidecar_rows(records, "dev_learning_curves.csv")),
         "reliability_bins.csv": (["system", "seed", "bin", "lower", "upper", "count", "mean_confidence", "accuracy"], _sidecar_rows(records, "reliability_bins.csv")),
+        "q4_pragmatic_reliability_bins.csv": (REQUIRED_COLUMNS["q4_pragmatic_reliability_bins.csv"].split(","), _sidecar_rows(records, "q4_pragmatic_reliability_bins.csv")),
+        "q4_learning_curves.csv": (REQUIRED_COLUMNS["q4_learning_curves.csv"].split(","), _sidecar_rows(records, "q4_learning_curves.csv")),
     }
     for filename, (columns, rows) in figure_backing.items():
         _write_sidecar_rows(output, filename, columns, rows)
+    _write_q4_production_figures(
+        output,
+        table_rows["q4_pragmatic_calibration_summary.csv"],
+        figure_backing["q4_pragmatic_reliability_bins.csv"][1],
+        figure_backing["q4_learning_curves.csv"][1],
+    )
     figure_values = {
         "per_phenomenon_f1.svg": ([row["label"] for row in figure_backing["per_phenomenon_f1.csv"][1]], [float(row["f1"]) for row in figure_backing["per_phenomenon_f1.csv"][1]], "Per-phenomenon F1"),
         "multi_task_gain.svg": ([row["system"] for row in figure_backing["multi_task_gain.csv"][1]], [float(row["macro_prag_f1"]) for row in figure_backing["multi_task_gain.csv"][1]], "Multi-task gain"),

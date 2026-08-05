@@ -32,12 +32,19 @@ def validate_protocol_resolution(root: str | Path) -> dict[str, Any]:
 
     q1a = _load_yaml(root / "configs/experiments/q1a/system_roles.yaml")
     roles = q1a.get("q1a", {}).get("roles", {})
-    baseline = {key: value for key, value in roles.get("vistral_baseline", {}).items() if key != "system_id"}
-    no_auxiliary = {key: value for key, value in roles.get("no_auxiliary", {}).items() if key != "system_id"}
-    if baseline == no_auxiliary:
-        statuses["Q1A"] = "CONFLICT"
-    else:
-        statuses["Q1A"] = "RESOLVED"
+    baseline = roles.get("vistral_baseline", {})
+    no_auxiliary = roles.get("no_auxiliary", {})
+    q1a_ok = (
+        baseline.get("system_id") == "vistral_pragmatic_sft"
+        and no_auxiliary.get("system_id") == "vipragsent_no_auxiliary_vistral"
+        and baseline.get("system_id") != no_auxiliary.get("system_id")
+        and baseline.get("loss_aggregation") == "equal_weight"
+        and no_auxiliary.get("loss_aggregation") == "homoscedastic_uncertainty"
+        and no_auxiliary.get("trainable_uncertainty_parameters") == "six_independent_pragmatic"
+        and no_auxiliary.get("disabled_heads") == ["polarity", "emotion"]
+        and no_auxiliary.get("reusable_checkpoint_key") != baseline.get("reusable_checkpoint_key")
+    )
+    statuses["Q1A"] = "RESOLVED" if q1a_ok else "CONFLICT"
 
     q1b = _load_yaml(root / "configs/experiments/q1b/checkpoint_matrix.yaml")
     azure = q1b.get("systems", {}).get("azure_gpt41_mini", {})
@@ -55,10 +62,39 @@ def validate_protocol_resolution(root: str | Path) -> dict[str, Any]:
     statuses["Q3"] = "RESOLVED" if q3 and all(item.get("resolution_status") == "RESOLVED" for item in q3) and len({item.get("paper_label") for item in q3}) == len(q3) else "CONFLICT"
 
     q4 = _load_yaml(root / "configs/experiments/q4/checkpoint_resolution.yaml").get("q4_checkpoint_resolution", [])
-    statuses["Q4"] = "RESOLVED" if q4 and all(item.get("resolution_status") == "RESOLVED" for item in q4) else "CONFLICT"
+    q4_expected = {"phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"}
+    q4_ids = {item.get("resolved_checkpoint_id") for item in q4}
+    q4_protocol = _load_yaml(root / "configs/experiments/q4/protocol.yaml").get("q4", {})
+    statuses["Q4"] = (
+        "RESOLVED"
+        if len(q4) == 3
+        and q4_ids == q4_expected
+        and all(item.get("resolution_status") == "RESOLVED" for item in q4)
+        and all(item.get("required_output") == "six_pragmatic_probabilities" for item in q4)
+        and q4_protocol.get("calibration_head") == "six_pragmatic_binary_heads"
+        and q4_protocol.get("probability_definition") == "raw_positive_class_probability_sigmoid"
+        and q4_protocol.get("bins") == 10
+        and q4_protocol.get("temperature_scaling") is False
+        else "CONFLICT"
+    )
 
     significance = _load_yaml(root / "configs/statistics/significance_method.yaml")
-    statuses["SIGNIFICANCE_PVALUE"] = "RESOLVED" if significance.get("resolution_status") == "RESOLVED" and significance.get("method_id") and significance.get("raw_p_value_definition") else "CONFLICT"
+    significance_required = {
+        "method_id": "paired_hierarchical_bootstrap_sign_plus_one_v1",
+        "difference_direction": "left_minus_right",
+        "resamples": 1000,
+        "bootstrap_seed": 20260525,
+        "confidence_interval": "percentile_95",
+        "finite_resample_correction": "plus_one",
+        "multiple_comparisons": "holm_within_7_metric_family",
+    }
+    statuses["SIGNIFICANCE_PVALUE"] = (
+        "RESOLVED"
+        if significance.get("resolution_status") == "RESOLVED"
+        and all(significance.get(key) == value for key, value in significance_required.items())
+        and significance.get("raw_p_value_definition") == "two_sided_sign_test_plus_one"
+        else "CONFLICT"
+    )
 
     if statuses["Q1A"] == "CONFLICT":
         errors.append(CONFLICT_CODES[0])
