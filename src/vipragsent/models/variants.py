@@ -284,6 +284,8 @@ class GenerationBaselineModel(nn.Module):
         self.backbone = backbone
         self.config = config
         self.fixture_compatibility = fixture_compatibility
+        if not fixture_compatibility and not callable(getattr(backbone, "generate", None)):
+            raise RuntimeError("production generation baseline requires a native causal-LM generate() method")
 
     @property
     def inference_output_source(self) -> str:
@@ -295,7 +297,18 @@ class GenerationBaselineModel(nn.Module):
     def rationale_decoder_enabled_at_inference(self) -> bool:
         return False
 
-    def forward(self, input_ids: Tensor, attention_mask: Tensor, **_: Tensor | None) -> dict[str, Any]:
+    def generate(self, *args: Any, **kwargs: Any) -> Any:
+        generator = getattr(self.backbone, "generate", None)
+        if not callable(generator):
+            raise RuntimeError("production generation baseline does not expose generate()")
+        return generator(*args, **kwargs)
+
+    def forward(self, input_ids: Tensor, attention_mask: Tensor | None = None, *, labels: Tensor | None = None, **kwargs: Tensor | None) -> Any:
+        if not self.fixture_compatibility:
+            inputs: dict[str, Any] = {"input_ids": input_ids, "labels": labels, **kwargs}
+            if attention_mask is not None:
+                inputs["attention_mask"] = attention_mask
+            return self.backbone(**inputs)
         encoded = self.backbone(input_ids=input_ids, attention_mask=attention_mask)
         return {"generation_hidden_states": encoded.last_hidden_state, "logits": {}}
 

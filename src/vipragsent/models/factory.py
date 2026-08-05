@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import yaml
 from torch import nn
@@ -12,7 +13,7 @@ from ..runtime.device import (
     place_task_modules,
     resolve_selected_cuda_device,
 )
-from .backbones import load_pretrained_backbone
+from .backbones import load_pretrained_backbone, load_pretrained_causal_lm
 from .qlora import build_qlora_backbone
 from .variants import (
     GenerationBaselineModel,
@@ -65,6 +66,8 @@ def build_production_model(
     hidden_size: int | None = None,
     vocab_size: int | None = None,
     selected_device: str | int | None = None,
+    transformers_module: Any | None = None,
+    peft_module: Any | None = None,
 ) -> tuple[nn.Module, ModelRuntimeSpec]:
     specs = load_model_registry(registry_path)
     if backbone not in specs:
@@ -76,6 +79,7 @@ def build_production_model(
         raise RuntimeBlocked(f"Pinned local snapshot is required before loading {backbone}")
     family = "encoder" if spec.architecture == "encoder" else "causal"
     selected = resolve_selected_cuda_device(selected_device)
+    causal_generation = variant == "cot_only_vistral" and family == "causal"
 
     def load_base() -> nn.Module:
         if spec.quantization == "nf4":
@@ -84,6 +88,18 @@ def build_production_model(
                 revision=spec.revision,
                 local_path=str(local_snapshot),
                 selected_device=selected,
+                transformers_module=transformers_module,
+                peft_module=peft_module,
+                task_type="CAUSAL_LM" if causal_generation else "FEATURE_EXTRACTION",
+            )
+        if causal_generation:
+            return load_pretrained_causal_lm(
+                spec.repo_id,
+                revision=spec.revision,
+                trust_remote_code=spec.trust_remote_code,
+                local_path=local_snapshot,
+                local_files_only=True,
+                transformers_module=transformers_module,
             )
         return load_pretrained_backbone(
             spec.repo_id,
@@ -92,6 +108,7 @@ def build_production_model(
             trust_remote_code=spec.trust_remote_code,
             local_path=local_snapshot,
             local_files_only=True,
+            transformers_module=transformers_module,
         )
 
     base = load_base()
@@ -137,6 +154,8 @@ def build_production_component_model(
     local_snapshot: str | Path | None = None,
     execution_mode: str = "production",
     selected_device: str | int | None = None,
+    transformers_module: Any | None = None,
+    peft_module: Any | None = None,
 ) -> tuple[nn.Module, ModelRuntimeSpec]:
     """Build exactly one independent component model for bundle execution."""
     allowed = {"implicit_sentiment", "sarcasm", "irony", "idiom_figurative", "code_switching", "mocking", "polarity", "emotion"}
@@ -153,9 +172,9 @@ def build_production_component_model(
     selected = resolve_selected_cuda_device(selected_device)
     family = "encoder" if spec.architecture == "encoder" else "causal"
     if spec.quantization == "nf4":
-        base = build_qlora_backbone(spec.repo_id, revision=spec.revision, local_path=str(local_snapshot), selected_device=selected)
+        base = build_qlora_backbone(spec.repo_id, revision=spec.revision, local_path=str(local_snapshot), selected_device=selected, transformers_module=transformers_module, peft_module=peft_module, task_type="FEATURE_EXTRACTION")
     else:
-        base = load_pretrained_backbone(spec.repo_id, revision=spec.revision, family=family, trust_remote_code=spec.trust_remote_code, local_path=local_snapshot, local_files_only=True)
+        base = load_pretrained_backbone(spec.repo_id, revision=spec.revision, family=family, trust_remote_code=spec.trust_remote_code, local_path=local_snapshot, local_files_only=True, transformers_module=transformers_module)
     config = VariantConfig(
         name=f"component_{component}",
         backbone_family=family,
