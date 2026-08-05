@@ -1,0 +1,147 @@
+{
+  "branch": "codex/phase-14-5-production-repair",
+  "checks": {
+    "ci_exact_completed_success": true,
+    "cross_file_values": true,
+    "historical_luna_not_verified": true,
+    "no_stale_current_status": true,
+    "protected_source_unchanged": true,
+    "snapshot_schema": true
+  },
+  "ci_verification": {
+    "all_steps_conclusion": "success",
+    "branch": "codex/phase-14-5-production-repair",
+    "conclusion": "success",
+    "head_sha": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+    "job_conclusion": "success",
+    "job_id": 92376478149,
+    "job_name": "test",
+    "job_status": "completed",
+    "repository": "hieukendu/vipragsent",
+    "run_id": 31026573490,
+    "run_number": 16,
+    "schema_version": 1,
+    "status": "completed",
+    "steps_verified": 20,
+    "verification_source": "github_connector",
+    "verified_at_utc": "2026-08-05T16:49:36Z",
+    "workflow": "cpu-ci",
+    "workflow_id": 327304988
+  },
+  "current_head": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "errors": [],
+  "execution_boundary": {
+    "azure_live_called": false,
+    "gpu_training_executed": false,
+    "model_downloaded": false,
+    "phase15_executed": false,
+    "production_proof": false,
+    "real_predictions_generated": false
+  },
+  "inventory_rows": 162,
+  "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
+  "repository": "hieukendu/vipragsent",
+  "review": {
+    "consecutive_clean_cycles": 2,
+    "cycles": 2,
+    "no_new_defects": true,
+    "rounds_per_cycle": 5,
+    "status": "PASS",
+    "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
+  },
+  "runtime_blockers": [
+    "Phase 15 has not been executed on the target server",
+    "Model-family runtime assets are not prepared",
+    "GPU and Azure live integration have not been validated",
+    "No real approved production run exists"
+  ],
+  "schema_version": 1,
+  "snapshot": {
+    "audited_code_commit": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+    "audited_source_manifest_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
+    "branch": "codex/phase-14-5-production-repair",
+    "branch_head_before_refresh": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+    "ci": {
+      "all_steps_conclusion": "success",
+      "branch": "codex/phase-14-5-production-repair",
+      "conclusion": "success",
+      "head_sha": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+      "job_conclusion": "success",
+      "job_id": 92376478149,
+      "job_name": "test",
+      "job_status": "completed",
+      "repository": "hieukendu/vipragsent",
+      "run_id": 31026573490,
+      "run_number": 16,
+      "schema_version": 1,
+      "status": "completed",
+      "steps_verified": 20,
+      "validation_errors": [],
+      "verification_source": "github_connector",
+      "verified_at_utc": "2026-08-05T16:49:36Z",
+      "workflow": "cpu-ci",
+      "workflow_id": 327304988
+    },
+    "evidence_boundary": {
+      "azure_live_free": true,
+      "cpu_only": true,
+      "model_download_free": true,
+      "network_free_local_tests": true,
+      "production_proof": false,
+      "synthetic": true
+    },
+    "execution_policy": {
+      "automatic_next_run": false,
+      "global_full_dag_enabled": false,
+      "maximum_concurrent_gpu_jobs": 1,
+      "user_review_required_after_every_completed_run": true
+    },
+    "implementation": {
+      "full_matrix_code_ready": true,
+      "implementation_blockers": [],
+      "phase15_code_ready": true,
+      "sequential_runtime_code_ready": true,
+      "setup_frozen": true,
+      "setup_implementation_ready": true,
+      "status": "PASS"
+    },
+    "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
+    "report_generation_parent_sha": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+    "report_only_commit_expected": true,
+    "repository": "hieukendu/vipragsent",
+    "review": {
+      "consecutive_clean_cycles": 2,
+      "cycles": 2,
+      "no_new_defects": true,
+      "rounds_per_cycle": 5,
+      "status": "PASS",
+      "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
+    },
+    "runtime": {
+      "LOCAL_CODE_READINESS": "PASS",
+      "REAL_EXPERIMENT_READINESS": false,
+      "SERVER_RUNTIME_READINESS": "NOT_RUN",
+      "approved_run_count": 0,
+      "final_aggregation_ready": false,
+      "phase15_runtime_ready": false,
+      "real_experiment_ready": false,
+      "real_run_count": 0,
+      "runtime_blockers": [
+        "Phase 15 has not been executed on the target server",
+        "Model-family runtime assets are not prepared",
+        "GPU and Azure live integration have not been validated",
+        "No real approved production run exists"
+      ],
+      "runtime_environment_ready": false,
+      "weights_downloaded": false
+    },
+    "schema_version": 1,
+    "scientific": {
+      "frozen_data_changed": false,
+      "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8",
+      "inventory_rows": 162,
+      "scientific_protocol_conflicts": []
+    }
+  },
+  "status": "PASS"
+}

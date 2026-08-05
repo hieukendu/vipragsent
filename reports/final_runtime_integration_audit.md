@@ -1,10 +1,13 @@
 # Final runtime integration audit
 
 - Implementation status: `PASS`
-- CI status: `NOT_RUN`
-- Baseline commit: `cb5cde04cd3e3c546d1b35711197a82b6d5bb254`
+- Local code readiness: `PASS`
+- Server runtime readiness: `NOT_RUN`
+- CI status/conclusion: `completed/success`
+- Audited code commit: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
+- Report generation parent SHA: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
 - Frozen data changed: `false`
-- Self-review: `0 rounds x 0 sequences`; consecutive clean sequences: `0`
+- Self-review: `5 rounds x 2 cycles`; consecutive clean cycles: `2`
 
 ## Execution boundary
 

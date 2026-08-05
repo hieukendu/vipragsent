@@ -1,0 +1,898 @@
+{
+  "after_commit_or_worktree_head": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "after_manifest": {
+    "files": [
+      {
+        "path": "configs/experiments/execution_stage_plans.yaml",
+        "sha256": "93C97500AC34C14E109D9F48D3B6D21CC28FAD454B4C44C3529A14FB2AC3ED41"
+      },
+      {
+        "path": "configs/experiments/generation_reasoning_protocol.yaml",
+        "sha256": "5957C5DEAD4C0D13B622D188620984BED4E40ABBD3CC676F903502F5E62E7AAF"
+      },
+      {
+        "path": "configs/experiments/master_inventory.yaml",
+        "sha256": "EECD3D6F752A731E23C6C84789649C1861D21AE179A3D7186E36BC4F196FE968"
+      },
+      {
+        "path": "configs/experiments/master_matrix.yaml",
+        "sha256": "95B5E5340570E42A436A720C118C873E4C0D808BF459B54B6CCAC2E3E1E6E746"
+      },
+      {
+        "path": "configs/experiments/q1a/system_roles.yaml",
+        "sha256": "F985A8BFFACA8A038845BE06613894AB3718BBC455CF1663962187EB6253CA9E"
+      },
+      {
+        "path": "configs/experiments/q1b/checkpoint_matrix.yaml",
+        "sha256": "D6498EC5BA02454F48A4D80DC03123F6F5D6E40E9C012D8777028536D1C52EEE"
+      },
+      {
+        "path": "configs/experiments/q1b/producer_registry.yaml",
+        "sha256": "B3B12A88A0B54E3F036CDAE9A537EA06EB03A17B733653D61A7DBBEFCFF9811E"
+      },
+      {
+        "path": "configs/experiments/q2/protocol.yaml",
+        "sha256": "F1B2F06EE059C9C999AD96ED9D6AA354465B914F3D6EA444EB9F7D72DC6CE70C"
+      },
+      {
+        "path": "configs/experiments/q3/protocol.yaml",
+        "sha256": "67D5DD80154F399CC23262D6E425B3CBCBB56138629A1DDBF0A1ADBF96B51F7D"
+      },
+      {
+        "path": "configs/experiments/q3/system_aliases.yaml",
+        "sha256": "D9862086827E7F5FEA80C887AD26EDCAF8EF07FBF899F2032E0750A19FC6D238"
+      },
+      {
+        "path": "configs/experiments/q4/checkpoint_resolution.yaml",
+        "sha256": "6618C7DCFE6659638A62CAF3D2B4E7578199AD7204B49AF7919272E574E1C36B"
+      },
+      {
+        "path": "configs/experiments/q4/pragmatic_calibration.yaml",
+        "sha256": "A2A7604E717473BE4C5F42BDEA54E3EBF1C0FE7CDEE6DA29F26699862284EA3E"
+      },
+      {
+        "path": "configs/experiments/q4/protocol.yaml",
+        "sha256": "072CBD32DD0E9ABC87C7C38785596DEC321886A8E88662122D0775081BA06AD1"
+      },
+      {
+        "path": "configs/experiments/system_execution_registry.yaml",
+        "sha256": "1DE8DF8823815FD0DE96EFA3887A5319ABA3997DDF94E1ACE93022F0B86EC3B1"
+      },
+      {
+        "path": "configs/losses.yaml",
+        "sha256": "227A5C2EBB512DEA4E28A8579EE02251B2BD4F8BDE2E37A0EA5FB2B3532C242A"
+      },
+      {
+        "path": "configs/models/download_manifest.yaml",
+        "sha256": "0922B3B27C8FA6F453B9A7045204D8997D3D43176CADDE2EF18518D7EC7A5072"
+      },
+      {
+        "path": "configs/models/model_registry.yaml",
+        "sha256": "8513A50DDB9F2FAAE63CE12BBE9F6DC2EE9332EEA92C8110D16262CB216B3814"
+      },
+      {
+        "path": "configs/runtime/a100_20gb.yaml",
+        "sha256": "8ADB5DFC39A8E59DA623E1FB90F03C0F02572475B59A3D8E71C5B769269DE4E9"
+      },
+      {
+        "path": "configs/runtime/training.yaml",
+        "sha256": "DA8B8D9EEB4C7BDD0C06176696F85FBD31EEB46146654F28F44622514EEDE6A8"
+      },
+      {
+        "path": "configs/runtime/vncorenlp.yaml",
+        "sha256": "B8531D8DF67325D159BFE5E32557B1EFBE400FCCFEFE49D19529C9F73F85B117"
+      },
+      {
+        "path": "configs/statistics.yaml",
+        "sha256": "42949F6B4F17CDF0CC86FD075959E0764375632EB5877FC10642807B12FBC961"
+      },
+      {
+        "path": "configs/statistics/significance_method.yaml",
+        "sha256": "0F64D587A86C0A2B3104D06DC364C16AF12EAD7121D0EC1B655BB01F5FD35F57"
+      },
+      {
+        "path": "data/manifests/azure_deployment.json",
+        "sha256": "EFBFE66D4261087F187F82139C747F1A6FAE5B1A61F4907C05008718CC38CD39"
+      },
+      {
+        "path": "data/manifests/dataset_manifest.json",
+        "sha256": "A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA285F718478532AF0D"
+      },
+      {
+        "path": "data/manifests/external_datasets.json",
+        "sha256": "CF599690D50D6295DD9CCB6AF376267DE73D43C48A5D9C1365F16AD1C0F0D2EE"
+      },
+      {
+        "path": "data/manifests/human_iaa_recomputed.json",
+        "sha256": "3BB4BC46569F1BD020E0A00E208BD22B4379AB6F1418285EBBB9E6D651CFBF76"
+      },
+      {
+        "path": "data/manifests/input_checksums.json",
+        "sha256": "BA47F5B353947E79C81E3B587618FE9E99030DE546131B7004B9684FDAC8B79C"
+      },
+      {
+        "path": "data/manifests/loss_weights_train.json",
+        "sha256": "2BF6F29450CB103CA79954CDEDA4ED5CC0C2BD50A502F23A35601E3BFF6E9ACE"
+      },
+      {
+        "path": "data/manifests/model_resolution_report.json",
+        "sha256": "EF48D6AD057F5095ECEA06360ED3287CD9A442AA8474D4BD40602DACFC5312A7"
+      },
+      {
+        "path": "data/manifests/prompts/emotion_v1.json",
+        "sha256": "9682C1C3C9F740300B93FD0093BF9380E612C6ADD00D73038A7A62331D1F59D6"
+      },
+      {
+        "path": "data/manifests/prompts/manifest_report.json",
+        "sha256": "BBAB40159B6708404992B14403D93C857B540693FBE88D6D98D28E95C7623578"
+      },
+      {
+        "path": "data/manifests/prompts/polarity_v1.json",
+        "sha256": "83B2AE520D3D88B1F9A9A6F5241B9E5744E7A16AE1FD6BF4F419DF0538EC8CE7"
+      },
+      {
+        "path": "data/manifests/prompts/pragmatic_v1.json",
+        "sha256": "A47E0514BEFF3DBB8A7AF18E02D6668A35CFE259B052A4D84CAB7F16C6F187A4"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_128_v1.json",
+        "sha256": "96B8A96EC0233341C41164DFFB8B61136686DF5B4CB62FBFD3B4B26FD1D514E5"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_256_v1.json",
+        "sha256": "2E065449DD75A8A5422B3DA3A76EC8A7BD9B10115F7C5F4C529F25A8D2B6C7FB"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_32_v1.json",
+        "sha256": "98C4DBBD056098AEC4F2E4B6CDD1F6FD8EBF18CEAD7F735C3512C5517871807C"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_512_v1.json",
+        "sha256": "FE8BA83A1D540A1067E79005EEC3CC092CD108273FCD76D64EC6AB26D57FEDDF"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_64_v1.json",
+        "sha256": "4650DE3330D93048408F89745C4FA2F29851154D69E915A295E9A8D96B64F65D"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_full_v1.json",
+        "sha256": "AC03246C4AC0D9E4D99C1E3D696E845F55A97F289A396EE781D27FD5DCC4788A"
+      },
+      {
+        "path": "data/processed/external/aivivn_human_derived_3way/dev.csv",
+        "sha256": "28889920EE4AEBF078A6B6C966E0A16A5FF6A6DCF3517A4FA356270E5A9F43E9"
+      },
+      {
+        "path": "data/processed/external/aivivn_human_derived_3way/manifest.json",
+        "sha256": "D5DFF111F328A0536983A79F279F3810A8E23205C812B6810D95F343FFD06A6D"
+      },
+      {
+        "path": "data/processed/external/aivivn_human_derived_3way/test.csv",
+        "sha256": "27DA59A452ACC0FA63E26A7F49325DE7D963353E1179C5FE21BC92DB9394EDA8"
+      },
+      {
+        "path": "data/processed/external/aivivn_human_derived_3way/train.csv",
+        "sha256": "416B10996A8E9F03233572A53ABD38E9A6D24A8C80A9484166CE7F6DD171A3CE"
+      },
+      {
+        "path": "data/processed/external/uit_vsfc/test.csv",
+        "sha256": "C27B61C70DE1090BD0A12F0F2824148D1691C68FB9CB18A07F23AE5282E75D96"
+      },
+      {
+        "path": "data/processed/external/uit_vsmec/test.csv",
+        "sha256": "1D2E604BD06A4AAAAD33A3B98DE2FB910E9020F4D468EF8BC16DDCDEADB3D955"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_128_masks.csv",
+        "sha256": "97E83E2B9336455AA5F3164A7C3F1407327A483E0122263AA9EADF7D60845C4F"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_256_masks.csv",
+        "sha256": "45A07D469C13F8195DA26A902F42BD4D7B60C1FCA50AA858224101C932327A52"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_32_masks.csv",
+        "sha256": "4478E1F72DFB1EA551552B0C0F181C586F428D6E5BAA0BBA46625F2D4B08E278"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_512_masks.csv",
+        "sha256": "77A6262689B63662BC1670097BF36EDD0B69BAA4685A2D181C2F8C66038697A8"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_64_masks.csv",
+        "sha256": "F6E643247D1B0F35E38B762E37CA6A24450C1CB3CBCCCF2FE5ABA8D84930250D"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_full_masks.csv",
+        "sha256": "2F6AB6B8DC4A3D188A1E7D064489A4F42F3AC08DFFFC7704108686A895BF84D0"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_summary.csv",
+        "sha256": "7E5559AB86207A6EF63F4EFE17D47E615A5F48BAF1BCD457F812FABDAEA6B797"
+      },
+      {
+        "path": "data/processed/rationales/azure_rationale_input_train.jsonl",
+        "sha256": "FD35A3B5FC1242C79750B15C62DB29FCDA82E10D2F0CA6DFA7E7316A6C8DC915"
+      },
+      {
+        "path": "data/processed/tokenized_text/phobert_base/dev.jsonl",
+        "sha256": "ABE7714E57BBBCFEFADCDDE77F359422ABC01057A1F52717C24BC73F7BB59378"
+      },
+      {
+        "path": "data/processed/tokenized_text/phobert_base/test.jsonl",
+        "sha256": "11B6AB75B75F1FE17B4D803669267595E3AE5414F9136CDA0D9B67907A50E22F"
+      },
+      {
+        "path": "data/processed/tokenized_text/phobert_base/train.jsonl",
+        "sha256": "C6DB89A66F02D580915BC489098418CEE2F2E42FAB1F39BA0BBEFD782EE4EBC6"
+      },
+      {
+        "path": "data/processed/vipragsent/dev.csv",
+        "sha256": "26FEAA4673BDDEE525D39DC3C351A136C38BB507B2A80545F5C4863422852AE4"
+      },
+      {
+        "path": "data/processed/vipragsent/label_schema.json",
+        "sha256": "56A94DD37CD1938FF228C0B22D1D365A9C1E50CAFDBE35061B4BCE76EBDBB59F"
+      },
+      {
+        "path": "data/processed/vipragsent/test.csv",
+        "sha256": "1FB360A07F247D8D49AF03C154277BB16E253B35C22B5F5BE6C731CC3FB779C8"
+      },
+      {
+        "path": "data/processed/vipragsent/train.csv",
+        "sha256": "0BE7D5FAE4441082FCAB499E3EB70F92F73488D54ABAECA94C580BF23E46B8C0"
+      },
+      {
+        "path": "data/processed/vipragsent/vipragsent_full.csv",
+        "sha256": "0AF0F2B47626B4271A412E3CEBAF2F1C1676086BE68BC475985F9B243CA1E172"
+      },
+      {
+        "path": "prompts/protocols/cot_only_reasoning_vi_v1.txt",
+        "sha256": "E3E586054B17377B641F33384E1E7487922D91C1FEB74320F660BFC42C2FADEC"
+      },
+      {
+        "path": "prompts/protocols/reasoning_judge_gpt41mini_zeroshot_v1.txt",
+        "sha256": "7A24FC5168BEEE0B6EA472C7F2D2CEDE95DF49C4631C8028EBBCB57238B17B19"
+      },
+      {
+        "path": "src/vipragsent/azure/__init__.py",
+        "sha256": "E77F03557DDC7FA6D15229AA541BECFAB18CB13ACD1825305287285BBB504631"
+      },
+      {
+        "path": "src/vipragsent/azure/client.py",
+        "sha256": "9FF6813C1C8918C7473D8840FBCA833A02F179C5A635E4EE12016D66A16AD279"
+      },
+      {
+        "path": "src/vipragsent/azure/prompts.py",
+        "sha256": "FFCAC186C3B2FCE61542BE4F7AB5B0472DCC10C81216D631B40774B027FD1F62"
+      },
+      {
+        "path": "src/vipragsent/azure/rationale.py",
+        "sha256": "7343C44116827F02943AA993C8BC83AE2A779D7EC4B0A0017DFCC6CD1D6B7961"
+      },
+      {
+        "path": "src/vipragsent/azure/runners.py",
+        "sha256": "A9E6E217280507DE7F5BAA4AECB5F0FE34DD3B46CCDE6B370C34941931EC18AD"
+      },
+      {
+        "path": "src/vipragsent/azure/schemas.py",
+        "sha256": "10A031B3503C760EB985CB7316D52FF22C77CEF35BFC0B431F9B247C9001548E"
+      },
+      {
+        "path": "src/vipragsent/evaluation/__init__.py",
+        "sha256": "69ADD1DB25E5B2282485D3B157D8678179BF93F0B1673E28023C1F0AEECE226C"
+      },
+      {
+        "path": "src/vipragsent/evaluation/confidence_intervals.py",
+        "sha256": "CA690BFF40FCB3B8C2DEFBF43D6BCB0A9DCA416A175F2015A721EF191B5254A6"
+      },
+      {
+        "path": "src/vipragsent/evaluation/external_retention.py",
+        "sha256": "E4D8652D7D6B8C7AD084C9725EDCADCB0727C19831BD4D72C9E06C9D3B8101F8"
+      },
+      {
+        "path": "src/vipragsent/evaluation/metrics.py",
+        "sha256": "5FB1730C2E5DBB6DFF9DF1E5B2D5CD56825A10A1606D388EA6AB2EF01980959D"
+      },
+      {
+        "path": "src/vipragsent/evaluation/production.py",
+        "sha256": "F2311194788B42DED9F5D4768C94D798A63630AC260F1B4A27B8EACE0DF2FE8F"
+      },
+      {
+        "path": "src/vipragsent/evaluation/reasoning_judge.py",
+        "sha256": "13888248CC64AB61DCCA35ED46C4D4D47F400B46CAC2CD1E3490111EB835AEC7"
+      },
+      {
+        "path": "src/vipragsent/evaluation/thresholds.py",
+        "sha256": "776C0AC77A559F911E7AD5FA820483360D53C7160B52106969DC9E910D8C010C"
+      },
+      {
+        "path": "src/vipragsent/models/__init__.py",
+        "sha256": "78776C4779253FBF0E2A016E115CF2AD13D3E09D25D4351977B7057D8ED581A1"
+      },
+      {
+        "path": "src/vipragsent/models/backbones.py",
+        "sha256": "2AA3D9C5050401A2724C742572DAA9D8B6CB6271B1AF7D9338E98BC2AEED8D6B"
+      },
+      {
+        "path": "src/vipragsent/models/factory.py",
+        "sha256": "0FCCBD9B9D3C59FA9457B196BFA9C076CD598FD81B7C1ED74B57E23562861E9E"
+      },
+      {
+        "path": "src/vipragsent/models/generation.py",
+        "sha256": "D4F321AD2045C40E2E9DE82C8368B1470A4EEB01BD8E55D9017288249B71292A"
+      },
+      {
+        "path": "src/vipragsent/models/heads.py",
+        "sha256": "F0F5EFEDF69EDB25D394915625B2E172C010F0F40BC060C3E71F7F7713F3B75B"
+      },
+      {
+        "path": "src/vipragsent/models/losses.py",
+        "sha256": "462C20316C70BC3145F835C1B2A1C1CF51A518313B2097C72688FC9CB0E1AF15"
+      },
+      {
+        "path": "src/vipragsent/models/qlora.py",
+        "sha256": "659EE0544C8963433BEE56702D372B02AFCBB2C725029F143CDADC68C2A13D52"
+      },
+      {
+        "path": "src/vipragsent/models/rationale_decoder.py",
+        "sha256": "57289DA95FA246CB4577B6B8DE29B3C7AF7FE2DD66DEFA3716EFD5EFA795366A"
+      },
+      {
+        "path": "src/vipragsent/models/variants.py",
+        "sha256": "848A021532E6488871300A69B30B562391CA93D79607C4EF9951169C16EE30B7"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/__init__.py",
+        "sha256": "CC18FE726CC20E59071FAAC8A84C604D704B39767ADD5B338F2C5FAFACDCC3CD"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/component_bundle.py",
+        "sha256": "7525322484CD51E4628220039E7A3DA6E2E5E96C22E006105B76D85A7FD1A1B9"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/component_production.py",
+        "sha256": "E179B8C39554EB8CA1BA8F32EE4797430502D77B1C66453635A282B3E49B647F"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/explanation_reuse.py",
+        "sha256": "DF04BB50191D7838A2A42D0CBD102CEA395DFBDD43131DBAE75BD932FA446204"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/external_retention.py",
+        "sha256": "AB8991ED556EF2BA4D5C93FACE39A3CD76A985D644B5580C82CC72657801E29E"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/generation.py",
+        "sha256": "8DEEA43D8592DA98E5A758288926E59AAAF2BF1757C1DDB8EFB5195BFA667D61"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/q4.py",
+        "sha256": "19069C7B353F16EF4900886CDF38313A80372C18DC85914DEB55FF173704BC31"
+      },
+      {
+        "path": "src/vipragsent/orchestration/q1b_dependencies.py",
+        "sha256": "3E36FF9FC2AF52152CAB11A708EEC244FDE2776A4665CED3EF0EBE699D14DBB4"
+      },
+      {
+        "path": "src/vipragsent/orchestration/q1b_predictor.py",
+        "sha256": "14244D097A37DB05D0E89F47AEE9FC8C75D8352D095D79608E8BE44A260947FD"
+      },
+      {
+        "path": "src/vipragsent/runtime/__init__.py",
+        "sha256": "18AFA646C41533BE5725AE8DFF872E668F289C1DFF15AAC6E93984EA313F8359"
+      },
+      {
+        "path": "src/vipragsent/runtime/batch_probe.py",
+        "sha256": "4A80CA25B34660F408EFD42E24D706166AFEAD3FC1A7E3EAC6F1E2EE180F81B5"
+      },
+      {
+        "path": "src/vipragsent/runtime/device.py",
+        "sha256": "A692BD69E64141288BA442881AC71BF9272B47284F032E9ACA505CBE870CEB9C"
+      },
+      {
+        "path": "src/vipragsent/runtime/disk.py",
+        "sha256": "4C086ED637221062A5E5A39E094DFCDBE606D363275DBCE323209DCD543048A4"
+      },
+      {
+        "path": "src/vipragsent/runtime/hardware.py",
+        "sha256": "9AB31CB3D28A3F0FB7EE9A52E38B583570632B90FDDF0A02E018AF408E1E1075"
+      },
+      {
+        "path": "src/vipragsent/runtime/model_assets.py",
+        "sha256": "5A43F5968EFA851801D12BD1C96C4D7E691497E602D8014EFD300B47D633DF60"
+      },
+      {
+        "path": "src/vipragsent/runtime/model_smoke.py",
+        "sha256": "FDCDE3CB39E90A2262F6B144D90FCB62783BEE7FD2718C4B310F98732FC899FE"
+      },
+      {
+        "path": "src/vipragsent/training/__init__.py",
+        "sha256": "AC1934AF91C46696DE99BD7A580A19448BE103A2F4DDEBCEE8D3D65EE128CA3B"
+      },
+      {
+        "path": "src/vipragsent/training/checkpoints.py",
+        "sha256": "29E7A5A6E38731BD76B96EE77158D67D707D53A707EE60792E378584BE8FD68E"
+      },
+      {
+        "path": "src/vipragsent/training/class_weights.py",
+        "sha256": "9D107A8DD31718BC3A13A4E6D9A7E60F7F2EA3577EF4B00CF9425E915D081472"
+      },
+      {
+        "path": "src/vipragsent/training/config_resolver.py",
+        "sha256": "CAED0555502DF6D32E4E15AD23DD8AD8BE5A346133DA7824584CB6257E3CE299"
+      },
+      {
+        "path": "src/vipragsent/training/engine.py",
+        "sha256": "41FED6E41691AD6F95DBB19D8824B1CBD9035FC238EBB47EAEE706B74F698858"
+      },
+      {
+        "path": "src/vipragsent/training/optimizers.py",
+        "sha256": "CEB7842264E96FD0A0CEC024D9F430BD17A9DE2913AD4E9D496C7470C56D9965"
+      },
+      {
+        "path": "src/vipragsent/training/schedulers.py",
+        "sha256": "50C5636E3A0267C4DB6DAA319BD478E9448A6BF6A5C26676DF2A6E47673B3081"
+      },
+      {
+        "path": "src/vipragsent/training/seeding.py",
+        "sha256": "C152FC16C9C8FE0B3B7072C7F6902C4BFCCCE7E5FFAC27BA1D45AA650367F70B"
+      }
+    ],
+    "manifest_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953"
+  },
+  "baseline_manifest_source": "untouched task-start worktree manifest; canonical LF bytes; ignored UIT fixtures included",
+  "before_commit": "fc4779e5f6cb217136288015a6aee2fc311d12bd",
+  "before_manifest": {
+    "files": [
+      {
+        "path": "configs/experiments/execution_stage_plans.yaml",
+        "sha256": "93C97500AC34C14E109D9F48D3B6D21CC28FAD454B4C44C3529A14FB2AC3ED41"
+      },
+      {
+        "path": "configs/experiments/generation_reasoning_protocol.yaml",
+        "sha256": "5957C5DEAD4C0D13B622D188620984BED4E40ABBD3CC676F903502F5E62E7AAF"
+      },
+      {
+        "path": "configs/experiments/master_inventory.yaml",
+        "sha256": "EECD3D6F752A731E23C6C84789649C1861D21AE179A3D7186E36BC4F196FE968"
+      },
+      {
+        "path": "configs/experiments/master_matrix.yaml",
+        "sha256": "95B5E5340570E42A436A720C118C873E4C0D808BF459B54B6CCAC2E3E1E6E746"
+      },
+      {
+        "path": "configs/experiments/q1a/system_roles.yaml",
+        "sha256": "F985A8BFFACA8A038845BE06613894AB3718BBC455CF1663962187EB6253CA9E"
+      },
+      {
+        "path": "configs/experiments/q1b/checkpoint_matrix.yaml",
+        "sha256": "D6498EC5BA02454F48A4D80DC03123F6F5D6E40E9C012D8777028536D1C52EEE"
+      },
+      {
+        "path": "configs/experiments/q1b/producer_registry.yaml",
+        "sha256": "B3B12A88A0B54E3F036CDAE9A537EA06EB03A17B733653D61A7DBBEFCFF9811E"
+      },
+      {
+        "path": "configs/experiments/q2/protocol.yaml",
+        "sha256": "F1B2F06EE059C9C999AD96ED9D6AA354465B914F3D6EA444EB9F7D72DC6CE70C"
+      },
+      {
+        "path": "configs/experiments/q3/protocol.yaml",
+        "sha256": "67D5DD80154F399CC23262D6E425B3CBCBB56138629A1DDBF0A1ADBF96B51F7D"
+      },
+      {
+        "path": "configs/experiments/q3/system_aliases.yaml",
+        "sha256": "D9862086827E7F5FEA80C887AD26EDCAF8EF07FBF899F2032E0750A19FC6D238"
+      },
+      {
+        "path": "configs/experiments/q4/checkpoint_resolution.yaml",
+        "sha256": "6618C7DCFE6659638A62CAF3D2B4E7578199AD7204B49AF7919272E574E1C36B"
+      },
+      {
+        "path": "configs/experiments/q4/pragmatic_calibration.yaml",
+        "sha256": "A2A7604E717473BE4C5F42BDEA54E3EBF1C0FE7CDEE6DA29F26699862284EA3E"
+      },
+      {
+        "path": "configs/experiments/q4/protocol.yaml",
+        "sha256": "072CBD32DD0E9ABC87C7C38785596DEC321886A8E88662122D0775081BA06AD1"
+      },
+      {
+        "path": "configs/experiments/system_execution_registry.yaml",
+        "sha256": "1DE8DF8823815FD0DE96EFA3887A5319ABA3997DDF94E1ACE93022F0B86EC3B1"
+      },
+      {
+        "path": "configs/losses.yaml",
+        "sha256": "227A5C2EBB512DEA4E28A8579EE02251B2BD4F8BDE2E37A0EA5FB2B3532C242A"
+      },
+      {
+        "path": "configs/models/download_manifest.yaml",
+        "sha256": "0922B3B27C8FA6F453B9A7045204D8997D3D43176CADDE2EF18518D7EC7A5072"
+      },
+      {
+        "path": "configs/models/model_registry.yaml",
+        "sha256": "8513A50DDB9F2FAAE63CE12BBE9F6DC2EE9332EEA92C8110D16262CB216B3814"
+      },
+      {
+        "path": "configs/runtime/a100_20gb.yaml",
+        "sha256": "8ADB5DFC39A8E59DA623E1FB90F03C0F02572475B59A3D8E71C5B769269DE4E9"
+      },
+      {
+        "path": "configs/runtime/training.yaml",
+        "sha256": "DA8B8D9EEB4C7BDD0C06176696F85FBD31EEB46146654F28F44622514EEDE6A8"
+      },
+      {
+        "path": "configs/runtime/vncorenlp.yaml",
+        "sha256": "B8531D8DF67325D159BFE5E32557B1EFBE400FCCFEFE49D19529C9F73F85B117"
+      },
+      {
+        "path": "configs/statistics.yaml",
+        "sha256": "42949F6B4F17CDF0CC86FD075959E0764375632EB5877FC10642807B12FBC961"
+      },
+      {
+        "path": "configs/statistics/significance_method.yaml",
+        "sha256": "0F64D587A86C0A2B3104D06DC364C16AF12EAD7121D0EC1B655BB01F5FD35F57"
+      },
+      {
+        "path": "data/manifests/azure_deployment.json",
+        "sha256": "EFBFE66D4261087F187F82139C747F1A6FAE5B1A61F4907C05008718CC38CD39"
+      },
+      {
+        "path": "data/manifests/dataset_manifest.json",
+        "sha256": "A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA285F718478532AF0D"
+      },
+      {
+        "path": "data/manifests/external_datasets.json",
+        "sha256": "CF599690D50D6295DD9CCB6AF376267DE73D43C48A5D9C1365F16AD1C0F0D2EE"
+      },
+      {
+        "path": "data/manifests/human_iaa_recomputed.json",
+        "sha256": "3BB4BC46569F1BD020E0A00E208BD22B4379AB6F1418285EBBB9E6D651CFBF76"
+      },
+      {
+        "path": "data/manifests/input_checksums.json",
+        "sha256": "BA47F5B353947E79C81E3B587618FE9E99030DE546131B7004B9684FDAC8B79C"
+      },
+      {
+        "path": "data/manifests/loss_weights_train.json",
+        "sha256": "2BF6F29450CB103CA79954CDEDA4ED5CC0C2BD50A502F23A35601E3BFF6E9ACE"
+      },
+      {
+        "path": "data/manifests/model_resolution_report.json",
+        "sha256": "EF48D6AD057F5095ECEA06360ED3287CD9A442AA8474D4BD40602DACFC5312A7"
+      },
+      {
+        "path": "data/manifests/prompts/emotion_v1.json",
+        "sha256": "9682C1C3C9F740300B93FD0093BF9380E612C6ADD00D73038A7A62331D1F59D6"
+      },
+      {
+        "path": "data/manifests/prompts/manifest_report.json",
+        "sha256": "BBAB40159B6708404992B14403D93C857B540693FBE88D6D98D28E95C7623578"
+      },
+      {
+        "path": "data/manifests/prompts/polarity_v1.json",
+        "sha256": "83B2AE520D3D88B1F9A9A6F5241B9E5744E7A16AE1FD6BF4F419DF0538EC8CE7"
+      },
+      {
+        "path": "data/manifests/prompts/pragmatic_v1.json",
+        "sha256": "A47E0514BEFF3DBB8A7AF18E02D6668A35CFE259B052A4D84CAB7F16C6F187A4"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_128_v1.json",
+        "sha256": "96B8A96EC0233341C41164DFFB8B61136686DF5B4CB62FBFD3B4B26FD1D514E5"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_256_v1.json",
+        "sha256": "2E065449DD75A8A5422B3DA3A76EC8A7BD9B10115F7C5F4C529F25A8D2B6C7FB"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_32_v1.json",
+        "sha256": "98C4DBBD056098AEC4F2E4B6CDD1F6FD8EBF18CEAD7F735C3512C5517871807C"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_512_v1.json",
+        "sha256": "FE8BA83A1D540A1067E79005EEC3CC092CD108273FCD76D64EC6AB26D57FEDDF"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_64_v1.json",
+        "sha256": "4650DE3330D93048408F89745C4FA2F29851154D69E915A295E9A8D96B64F65D"
+      },
+      {
+        "path": "data/manifests/prompts/q3_budget_full_v1.json",
+        "sha256": "AC03246C4AC0D9E4D99C1E3D696E845F55A97F289A396EE781D27FD5DCC4788A"
+      },
+      {
+        "path": "data/processed/external/aivivn_human_derived_3way/dev.csv",
+        "sha256": "28889920EE4AEBF078A6B6C966E0A16A5FF6A6DCF3517A4FA356270E5A9F43E9"
+      },
+      {
+        "path": "data/processed/external/aivivn_human_derived_3way/manifest.json",
+        "sha256": "D5DFF111F328A0536983A79F279F3810A8E23205C812B6810D95F343FFD06A6D"
+      },
+      {
+        "path": "data/processed/external/aivivn_human_derived_3way/test.csv",
+        "sha256": "27DA59A452ACC0FA63E26A7F49325DE7D963353E1179C5FE21BC92DB9394EDA8"
+      },
+      {
+        "path": "data/processed/external/aivivn_human_derived_3way/train.csv",
+        "sha256": "416B10996A8E9F03233572A53ABD38E9A6D24A8C80A9484166CE7F6DD171A3CE"
+      },
+      {
+        "path": "data/processed/external/uit_vsfc/test.csv",
+        "sha256": "C27B61C70DE1090BD0A12F0F2824148D1691C68FB9CB18A07F23AE5282E75D96"
+      },
+      {
+        "path": "data/processed/external/uit_vsmec/test.csv",
+        "sha256": "1D2E604BD06A4AAAAD33A3B98DE2FB910E9020F4D468EF8BC16DDCDEADB3D955"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_128_masks.csv",
+        "sha256": "97E83E2B9336455AA5F3164A7C3F1407327A483E0122263AA9EADF7D60845C4F"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_256_masks.csv",
+        "sha256": "45A07D469C13F8195DA26A902F42BD4D7B60C1FCA50AA858224101C932327A52"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_32_masks.csv",
+        "sha256": "4478E1F72DFB1EA551552B0C0F181C586F428D6E5BAA0BBA46625F2D4B08E278"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_512_masks.csv",
+        "sha256": "77A6262689B63662BC1670097BF36EDD0B69BAA4685A2D181C2F8C66038697A8"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_64_masks.csv",
+        "sha256": "F6E643247D1B0F35E38B762E37CA6A24450C1CB3CBCCCF2FE5ABA8D84930250D"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_full_masks.csv",
+        "sha256": "2F6AB6B8DC4A3D188A1E7D064489A4F42F3AC08DFFFC7704108686A895BF84D0"
+      },
+      {
+        "path": "data/processed/q3_low_resource_sarcasm/budget_summary.csv",
+        "sha256": "7E5559AB86207A6EF63F4EFE17D47E615A5F48BAF1BCD457F812FABDAEA6B797"
+      },
+      {
+        "path": "data/processed/rationales/azure_rationale_input_train.jsonl",
+        "sha256": "FD35A3B5FC1242C79750B15C62DB29FCDA82E10D2F0CA6DFA7E7316A6C8DC915"
+      },
+      {
+        "path": "data/processed/tokenized_text/phobert_base/dev.jsonl",
+        "sha256": "ABE7714E57BBBCFEFADCDDE77F359422ABC01057A1F52717C24BC73F7BB59378"
+      },
+      {
+        "path": "data/processed/tokenized_text/phobert_base/test.jsonl",
+        "sha256": "11B6AB75B75F1FE17B4D803669267595E3AE5414F9136CDA0D9B67907A50E22F"
+      },
+      {
+        "path": "data/processed/tokenized_text/phobert_base/train.jsonl",
+        "sha256": "C6DB89A66F02D580915BC489098418CEE2F2E42FAB1F39BA0BBEFD782EE4EBC6"
+      },
+      {
+        "path": "data/processed/vipragsent/dev.csv",
+        "sha256": "26FEAA4673BDDEE525D39DC3C351A136C38BB507B2A80545F5C4863422852AE4"
+      },
+      {
+        "path": "data/processed/vipragsent/label_schema.json",
+        "sha256": "56A94DD37CD1938FF228C0B22D1D365A9C1E50CAFDBE35061B4BCE76EBDBB59F"
+      },
+      {
+        "path": "data/processed/vipragsent/test.csv",
+        "sha256": "1FB360A07F247D8D49AF03C154277BB16E253B35C22B5F5BE6C731CC3FB779C8"
+      },
+      {
+        "path": "data/processed/vipragsent/train.csv",
+        "sha256": "0BE7D5FAE4441082FCAB499E3EB70F92F73488D54ABAECA94C580BF23E46B8C0"
+      },
+      {
+        "path": "data/processed/vipragsent/vipragsent_full.csv",
+        "sha256": "0AF0F2B47626B4271A412E3CEBAF2F1C1676086BE68BC475985F9B243CA1E172"
+      },
+      {
+        "path": "prompts/protocols/cot_only_reasoning_vi_v1.txt",
+        "sha256": "E3E586054B17377B641F33384E1E7487922D91C1FEB74320F660BFC42C2FADEC"
+      },
+      {
+        "path": "prompts/protocols/reasoning_judge_gpt41mini_zeroshot_v1.txt",
+        "sha256": "7A24FC5168BEEE0B6EA472C7F2D2CEDE95DF49C4631C8028EBBCB57238B17B19"
+      },
+      {
+        "path": "src/vipragsent/azure/__init__.py",
+        "sha256": "E77F03557DDC7FA6D15229AA541BECFAB18CB13ACD1825305287285BBB504631"
+      },
+      {
+        "path": "src/vipragsent/azure/client.py",
+        "sha256": "9FF6813C1C8918C7473D8840FBCA833A02F179C5A635E4EE12016D66A16AD279"
+      },
+      {
+        "path": "src/vipragsent/azure/prompts.py",
+        "sha256": "FFCAC186C3B2FCE61542BE4F7AB5B0472DCC10C81216D631B40774B027FD1F62"
+      },
+      {
+        "path": "src/vipragsent/azure/rationale.py",
+        "sha256": "7343C44116827F02943AA993C8BC83AE2A779D7EC4B0A0017DFCC6CD1D6B7961"
+      },
+      {
+        "path": "src/vipragsent/azure/runners.py",
+        "sha256": "A9E6E217280507DE7F5BAA4AECB5F0FE34DD3B46CCDE6B370C34941931EC18AD"
+      },
+      {
+        "path": "src/vipragsent/azure/schemas.py",
+        "sha256": "10A031B3503C760EB985CB7316D52FF22C77CEF35BFC0B431F9B247C9001548E"
+      },
+      {
+        "path": "src/vipragsent/evaluation/__init__.py",
+        "sha256": "69ADD1DB25E5B2282485D3B157D8678179BF93F0B1673E28023C1F0AEECE226C"
+      },
+      {
+        "path": "src/vipragsent/evaluation/confidence_intervals.py",
+        "sha256": "CA690BFF40FCB3B8C2DEFBF43D6BCB0A9DCA416A175F2015A721EF191B5254A6"
+      },
+      {
+        "path": "src/vipragsent/evaluation/external_retention.py",
+        "sha256": "E4D8652D7D6B8C7AD084C9725EDCADCB0727C19831BD4D72C9E06C9D3B8101F8"
+      },
+      {
+        "path": "src/vipragsent/evaluation/metrics.py",
+        "sha256": "5FB1730C2E5DBB6DFF9DF1E5B2D5CD56825A10A1606D388EA6AB2EF01980959D"
+      },
+      {
+        "path": "src/vipragsent/evaluation/production.py",
+        "sha256": "F2311194788B42DED9F5D4768C94D798A63630AC260F1B4A27B8EACE0DF2FE8F"
+      },
+      {
+        "path": "src/vipragsent/evaluation/reasoning_judge.py",
+        "sha256": "13888248CC64AB61DCCA35ED46C4D4D47F400B46CAC2CD1E3490111EB835AEC7"
+      },
+      {
+        "path": "src/vipragsent/evaluation/thresholds.py",
+        "sha256": "776C0AC77A559F911E7AD5FA820483360D53C7160B52106969DC9E910D8C010C"
+      },
+      {
+        "path": "src/vipragsent/models/__init__.py",
+        "sha256": "78776C4779253FBF0E2A016E115CF2AD13D3E09D25D4351977B7057D8ED581A1"
+      },
+      {
+        "path": "src/vipragsent/models/backbones.py",
+        "sha256": "2AA3D9C5050401A2724C742572DAA9D8B6CB6271B1AF7D9338E98BC2AEED8D6B"
+      },
+      {
+        "path": "src/vipragsent/models/factory.py",
+        "sha256": "0FCCBD9B9D3C59FA9457B196BFA9C076CD598FD81B7C1ED74B57E23562861E9E"
+      },
+      {
+        "path": "src/vipragsent/models/generation.py",
+        "sha256": "D4F321AD2045C40E2E9DE82C8368B1470A4EEB01BD8E55D9017288249B71292A"
+      },
+      {
+        "path": "src/vipragsent/models/heads.py",
+        "sha256": "F0F5EFEDF69EDB25D394915625B2E172C010F0F40BC060C3E71F7F7713F3B75B"
+      },
+      {
+        "path": "src/vipragsent/models/losses.py",
+        "sha256": "462C20316C70BC3145F835C1B2A1C1CF51A518313B2097C72688FC9CB0E1AF15"
+      },
+      {
+        "path": "src/vipragsent/models/qlora.py",
+        "sha256": "659EE0544C8963433BEE56702D372B02AFCBB2C725029F143CDADC68C2A13D52"
+      },
+      {
+        "path": "src/vipragsent/models/rationale_decoder.py",
+        "sha256": "57289DA95FA246CB4577B6B8DE29B3C7AF7FE2DD66DEFA3716EFD5EFA795366A"
+      },
+      {
+        "path": "src/vipragsent/models/variants.py",
+        "sha256": "848A021532E6488871300A69B30B562391CA93D79607C4EF9951169C16EE30B7"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/__init__.py",
+        "sha256": "CC18FE726CC20E59071FAAC8A84C604D704B39767ADD5B338F2C5FAFACDCC3CD"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/component_bundle.py",
+        "sha256": "7525322484CD51E4628220039E7A3DA6E2E5E96C22E006105B76D85A7FD1A1B9"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/component_production.py",
+        "sha256": "E179B8C39554EB8CA1BA8F32EE4797430502D77B1C66453635A282B3E49B647F"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/explanation_reuse.py",
+        "sha256": "DF04BB50191D7838A2A42D0CBD102CEA395DFBDD43131DBAE75BD932FA446204"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/external_retention.py",
+        "sha256": "AB8991ED556EF2BA4D5C93FACE39A3CD76A985D644B5580C82CC72657801E29E"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/generation.py",
+        "sha256": "8DEEA43D8592DA98E5A758288926E59AAAF2BF1757C1DDB8EFB5195BFA667D61"
+      },
+      {
+        "path": "src/vipragsent/orchestration/executors/q4.py",
+        "sha256": "19069C7B353F16EF4900886CDF38313A80372C18DC85914DEB55FF173704BC31"
+      },
+      {
+        "path": "src/vipragsent/orchestration/q1b_dependencies.py",
+        "sha256": "3E36FF9FC2AF52152CAB11A708EEC244FDE2776A4665CED3EF0EBE699D14DBB4"
+      },
+      {
+        "path": "src/vipragsent/orchestration/q1b_predictor.py",
+        "sha256": "14244D097A37DB05D0E89F47AEE9FC8C75D8352D095D79608E8BE44A260947FD"
+      },
+      {
+        "path": "src/vipragsent/runtime/__init__.py",
+        "sha256": "18AFA646C41533BE5725AE8DFF872E668F289C1DFF15AAC6E93984EA313F8359"
+      },
+      {
+        "path": "src/vipragsent/runtime/batch_probe.py",
+        "sha256": "4A80CA25B34660F408EFD42E24D706166AFEAD3FC1A7E3EAC6F1E2EE180F81B5"
+      },
+      {
+        "path": "src/vipragsent/runtime/device.py",
+        "sha256": "A692BD69E64141288BA442881AC71BF9272B47284F032E9ACA505CBE870CEB9C"
+      },
+      {
+        "path": "src/vipragsent/runtime/disk.py",
+        "sha256": "4C086ED637221062A5E5A39E094DFCDBE606D363275DBCE323209DCD543048A4"
+      },
+      {
+        "path": "src/vipragsent/runtime/hardware.py",
+        "sha256": "9AB31CB3D28A3F0FB7EE9A52E38B583570632B90FDDF0A02E018AF408E1E1075"
+      },
+      {
+        "path": "src/vipragsent/runtime/model_assets.py",
+        "sha256": "5A43F5968EFA851801D12BD1C96C4D7E691497E602D8014EFD300B47D633DF60"
+      },
+      {
+        "path": "src/vipragsent/runtime/model_smoke.py",
+        "sha256": "FDCDE3CB39E90A2262F6B144D90FCB62783BEE7FD2718C4B310F98732FC899FE"
+      },
+      {
+        "path": "src/vipragsent/training/__init__.py",
+        "sha256": "AC1934AF91C46696DE99BD7A580A19448BE103A2F4DDEBCEE8D3D65EE128CA3B"
+      },
+      {
+        "path": "src/vipragsent/training/checkpoints.py",
+        "sha256": "29E7A5A6E38731BD76B96EE77158D67D707D53A707EE60792E378584BE8FD68E"
+      },
+      {
+        "path": "src/vipragsent/training/class_weights.py",
+        "sha256": "9D107A8DD31718BC3A13A4E6D9A7E60F7F2EA3577EF4B00CF9425E915D081472"
+      },
+      {
+        "path": "src/vipragsent/training/config_resolver.py",
+        "sha256": "CAED0555502DF6D32E4E15AD23DD8AD8BE5A346133DA7824584CB6257E3CE299"
+      },
+      {
+        "path": "src/vipragsent/training/engine.py",
+        "sha256": "41FED6E41691AD6F95DBB19D8824B1CBD9035FC238EBB47EAEE706B74F698858"
+      },
+      {
+        "path": "src/vipragsent/training/optimizers.py",
+        "sha256": "CEB7842264E96FD0A0CEC024D9F430BD17A9DE2913AD4E9D496C7470C56D9965"
+      },
+      {
+        "path": "src/vipragsent/training/schedulers.py",
+        "sha256": "50C5636E3A0267C4DB6DAA319BD478E9448A6BF6A5C26676DF2A6E47673B3081"
+      },
+      {
+        "path": "src/vipragsent/training/seeding.py",
+        "sha256": "C152FC16C9C8FE0B3B7072C7F6902C4BFCCCE7E5FFAC27BA1D45AA650367F70B"
+      }
+    ],
+    "manifest_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953"
+  },
+  "evaluation_semantics_changed": false,
+  "frozen_data_changed": false,
+  "generation_protocol_changed": false,
+  "inventory_changed": false,
+  "labels_changed": false,
+  "model_training_code_changed": false,
+  "protected_source_manifest_changed": false,
+  "schema_version": 1,
+  "seeds_changed": false,
+  "status": "PASS",
+  "threshold_protocol_changed": false
+}

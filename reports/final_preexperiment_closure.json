@@ -1,6 +1,18 @@
 {
+  "CI_STATUS": "PASS",
+  "LOCAL_CODE_READINESS": "PASS",
+  "REAL_EXPERIMENT_READINESS": false,
+  "SERVER_RUNTIME_READINESS": "NOT_RUN",
+  "audited_code_commit": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "audited_source_manifest_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
   "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
-  "code_commit_at_audit": "487134bf0e1b0b3d5f3165f0e7a71785141d4c8d",
+  "branch_head_before_refresh": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "ci_conclusion": "success",
+  "ci_run_id": 31026573490,
+  "ci_run_number": 16,
+  "ci_status": "completed",
+  "ci_verified_head_sha": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "code_commit_at_audit": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
   "commands": [
     {
       "command": [
@@ -40,7 +52,7 @@
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "cy\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
+      "stdout_tail": "cy\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
     },
     {
       "command": [
@@ -54,7 +66,7 @@
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
+      "stdout_tail": "........................................................................ [ 46%]\n........................................................................ [ 93%]\n..........                                                               [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
     },
     {
       "command": [
@@ -64,7 +76,7 @@
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "_id\": \"explanation_only_vistral_reuse\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_full_vistral_source\",\n          \"validate_source_checkpoint\",\n          \"generate_dev_reasoning_from_rationale_decoder\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"generate_test_reasoning_from_rationale_decoder\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  },\n  \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\"\n}\n"
+      "stdout_tail": "_id\": \"explanation_only_vistral_reuse\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_full_vistral_source\",\n          \"validate_source_checkpoint\",\n          \"generate_dev_reasoning_from_rationale_decoder\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"generate_test_reasoning_from_rationale_decoder\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  },\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\"\n}\n"
     },
     {
       "command": [
@@ -84,7 +96,7 @@
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\"\n}\n"
+      "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\"\n}\n"
     },
     {
       "command": [
@@ -124,7 +136,7 @@
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "ready\\\": false,\\n  \\\"golden_aggregation\\\": {\\n    \\\"status\\\": \\\"PASS\\\",\\n    \\\"checks\\\": {\\n      \\\"ordinary_direct_bootstrap_match\\\": true,\\n      \\\"ordinary_macro_direct_bootstrap_match\\\": true,\\n      \\\"generation_direct_bootstrap_match\\\": true,\\n      \\\"generation_ci_is_numeric\\\": true,\\n      \\\"bounds_are_not_averaged\\\": true,\\n      \\\"locked_seed_count\\\": true\\n    },\\n    \\\"method\\\": {\\n      \\\"method_id\\\": \\\"paired_hierarchical_bootstrap_sign_plus_one_v1\\\",\\n      \\\"resampling_unit\\\": \\\"seed_then_test_example\\\",\\n      \\\"resamples\\\": 1000,\\n      \\\"bootstrap_seed\\\": 20260525,\\n      \\\"confidence_level\\\": 0.95,\\n      \\\"cross_seed_behavior\\\": \\\"hierarchical resampling; estimate and interval computed jointly, bounds are not averaged\\\",\\n      \\\"azure_fixed_prediction_behavior\\\": \\\"test-example resampling only\\\",\\n      \\\"prediction_source\\\": \\\"effective_full_split_all_zero_fallback_when_present_else_predictions\\\",\\n      \\\"valid_only_usage\\\": \\\"diagnostic_only\\\"\\n    },\\n    \\\"systems\\\": [\\n      \\\"ordinary\\\",\\n      \\\"cot_only_vistral\\\"\\n    ]\\n  }\\n}\\n\"\n                  },\n                  {\n                    \"command\": [\n                      \"git\",\n                      \"diff\",\n                      \"--check\"\n                    ],\n                    \"returncode\": 0,\n                    \"status\": \"PASS\",\n                    \"stderr_tail\": \"\",\n                    \"stdout_tail\": \"\"\n                  }\n                ],\n                \"name\": \"full CPU test and validation sequence\",\n                \"new_defects\": [],\n                \"status\": \"PASS\"\n              }\n            ],\n            \"status\": \"PASS\"\n          }\n        ],\n        \"consecutive_no_new_defect_sequences\": 2,\n        \"restart_required\": false,\n        \"source\": \"reports/luna_max_review_cycles.json\"\n      },\n      \"hygiene\": {\n        \"status\": \"PASS\",\n        \"forbidden_weight_or_secret_files\": [],\n        \"secret_pattern_matches\": [],\n        \"data_files_changed\": []\n      },\n      \"static\": {\n        \"status\": \"PASS\",\n        \"matches\": {\n          \"substring_system_dispatch\": [],\n          \"stale_azure_alias\": [],\n          \"automatic_next_run\": [],\n          \"global_full_dag\": [],\n          \"test_results_hardcoded_pass\": []\n        }\n      }\n    }\n  },\n  \"ci_status\": \"NOT_RUN\",\n  \"next_action\": \"Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.\"\n}\n"
+      "stdout_tail": "ime_status\": \"BLOCKED\",\n    \"runtime_blockers\": [\n      \"Phase 15 has not been executed on the target server\",\n      \"Model-family runtime assets are not prepared\",\n      \"GPU and Azure live integration have not been validated\",\n      \"No real approved production run exists\"\n    ],\n    \"scientific_protocol_conflicts\": [],\n    \"self_review\": {\n      \"consecutive_clean_cycles\": 2,\n      \"cycles\": 2,\n      \"no_new_defects\": true,\n      \"rounds_per_cycle\": 5,\n      \"status\": \"PASS\",\n      \"subagent_profile_verification\": \"NOT_VERIFIED; see manifest routing limitation\"\n    }\n  },\n  \"ci_status\": \"completed\",\n  \"next_action\": \"Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.\",\n  \"branch_head_before_refresh\": \"b34672abe50bde88fa0f1ef8fd745a66f15037c0\",\n  \"audited_code_commit\": \"b34672abe50bde88fa0f1ef8fd745a66f15037c0\",\n  \"audited_source_manifest_sha256\": \"FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953\",\n  \"report_generation_parent_sha\": \"b34672abe50bde88fa0f1ef8fd745a66f15037c0\",\n  \"ci_verified_head_sha\": \"b34672abe50bde88fa0f1ef8fd745a66f15037c0\",\n  \"ci_run_id\": 31026573490,\n  \"ci_run_number\": 16,\n  \"ci_conclusion\": \"success\",\n  \"report_only_commit_expected\": true,\n  \"CI_STATUS\": \"PASS\",\n  \"review_summary\": {\n    \"consecutive_clean_cycles\": 2,\n    \"cycles\": 2,\n    \"no_new_defects\": true,\n    \"rounds_per_cycle\": 5,\n    \"status\": \"PASS\",\n    \"subagent_profile_verification\": \"NOT_VERIFIED; see manifest routing limitation\"\n  },\n  \"LOCAL_CODE_READINESS\": \"PASS\",\n  \"SERVER_RUNTIME_READINESS\": \"NOT_RUN\",\n  \"REAL_EXPERIMENT_READINESS\": false,\n  \"code_commit_at_audit\": \"b34672abe50bde88fa0f1ef8fd745a66f15037c0\",\n  \"github_ci_status_at_report_generation\": \"success\",\n  \"scientific_protocol_conflicts\": [],\n  \"implementation_blockers\": [],\n  \"runtime_blockers\": [\n    \"Phase 15 has not been executed on the target server\",\n    \"Model-family runtime assets are not prepared\",\n    \"GPU and Azure live integration have not been validated\",\n    \"No real approved production run exists\"\n  ],\n  \"inventory_count\": 162,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\",\n  \"self_review_summary\": {\n    \"consecutive_clean_cycles\": 2,\n    \"cycles\": 2,\n    \"no_new_defects\": true,\n    \"rounds_per_cycle\": 5,\n    \"status\": \"PASS\",\n    \"subagent_profile_verification\": \"NOT_VERIFIED; see manifest routing limitation\"\n  }\n}\n"
     },
     {
       "command": [
@@ -134,7 +146,7 @@
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        },\n        {\n          \"round\": 22,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        },\n        {\n          \"round\": 23,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        },\n        {\n          \"round\": 24,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        },\n        {\n          \"round\": 25,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        }\n      ],\n      \"new_defects\": []\n    }\n  ]\n}\n"
+      "stdout_tail": "PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        },\n        {\n          \"round\": 22,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        },\n        {\n          \"round\": 23,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        },\n        {\n          \"round\": 24,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        },\n        {\n          \"round\": 25,\n          \"status\": \"PASS\",\n          \"findings\": [],\n          \"baseline_commit\": \"cb5cde04cd3e3c546d1b35711197a82b6d5bb254\",\n          \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\",\n          \"inventory_count\": 162,\n          \"prompt_status\": \"PASS\",\n          \"registry_status\": \"PASS\",\n          \"stage_plan_status\": \"PASS\",\n          \"frozen_hashes_unchanged\": true,\n          \"generation_protocol_resolved\": true\n        }\n      ],\n      \"new_defects\": []\n    }\n  ]\n}\n"
     },
     {
       "command": [
@@ -144,7 +156,7 @@
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "0260525,\\n  \\\"confidence_level\\\": 0.95,\\n  \\\"per_seed_behavior\\\": \\\"hierarchical seed-then-test-example resampling\\\",\\n  \\\"cross_seed_behavior\\\": \\\"compute the joint hierarchical interval; do not average interval bounds\\\",\\n  \\\"azure_fixed_prediction_behavior\\\": \\\"test-example resampling only\\\",\\n  \\\"source_references\\\": [\\n    \\\"configs/statistics/significance_method.yaml\\\",\\n    \\\"configs/statistics.yaml\\\"\\n  ],\\n  \\\"conflicts\\\": [],\\n  \\\"checks\\\": {\\n    \\\"approved_method_exact\\\": true,\\n    \\\"dedicated_evaluator\\\": true,\\n    \\\"per_label_and_macro\\\": true,\\n    \\\"prediction_hash_binding\\\": true,\\n    \\\"production_aggregator_uses_joint_evaluator\\\": true,\\n    \\\"no_mean_ci_fallback\\\": true,\\n    \\\"generation_ci_is_applicable\\\": true,\\n    \\\"no_unapproved_bound_averaging\\\": true,\\n    \\\"executable_golden_aggregation\\\": true\\n  },\\n  \\\"individual_q1a_ci_output\\\": \\\"metrics/test_confidence_intervals.json\\\",\\n  \\\"table2_aggregation_status\\\": \\\"READY_FOR_APPROVED_RUN_INPUTS\\\",\\n  \\\"final_aggregation_ready\\\": false,\\n  \\\"golden_aggregation\\\": {\\n    \\\"status\\\": \\\"PASS\\\",\\n    \\\"checks\\\": {\\n      \\\"ordinary_direct_bootstrap_match\\\": true,\\n      \\\"ordinary_macro_direct_bootstrap_match\\\": true,\\n      \\\"generation_direct_bootstrap_match\\\": true,\\n      \\\"generation_ci_is_numeric\\\": true,\\n      \\\"bounds_are_not_averaged\\\": true,\\n      \\\"locked_seed_count\\\": true\\n    },\\n    \\\"method\\\": {\\n      \\\"method_id\\\": \\\"paired_hierarchical_bootstrap_sign_plus_one_v1\\\",\\n      \\\"resampling_unit\\\": \\\"seed_then_test_example\\\",\\n      \\\"resamples\\\": 1000,\\n      \\\"bootstrap_seed\\\": 20260525,\\n      \\\"confidence_level\\\": 0.95,\\n      \\\"cross_seed_behavior\\\": \\\"hierarchical resampling; estimate and interval computed jointly, bounds are not averaged\\\",\\n      \\\"azure_fixed_prediction_behavior\\\": \\\"test-example resampling only\\\",\\n      \\\"prediction_source\\\": \\\"effective_full_split_all_zero_fallback_when_present_else_predictions\\\",\\n      \\\"valid_only_usage\\\": \\\"diagnostic_only\\\"\\n    },\\n    \\\"systems\\\": [\\n      \\\"ordinary\\\",\\n      \\\"cot_only_vistral\\\"\\n    ]\\n  }\\n}\\n\",\n      \"stderr_tail\": \"\"\n    },\n    {\n      \"command\": [\n        \"python\",\n        \"scripts/self_review_runtime_integration.py\"\n      ],\n      \"returncode\": 0,\n      \"status\": \"PASS\",\n      \"skipped\": true\n    }\n  ],\n  \"next_action\": \"Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.\"\n}\n"
+      "stdout_tail": "0.95,\\n      \\\"cross_seed_behavior\\\": \\\"hierarchical resampling; estimate and interval computed jointly, bounds are not averaged\\\",\\n      \\\"azure_fixed_prediction_behavior\\\": \\\"test-example resampling only\\\",\\n      \\\"prediction_source\\\": \\\"effective_full_split_all_zero_fallback_when_present_else_predictions\\\",\\n      \\\"valid_only_usage\\\": \\\"diagnostic_only\\\"\\n    },\\n    \\\"systems\\\": [\\n      \\\"ordinary\\\",\\n      \\\"cot_only_vistral\\\"\\n    ]\\n  }\\n}\\n\",\n      \"stderr_tail\": \"\"\n    },\n    {\n      \"command\": [\n        \"python\",\n        \"scripts/self_review_runtime_integration.py\"\n      ],\n      \"returncode\": 0,\n      \"status\": \"PASS\",\n      \"skipped\": true\n    }\n  ],\n  \"next_action\": \"Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.\",\n  \"branch_head_before_refresh\": \"b34672abe50bde88fa0f1ef8fd745a66f15037c0\",\n  \"audited_code_commit\": \"b34672abe50bde88fa0f1ef8fd745a66f15037c0\",\n  \"audited_source_manifest_sha256\": \"FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953\",\n  \"report_generation_parent_sha\": \"b34672abe50bde88fa0f1ef8fd745a66f15037c0\",\n  \"ci_verified_head_sha\": \"b34672abe50bde88fa0f1ef8fd745a66f15037c0\",\n  \"ci_run_id\": 31026573490,\n  \"ci_run_number\": 16,\n  \"ci_status\": \"completed\",\n  \"ci_conclusion\": \"success\",\n  \"report_only_commit_expected\": true,\n  \"review_summary\": {\n    \"consecutive_clean_cycles\": 2,\n    \"cycles\": 2,\n    \"no_new_defects\": true,\n    \"rounds_per_cycle\": 5,\n    \"status\": \"PASS\",\n    \"subagent_profile_verification\": \"NOT_VERIFIED; see manifest routing limitation\"\n  },\n  \"LOCAL_CODE_READINESS\": \"PASS\",\n  \"SERVER_RUNTIME_READINESS\": \"NOT_RUN\",\n  \"REAL_EXPERIMENT_READINESS\": false,\n  \"github_ci_status_at_report_generation\": \"success\",\n  \"scientific_protocol_conflicts\": [],\n  \"implementation_blockers\": [],\n  \"runtime_blockers\": [\n    \"Phase 15 has not been executed on the target server\",\n    \"Model-family runtime assets are not prepared\",\n    \"GPU and Azure live integration have not been validated\",\n    \"No real approved production run exists\"\n  ],\n  \"inventory_count\": 162,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\",\n  \"self_review_summary\": {\n    \"consecutive_clean_cycles\": 2,\n    \"cycles\": 2,\n    \"no_new_defects\": true,\n    \"rounds_per_cycle\": 5,\n    \"status\": \"PASS\",\n    \"subagent_profile_verification\": \"NOT_VERIFIED; see manifest routing limitation\"\n  }\n}\n"
     }
   ],
   "execution_safety": {
@@ -199,12 +211,42 @@
     "judge_prompt_sha256": "7A24FC5168BEEE0B6EA472C7F2D2CEDE95DF49C4631C8028EBBCB57238B17B19",
     "judge_schema_sha256": "FF7F4EE3DC82805942118D2E97A5AAE55C9AB1396C7A6412A296AA6880D376E3"
   },
-  "github_ci_status_at_report_generation": "NOT_RUN",
+  "github_ci_status_at_report_generation": "success",
   "implementation_blockers": [],
   "inventory_count": 162,
-  "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+  "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8",
   "local_validation_status": "PASS",
   "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
+  "readiness": {
+    "CI_STATUS": "completed",
+    "SETUP_CODE_READY": true,
+    "runtime_blockers": [
+      "Phase 15 has not been executed on the target server",
+      "Model-family runtime assets are not prepared",
+      "GPU and Azure live integration have not been validated",
+      "No real approved production run exists"
+    ],
+    "runtime_status": "BLOCKED",
+    "scientific_protocol_conflicts": [],
+    "self_review": {
+      "consecutive_clean_cycles": 2,
+      "cycles": 2,
+      "no_new_defects": true,
+      "rounds_per_cycle": 5,
+      "status": "PASS",
+      "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
+    }
+  },
+  "report_generation_parent_sha": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "report_only_commit_expected": true,
+  "review_summary": {
+    "consecutive_clean_cycles": 2,
+    "cycles": 2,
+    "no_new_defects": true,
+    "rounds_per_cycle": 5,
+    "status": "PASS",
+    "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
+  },
   "runtime_blockers": [
     "Phase 15 has not been executed on the target server",
     "Model-family runtime assets are not prepared",
@@ -214,6 +256,14 @@
   "schema_version": 1,
   "scientific_protocol_conflicts": [],
   "self_review": {
+    "canonical_summary": {
+      "consecutive_clean_cycles": 2,
+      "cycles": 2,
+      "no_new_defects": true,
+      "rounds_per_cycle": 5,
+      "status": "PASS",
+      "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
+    },
     "consecutive_clean_cycles": 2,
     "cycle_count": 2,
     "cycles": [
@@ -266,7 +316,7 @@
                 "returncode": 0,
                 "status": "PASS",
                 "stderr_tail": "",
-                "stdout_tail": "..................................                                       [100%]\n"
+                "stdout_tail": "...................................                                      [100%]\n"
               }
             ],
             "name": "cross-review",
@@ -357,7 +407,7 @@
                 "returncode": 0,
                 "status": "PASS",
                 "stderr_tail": "",
-                "stdout_tail": "........................................................................ [ 51%]\n...................................................................      [100%]\n"
+                "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n"
               },
               {
                 "command": [
@@ -477,7 +527,7 @@
                 "returncode": 0,
                 "status": "PASS",
                 "stderr_tail": "",
-                "stdout_tail": "..................................                                       [100%]\n"
+                "stdout_tail": "...................................                                      [100%]\n"
               }
             ],
             "name": "cross-review",
@@ -568,7 +618,7 @@
                 "returncode": 0,
                 "status": "PASS",
                 "stderr_tail": "",
-                "stdout_tail": "........................................................................ [ 51%]\n...................................................................      [100%]\n"
+                "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n"
               },
               {
                 "command": [
@@ -662,6 +712,14 @@
     "starting_sha": "403a856f81c00d43dfff39c35af828cf318079d3",
     "status": "PASS",
     "subagent_profile_manifest": "reports/luna_max_subagent_manifest.json"
+  },
+  "self_review_summary": {
+    "consecutive_clean_cycles": 2,
+    "cycles": 2,
+    "no_new_defects": true,
+    "rounds_per_cycle": 5,
+    "status": "PASS",
+    "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
   },
   "starting_baseline_verified": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
   "state": {

@@ -1,12 +1,12 @@
 {
   "EXPERIMENT_REPOSITORY_READY": false,
   "blockers": [
-    "Model weights have not passed Phase 15 offline verification",
+    "Every model family must pass cache, actual offline smoke, and frozen physical-batch verification",
     "A100 20 GB or an A100 MIG profile is not available",
     "Java 17 LTS is required for VnCoreNLP",
     "PEFT is not installed for QLoRA",
     "bitsandbytes is not installed for NF4 QLoRA",
-    "Phase 15 model/tokenizer smoke report is missing",
+    "Phase 15 actual per-family model/tokenizer smoke reports are missing or incomplete",
     "complete Phase 16 production manifest is not present"
   ],
   "deferred_server_requirements": [
@@ -34,10 +34,10 @@
     "backbone_sensitivity": 6
   },
   "final_checksums": {
-    "file_count": 351,
+    "file_count": 426,
     "path": "FINAL_CHECKSUMS.sha256",
     "self_excluded": true,
-    "sha256": "430B6ECA6DC65D9346B67074E3400AA2D1B7217E3FCE7B01338EA76B709C662C",
+    "sha256": "0BDA7C0217BB206D7C5E649CF1E00133FEE22BB57A096912BFE21905F4C0CDFA",
     "stable_posix_paths": true
   },
   "fixture_artifacts_valid": true,
@@ -80,12 +80,12 @@
   },
   "full_preflight": {
     "blockers": [
-      "Model weights have not passed Phase 15 offline verification",
+      "Every model family must pass cache, actual offline smoke, and frozen physical-batch verification",
       "A100 20 GB or an A100 MIG profile is not available",
       "Java 17 LTS is required for VnCoreNLP",
       "PEFT is not installed for QLoRA",
       "bitsandbytes is not installed for NF4 QLoRA",
-      "Phase 15 model/tokenizer smoke report is missing"
+      "Phase 15 actual per-family model/tokenizer smoke reports are missing or incomplete"
     ],
     "checks": {
       "active_rationale_manifest_sanitized": true,
@@ -100,7 +100,9 @@
       "external_manifest": true,
       "external_official_tests": true,
       "external_provenance_complete": true,
+      "hardware_runtime_exact": false,
       "java_17": false,
+      "model_family_statuses": false,
       "model_revisions_pinned": true,
       "model_smoke_report": false,
       "model_weights_verified": false,

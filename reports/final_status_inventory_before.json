@@ -1,0 +1,182 @@
+{
+  "authored_baseline": "fc4779e5f6cb217136288015a6aee2fc311d12bd",
+  "baseline_relation": "HEAD equals authored baseline; no later commits were present",
+  "branch": "codex/phase-14-5-production-repair",
+  "execution_mode": "SINGLE_AGENT",
+  "protected_scope_observation": {
+    "implementation_blockers": [],
+    "inventory_rows": 162,
+    "protected_paths_inspected": true,
+    "protected_paths_require_code_change": false,
+    "protected_source_file_count": 109,
+    "protected_source_manifest_basis": "untouched task-start worktree manifest; canonical LF bytes; ignored UIT fixtures included",
+    "protected_source_manifest_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
+    "scientific_conflicts": [],
+    "stop_condition_triggered": false
+  },
+  "read_only_commands": [
+    "git fetch origin",
+    "git checkout codex/phase-14-5-production-repair",
+    "git pull --ff-only origin codex/phase-14-5-production-repair",
+    "git branch --show-current",
+    "git rev-parse HEAD",
+    "git status --short",
+    "git log -20 --oneline",
+    "git merge-base main HEAD",
+    "rg stale metadata scan",
+    "structured report and state inspection"
+  ],
+  "recommended_order": [
+    "repair generators and add canonical snapshot",
+    "add executable consistency audit and tests",
+    "add CPU CI consistency steps",
+    "run local validation",
+    "commit code evidence",
+    "push and verify exact code-evidence CI",
+    "generate CI evidence and report-only snapshot",
+    "regenerate checksums",
+    "commit report-only evidence",
+    "push and verify exact final-report CI"
+  ],
+  "repository": "hieukendu/vipragsent",
+  "schema_version": 1,
+  "stale_or_suspicious_fields": [
+    {
+      "authoritative_source": "GitHub cpu-ci run 31020452807 for head fc4779e5f6cb217136288015a6aee2fc311d12bd",
+      "classification": "STALE_CURRENT_STATUS",
+      "current_value": "NOT_RUN",
+      "expected_value": "completed/success exact-SHA evidence in reports/ci_verification.json",
+      "field": "CI_STATUS",
+      "file": "reports/final_runtime_integration_audit.json",
+      "recommended_action": "derive from canonical snapshot and exact CI evidence"
+    },
+    {
+      "authoritative_source": "current branch HEAD and two-commit provenance strategy",
+      "classification": "STALE_CURRENT_STATUS",
+      "current_value": "487134bf0e1b0b3d5f3165f0e7a71785141d4c8d",
+      "expected_value": "audited_code_commit explicitly labeled after the code-evidence commit",
+      "field": "code_commit_at_audit",
+      "file": "reports/final_runtime_integration_audit.json",
+      "recommended_action": "replace ambiguous field semantics with audited_code_commit/report_generation_parent_sha"
+    },
+    {
+      "authoritative_source": "reports/luna_max_review_cycles.json and reports/ci_verification.json",
+      "classification": "STALE_CURRENT_STATUS",
+      "current_value": "NOT_RUN; 0 rounds x 0 sequences; consecutive clean sequences 0",
+      "expected_value": "CI completed/success; 2 cycles x 5 rounds; 2 consecutive clean cycles",
+      "field": "CI status and self-review summary",
+      "file": "reports/final_runtime_integration_audit.md",
+      "recommended_action": "generate Markdown from canonical JSON snapshot"
+    },
+    {
+      "authoritative_source": "two-commit provenance strategy",
+      "classification": "STALE_CURRENT_STATUS",
+      "current_value": "487134bf0e1b0b3d5f3165f0e7a71785141d4c8d",
+      "expected_value": "audited_code_commit explicitly labeled after the code-evidence commit",
+      "field": "code_commit_at_audit",
+      "file": "reports/final_preexperiment_closure.json",
+      "recommended_action": "derive provenance fields from canonical snapshot"
+    },
+    {
+      "authoritative_source": "reports/ci_verification.json",
+      "classification": "STALE_CURRENT_STATUS",
+      "current_value": "NOT_RUN",
+      "expected_value": "completed/success for exact audited code SHA",
+      "field": "github_ci_status_at_report_generation",
+      "file": "reports/final_preexperiment_closure.json",
+      "recommended_action": "derive from canonical snapshot"
+    },
+    {
+      "authoritative_source": "reports/luna_max_review_cycles.json",
+      "classification": "STALE_CURRENT_STATUS",
+      "current_value": "0 rounds x 0 sequences; consecutive clean sequences 0",
+      "expected_value": "2 cycles x 5 rounds; consecutive clean cycles 2",
+      "field": "self-review summary",
+      "file": "reports/final_preexperiment_closure.md",
+      "recommended_action": "generate Markdown from canonical JSON snapshot"
+    },
+    {
+      "authoritative_source": "reports/ci_verification.json",
+      "classification": "STALE_CURRENT_STATUS",
+      "current_value": "NOT_RUN",
+      "expected_value": "exact-SHA completed/success evidence",
+      "field": "ci_status",
+      "file": "reports/final_production_correctness_repair.json and .md",
+      "recommended_action": "make the report consume the shared readiness snapshot when present"
+    },
+    {
+      "authoritative_source": "existing historical repair evidence",
+      "classification": "VALID_CURRENT_EVIDENCE",
+      "current_value": "PASS; cycle_count 2; rounds_per_cycle 5; consecutive_clean_cycles 2; profile NOT_VERIFIED",
+      "expected_value": "preserve exactly, including NOT_VERIFIED",
+      "field": "review evidence",
+      "file": "reports/luna_max_review_cycles.json",
+      "recommended_action": "consume without changing historical profile verification"
+    },
+    {
+      "authoritative_source": "prompt Section 2 and Section 18",
+      "classification": "VALID_CURRENT_STATE",
+      "current_value": "matches locked expected state",
+      "expected_value": "unchanged",
+      "field": "readiness, blockers, policy, counts",
+      "file": "PROJECT_STATE.json and SETUP_READY.md",
+      "recommended_action": "cross-validate and preserve"
+    },
+    {
+      "authoritative_source": "prompt Section 10",
+      "classification": "MISSING_REQUIRED_CHECK",
+      "current_value": "missing",
+      "expected_value": "consistency audit and focused test after existing steps",
+      "field": "final readiness consistency checks",
+      "file": ".github/workflows/cpu-ci.yml",
+      "recommended_action": "add only the two requested CPU-only steps"
+    },
+    {
+      "authoritative_source": "GitHub exact-SHA workflow evidence",
+      "classification": "MISSING_REQUIRED_ARTIFACT",
+      "current_value": "missing",
+      "expected_value": "minimum schema with run id, run number, head SHA, status and conclusion",
+      "field": "artifact",
+      "file": "reports/ci_verification.json",
+      "recommended_action": "create after code-evidence CI succeeds"
+    },
+    {
+      "authoritative_source": "prompt Sections 8, 10 and 17",
+      "classification": "MISSING_REQUIRED_ARTIFACT",
+      "current_value": "missing",
+      "expected_value": "canonical structured snapshot, generated Markdown and executable audit",
+      "field": "artifacts",
+      "file": "reports/final_readiness_snapshot.json/.md and consistency reports",
+      "recommended_action": "implement in report-only cleanup"
+    },
+    {
+      "authoritative_source": "prompt Sections 9, 12 and 17",
+      "classification": "STALE_METADATA",
+      "current_value": "does not include the new cleanup artifacts",
+      "expected_value": "regenerated after report-only commit",
+      "field": "cleanup evidence entries",
+      "file": "SETUP_CHECKSUMS.sha256 and FINAL_CHECKSUMS.sha256",
+      "recommended_action": "update only in Commit B"
+    },
+    {
+      "authoritative_source": "frozen protocol audit baselines and Luna review start state",
+      "classification": "HISTORICAL_BASELINE",
+      "current_value": "historical baseline values",
+      "expected_value": "remain when clearly labeled historical",
+      "field": "baseline/start SHA references",
+      "file": "scripts and historical reports containing cb5cde... or 403a856...",
+      "recommended_action": "retain; consistency audit must reject only unlabeled current use"
+    },
+    {
+      "authoritative_source": "the report generation event recorded in each artifact",
+      "classification": "VALID_AUDITED_CODE_SHA",
+      "current_value": "old audited code SHA, explicitly labeled",
+      "expected_value": "may remain historical unless surfaced as current readiness state",
+      "field": "code_commit_at_audit",
+      "file": "reports/*_audit.json containing 487134...",
+      "recommended_action": "classify in stale scan; do not blindly replace"
+    }
+  ],
+  "starting_head": "fc4779e5f6cb217136288015a6aee2fc311d12bd",
+  "subagents_called": false
+}
