@@ -17,13 +17,22 @@ def build_qlora_backbone(
     selected_device: torch.device | str | int | None = None,
     transformers_module: Any | None = None,
     peft_module: Any | None = None,
+    task_type: str = "FEATURE_EXTRACTION",
 ) -> nn.Module:
-    """Construct a 4-bit NF4 base transformer with trainable LoRA adapters."""
+    """Construct a 4-bit NF4 base transformer with trainable LoRA adapters.
+
+    The feature-extraction and causal-LM paths are intentionally explicit: the
+    classifier systems keep their encoder-style base while the CoT system gets
+    native token logits and ``generate`` support.
+    """
+    task_type = str(task_type).upper()
+    if task_type not in {"FEATURE_EXTRACTION", "CAUSAL_LM"}:
+        raise ValueError(f"unsupported QLoRA task type: {task_type}")
     try:
         transformers = transformers_module or __import__("transformers")
         peft = peft_module or __import__("peft")
         BitsAndBytesConfig = transformers.BitsAndBytesConfig
-        AutoModel = transformers.AutoModel
+        loader = transformers.AutoModelForCausalLM if task_type == "CAUSAL_LM" else transformers.AutoModel
         LoraConfig = peft.LoraConfig
         get_peft_model = peft.get_peft_model
         prepare_model_for_kbit_training = peft.prepare_model_for_kbit_training
@@ -41,7 +50,7 @@ def build_qlora_backbone(
             device_map: dict[str, Any] = {"": int(device.index or 0)}
         else:
             device_map = {"": str(device)}
-        model = AutoModel.from_pretrained(
+        model = loader.from_pretrained(
             local_path or repo_id,
             revision=revision,
             quantization_config=quantization_config,
@@ -52,19 +61,25 @@ def build_qlora_backbone(
         )
         model.config.use_cache = False
         model = prepare_model_for_kbit_training(model)
+        peft_task_type: Any = task_type
+        task_type_enum = getattr(peft, "TaskType", None)
+        if task_type_enum is not None:
+            peft_task_type = getattr(task_type_enum, task_type, task_type)
         lora_config = LoraConfig(
             r=16,
             lora_alpha=32,
             lora_dropout=0.05,
             target_modules=["q_proj", "k_proj", "v_proj", "o_proj"],
             bias="none",
-            task_type="FEATURE_EXTRACTION",
+            task_type=peft_task_type,
         )
         model = get_peft_model(model, lora_config)
         if hasattr(model, "gradient_checkpointing_enable"):
             model.gradient_checkpointing_enable()
         if hasattr(model, "config"):
             model.config.gradient_checkpointing = True
+        if task_type == "CAUSAL_LM" and not callable(getattr(model, "generate", None)):
+            raise RuntimeBlocked("causal-LM QLoRA model does not expose generate()")
     except Exception as exc:
         if isinstance(exc, RuntimeBlocked):
             raise
@@ -84,6 +99,7 @@ def build_qlora_backbone(
         "gradient_checkpointing": True,
         "selected_device": str(device),
         "device_map": device_map,
+        "task_type": task_type,
     }
     model._vipragsent_quantized = True
     return model

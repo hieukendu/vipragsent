@@ -47,6 +47,7 @@ from .executors.explanation_reuse import (
 )
 from .executors.external_retention import evaluate_external_retention_from_disk
 from .executors.generation import (
+    GenerationCheckpointError,
     ReasoningGenerationExecutor,
     _encode_text,
     build_cot_training_records,
@@ -710,7 +711,17 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
     model, runtime_spec = build_production_model(family, "cot_only_vistral", local_snapshot=snapshot, execution_mode="production")
     tokenizer = create_tokenizer(family, revision=runtime_spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
     judge = ReasoningJudge(context.root, cache_root=Path(context.run_root) / "judge/cache", require_deployment_manifest=True)
-    executor = ReasoningGenerationExecutor(context.root, model=model, tokenizer=tokenizer, judge=judge, run_root=context.run_root, seed=entry.seed)
+    config_snapshot = Path(context.run_root) / "config_snapshot.yaml"
+    executor = ReasoningGenerationExecutor(
+        context.root,
+        model=model,
+        tokenizer=tokenizer,
+        judge=judge,
+        run_root=context.run_root,
+        seed=entry.seed,
+        config_hash=sha256_file(config_snapshot) if config_snapshot.exists() else "NOT_PROVIDED",
+        data_hash=str(context.metadata.get("data_hash", "NOT_PROVIDED")),
+    )
     bundle = load_vipragsent(context.root / "data/processed/vipragsent")
     prompt = (context.root / str(executor.protocol["generation_prompt_path"])).read_text(encoding="utf-8")
     if stage == "train_generation":
@@ -729,31 +740,38 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
             gold_dev = {str(row["sample_id"]): row["gold"] for row in dev_records}
             dev_predictions, _ = executor.judge_reasoning_split("dev", generated_dev, gold_dev)
             dev_metrics = executor.compute_split_metrics("dev", dev_predictions)
-            epoch_checkpoint = executor.write_checkpoint(f"checkpoints/epoch_{epoch}/model.pt")
+            epoch_checkpoint = executor.write_checkpoint(f"checkpoints/epoch_{epoch}/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=epoch, selection_metric=float(dev_metrics["primary_macro_f1"]))
             history[-1]["dev_primary_macro_f1"] = float(dev_metrics["primary_macro_f1"])
             if float(dev_metrics["primary_macro_f1"]) > best_metric:
                 best_metric = float(dev_metrics["primary_macro_f1"])
                 best_epoch = epoch
-                best_hash = executor.write_checkpoint("checkpoints/best/model.pt")
+                best_hash = executor.write_checkpoint("checkpoints/best/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=epoch, selection_metric=best_metric)
             atomic_write_json(Path(context.run_root) / f"metrics/dev_reasoning_metrics_epoch_{epoch}.json", dev_metrics | {"checkpoint_sha256": epoch_checkpoint})
         best_checkpoint = Path(context.run_root) / "checkpoints/best/model.pt"
-        best_state = torch.load(best_checkpoint, map_location="cpu")
-        if isinstance(best_state, Mapping) and isinstance(best_state.get("model_state_dict"), Mapping):
-            model.load_state_dict(best_state["model_state_dict"], strict=False)
-        executor.write_checkpoint("checkpoints/latest/model.pt")
+        try:
+            executor.load_checkpoint(best_checkpoint, expected_sha256=best_hash)
+        except GenerationCheckpointError as exc:
+            return StageOutcome.blocked(str(exc))
+        executor.write_checkpoint("checkpoints/latest/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=best_epoch, selection_metric=best_metric)
         atomic_write_json(Path(context.run_root) / "training/history.json", history)
         atomic_write_text(Path(context.run_root) / "training/history.csv", "epoch,train_loss,optimizer_steps,dev_primary_macro_f1\n" + "\n".join(f"{row.get('epoch')},{row.get('train_loss')},{row.get('optimizer_steps')},{row.get('dev_primary_macro_f1', '')}" for row in history) + "\n")
-        digest = sha256_file(best_checkpoint)
-        atomic_write_json(Path(context.run_root) / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "best": "checkpoints/best/model.pt", "latest": "checkpoints/latest/model.pt", "checkpoint_sha256": digest, "rationale_source": source_report, "generation_prompt_hash": executor.protocol["generation_prompt_hash"], "executor_kind": "generation_trainable", "best_epoch": best_epoch, "selection_metric": best_metric})
-        atomic_write_json(Path(context.run_root) / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_sha256": best_hash})
+        manifest = executor.write_checkpoint_manifest(best_epoch=best_epoch, selection_metric=best_metric, rationale_source_hash=str(source_report.get("source_sha256", "NOT_PROVIDED")))
+        atomic_write_json(Path(context.run_root) / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": best_hash, "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_sha256": best_hash})
         atomic_write_json(Path(context.run_root) / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "best_epoch": best_epoch})
         atomic_write_json(Path(context.run_root) / "selection/thresholds.json", {"status": "NOT_APPLICABLE", "reason": "reasoning judge emits strict binary labels; no dev threshold tuning"})
         atomic_write_json(Path(context.run_root) / "training/optimizer_summary.json", optimizer_summary | {"executor_kind": "generation_trainable", "classifier_heads": 0})
         atomic_write_json(Path(context.run_root) / "training/scheduler_summary.json", scheduler_summary | {"executor_kind": "generation_trainable"})
         atomic_write_json(Path(context.run_root) / "training/resource_usage.json", {"successful_gpu_hours": 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": 0.0, "synthetic_results": False})
-        return StageOutcome.passed(summary={"history": history, "rationale_source": source_report, "best_epoch": best_epoch, "best_dev_metric": best_metric}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"))
+        return StageOutcome.passed(summary={"history": history, "rationale_source": source_report, "best_epoch": best_epoch, "best_dev_metric": best_metric, "checkpoint_manifest": manifest}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "checkpoints/load_report.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"))
     if stage in {"generate_dev_reasoning", "generate_test_reasoning"}:
         split = "dev" if stage.startswith("generate_dev") else "test"
+        try:
+            if split == "test":
+                executor.load_frozen_checkpoint()
+            else:
+                executor.load_selected_checkpoint()
+        except GenerationCheckpointError as exc:
+            return StageOutcome.blocked(str(exc))
         rows = _production_reasoning_records(context.root, tokenizer, getattr(bundle, split), prompt)
         generated = executor.generate_reasoning_split(split, rows)
         return StageOutcome.passed(summary={"split": split, "generation_count": len(generated), "decoding": executor.protocol["decoding"]}, expected_files=(f"reasoning/{split}_reasoning.jsonl",))

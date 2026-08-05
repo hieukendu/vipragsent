@@ -24,6 +24,13 @@ class GenerationProtocolConflict(RuntimeError):
     pass
 
 
+class GenerationCheckpointError(RuntimeError):
+    """Raised when a generation checkpoint cannot be trusted or loaded."""
+
+
+GENERATION_CHECKPOINT_SCHEMA_VERSION = 2
+
+
 def teacher_forced_generation_loss(model: torch.nn.Module, input_ids: torch.Tensor, target_ids: torch.Tensor, *, target_mask: torch.Tensor | None = None) -> torch.Tensor:
     """Compute causal token CE from model logits without a classifier fallback."""
     if input_ids.ndim != 2 or target_ids.ndim != 2:
@@ -241,6 +248,8 @@ class ReasoningGenerationExecutor:
         judge: ReasoningJudge,
         run_root: str | Path | None = None,
         seed: int | str | None = None,
+        config_hash: str = "NOT_PROVIDED",
+        data_hash: str = "NOT_PROVIDED",
     ) -> None:
         self.root = Path(root)
         self.run_root = Path(run_root) if run_root is not None else self.root
@@ -248,6 +257,8 @@ class ReasoningGenerationExecutor:
         self.tokenizer = tokenizer
         self.judge = judge
         self.seed = seed
+        self.config_hash = config_hash
+        self.data_hash = data_hash
         self.protocol = load_reasoning_protocol(self.root)
         validation = validate_reasoning_protocol_files(self.root)
         if validation["status"] != "PASS":
@@ -372,11 +383,172 @@ class ReasoningGenerationExecutor:
         atomic_write_text(self.run_root / "training/history.csv", "epoch,train_loss,optimizer_steps\n" + "\n".join(f"{row['epoch']},{row['train_loss']},{row['optimizer_steps']}" for row in history) + "\n")
         return history
 
-    def write_checkpoint(self, relative_path: str = "checkpoints/latest/model.pt") -> str:
+    def write_checkpoint(
+        self,
+        relative_path: str = "checkpoints/latest/model.pt",
+        *,
+        optimizer: torch.optim.Optimizer | None = None,
+        scheduler: Any | None = None,
+        epoch: int | None = None,
+        selection_metric: float | None = None,
+        metadata: Mapping[str, Any] | None = None,
+    ) -> str:
+        """Write the canonical v2 generation checkpoint payload."""
         path = self.run_root / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
-        torch.save({"model_state_dict": self.model.state_dict(), "executor_kind": "generation_trainable", "seed": self.seed}, path)
+        payload = {
+            "schema_version": GENERATION_CHECKPOINT_SCHEMA_VERSION,
+            "model_state_dict": dict(self.model.state_dict()),
+            "optimizer_state_dict": optimizer.state_dict() if optimizer is not None else {},
+            "scheduler_state_dict": scheduler.state_dict() if scheduler is not None and hasattr(scheduler, "state_dict") else {},
+            "loss_aggregator_state_dict": {},
+            "run_state": {"epoch": epoch, "selection_metric": selection_metric},
+            "rng_state": {"torch": torch.get_rng_state()},
+            "metadata": {
+                "executor_kind": "generation_trainable",
+                "seed": self.seed,
+                "generation_protocol_id": self.protocol["protocol_version"],
+                "generation_prompt_hash": self.protocol["generation_prompt_hash"],
+                "config_hash": self.config_hash,
+                "data_hash": self.data_hash,
+                **dict(metadata or {}),
+            },
+        }
+        torch.save(payload, path)
         return sha256_file(path)
+
+    def _write_checkpoint_load_report(self, report: Mapping[str, Any]) -> None:
+        atomic_write_json(self.run_root / "checkpoints/load_report.json", dict(report))
+
+    def load_checkpoint(
+        self,
+        path: str | Path,
+        *,
+        expected_sha256: str | None = None,
+        allow_legacy_fixture: bool = False,
+    ) -> dict[str, Any]:
+        """Load a v2 checkpoint and reject silent or total key mismatches."""
+        checkpoint_path = Path(path)
+        if not checkpoint_path.is_absolute():
+            checkpoint_path = self.run_root / checkpoint_path
+        if not checkpoint_path.exists():
+            raise GenerationCheckpointError(f"generation checkpoint is missing: {checkpoint_path}")
+        observed_hash = sha256_file(checkpoint_path)
+        if expected_sha256 and observed_hash != str(expected_sha256):
+            raise GenerationCheckpointError(
+                f"generation checkpoint hash mismatch: expected {expected_sha256}, observed {observed_hash}"
+            )
+        try:
+            payload = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+        except TypeError:
+            payload = torch.load(checkpoint_path, map_location="cpu")
+        if not isinstance(payload, Mapping):
+            raise GenerationCheckpointError("generation checkpoint payload is not a mapping")
+        schema_version = payload.get("schema_version")
+        legacy_migration = False
+        if schema_version == GENERATION_CHECKPOINT_SCHEMA_VERSION:
+            state = payload.get("model_state_dict")
+        elif allow_legacy_fixture and schema_version in (None, 1):
+            state = payload.get("model_state_dict") or payload.get("model")
+            legacy_migration = True
+        else:
+            raise GenerationCheckpointError(
+                f"unsupported generation checkpoint schema: {schema_version!r}; production requires schema 2"
+            )
+        if not isinstance(state, Mapping) or not state:
+            raise GenerationCheckpointError("generation checkpoint has no model state")
+        state = dict(state)
+        model_keys = set(self.model.state_dict())
+        state_keys = set(state)
+        matched = model_keys & state_keys
+        missing = sorted(model_keys - state_keys)
+        unexpected = sorted(state_keys - model_keys)
+        match_ratio = len(matched) / len(model_keys) if model_keys else 0.0
+        report = {
+            "status": "PASS" if not missing and not unexpected and matched else "FAIL",
+            "schema_version": schema_version if schema_version is not None else 1,
+            "legacy_fixture_migration": legacy_migration,
+            "path": str(checkpoint_path),
+            "checkpoint_sha256": observed_hash,
+            "matched_count": len(matched),
+            "missing_count": len(missing),
+            "unexpected_count": len(unexpected),
+            "match_ratio": match_ratio,
+            "missing_keys": missing,
+            "unexpected_keys": unexpected,
+        }
+        self._write_checkpoint_load_report(report)
+        if not matched:
+            raise GenerationCheckpointError("generation checkpoint has no matching model parameters")
+        if missing or unexpected:
+            raise GenerationCheckpointError(
+                f"generation checkpoint key mismatch: missing={missing}, unexpected={unexpected}"
+            )
+        try:
+            self.model.load_state_dict(state, strict=True)
+        except (RuntimeError, ValueError) as exc:
+            raise GenerationCheckpointError(f"generation checkpoint failed strict load: {exc}") from exc
+        return report
+
+    def load_epoch_checkpoint(self, epoch: int, *, expected_sha256: str | None = None) -> dict[str, Any]:
+        return self.load_checkpoint(f"checkpoints/epoch_{int(epoch)}/model.pt", expected_sha256=expected_sha256)
+
+    def load_selected_checkpoint(self) -> dict[str, Any]:
+        selection_path = self.run_root / "selection/best_checkpoint.json"
+        if not selection_path.exists():
+            raise GenerationCheckpointError("selected generation checkpoint manifest is missing")
+        selection = json.loads(selection_path.read_text(encoding="utf-8"))
+        checkpoint_name = selection.get("path") or selection.get("checkpoint_path")
+        expected_hash = selection.get("sha256") or selection.get("checkpoint_sha256")
+        if not checkpoint_name:
+            raise GenerationCheckpointError("selected generation checkpoint path is missing")
+        return self.load_checkpoint(checkpoint_name, expected_sha256=expected_hash)
+
+    def load_frozen_checkpoint(self) -> dict[str, Any]:
+        freeze_path = self.run_root / "selection/freeze_manifest.json"
+        if not freeze_path.exists():
+            raise GenerationCheckpointError("generation test execution requires a selection freeze manifest")
+        freeze = json.loads(freeze_path.read_text(encoding="utf-8"))
+        if freeze.get("frozen") is not True:
+            raise GenerationCheckpointError("generation selection freeze manifest is not frozen")
+        checkpoint = freeze.get("checkpoint") if isinstance(freeze.get("checkpoint"), Mapping) else freeze
+        checkpoint_name = checkpoint.get("path") or checkpoint.get("checkpoint_path")
+        expected_hash = checkpoint.get("sha256") or checkpoint.get("checkpoint_sha256")
+        if not checkpoint_name or not expected_hash:
+            raise GenerationCheckpointError("frozen generation checkpoint path and hash are required")
+        return self.load_checkpoint(checkpoint_name, expected_sha256=expected_hash)
+
+    def write_checkpoint_manifest(
+        self,
+        *,
+        best_path: str = "checkpoints/best/model.pt",
+        latest_path: str = "checkpoints/latest/model.pt",
+        best_epoch: int,
+        selection_metric: float,
+        rationale_source_hash: str = "NOT_PROVIDED",
+    ) -> dict[str, Any]:
+        best = self.run_root / best_path
+        latest = self.run_root / latest_path
+        if not best.exists() or not latest.exists():
+            raise GenerationCheckpointError("generation checkpoint manifest requires best and latest checkpoints")
+        manifest = {
+            "status": "PASS",
+            "schema_version": GENERATION_CHECKPOINT_SCHEMA_VERSION,
+            "executor_kind": "generation_trainable",
+            "best": best_path.replace("\\", "/"),
+            "latest": latest_path.replace("\\", "/"),
+            "best_checkpoint_sha256": sha256_file(best),
+            "latest_checkpoint_sha256": sha256_file(latest),
+            "checkpoint_sha256": sha256_file(best),
+            "best_epoch": int(best_epoch),
+            "selection_metric": float(selection_metric),
+            "generation_prompt_hash": self.protocol["generation_prompt_hash"],
+            "config_hash": self.config_hash,
+            "data_hash": self.data_hash,
+            "rationale_source_hash": rationale_source_hash,
+        }
+        atomic_write_json(self.run_root / "checkpoints/checkpoint_manifest.json", manifest)
+        return manifest
 
     def run_cot(self, *, train_records: Iterable[Mapping[str, Any]], dev_records: Iterable[Mapping[str, Any]], test_records: Iterable[Mapping[str, Any]], optimizer: torch.optim.Optimizer, epochs: int = 1) -> dict[str, Any]:
         train_rows = list(train_records)
@@ -394,19 +566,23 @@ class ReasoningGenerationExecutor:
             generated_dev = self.generate_reasoning_split("dev", dev_rows)
             dev_predictions, _ = self.judge_reasoning_split("dev", generated_dev, gold_dev)
             dev_metrics = self.compute_split_metrics("dev", dev_predictions)
-            checkpoint_hash = self.write_checkpoint(f"checkpoints/epoch_{epoch}/model.pt")
+            checkpoint_hash = self.write_checkpoint(f"checkpoints/epoch_{epoch}/model.pt", optimizer=optimizer, epoch=epoch, selection_metric=float(dev_metrics["primary_macro_f1"]))
             if float(dev_metrics["primary_macro_f1"]) > best_metric:
                 best_metric = float(dev_metrics["primary_macro_f1"])
                 best_epoch = epoch
                 best_hash = checkpoint_hash
-                self.write_checkpoint("checkpoints/best/model.pt")
+                self.write_checkpoint("checkpoints/best/model.pt", optimizer=optimizer, epoch=epoch, selection_metric=best_metric)
             atomic_write_json(self.run_root / f"metrics/dev_reasoning_metrics_epoch_{epoch}.json", dev_metrics)
         atomic_write_json(self.run_root / "training/history.json", all_history)
         atomic_write_json(self.run_root / "selection/best_checkpoint.json", {"status": "PASS", "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_path": "checkpoints/best/model.pt", "checkpoint_sha256": best_hash})
+        self.load_checkpoint("checkpoints/best/model.pt", expected_sha256=best_hash)
+        latest_hash = self.write_checkpoint("checkpoints/latest/model.pt", optimizer=optimizer, epoch=best_epoch, selection_metric=best_metric)
+        manifest = self.write_checkpoint_manifest(best_epoch=best_epoch, selection_metric=best_metric)
+        atomic_write_json(self.run_root / "selection/freeze_manifest.json", {"frozen": True, "checkpoint": {"path": "checkpoints/best/model.pt", "sha256": best_hash}, "best_epoch": best_epoch, "selection_metric": best_metric, "test_access": False, "checkpoint_manifest_sha256": sha256_file(self.run_root / "checkpoints/checkpoint_manifest.json")})
         generated_test = self.generate_reasoning_split("test", test_rows)
         test_predictions, _ = self.judge_reasoning_split("test", generated_test, gold_test)
         test_metrics = self.compute_split_metrics("test", test_predictions)
-        return {"status": "PASS", "best_epoch": best_epoch, "best_dev_metric": best_metric, "checkpoint_sha256": best_hash, "dev_metrics": dev_metrics, "test_metrics": test_metrics}
+        return {"status": "PASS", "best_epoch": best_epoch, "best_dev_metric": best_metric, "checkpoint_sha256": best_hash, "latest_checkpoint_sha256": latest_hash, "checkpoint_manifest": manifest, "dev_metrics": dev_metrics, "test_metrics": test_metrics}
 
 
 ProductionGenerationExecutor = ReasoningGenerationExecutor
