@@ -6,7 +6,7 @@ from typing import Any
 
 import yaml
 
-from .hashing import sha256_file
+from .hashing import sha256_bytes
 
 CONFLICT_CODES = (
     "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
@@ -15,6 +15,27 @@ CONFLICT_CODES = (
     "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
     "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE",
 )
+
+_FROZEN_TEXT_SUFFIXES = {".csv", ".json", ".jsonl", ".txt", ".yaml", ".yml"}
+
+
+def _frozen_hash_candidates(path: Path) -> set[str]:
+    """Return raw and line-ending-equivalent hashes for frozen text files."""
+    payload = path.read_bytes()
+    candidates = {sha256_bytes(payload)}
+    if path.suffix.casefold() in _FROZEN_TEXT_SUFFIXES:
+        logical = payload.replace(b"\r\n", b"\n")
+        candidates.add(sha256_bytes(logical))
+        candidates.add(sha256_bytes(logical.replace(b"\n", b"\r\n")))
+    return candidates
+
+
+def _sha256_frozen_file(path: Path, expected: str | None = None) -> str:
+    """Return the matching frozen hash without treating line endings as content changes."""
+    candidates = _frozen_hash_candidates(path)
+    if expected and expected in candidates:
+        return expected
+    return sha256_bytes(path.read_bytes())
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -115,7 +136,7 @@ def compare_frozen_hashes(root: str | Path, baseline_path: str | Path = "reports
     changed: list[str] = []
     for relative, expected in baseline["files"].items():
         path = root / relative
-        actual = sha256_file(path) if path.exists() else None
+        actual = _sha256_frozen_file(path, expected) if path.exists() else None
         current[relative] = actual
         if actual != expected:
             changed.append(relative)

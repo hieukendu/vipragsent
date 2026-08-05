@@ -14,6 +14,7 @@ from vipragsent.evaluation.external_retention import (
     NormalizedExternalExample,
     evaluate_external_retention,
 )
+from vipragsent.hashing import sha256_bytes
 from vipragsent.models.variants import VariantConfig, build_dummy_model
 from vipragsent.orchestration.aggregation import _q3_rows, _q4_summary, _table4
 from vipragsent.orchestration.contracts import RunContext, RunEntry
@@ -29,6 +30,7 @@ from vipragsent.orchestration.system_registry import (
     resolve_execution_spec,
     validate_execution_registry,
 )
+from vipragsent.protocol import compare_frozen_hashes
 from vipragsent.runtime.batch_probe import probe_physical_batch
 from vipragsent.training.class_weights import (
     compute_train_only_class_weights,
@@ -65,6 +67,16 @@ def test_execution_registry_is_exact_and_unknown_systems_block_before_model_buil
     assert set(specs) == inventory_ids
     with pytest.raises(ValueError, match="BLOCKED before model construction"):
         resolve_execution_spec(root, "full_phobert_substring_variant")
+
+
+def test_frozen_text_hash_is_line_ending_portable(tmp_path: Path) -> None:
+    payload = tmp_path / "frozen.json"
+    crlf = b"{\r\n  \"status\": \"PASS\"\r\n}\r\n"
+    payload.write_bytes(crlf)
+    (tmp_path / "baseline.json").write_text(json.dumps({"files": {"frozen.json": sha256_bytes(crlf)}}), encoding="utf-8")
+    assert compare_frozen_hashes(tmp_path, baseline_path="baseline.json")["unchanged"]
+    payload.write_bytes(crlf.replace(b"\r\n", b"\n"))
+    assert compare_frozen_hashes(tmp_path, baseline_path="baseline.json")["unchanged"]
 
 
 def test_training_resolver_golden_values_cover_encoder_7b_and_no_uncertainty() -> None:
