@@ -1,27 +1,31 @@
 # Final readiness snapshot
 
 - Branch: `codex/phase-14-5-production-repair`
-- Branch head before refresh: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
-- Audited code commit: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
-- Report generation parent SHA: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
+- Branch head before refresh: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
+- Audited code commit: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
+- Report generation parent SHA: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
 - Audited source manifest: `FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953`
 - Report-only commit expected: `true`
 
 ## CI
 
 - Workflow: `cpu-ci`
-- Run: `31026573490` (#16)
-- Head SHA: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
+- Run: `31055939769` (#20)
+- Head SHA: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
 - Status/conclusion: `completed/success`
 - Verification source: `github_connector`
 
 ## Review
 
 - Status: `PASS`
+- Review source: `reports/final_cleanup_review_cycles.json`
+- Execution mode: `SINGLE_AGENT`
+- Subagents called: `false`
 - Cycles: `2`
-- Rounds per cycle: `5`
+- Rounds per cycle: `6`
 - Consecutive clean cycles: `2`
-- Subagent profile verification: `NOT_VERIFIED; see manifest routing limitation`
+- No new defects: `true`
+- Historical subagent profile verification: `NOT_VERIFIED`
 
 ## Readiness
 
