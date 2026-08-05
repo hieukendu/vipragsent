@@ -22,6 +22,8 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Evaluation protocol: `backbone_sensitivity_v1`
 - Reusable checkpoint key: `vipragsent_full_phobert:20260522`
 - Protocol resolution: `RESOLVED`
+- CLI kind: `experiment`
+- Resolved execution stage plan: `checkpoint_reuse`
 
 ## Required command sequence
 
@@ -33,7 +35,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 
 ## Required review handoff
 
-The run must complete these stages in order: preflight, train_or_reuse, evaluate_dev, freeze_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary.
+The run must complete these stages in order: `preflight, resolve_approved_source, evaluate_reused_test, export_artifacts, validate_artifacts, generate_review_summary`.
 
 Print the complete review summary with `python scripts/print_run_review_summary.py --run-id backbone_sensitivity_vipragsent_full_phobert_20260522` and paste it into the Codex chat. It must include `RUN_STATUS`, `USER_REVIEW_STATUS`, `NEXT_RUN_ALLOWED`, artifact hashes, and blockers.
 

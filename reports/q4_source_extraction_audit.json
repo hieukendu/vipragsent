@@ -1,0 +1,18 @@
+{
+  "checks": {
+    "approved_source_resolver_present": true,
+    "exact_q4_evidence": true,
+    "learning_history_required": true,
+    "no_synthetic_history": true,
+    "six_label_probability_validation": true,
+    "temperature_scaling_disabled": true
+  },
+  "source_status": "BLOCKED_UNTIL_APPROVED_SOURCE_ARTIFACTS",
+  "status": "PASS",
+  "systems": [
+    "phobert_pragmatic_finetune",
+    "vistral_pragmatic_sft",
+    "vipragsent_full_vistral"
+  ],
+  "training_applicability": "NOT_APPLICABLE"
+}

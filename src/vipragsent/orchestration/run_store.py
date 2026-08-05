@@ -12,8 +12,6 @@ from typing import Any
 from ..atomic import atomic_write_json, atomic_write_text, exclusive_lock
 from ..hashing import sha256_file
 from .contracts import (
-    AZURE_STAGES,
-    EXPERIMENT_STAGES,
     TERMINAL_STAGE_STATUSES,
     RunContext,
     RunStatus,
@@ -55,7 +53,7 @@ class RunStore:
 
     @property
     def required_stages(self) -> tuple[str, ...]:
-        return AZURE_STAGES if self.context.entry.is_azure else EXPERIMENT_STAGES
+        return self.context.entry.stages
 
     def initialize(self, *, resume: bool = False) -> dict[str, Any]:
         if self.state_path.exists() and resume:

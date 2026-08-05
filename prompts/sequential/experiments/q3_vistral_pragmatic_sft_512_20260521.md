@@ -22,6 +22,8 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Evaluation protocol: `q3_low_resource_masked_v1`
 - Reusable checkpoint key: `vistral_pragmatic_sft:512:20260521`
 - Protocol resolution: `RESOLVED`
+- CLI kind: `experiment`
+- Resolved execution stage plan: `trainable_classifier`
 
 ## Required command sequence
 
@@ -33,7 +35,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 
 ## Required review handoff
 
-The run must complete these stages in order: preflight, train_or_reuse, evaluate_dev, freeze_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary.
+The run must complete these stages in order: `preflight, train, evaluate_dev, freeze_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary`.
 
 Print the complete review summary with `python scripts/print_run_review_summary.py --run-id q3_vistral_pragmatic_sft_512_20260521` and paste it into the Codex chat. It must include `RUN_STATUS`, `USER_REVIEW_STATUS`, `NEXT_RUN_ALLOWED`, artifact hashes, and blockers.
 

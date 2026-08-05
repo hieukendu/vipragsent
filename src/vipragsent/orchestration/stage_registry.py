@@ -32,6 +32,10 @@ from .contracts import (
     RunEntry,
     StageOutcome,
 )
+from .executors.component_bundle import run_component_bundle
+from .executors.external_retention import evaluate_external_retention_from_disk
+from .executors.generation import generation_targets_available
+from .executors.q4 import resolve_and_extract_q4_source
 from .preflight_single import run_single_preflight
 from .run_store import RunStore, artifact_hashes, git_commit, utc_now
 from .system_registry import resolve_execution_spec
@@ -186,11 +190,16 @@ def _fixture_generation_train(context: RunContext, entry: RunEntry) -> StageOutc
     persist_class_weights(context.root, run_root, synthetic_class_weights())
     for split in ("dev", "test"):
         rows: list[dict[str, Any]] = []
+        generations: list[dict[str, Any]] = []
         for index in range(8):
             gold = {label: int((index + offset) % 2) for offset, label in enumerate(PRAGMATIC_LABELS)}
             probabilities = {label: 0.75 if gold[label] else 0.25 for label in PRAGMATIC_LABELS}
-            rows.append({"sample_id": f"fixture_{entry.run_id}_{split}_{index}", "gold": gold, "predictions": gold, "probabilities": probabilities, "generation_executor": spec.variant_id})
+            sample_id = f"fixture_{entry.run_id}_{split}_{index}"
+            raw_generation = "<RATIONALE>fixture cue</RATIONALE><LABELS>" + json.dumps(gold | {"polarity": "neutral", "emotion": "other"}, sort_keys=True) + "</LABELS>"
+            generations.append({"sample_id": sample_id, "raw_generation": raw_generation, "parse_status": "PASS", "failure_reason": None})
+            rows.append({"sample_id": sample_id, "gold": gold, "predictions": gold, "probabilities": probabilities, "generation_executor": spec.variant_id, "raw_generation": raw_generation, "parse_status": "PASS", "failure_reason": None})
         atomic_write_text(run_root / f"predictions/{split}_predictions.jsonl", "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows))
+        atomic_write_text(run_root / f"generations/{split}_generations.jsonl", "".join(json.dumps(row, sort_keys=True) + "\n" for row in generations))
         atomic_write_json(run_root / f"metrics/{split}_metrics.json", _metrics_from_rows(run_root / f"predictions/{split}_predictions.jsonl"))
     history = [{"epoch": float(epoch), "train_loss": 1.0 / epoch, "dev_loss": 1.0 / epoch, "dev_metric": 1.0, "dev_macro_pragmatic_f1": 1.0, "seconds": 0.0} for epoch in range(1, 4)]
     atomic_write_json(run_root / "training/history.json", history)
@@ -209,7 +218,54 @@ def _fixture_generation_train(context: RunContext, entry: RunEntry) -> StageOutc
     atomic_write_json(run_root / "selection/best_checkpoint.json", {"path": _relative(checkpoint, run_root), "sha256": digest, "best_epoch": 3})
     atomic_write_json(run_root / "selection/selection_metric.json", {"name": "dev_macro_pragmatic_f1", "value": 1.0, "best_epoch": 3})
     atomic_write_json(run_root / "selection/thresholds.json", {label: 0.5 for label in PRAGMATIC_LABELS})
-    return StageOutcome.passed(summary={"mode": "fixture", "synthetic_results": True, "executor_kind": spec.executor_kind, "best_epoch": 3, "best_dev_metric": 1.0, "checkpoint_path": _relative(checkpoint, run_root), "checkpoint_sha256": digest}, expected_files=("training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json"))
+    atomic_write_json(run_root / "generation/parser_report.json", {"strict_parser": True, "semantic_repair": False, "dev": {"valid": 8, "invalid": 0}, "test": {"valid": 8, "invalid": 0}})
+    return StageOutcome.passed(summary={"mode": "fixture", "synthetic_results": True, "executor_kind": spec.executor_kind, "best_epoch": 3, "best_dev_metric": 1.0, "checkpoint_path": _relative(checkpoint, run_root), "checkpoint_sha256": digest}, expected_files=("training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json", "generations/dev_generations.jsonl", "generations/test_generations.jsonl", "generation/parser_report.json"))
+
+
+def _fixture_component_bundle(context: RunContext, entry: RunEntry) -> StageOutcome:
+    spec = _execution_spec(context.root, entry)
+    sample_ids = [f"fixture_{entry.run_id}_test_{index}" for index in range(8)]
+    manifest = run_component_bundle(
+        context.run_root,
+        executor_kind=spec.executor_kind,
+        sample_ids=sample_ids,
+        seed=int(entry.seed or 20260521),
+        config_hash=sha256_json({"entry": entry.run_id, "variant": spec.variant_id}),
+        data_hash="fixture-data",
+        model_hash="fixture-model",
+    )
+    atomic_write_json(Path(context.run_root) / "training/resource_usage.json", {"fixture": True, "successful_gpu_hours": manifest["cost_gpu_hours"], "failed_or_retried_gpu_hours": 0.0, "component_cost_is_measured_sum": True})
+    return StageOutcome.passed(
+        summary={"executor_kind": spec.executor_kind, "component_count": len(manifest["component_names"]), "cost_gpu_hours": manifest["cost_gpu_hours"], "synthetic_results": True},
+        expected_files=("components/state.json", "components/events.jsonl", "components/component_manifest.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json", "training/resource_usage.json"),
+    )
+
+
+def _execute_components(context: RunContext, entry: RunEntry) -> StageOutcome:
+    if context.fixture:
+        return _fixture_component_bundle(context, entry)
+    return StageOutcome.blocked("component bundle requires the approved Phase 15 local snapshot and production component loader")
+
+
+def _combine_component_predictions(context: RunContext, entry: RunEntry) -> StageOutcome:
+    run_root = Path(context.run_root)
+    manifest = _load_mapping(run_root / "components/component_manifest.json")
+    if manifest.get("status") != "PASS" or not manifest.get("component_checkpoint_sha256"):
+        return StageOutcome.blocked("component bundle manifest is missing independent checkpoint hashes")
+    required = ("predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json")
+    if any(not (run_root / path).exists() for path in required):
+        return StageOutcome.blocked("component predictions were not combined by exact sample ID")
+    atomic_write_json(run_root / "components/combined_prediction_manifest.json", {"status": "PASS", "component_names": manifest.get("component_names"), "combined_order_hash": manifest.get("combined_prediction_order_sha256")})
+    return StageOutcome.passed(summary={"component_count": len(manifest.get("component_names", [])), "combined": True}, expected_files=required + ("components/combined_prediction_manifest.json",))
+
+
+def _freeze_component_selection(context: RunContext, entry: RunEntry) -> StageOutcome:
+    run_root = Path(context.run_root)
+    manifest = _load_mapping(run_root / "components/component_manifest.json")
+    if manifest.get("status") != "PASS":
+        return StageOutcome.blocked("component selection requires a complete component manifest")
+    atomic_write_json(run_root / "selection/freeze_manifest.json", {"frozen": True, "component_checkpoint_sha256": manifest.get("component_checkpoint_sha256"), "combined_prediction_order_sha256": manifest.get("combined_prediction_order_sha256"), "config_hash": manifest.get("config_hash")})
+    return StageOutcome.passed(summary={"frozen": True, "component_count": len(manifest.get("component_names", []))}, expected_files=("selection/freeze_manifest.json",))
 
 
 def _fixture_train(context: RunContext, entry: RunEntry) -> StageOutcome:
@@ -321,8 +377,8 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
         q3_masks, q3_report = load_validated_q3_masks(q3_path, {item.sample_id: item for item in bundle.train}, strict_frozen=True)
         q3_mask_hash = q3_report["mask_hashes"][str(entry.budget)]
     preprocessor = TextPreprocessor(PreprocessingSpec(family, entry.preprocessing_name or "vncorenlp_rdrsegmenter", entry.preprocessing_version or "locked-v1", tokenizer_revision=spec.tokenizer_revision, model_revision=spec.revision, execution_mode="production"))
-    collator = BatchCollator(tokenizer, preprocessor, q3_masks=q3_masks, budget=str(entry.budget) if entry.research_question == "Q3" else None, mask_hash=q3_mask_hash, class_weights=weights.as_dict(), rationale_records=rationale_records)
-    evaluation_collator = BatchCollator(tokenizer, preprocessor, class_weights=weights.as_dict(), rationale_records=rationale_records)
+    collator = BatchCollator(tokenizer, preprocessor, q3_masks=q3_masks, budget=str(entry.budget) if entry.research_question == "Q3" else None, mask_hash=q3_mask_hash, class_weights=weights.as_dict(), rationale_records=rationale_records, rationale_target_max_length=resolved.rationale_target_max_length)
+    evaluation_collator = BatchCollator(tokenizer, preprocessor, class_weights=weights.as_dict(), rationale_records=rationale_records, rationale_target_max_length=resolved.rationale_target_max_length)
     batch_size = resolved.physical_batch_size
     def batches(examples: list[DatasetExample]) -> list[dict[str, Any]]:
         return [collator(examples[index:index + batch_size]) for index in range(0, len(examples), batch_size)]
@@ -391,6 +447,9 @@ def _reuse_or_extract(context: RunContext, entry: RunEntry) -> StageOutcome:
             return _fixture_extract(context, entry)
     if not source:
         if context.fixture:
+            if entry.research_question == "Q1b":
+                atomic_write_json(run_root / "checkpoint_reference.json", {"source": "fixture-approved-source", "source_sha256": sha256_json({"source": entry.system_id, "seed": entry.seed}), "source_approval_required": True, "source_status": "FIXTURE_SOURCE_ONLY", "training_applicability": "NOT_APPLICABLE", "not_applicable_reason": "Q1b evaluates official external tests from an approved upstream source; it does not train."})
+                return StageOutcome.passed(summary={"training_applicability": "NOT_APPLICABLE", "not_applicable_reason": "Q1b official external retention evaluation; no training was run."}, expected_files=("checkpoint_reference.json",))
             if entry.execution_kind in {ExecutionKind.EVALUATION_ONLY.value, ExecutionKind.CHECKPOINT_REUSE.value, ExecutionKind.ARTIFACT_EXTRACTION.value}:
                 return _fixture_extract(context, entry)
             return _fixture_train(context, entry)
@@ -449,26 +508,7 @@ def _load_mapping(path: Path) -> dict[str, Any]:
 
 
 def _fixture_extract(context: RunContext, entry: RunEntry) -> StageOutcome:
-    """Create source-shaped Q4 outputs without invoking training."""
-    run_root = Path(context.run_root)
-    rows: list[dict[str, Any]] = []
-    for split in ("dev", "test"):
-        for index in range(8):
-            gold = {label: int((index + offset) % 3 == 0) for offset, label in enumerate(PRAGMATIC_LABELS)}
-            probabilities = {label: round(0.2 + 0.1 * ((index + offset) % 6), 4) for offset, label in enumerate(PRAGMATIC_LABELS)}
-            predictions = {label: int(probabilities[label] >= 0.5) for label in PRAGMATIC_LABELS}
-            rows.append({"sample_id": f"fixture_{entry.run_id}_{split}_{index}", "split": split, "gold": gold, "probabilities": probabilities, "predictions": predictions})
-        split_rows = [row for row in rows if row["split"] == split]
-        atomic_write_text(run_root / f"predictions/{split}_predictions.jsonl", "".join(json.dumps(row, sort_keys=True) + "\n" for row in split_rows))
-        atomic_write_json(run_root / f"metrics/{split}_metrics.json", _metrics_from_rows(run_root / f"predictions/{split}_predictions.jsonl"))
-    source_id = str(entry.source_checkpoint_id or entry.system_id)
-    source_hash = sha256_json({"source_checkpoint_id": source_id, "fixture": True})
-    atomic_write_json(run_root / "checkpoint_reference.json", {"source": source_id, "source_sha256": source_hash, "source_approval_required": True, "source_status": "FIXTURE_SOURCE_ONLY", "training_applicability": "NOT_APPLICABLE", "not_applicable_reason": "Q4 extracts raw pragmatic probabilities from an approved upstream checkpoint; it does not train."})
-    atomic_write_json(run_root / "selection/best_checkpoint.json", {"path": "checkpoint_reference.json", "sha256": source_hash, "best_epoch": "NOT_APPLICABLE"})
-    atomic_write_json(run_root / "selection/selection_metric.json", {"name": "dev_macro_pragmatic_f1", "value": _metrics_from_rows(run_root / "predictions/dev_predictions.jsonl").get("macro_pragmatic_f1", 0.0), "best_epoch": "NOT_APPLICABLE"})
-    atomic_write_json(run_root / "selection/thresholds.json", {label: 0.5 for label in PRAGMATIC_LABELS})
-    atomic_write_json(run_root / "training/history.json", [{"epoch": "NOT_APPLICABLE", "dev_macro_pragmatic_f1": _metrics_from_rows(run_root / "predictions/dev_predictions.jsonl").get("macro_pragmatic_f1", 0.0), "dev_loss": "NOT_APPLICABLE", "seconds": 0.0, "source_checkpoint_reuse": True}])
-    return StageOutcome.passed(summary={"training_applicability": "NOT_APPLICABLE", "not_applicable_reason": "Q4 raw-probability extraction from an approved source; no training was run."}, expected_files=("checkpoint_reference.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"))
+    return StageOutcome.blocked("Q4 requires approved disk-backed source predictions and learning history; synthetic extraction is prohibited")
 
 
 def _preflight(context: RunContext, entry: RunEntry) -> StageOutcome:
@@ -477,6 +517,70 @@ def _preflight(context: RunContext, entry: RunEntry) -> StageOutcome:
     if report["passed"]:
         return StageOutcome.passed(summary=report, expected_files=("preflight.json",))
     return StageOutcome.blocked(*report["blockers"])
+
+
+def _generation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
+    if not context.fixture:
+        if not generation_targets_available(context.root):
+            return StageOutcome.blocked("SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS")
+        return StageOutcome.blocked("production generation records require the exact approved target/template source")
+    if not (Path(context.run_root) / "training/history.json").exists():
+        _fixture_generation_train(context, entry)
+    run_root = Path(context.run_root)
+    expected = {
+        "train_generation": ("training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json"),
+        "generate_dev": ("generations/dev_generations.jsonl",),
+        "parse_dev": ("predictions/dev_predictions.jsonl", "metrics/dev_metrics.json", "generation/parser_report.json"),
+        "freeze_selection": ("selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"),
+        "generate_test": ("generations/test_generations.jsonl",),
+        "parse_test": ("predictions/test_predictions.jsonl", "metrics/test_metrics.json", "generation/parser_report.json"),
+    }.get(stage, ())
+    missing = [path for path in expected if not (run_root / path).exists()]
+    if missing:
+        return StageOutcome.failed("generation stage outputs are missing: " + ", ".join(missing))
+    return StageOutcome.passed(summary={"executor_kind": "generation_baseline", "stage": stage, "strict_parser": True, "classifier_fallback": False}, expected_files=expected)
+
+
+def _q4_resolve_source(context: RunContext, entry: RunEntry) -> StageOutcome:
+    try:
+        report = resolve_and_extract_q4_source(context.root, entry.raw, output_root=context.run_root)
+    except Exception as exc:
+        if context.fixture:
+            return StageOutcome.blocked(str(exc))
+        return StageOutcome.blocked(str(exc))
+    return StageOutcome.passed(summary=report, expected_files=("source/source_provenance.json", "paper_artifacts/q4_pragmatic_calibration_per_seed.json", "figure_backing/q4_pragmatic_reliability_bins.json", "figure_backing/q4_learning_curves.json"))
+
+
+def _q4_validate_source(context: RunContext, entry: RunEntry) -> StageOutcome:
+    run_root = Path(context.run_root)
+    provenance = _load_mapping(run_root / "source/source_provenance.json")
+    q4 = _load_mapping(run_root / "paper_artifacts/q4_pragmatic_calibration_per_seed.json")
+    if provenance.get("status") != "PASS" or provenance.get("synthetic_history") is True:
+        return StageOutcome.blocked("Q4 source provenance is not approved and non-synthetic")
+    if set(q4.get("per_label_pragmatic_ece", {})) != set(PRAGMATIC_LABELS):
+        return StageOutcome.blocked("Q4 source calibration does not contain six pragmatic ECE values")
+    return StageOutcome.passed(summary={"status": "PASS", "training_applicability": "NOT_APPLICABLE"}, expected_files=("source/source_provenance.json", "paper_artifacts/q4_pragmatic_calibration_per_seed.json"))
+
+
+def _q4_extract_stage(context: RunContext, entry: RunEntry, *, history: bool = False) -> StageOutcome:
+    run_root = Path(context.run_root)
+    path = run_root / ("figure_backing/q4_learning_curves.json" if history else "figure_backing/q4_pragmatic_reliability_bins.json")
+    if not path.exists():
+        return StageOutcome.blocked("Q4 source-backed figure data is missing")
+    rows = _load_mapping(path)
+    if not rows:
+        return StageOutcome.blocked("Q4 source-backed figure data is empty")
+    return StageOutcome.passed(summary={"rows": len(rows), "training_applicability": "NOT_APPLICABLE"}, expected_files=(path.relative_to(run_root).as_posix(),))
+
+
+def _evaluate_reused_test(context: RunContext, entry: RunEntry) -> StageOutcome:
+    run_root = Path(context.run_root)
+    prediction = run_root / "predictions/test_predictions.jsonl"
+    if not prediction.exists():
+        return StageOutcome.blocked("approved checkpoint-reuse test predictions are missing")
+    metrics = _metrics_from_rows(prediction)
+    atomic_write_json(run_root / "metrics/test_metrics.json", metrics)
+    return StageOutcome.passed(summary=metrics, expected_files=("predictions/test_predictions.jsonl", "metrics/test_metrics.json"))
 
 
 def _evaluate_dev(context: RunContext, entry: RunEntry) -> StageOutcome:
@@ -507,16 +611,12 @@ def _evaluate_q1b_external(context: RunContext, entry: RunEntry) -> StageOutcome
         predictions = {key: {row.sample_id: row.label for row in rows} for key, rows in datasets.items()}
         manifest_hash = "fixture"
     else:
-        payload = context.metadata.get("external_retention")
-        if not isinstance(payload, Mapping):
-            return StageOutcome.blocked("Q1b external retention inputs are not available")
-        datasets = payload.get("datasets")
-        predictions = payload.get("predictions")
-        if not isinstance(datasets, Mapping) or not isinstance(predictions, Mapping):
-            return StageOutcome.blocked("Q1b external retention inputs are malformed")
-        manifest_hash = str(payload.get("external_manifest_hash") or "")
-        if not manifest_hash:
-            return StageOutcome.blocked("Q1b external manifest hash is missing")
+        try:
+            result = evaluate_external_retention_from_disk(context.root, entry.raw, output_root=run_root)
+        except Exception as exc:
+            return StageOutcome.blocked(str(exc))
+        atomic_write_json(run_root / "metrics/test_metrics.json", result)
+        return StageOutcome.passed(summary=result, expected_files=("predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"))
     result = evaluate_external_retention(
         datasets,
         predictions,
@@ -528,7 +628,8 @@ def _evaluate_q1b_external(context: RunContext, entry: RunEntry) -> StageOutcome
     dev_metrics = _load_mapping(run_root / "metrics/dev_metrics.json")
     result = result | {"polarity_dev_ece": dev_metrics.get("polarity_dev_ece", "NOT_APPLICABLE")}
     atomic_write_json(run_root / "metrics/test_metrics.json", result)
-    return StageOutcome.passed(summary=result, expected_files=("predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json"))
+    atomic_write_json(run_root / "external/external_evaluation_manifest.json", {"status": "PASS", "source_run_id": "fixture", "external_finetuning": False, "optimizer_steps": 0, "backward_calls": 0, "normalized_test_only": True})
+    return StageOutcome.passed(summary=result, expected_files=("predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"))
 
 
 def _freeze_selection(context: RunContext, entry: RunEntry) -> StageOutcome:
@@ -554,7 +655,7 @@ def _evaluate_test(context: RunContext, entry: RunEntry) -> StageOutcome:
         return StageOutcome.blocked("test evaluation is prohibited before selection freeze")
     if not prediction.exists():
         return StageOutcome.blocked("test predictions are missing")
-    if entry.research_question in {"Q1b", "Q2"}:
+    if entry.research_question == "Q1b":
         return _evaluate_q1b_external(context, entry)
     metrics = _metrics_from_rows(prediction)
     if entry.research_question == "Q3":
@@ -565,55 +666,24 @@ def _evaluate_test(context: RunContext, entry: RunEntry) -> StageOutcome:
     return StageOutcome.passed(summary=metrics, expected_files=("predictions/test_predictions.jsonl", "metrics/test_metrics.json"))
 
 
-def _q4_sidecars(context: RunContext, entry: RunEntry) -> None:
-    run_root = Path(context.run_root)
-    prediction_path = run_root / "predictions/test_predictions.jsonl"
-    if not prediction_path.exists():
-        return
-    rows = _read_jsonl(prediction_path)
-    true = {key: [] for key in PRAGMATIC_LABELS}
-    probabilities = {key: [] for key in PRAGMATIC_LABELS}
-    for row in rows:
-        for key in PRAGMATIC_LABELS:
-            if key in row.get("gold", {}) and key in row.get("probabilities", {}):
-                true[key].append(int(row["gold"][key]))
-                value = row["probabilities"][key]
-                probabilities[key].append(float(value[-1] if isinstance(value, list) else value))
-    if not all(true[key] for key in PRAGMATIC_LABELS):
-        return
-    from ..evaluation.metrics import pragmatic_ece
-
-    ece_by_label, macro_ece, bins = pragmatic_ece(true, probabilities, bins=10)
-    checkpoint_id = str(entry.source_checkpoint_id or entry.system_id)
-    q4_row = {
-        "system": entry.system_id,
-        "display_name": entry.display_name,
-        "checkpoint_id": checkpoint_id,
-        "seed": entry.seed,
-        "split": "vipragsent_test",
-        "per_label_pragmatic_ece": ece_by_label,
-        "macro_pragmatic_ece": macro_ece,
-        "bin_count": 10,
-        "temperature_scaling": False,
-        "probability_aggregation": "none",
-        "prediction_file": _relative(prediction_path, context.root),
-        "prediction_file_sha256": sha256_file(prediction_path),
-        "config_hash": sha256_file(run_root / "config_snapshot.yaml"),
-        "code_commit": git_commit(context.root),
-    }
-    atomic_write_json(run_root / "paper_artifacts/q4_pragmatic_calibration_per_seed.json", q4_row)
-    reliability_rows = [{"system": entry.system_id, "seed": entry.seed, "label": label, **row} for label, label_rows in bins.items() for row in label_rows]
-    atomic_write_json(run_root / "figure_backing/q4_pragmatic_reliability_bins.json", reliability_rows)
-    history_path = run_root / "training/history.json"
-    history = json.loads(history_path.read_text(encoding="utf-8")) if history_path.exists() else []
-    curves = [{"system": entry.system_id, "seed": entry.seed, "epoch": row.get("epoch"), "dev_macro_pragmatic_f1": row.get("dev_macro_pragmatic_f1"), "dev_loss": row.get("dev_loss"), "wall_seconds": row.get("seconds")} for row in history]
-    atomic_write_json(run_root / "figure_backing/q4_learning_curves.json", curves)
-
-
 def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
     run_root = Path(context.run_root)
     if entry.research_question == "Q4":
-        _q4_sidecars(context, entry)
+        required_q4 = (
+            run_root / "paper_artifacts/q4_pragmatic_calibration_per_seed.json",
+            run_root / "figure_backing/q4_pragmatic_reliability_bins.json",
+            run_root / "figure_backing/q4_learning_curves.json",
+        )
+        missing_q4 = [str(path.relative_to(run_root)) for path in required_q4 if not path.exists()]
+        if missing_q4:
+            return StageOutcome.blocked("Q4 export requires approved source-backed artifacts: " + ", ".join(missing_q4))
+    if entry.research_question == "Q1a" and not entry.is_azure:
+        try:
+            from ..evaluation.confidence_intervals import write_q1a_confidence_intervals
+
+            write_q1a_confidence_intervals(run_root, root=context.root)
+        except Exception as exc:
+            return StageOutcome.blocked(f"Table 2 confidence intervals could not be computed: {exc}")
     manifest_path = run_root / "run_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8")) if manifest_path.exists() else {}
     manifest.update({
@@ -682,10 +752,20 @@ def _validate_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
     missing = [name for name in common if not (run_root / name).exists()]
     if entry.is_azure:
         required = _azure_required_files(entry)
+    elif entry.execution_kind == ExecutionKind.COMPONENT_BUNDLE.value:
+        required = ["components/state.json", "components/events.jsonl", "components/component_manifest.json", "components/combined_prediction_manifest.json", "training/resource_usage.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json"]
+    elif entry.execution_kind == ExecutionKind.GENERATION.value:
+        required = ["training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json", "generations/dev_generations.jsonl", "generations/test_generations.jsonl", "generation/parser_report.json"]
+    elif entry.research_question == "Q1b":
+        required = ["predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"]
+    elif entry.research_question == "Q4":
+        required = ["source/source_provenance.json", "paper_artifacts/q4_pragmatic_calibration_per_seed.json", "figure_backing/q4_pragmatic_reliability_bins.json", "figure_backing/q4_learning_curves.json"]
     elif entry.execution_kind in {ExecutionKind.EVALUATION_ONLY.value, ExecutionKind.CHECKPOINT_REUSE.value, ExecutionKind.ARTIFACT_EXTRACTION.value}:
         required = ["checkpoint_reference.json", "predictions/test_predictions.jsonl", "metrics/test_metrics.json"]
     else:
         required = ["training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json"]
+    if entry.research_question == "Q1a" and not entry.is_azure:
+        required.append("metrics/test_confidence_intervals.json")
     missing.extend(name for name in required if not (run_root / name).exists())
     manifest = json.loads((run_root / "run_manifest.json").read_text(encoding="utf-8")) if (run_root / "run_manifest.json").exists() else {}
     if not context.fixture:
@@ -893,10 +973,25 @@ def build_single_experiment_stage_registry(root: str | Path, entry_mapping: Mapp
     context = context or RunContext(root, entry)
     return {
         "preflight": lambda: _preflight(context, entry),
+        "train": lambda: _train_or_reuse(context, entry),
         "train_or_reuse": lambda: _train_or_reuse(context, entry),
+        "execute_components": lambda: _execute_components(context, entry),
+        "combine_component_predictions": lambda: _combine_component_predictions(context, entry),
         "evaluate_dev": lambda: _evaluate_dev(context, entry),
+        "freeze_component_selection": lambda: _freeze_component_selection(context, entry),
         "freeze_selection": lambda: _freeze_selection(context, entry),
         "evaluate_test": lambda: _evaluate_test(context, entry),
+        "train_generation": lambda: _generation_stage(context, entry, "train_generation"),
+        "generate_dev": lambda: _generation_stage(context, entry, "generate_dev"),
+        "parse_dev": lambda: _generation_stage(context, entry, "parse_dev"),
+        "generate_test": lambda: _generation_stage(context, entry, "generate_test"),
+        "parse_test": lambda: _generation_stage(context, entry, "parse_test"),
+        "resolve_approved_source": lambda: _q4_resolve_source(context, entry) if entry.research_question == "Q4" else _reuse_or_extract(context, entry),
+        "evaluate_external_tests": lambda: _evaluate_q1b_external(context, entry),
+        "validate_source_predictions": lambda: _q4_validate_source(context, entry),
+        "extract_pragmatic_calibration": lambda: _q4_extract_stage(context, entry),
+        "extract_learning_history": lambda: _q4_extract_stage(context, entry, history=True),
+        "evaluate_reused_test": lambda: _evaluate_reused_test(context, entry),
         "export_artifacts": lambda: _export_artifacts(context, entry),
         "validate_artifacts": lambda: _validate_artifacts(context, entry),
         "generate_review_summary": lambda: StageOutcome.passed(summary={"deferred": True}),
@@ -904,10 +999,11 @@ def build_single_experiment_stage_registry(root: str | Path, entry_mapping: Mapp
 
 
 def _train_or_reuse(context: RunContext, entry: RunEntry) -> StageOutcome:
-    spec = _execution_spec(context.root, entry)
+    if entry.execution_kind == ExecutionKind.COMPONENT_BUNDLE.value:
+        return _execute_components(context, entry)
+    if entry.execution_kind == ExecutionKind.GENERATION.value:
+        return _generation_stage(context, entry, "train_generation")
     if entry.execution_kind == ExecutionKind.TRAINABLE.value:
-        if spec.executor_kind == "generation_baseline":
-            return _fixture_generation_train(context, entry) if context.fixture else StageOutcome.blocked("Generation baseline requires its dedicated production generation executor")
         return _fixture_train(context, entry) if context.fixture else _real_train(context, entry)
     return _reuse_or_extract(context, entry)
 

@@ -1,0 +1,35 @@
+{
+  "azure_fixed_prediction_behavior": "test-example resampling only",
+  "bootstrap_seed": 20260525,
+  "checks": {
+    "approved_method_exact": true,
+    "dedicated_evaluator": true,
+    "no_mean_ci_fallback": true,
+    "no_unapproved_bound_averaging": true,
+    "per_label_and_macro": true,
+    "prediction_hash_binding": true
+  },
+  "confidence_level": 0.95,
+  "conflicts": [],
+  "cross_seed_behavior": "compute the joint hierarchical interval; do not average interval bounds",
+  "exact_method_found": true,
+  "final_aggregation_ready": false,
+  "individual_q1a_ci_output": "metrics/test_confidence_intervals.json",
+  "method_id": "paired_hierarchical_bootstrap_sign_plus_one_v1",
+  "per_seed_behavior": "hierarchical seed-then-test-example resampling",
+  "resampling_count": 1000,
+  "resampling_unit": "seed_then_test_example",
+  "source_references": [
+    "configs/statistics/significance_method.yaml",
+    "configs/statistics.yaml"
+  ],
+  "sources_checked": [
+    "configs/statistics.yaml",
+    "configs/statistics/significance_method.yaml",
+    "src/vipragsent/statistics/bootstrap.py",
+    "src/vipragsent/evaluation/confidence_intervals.py",
+    "configs/schemas/result.schema.json"
+  ],
+  "status": "PASS",
+  "table2_aggregation_status": "READY_FOR_APPROVED_RUN_INPUTS"
+}

@@ -36,6 +36,7 @@ class ResolvedTrainingConfig:
     active_uncertainty_tasks: tuple[str, ...]
     rationale_training: bool
     rationale_beta: float
+    rationale_target_max_length: int
     rationale_inference: bool
     qlora: dict[str, Any]
     selection_metric: str
@@ -139,6 +140,7 @@ def resolve_training_config(
         "active_uncertainty_tasks": list(execution_spec.uncertainty_tasks),
         "rationale_training": bool(execution_spec.rationale_training),
         "rationale_beta": float(rationale["beta"]),
+        "rationale_target_max_length": max(int(value) for value in rationale["target_max_lengths"]),
         "rationale_inference": bool(execution_spec.rationale_inference),
         "qlora": qlora,
         "selection_metric": _selection_metric(entry, execution_spec),

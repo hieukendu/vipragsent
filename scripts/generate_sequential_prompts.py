@@ -11,11 +11,12 @@ from vipragsent.atomic import atomic_write_json, atomic_write_text
 from vipragsent.hashing import sha256_file
 from vipragsent.orchestration.inventory import write_expected_runs
 from vipragsent.orchestration.sequential import build_azure_job_inventory, load_execution_policy
+from vipragsent.orchestration.stage_plans import resolve_stage_plan
 
 RESEARCH_QUESTIONS = ("Q1a", "Q1b", "Q2", "Q3", "Q4")
 
 
-def _experiment_prompt(row: dict[str, Any]) -> str:
+def _experiment_prompt(row: dict[str, Any], stage_plan: Any) -> str:
     experiment_id = row["experiment_id"]
     return f"""# ViPragSent sequential experiment run: {experiment_id}
 
@@ -41,6 +42,8 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Evaluation protocol: `{row['evaluation_protocol']}`
 - Reusable checkpoint key: `{row['reusable_checkpoint_key']}`
 - Protocol resolution: `{row['protocol_resolution_status']}`
+- CLI kind: `experiment`
+- Resolved execution stage plan: `{stage_plan.plan_id}`
 
 ## Required command sequence
 
@@ -52,7 +55,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 
 ## Required review handoff
 
-The run must complete these stages in order: preflight, train_or_reuse, evaluate_dev, freeze_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary.
+The run must complete these stages in order: `{", ".join(stage_plan.stages)}`.
 
 Print the complete review summary with `python scripts/print_run_review_summary.py --run-id {experiment_id}` and paste it into the Codex chat. It must include `RUN_STATUS`, `USER_REVIEW_STATUS`, `NEXT_RUN_ALLOWED`, artifact hashes, and blockers.
 
@@ -169,11 +172,12 @@ def main() -> int:
     inventory = write_expected_runs(ROOT)
     prompt_entries: list[dict[str, Any]] = []
     for row in inventory["rows"]:
+        stage_plan = resolve_stage_plan(ROOT, row)
         prompt_entries.append(_write_prompt(
-            ROOT, "prompts/sequential/experiments", f"{row['experiment_id']}.md", _experiment_prompt(row),
+            ROOT, "prompts/sequential/experiments", f"{row['experiment_id']}.md", _experiment_prompt(row, stage_plan),
             kind="experiment", identifier=row["experiment_id"],
             command=f"python scripts/run_single_experiment.py --experiment-id {row['experiment_id']} --stage all",
-        ))
+        ) | {"stage_plan": stage_plan.as_dict(), "cli_kind": "experiment"})
 
     jobs = build_azure_job_inventory()
     atomic_write_json(ROOT / "reports/azure_job_inventory.json", {"schema_version": 1, "jobs": jobs, "job_count": len(jobs)})

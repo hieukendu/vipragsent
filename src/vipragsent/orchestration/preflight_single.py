@@ -149,6 +149,12 @@ def run_single_preflight(
         if spec is None and not fixture:
             blockers.append(f"exact model family is not in the locked registry: {model_family}")
         if spec is not None:
+            if execution_spec and execution_spec.executor_kind == "generation_baseline":
+                generation_blocker = root / "reports/SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS.json"
+                generation_ready = not generation_blocker.exists()
+                _check(checks, "generation_target_protocol", generation_ready, detail="exact approved generation targets are present" if generation_ready else "SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS")
+                if not generation_ready:
+                    blockers.append("SCIENTIFIC_PROTOCOL_CONFLICT_GENERATION_BASELINE_TARGETS")
             pinned = bool(spec.get("revision")) and bool(spec.get("tokenizer_revision"))
             _check(checks, "model_revisions_pinned", pinned, detail=f"revision={spec.get('revision')}; tokenizer_revision={spec.get('tokenizer_revision')}")
             if not pinned:
@@ -196,12 +202,22 @@ def run_single_preflight(
             if not gpu_ok:
                 blockers.append("required GPU/precision runtime is unavailable: " + ", ".join(hardware.get("blockers", [])))
 
-            rationale_required = "rationale" in (entry.task + ";" + entry.dependencies).casefold()
-            rationale_path = root / "data/processed/rationales/azure_rationale_input_train.jsonl"
-            rationale_ok = not rationale_required or fixture or rationale_path.exists()
-            _check(checks, "rationale_dependency", rationale_ok, detail="not applicable" if not rationale_required else str(rationale_path), required=rationale_required and not fixture)
+            rationale_required = bool(execution_spec and execution_spec.rationale_training)
+            rationale_path = root / "data/processed/rationales/approved_generated_rationales_train.jsonl"
+            rationale_ok = not rationale_required or fixture
+            rationale_detail = "not applicable" if not rationale_required else str(rationale_path)
+            if rationale_required and not fixture:
+                try:
+                    from .rationale_promotion import load_approved_rationales
+
+                    records = load_approved_rationales(root)
+                    rationale_ok = bool(records)
+                    rationale_detail = f"canonical records={len(records)}"
+                except Exception as exc:
+                    rationale_detail = str(exc)
+            _check(checks, "rationale_dependency", rationale_ok, detail=rationale_detail, required=rationale_required and not fixture)
             if not rationale_ok:
-                blockers.append("required rationale dependency is missing")
+                blockers.append("approved canonical rationale promotion is missing or invalid")
 
     q3_path, q3_hash = _mask_hash(root, entry.budget if entry.research_question == "Q3" else None)
     if entry.research_question == "Q3":

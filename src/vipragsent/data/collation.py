@@ -61,9 +61,9 @@ class BatchCollator:
             rationale_available: list[float] = []
             for row in rows:
                 value = self.rationale_records.get(row.sample_id)
-                if isinstance(value, Mapping):
-                    value = value.get("rationale") or value.get("text") or value.get("comment")
-                text = str(value or "").strip()
+                if value is not None and not isinstance(value, Mapping):
+                    raise ValueError(f"Rationale record for {row.sample_id} must be a canonical mapping")
+                text = str(value.get("rationale", "") if isinstance(value, Mapping) else "").strip()
                 rationale_available.append(float(bool(text)))
                 rationale_texts.append(text or "<NO_RATIONALE>")
             target_texts = [f"<RATIONALE>\n{text}\n</RATIONALE>" for text in rationale_texts]

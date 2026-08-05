@@ -15,6 +15,7 @@ from vipragsent.orchestration.sequential import (
     build_azure_job_inventory,
     load_execution_policy,
 )
+from vipragsent.orchestration.stage_plans import resolve_stage_plan, validate_stage_plan_registry
 
 
 def _expected_entries(root: Path, inventory: dict[str, Any]) -> dict[str, Any]:
@@ -34,10 +35,20 @@ def _validate_prompt_text(path: Path, item: dict[str, Any], expected: dict[str, 
     if sha256_file(path) != item.get("sha256"):
         errors.append(f"prompt hash mismatch: {path}")
     if kind == "experiment":
+        plan = resolve_stage_plan(path.parents[3], expected)
+        if item.get("cli_kind") != "experiment" or item.get("stage_plan", {}).get("stages") != list(plan.stages):
+            errors.append(f"{path}: manifest stage plan does not match the exact resolver")
         mentioned = {value for value in all_experiment_ids if value in text}
         if mentioned != {identifier}:
             errors.append(f"{path}: prompt names experiment IDs {sorted(mentioned)}, expected only {identifier}")
-        required = (identifier, "--stage preflight", "--stage all", "--resume", "print_run_review_summary.py", "PENDING_USER_APPROVAL", "stop")
+        required = (identifier, "--stage preflight", "--stage all", "--resume", "print_run_review_summary.py", "PENDING_USER_APPROVAL", "stop", "Resolved execution stage plan")
+        for stage in plan.stages:
+            if stage.casefold() not in text.casefold():
+                errors.append(f"{path}: resolved stage {stage!r} is missing")
+        if expected.get("research_question") == "Q1b" and any(stage in plan.stages for stage in ("train", "train_generation", "freeze_selection")):
+            errors.append(f"{path}: Q1b prompt contains a training/selection stage")
+        if expected.get("research_question") == "Q4" and any(stage in plan.stages for stage in ("train", "train_generation", "execute_components")):
+            errors.append(f"{path}: Q4 prompt contains a training stage")
     elif kind == "azure_job":
         required = (identifier, "--stage preflight", "--stage all", "execute_api_job", "validate_responses", "export_artifacts", "validate_artifacts", "generate_review_summary", "--resume", "PENDING_USER_APPROVAL", "stop")
     elif kind == "phase15":
@@ -61,6 +72,8 @@ def _validate_prompt_text(path: Path, item: dict[str, Any], expected: dict[str, 
 def validate(root: str | Path = ".") -> dict[str, Any]:
     root = Path(root)
     errors: list[str] = []
+    stage_plan_audit = validate_stage_plan_registry(root)
+    errors.extend(stage_plan_audit["errors"])
     try:
         policy = load_execution_policy(root)
     except Exception as exc:
@@ -114,6 +127,7 @@ def validate(root: str | Path = ".") -> dict[str, Any]:
         "inventory_hash": inventory["inventory_hash"],
         "execution_policy": policy,
         "approval_contract": manifest.get("approval_contract"),
+        "stage_plan_registry": stage_plan_audit,
     }
     atomic_write_json(root / "reports/sequential_prompt_validation.json", report)
     return report

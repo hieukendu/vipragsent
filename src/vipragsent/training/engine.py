@@ -24,6 +24,15 @@ from ..models.losses import (
     equal_weight_loss,
     token_cross_entropy,
 )
+from ..orchestration.status import RuntimeBlocked
+from ..runtime.device import (
+    assert_runtime_device_contract,
+    move_batch_to_device,
+    resolve_model_input_device,
+    resolve_selected_cuda_device,
+    tensor_devices,
+    write_device_report,
+)
 from .class_weights import ClassWeightBundle
 from .config_resolver import ResolvedTrainingConfig
 from .optimizers import build_optimizer
@@ -48,6 +57,7 @@ class TrainingConfig:
     warmup_ratio: float = 0.1
     use_uncertainty_weighting: bool = True
     rationale_beta: float = 0.3
+    rationale_target_max_length: int = 160
     optimizer: str = "AdamW"
     gradient_checkpointing: bool = False
     deterministic_algorithms: str = "warn_only"
@@ -71,6 +81,7 @@ class TrainingConfig:
             warmup_ratio=resolved.warmup_ratio,
             use_uncertainty_weighting=resolved.uncertainty_weighting_enabled,
             rationale_beta=resolved.rationale_beta,
+            rationale_target_max_length=resolved.rationale_target_max_length,
             optimizer=resolved.optimizer,
             gradient_checkpointing=resolved.gradient_checkpointing,
             deterministic_algorithms=resolved.deterministic_algorithms,
@@ -259,10 +270,21 @@ class TrainingEngine:
         class_weights: ClassWeightBundle | Mapping[str, Any] | None = None,
         resolved_config: Mapping[str, Any] | None = None,
         optimizer_module: Any | None = None,
+        selected_device: torch.device | str | int | None = None,
+        executor_kind: str | None = None,
     ) -> None:
+        if executor_kind in {"single_task_bundle", "independent_checkpoint_bundle", "component_bundle"}:
+            raise RuntimeBlocked("bundle executor kinds must not be passed to the generic TrainingEngine")
         self.model = model
         self.config = config
         self.run_id = run_id
+        self.device = (
+            resolve_selected_cuda_device(selected_device)
+            if selected_device is not None
+            else resolve_model_input_device(model)
+        )
+        self.model_family = str((resolved_config or {}).get("model_family", getattr(model, "_vipragsent_model_family", "unknown")))
+        self.quantized = bool(getattr(model, "_vipragsent_quantized", False) or getattr(getattr(model, "backbone", None), "_vipragsent_quantized", False))
         self.runtime_hooks = dict(runtime_hooks or {})
         variant_config = getattr(model, "config", None)
         variant_uncertainty = bool(getattr(variant_config, "has_uncertainty_weighting", True))
@@ -289,6 +311,8 @@ class TrainingEngine:
         self.gate = EvaluationAccessGate()
         self.scheduler: Any = None
         self._scheduler_total_steps = 0
+        self.device_report_path = Path(checkpoint_root).parent / "training/device_report.json"
+        self._device_report_written = False
 
     def _ensure_scheduler(self, total_steps: int) -> None:
         if self.scheduler is not None and self._scheduler_total_steps == total_steps:
@@ -308,7 +332,51 @@ class TrainingEngine:
         dtype = torch.bfloat16 if self.config.precision == "bf16" else torch.float16
         return torch.autocast(device_type="cuda", dtype=dtype)
 
+    def _prepare_batch(self, batch: dict[str, Any]) -> dict[str, Any]:
+        return move_batch_to_device(batch, self.device)
+
+    def _write_first_step_device_report(self, batch: Mapping[str, Any], loss: Tensor) -> None:
+        if self._device_report_written:
+            return
+        try:
+            report = assert_runtime_device_contract(
+                self.model,
+                self.device,
+                model_family=self.model_family,
+                quantized=self.quantized,
+                device_map=getattr(getattr(self.model, "backbone", self.model), "_vipragsent_qlora_contract", {}).get("device_map"),
+                batch=batch,
+                loss=loss,
+                uncertainty_module=self.loss_aggregator if self.uses_uncertainty_weighting else None,
+                require_lora=self.quantized,
+            )
+        except RuntimeBlocked as exc:
+            report = {
+                "selected_device": str(self.device),
+                "device_index": self.device.index,
+                "device_name": "cpu" if self.device.type == "cpu" else "unresolved",
+                "compute_capability": "n/a",
+                "model_family": self.model_family,
+                "quantized": self.quantized,
+                "device_map": {},
+                "backbone_devices": sorted({str(parameter.device) for name, parameter in self.model.named_parameters() if name.startswith("backbone.")}),
+                "trainable_parameter_devices": sorted({str(parameter.device) for parameter in self.model.parameters() if parameter.requires_grad}),
+                "frozen_parameter_devices": sorted({str(parameter.device) for parameter in self.model.parameters() if not parameter.requires_grad}),
+                "head_devices": [],
+                "rationale_device": [],
+                "uncertainty_device": [],
+                "first_batch_tensor_devices": sorted({str(device) for device in tensor_devices(batch)}),
+                "loss_device": str(loss.device),
+                "status": "BLOCKED",
+                "blockers": [str(exc)],
+            }
+            write_device_report(self.device_report_path, report)
+            raise
+        write_device_report(self.device_report_path, report)
+        self._device_report_written = True
+
     def _loss(self, batch: dict[str, Any]) -> tuple[Tensor, dict[str, Tensor]]:
+        batch = self._prepare_batch(batch)
         pragmatic_weights = dict(self.class_weights.get("pragmatic_pos_weight", {}) or {})
         pragmatic_weights.update(dict(batch.get("pragmatic_pos_weight") or {}))
         polarity_weight = self.class_weights.get("polarity_weight", batch.get("polarity_weight"))
@@ -364,25 +432,26 @@ class TrainingEngine:
         losses: list[float] = []
         with torch.no_grad():
             for batch in batches:
-                total, _ = self._loss(batch)
+                prepared_batch = self._prepare_batch(batch)
+                total, _ = self._loss(prepared_batch)
                 losses.append(float(total.detach().cpu()))
-                output = self.model(batch["input_ids"], batch["attention_mask"])
+                output = self.model(prepared_batch["input_ids"], prepared_batch["attention_mask"])
                 logits = output.get("logits", {})
                 for key in _active_pragmatic_keys(logits):
                     values = logits[key].detach().cpu()
                     logits_export.setdefault(key, []).extend(values.tolist())
                     prob_prag[key].extend(torch.sigmoid(values).tolist())
-                    true_prag[key].extend(batch["targets"][key].detach().cpu().int().tolist())
+                    true_prag[key].extend(prepared_batch["targets"][key].detach().cpu().int().tolist())
                 if "polarity" in logits:
                     values = logits["polarity"].detach().cpu()
                     logits_export.setdefault("polarity", []).extend(values.tolist())
                     prob_polarity.extend(torch.softmax(values, dim=-1).tolist())
-                    true_polarity.extend(batch["targets"]["polarity"].detach().cpu().int().tolist())
+                    true_polarity.extend(prepared_batch["targets"]["polarity"].detach().cpu().int().tolist())
                 if "emotion" in logits:
                     values = logits["emotion"].detach().cpu()
                     logits_export.setdefault("emotion", []).extend(values.tolist())
                     prob_emotion.extend(torch.softmax(values, dim=-1).tolist())
-                    true_emotion.extend(batch["targets"]["emotion"].detach().cpu().int().tolist())
+                    true_emotion.extend(prepared_batch["targets"]["emotion"].detach().cpu().int().tolist())
 
         thresholds: dict[str, float] = {}
         predictions: dict[str, list[Any]] = {}
@@ -542,7 +611,9 @@ class TrainingEngine:
                 window = batches_list[start:start + self.config.gradient_accumulation_steps]
                 window_loss = 0.0
                 for batch in window:
-                    total, _ = self._loss(batch)
+                    prepared_batch = self._prepare_batch(batch)
+                    total, _ = self._loss(prepared_batch)
+                    self._write_first_step_device_report(prepared_batch, total)
                     (total / len(window)).backward()
                     window_loss += float(total.detach().cpu())
                     state.micro_batches += 1

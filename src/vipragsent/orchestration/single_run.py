@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from ..atomic import atomic_write_json, atomic_write_text
-from .contracts import AZURE_STAGES, EXPERIMENT_STAGES, RunContext, RunEntry, RunStatus, StageStatus
+from .contracts import RunContext, RunEntry, RunStatus, StageStatus
 from .run_store import RunStore, artifact_hashes, utc_now
 from .stage_registry import (
     build_single_azure_stage_registry,
@@ -68,9 +68,14 @@ def execute_single_run(
     entry = entry_mapping if isinstance(entry_mapping, RunEntry) else RunEntry.from_mapping(entry_mapping, run_id=run_id)
     if entry.run_id != run_id:
         raise ValueError(f"run_id={run_id!r} does not match inventory entry {entry.run_id!r}")
-    valid_stages = set(AZURE_STAGES if entry.is_azure else EXPERIMENT_STAGES) | {"all"}
-    if stage == "train_or_run":
-        stage = "train_or_reuse"
+    valid_stages = set(entry.stages) | {"all", "train_or_reuse", "train_or_run"}
+    if stage in {"train_or_run", "train_or_reuse"}:
+        if "train" in entry.stages:
+            stage = "train"
+        elif "execute_components" in entry.stages:
+            stage = "execute_components"
+        elif "train_generation" in entry.stages:
+            stage = "train_generation"
     if stage not in valid_stages:
         raise ValueError(f"Unknown sequential stage: {stage}")
     context = RunContext(root, entry, fixture=fixture, dry_run=dry_run)

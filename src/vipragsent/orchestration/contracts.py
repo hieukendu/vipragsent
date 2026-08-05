@@ -9,10 +9,24 @@ from typing import Any
 
 class StageName(StrEnum):
     PREFLIGHT = "preflight"
+    TRAIN = "train"
     TRAIN_OR_REUSE = "train_or_reuse"
+    EXECUTE_COMPONENTS = "execute_components"
+    COMBINE_COMPONENT_PREDICTIONS = "combine_component_predictions"
     EVALUATE_DEV = "evaluate_dev"
     FREEZE_SELECTION = "freeze_selection"
+    FREEZE_COMPONENT_SELECTION = "freeze_component_selection"
     EVALUATE_TEST = "evaluate_test"
+    TRAIN_GENERATION = "train_generation"
+    GENERATE_DEV = "generate_dev"
+    PARSE_DEV = "parse_dev"
+    GENERATE_TEST = "generate_test"
+    PARSE_TEST = "parse_test"
+    RESOLVE_APPROVED_SOURCE = "resolve_approved_source"
+    EVALUATE_EXTERNAL_TESTS = "evaluate_external_tests"
+    VALIDATE_SOURCE_PREDICTIONS = "validate_source_predictions"
+    EXTRACT_PRAGMATIC_CALIBRATION = "extract_pragmatic_calibration"
+    EXTRACT_LEARNING_HISTORY = "extract_learning_history"
     EXECUTE_API_JOB = "execute_api_job"
     VALIDATE_RESPONSES = "validate_responses"
     EXPORT_ARTIFACTS = "export_artifacts"
@@ -45,6 +59,8 @@ class RunStatus(StrEnum):
 
 class ExecutionKind(StrEnum):
     TRAINABLE = "trainable"
+    COMPONENT_BUNDLE = "component_bundle"
+    GENERATION = "generation"
     CHECKPOINT_REUSE = "checkpoint_reuse"
     EVALUATION_ONLY = "evaluation_only"
     AZURE = "azure"
@@ -138,7 +154,9 @@ class RunEntry:
 
     @property
     def stages(self) -> tuple[str, ...]:
-        return AZURE_STAGES if self.is_azure else EXPERIMENT_STAGES
+        from .stage_plans import resolve_stage_plan
+
+        return resolve_stage_plan(self.raw.get("_repository_root", "."), self.raw | {"execution_kind": self.execution_kind, "research_question": self.research_question, "system_id": self.system_id, "backbone": self.backbone}).stages
 
 
 @dataclass
