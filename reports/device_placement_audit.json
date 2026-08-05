@@ -1,0 +1,11 @@
+{
+  "checks": {
+    "canonical_device_module": true,
+    "collator_is_device_neutral": true,
+    "factory_places_complete_non_quantized_model": true,
+    "qlora_uses_explicit_device_map": true,
+    "training_engine_uses_contract": true
+  },
+  "selected_device_policy": "one explicit CUDA device or CPU; no implicit sharding",
+  "status": "PASS"
+}

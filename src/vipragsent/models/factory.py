@@ -7,12 +7,15 @@ import yaml
 from torch import nn
 
 from ..orchestration.status import RuntimeBlocked
+from ..runtime.device import (
+    place_non_quantized_model,
+    place_task_modules,
+    resolve_selected_cuda_device,
+)
 from .backbones import load_pretrained_backbone
 from .qlora import build_qlora_backbone
 from .variants import (
     GenerationBaselineModel,
-    IndependentCheckpointBundle,
-    SingleTaskPragmaticBundle,
     VariantConfig,
     ViPragSentModel,
 )
@@ -58,6 +61,7 @@ def build_production_model(
     execution_mode: str = "production",
     hidden_size: int | None = None,
     vocab_size: int | None = None,
+    selected_device: str | int | None = None,
 ) -> tuple[nn.Module, ModelRuntimeSpec]:
     specs = load_model_registry(registry_path)
     if backbone not in specs:
@@ -67,10 +71,19 @@ def build_production_model(
         raise ValueError("Use build_dummy_model explicitly for fixture mode")
     if not local_snapshot:
         raise RuntimeBlocked(f"Pinned local snapshot is required before loading {backbone}")
+    if variant in {"phobert_pragmatic_single_task", "no_multitask"}:
+        raise RuntimeBlocked("independent bundle variants must use the component bundle executor")
     family = "encoder" if spec.architecture == "encoder" else "causal"
+    selected = resolve_selected_cuda_device(selected_device)
+
     def load_base() -> nn.Module:
         if spec.quantization == "nf4":
-            return build_qlora_backbone(spec.repo_id, revision=spec.revision, local_path=str(local_snapshot))
+            return build_qlora_backbone(
+                spec.repo_id,
+                revision=spec.revision,
+                local_path=str(local_snapshot),
+                selected_device=selected,
+            )
         return load_pretrained_backbone(
             spec.repo_id,
             revision=spec.revision,
@@ -90,28 +103,12 @@ def build_production_model(
     )
     if config.hidden_size <= 0 or config.vocab_size <= 0:
         raise RuntimeBlocked("Loaded backbone did not expose hidden_size and vocab_size")
-    if variant == "phobert_pragmatic_single_task":
-        first = True
-
-        def independent_pragmatic_backbone() -> nn.Module:
-            nonlocal first
-            if first:
-                first = False
-                return base
-            return load_base()
-
-        return SingleTaskPragmaticBundle(independent_pragmatic_backbone, config), spec
-    if config.is_checkpoint_bundle:
-        first = True
-
-        def independent_backbone() -> nn.Module:
-            nonlocal first
-            if first:
-                first = False
-                return base
-            return load_base()
-
-        return IndependentCheckpointBundle(independent_backbone, config), spec
     if variant in {"cot_only_vistral", "explanation_only_vistral"}:
-        return GenerationBaselineModel(base, config), spec
-    return ViPragSentModel(base, config), spec
+        model = GenerationBaselineModel(base, config)
+    else:
+        model = ViPragSentModel(base, config)
+    if spec.quantization == "nf4":
+        place_task_modules(model, selected)
+    else:
+        place_non_quantized_model(model, selected, model_family=backbone)
+    return model, spec

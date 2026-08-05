@@ -6,6 +6,7 @@ import torch
 from torch import nn
 
 from ..orchestration.status import RuntimeBlocked
+from ..runtime.device import resolve_selected_cuda_device
 
 
 def build_qlora_backbone(
@@ -13,6 +14,7 @@ def build_qlora_backbone(
     *,
     revision: str,
     local_path: str | None = None,
+    selected_device: torch.device | str | int | None = None,
     transformers_module: Any | None = None,
     peft_module: Any | None = None,
 ) -> nn.Module:
@@ -34,6 +36,11 @@ def build_qlora_backbone(
             bnb_4bit_use_double_quant=True,
             bnb_4bit_compute_dtype=torch.bfloat16,
         )
+        device = resolve_selected_cuda_device(selected_device)
+        if device.type == "cuda":
+            device_map: dict[str, Any] = {"": int(device.index or 0)}
+        else:
+            device_map = {"": str(device)}
         model = AutoModel.from_pretrained(
             local_path or repo_id,
             revision=revision,
@@ -41,6 +48,7 @@ def build_qlora_backbone(
             torch_dtype=torch.bfloat16,
             trust_remote_code=False,
             local_files_only=local_path is not None,
+            device_map=device_map,
         )
         model.config.use_cache = False
         model = prepare_model_for_kbit_training(model)
@@ -74,7 +82,10 @@ def build_qlora_backbone(
         "alpha": 32,
         "dropout": 0.05,
         "gradient_checkpointing": True,
+        "selected_device": str(device),
+        "device_map": device_map,
     }
+    model._vipragsent_quantized = True
     return model
 
 

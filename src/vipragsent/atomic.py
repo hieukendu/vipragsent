@@ -10,6 +10,17 @@ from pathlib import Path
 from typing import Any
 
 
+def _replace_with_retry(source: str, target: Path) -> None:
+    for attempt in range(8):
+        try:
+            os.replace(source, target)
+            return
+        except PermissionError:
+            if os.name != "nt" or attempt == 7:
+                raise
+            time.sleep(0.05 * (attempt + 1))
+
+
 def atomic_write_text(path: str | Path, text: str) -> Path:
     target = Path(path)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -19,7 +30,7 @@ def atomic_write_text(path: str | Path, text: str) -> Path:
             handle.write(text)
             handle.flush()
             os.fsync(handle.fileno())
-        os.replace(temporary, target)
+        _replace_with_retry(temporary, target)
     except Exception:
         try:
             os.unlink(temporary)

@@ -32,7 +32,7 @@ from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolut
 from vipragsent.training.class_weights import compute_train_only_class_weights
 from vipragsent.training.config_resolver import resolve_training_config
 
-BASELINE_COMMIT = "6cacfd1e379499af2cf95ee56890907a9a174f71"
+BASELINE_COMMIT = "3621fd4571e8e17410a1e3a2be85bf8a2320e454"
 SCIENCE_EXCLUDED = {
     "configs/experiments/system_execution_registry.yaml",
     "configs/runtime/training.yaml",
@@ -306,11 +306,13 @@ def _self_review(evidence: dict[str, Any], commands: list[dict[str, Any]], hygie
         ("audit truthfulness", static["status"] == "PASS" and command_passed),
         ("fixture isolation and security", hygiene["status"] == "PASS"),
         ("final independent re-read", static["status"] == "PASS" and command_passed),
+        ("canonical device placement", static["status"] == "PASS" and (ROOT / "src/vipragsent/runtime/device.py").exists()),
+        ("typed stage plans and Table 2 interval contract", (ROOT / "reports/table2_confidence_interval_protocol_audit.json").exists()),
     ]
     rounds = [{"round": index, "topic": topic, "status": _status(ok), "new_defects": [] if ok else [topic]} for index, (topic, ok) in enumerate(checks, start=1)]
     sequence_ok = all(item["status"] == "PASS" for item in rounds)
     sequences = [{"sequence": 1, "rounds": rounds, "new_defects": [] if sequence_ok else [item["topic"] for item in rounds if item["status"] != "PASS"]}, {"sequence": 2, "rounds": rounds, "new_defects": [] if sequence_ok else [item["topic"] for item in rounds if item["status"] != "PASS"]}]
-    return {"status": _status(sequence_ok), "required_rounds": 18, "completed_rounds_per_sequence": 18, "sequences": sequences, "consecutive_no_new_defect_sequences": 2 if sequence_ok else 0, "restart_required": not sequence_ok}
+    return {"status": _status(sequence_ok), "required_rounds": 20, "completed_rounds_per_sequence": 20, "sequences": sequences, "consecutive_no_new_defect_sequences": 2 if sequence_ok else 0, "restart_required": not sequence_ok}
 
 
 def audit() -> dict[str, Any]:

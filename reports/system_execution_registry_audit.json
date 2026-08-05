@@ -1,21 +1,150 @@
 {
-  "executor_kinds": {
-    "artifact_extraction": 0,
-    "azure": 3,
-    "checkpoint_reuse": 0,
-    "evaluation_only": 7,
-    "generation_baseline": 2,
-    "independent_checkpoint_bundle": 1,
-    "single_model_trainable": 11,
-    "single_task_bundle": 1
+  "execution_registry": {
+    "executor_kinds": {
+      "artifact_extraction": 0,
+      "azure": 3,
+      "checkpoint_reuse": 0,
+      "evaluation_only": 7,
+      "generation_baseline": 2,
+      "independent_checkpoint_bundle": 1,
+      "single_model_trainable": 11,
+      "single_task_bundle": 1
+    },
+    "extra_system_ids": [],
+    "invalid_entries": [],
+    "inventory_row_count": 162,
+    "inventory_system_count": 25,
+    "missing_system_ids": [],
+    "registry_file_sha256": "2A85DE7F1B530F758B65987F459B4F9326265619CD0D1D2F23BC907C0959E2B3",
+    "registry_hash": "DA139C82E8B20F3504A8FC11D97E621B8AD5E11BEA4C717C56A860AB934B8CDC",
+    "registry_system_count": 25,
+    "status": "PASS"
   },
-  "extra_system_ids": [],
-  "invalid_entries": [],
-  "inventory_row_count": 162,
-  "inventory_system_count": 25,
-  "missing_system_ids": [],
-  "registry_file_sha256": "2A85DE7F1B530F758B65987F459B4F9326265619CD0D1D2F23BC907C0959E2B3",
-  "registry_hash": "DA139C82E8B20F3504A8FC11D97E621B8AD5E11BEA4C717C56A860AB934B8CDC",
-  "registry_system_count": 25,
+  "inventory_hash": "FEA901A70BDAE0BC7FACDCD9A6E1BBAD8DA592876528C7B05BAB2D03A6739C44",
+  "stage_plan_registry": {
+    "errors": [],
+    "plan_count": 7,
+    "plans": {
+      "azure": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      },
+      "checkpoint_reuse": {
+        "evaluation_strategy": null,
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "checkpoint_reuse",
+        "plan_id": "checkpoint_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_reused_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      },
+      "component_bundle": {
+        "evaluation_strategy": null,
+        "execution_kind": "component_bundle",
+        "executor_kind": "component_bundle",
+        "plan_id": "component_bundle",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_components",
+          "combine_component_predictions",
+          "evaluate_dev",
+          "freeze_component_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      },
+      "generation": {
+        "evaluation_strategy": null,
+        "execution_kind": "generation",
+        "executor_kind": "generation_baseline",
+        "plan_id": "generation",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train_generation",
+          "generate_dev",
+          "parse_dev",
+          "freeze_selection",
+          "generate_test",
+          "parse_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      },
+      "q1b_evaluation_only": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      },
+      "q4_source_extraction": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      },
+      "trainable_classifier": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    "registry_hash": "7F65D0E5EB211AB7D890509DE46194A0444EFAA3B0628040AC784C40908CBF58",
+    "registry_sha256": "024835961CEF8B5E687DD7662E7CD66C45ADAB4A8B1FB1F081D7082FF21832AC",
+    "status": "PASS"
+  },
   "status": "PASS"
 }

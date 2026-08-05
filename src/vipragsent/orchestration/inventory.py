@@ -141,6 +141,18 @@ def build_expected_runs(root: str | Path = ".") -> dict[str, Any]:
         if row.get("research_question") == "Q3":
             mask = root / str(row["q3_mask_path"])
             row["q3_mask_hash"] = sha256_file(mask) if mask.exists() else ""
+    execution_registry_path = root / "configs/experiments/system_execution_registry.yaml"
+    if execution_registry_path.exists():
+        execution_registry = yaml.safe_load(execution_registry_path.read_text(encoding="utf-8")) or {}
+        execution_by_system = {str(item.get("system_id")): str(item.get("executor_kind")) for item in execution_registry.get("systems", [])}
+        for row in rows:
+            executor_kind = execution_by_system.get(str(row.get("system_id")))
+            if executor_kind in {"single_task_bundle", "independent_checkpoint_bundle"}:
+                row["execution_kind"] = "component_bundle"
+            elif executor_kind == "generation_baseline":
+                row["execution_kind"] = "generation"
+            if row.get("execution_kind") in {"component_bundle", "generation"}:
+                row["training_applicability"] = "APPLICABLE"
     protocol = validate_protocol_resolution(root)
     inventory = {"schema_version": 1, "source": "configs/experiments/master_matrix.yaml and locked supporting registry", "training_seeds": list(TRAINING_SEEDS), "q3_budgets": list(Q3_BUDGETS), "scientific_protocol_conflicts": protocol["scientific_protocol_conflicts"], "rows": rows, "counts_by_question": {question: sum(row["research_question"] == question for row in rows) for question in ("Q1a", "Q1b", "Q2", "Q3", "Q4", "backbone_sensitivity")}, "derived_run_count": len(rows), "inventory_hash": sha256_json(rows)}
     validate_inventory(inventory)
@@ -179,7 +191,7 @@ def validate_inventory(inventory: dict[str, Any]) -> None:
     azure_q1b = [row for row in rows if row["research_question"] == "Q1b" and row["backbone"] == "azure"]
     if len(azure_q1b) != 1 or azure_q1b[0].get("seed") is not None:
         raise ValueError("Q1b must contain exactly one non-seeded Azure row")
-    if any(row.get("execution_kind") not in {"trainable", "checkpoint_reuse", "evaluation_only", "azure", "artifact_extraction"} for row in rows):
+    if any(row.get("execution_kind") not in {"trainable", "component_bundle", "generation", "checkpoint_reuse", "evaluation_only", "azure", "artifact_extraction"} for row in rows):
         raise ValueError("Inventory contains an unsupported execution_kind")
 
 
