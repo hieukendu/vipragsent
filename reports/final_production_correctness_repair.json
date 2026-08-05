@@ -1,13 +1,25 @@
 {
+  "CI_STATUS": "PASS",
+  "LOCAL_CODE_READINESS": "PASS",
+  "REAL_EXPERIMENT_READINESS": false,
+  "SERVER_RUNTIME_READINESS": "NOT_RUN",
+  "audited_code_commit": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "audited_source_manifest_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
   "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
-  "ci_status": "NOT_RUN",
+  "branch_head_before_refresh": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "ci_conclusion": "success",
+  "ci_run_id": 31026573490,
+  "ci_run_number": 16,
+  "ci_status": "completed",
+  "ci_verified_head_sha": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "code_commit_at_audit": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
   "commands": [
     {
       "command": "python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
+      "stdout_tail": "\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
     },
     {
       "command": "python -m compileall -q src scripts tests",
@@ -28,7 +40,7 @@
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
+      "stdout_tail": "........................................................................ [ 46%]\n........................................................................ [ 93%]\n..........                                                               [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
     },
     {
       "command": "python scripts/validate_schemas.py",
@@ -42,7 +54,7 @@
       "returncode": 0,
       "status": "PASS",
       "stderr_tail": "",
-      "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\"\n}\n"
+      "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\"\n}\n"
     },
     {
       "command": "python scripts/validate_sequential_prompts.py",
@@ -53,6 +65,7 @@
     }
   ],
   "engineering_changes": [
+    ".github/workflows/cpu-ci.yml",
     "PROJECT_STATE.json",
     "SETUP_READY.md",
     "configs/experiments/execution_stage_plans.yaml",
@@ -226,18 +239,29 @@
     "prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260522.md",
     "prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260523.md",
     "reports/checkpoint_schema_audit.json",
+    "reports/ci_verification.json",
     "reports/component_bundle_production_audit.json",
     "reports/component_training_audit.json",
     "reports/device_contract_audit.json",
     "reports/execution_stage_plan_audit.json",
     "reports/expected_experiment_runs.csv",
     "reports/expected_experiment_runs.json",
+    "reports/final_cleanup_protocol_guard.json",
+    "reports/final_cleanup_protocol_guard.md",
+    "reports/final_cleanup_worklog.json",
+    "reports/final_cleanup_worklog.md",
     "reports/final_preexperiment_closure.json",
     "reports/final_preexperiment_closure.md",
     "reports/final_production_correctness_repair.json",
     "reports/final_production_correctness_repair.md",
+    "reports/final_readiness_consistency_audit.json",
+    "reports/final_readiness_consistency_audit.md",
+    "reports/final_readiness_snapshot.json",
+    "reports/final_readiness_snapshot.md",
     "reports/final_runtime_integration_audit.json",
     "reports/final_runtime_integration_audit.md",
+    "reports/final_status_inventory_before.json",
+    "reports/final_status_inventory_before.md",
     "reports/generated_sequential_prompts_manifest.json",
     "reports/generation_baseline_protocol_resolution.json",
     "reports/generation_baseline_protocol_resolution.md",
@@ -263,6 +287,7 @@
     "reports/q1b_device_report.json",
     "reports/q1b_predictor_factory_audit.json",
     "reports/q1b_single_task_composition_audit.json",
+    "reports/q3_mask_wiring_audit.json",
     "reports/reasoning_judge_contract.json",
     "reports/reasoning_judge_contract_audit.json",
     "reports/reasoning_metrics_golden_test.json",
@@ -282,10 +307,14 @@
     "schemas/reasoning_judge_output.schema.json",
     "scripts/audit_final_preexperiment_closure.py",
     "scripts/audit_final_production_correctness.py",
+    "scripts/audit_final_readiness_consistency.py",
     "scripts/audit_final_runtime_integration.py",
     "scripts/audit_local_production_correctness.py",
     "scripts/audit_table2_confidence_intervals.py",
     "scripts/generate_sequential_prompts.py",
+    "scripts/readiness_utils.py",
+    "scripts/refresh_final_cleanup_protocol_guard.py",
+    "scripts/refresh_final_readiness_snapshot.py",
     "scripts/run_luna_max_review_cycles.py",
     "scripts/run_single_experiment.py",
     "scripts/self_review_runtime_integration.py",
@@ -326,6 +355,7 @@
     "tests/test_azure.py",
     "tests/test_checkpoint_device_contract.py",
     "tests/test_component_production_runner.py",
+    "tests/test_final_readiness_consistency.py",
     "tests/test_final_runtime_integration.py",
     "tests/test_luna_max_01_generation.py",
     "tests/test_luna_max_08_red_team.py",
@@ -459,7 +489,7 @@
         "next_run_allowed": "NO",
         "status": "PENDING_USER_APPROVAL"
       },
-      "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0",
+      "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8",
       "prompt_count": 183,
       "status": "PASS"
     },
@@ -478,12 +508,12 @@
         "fixed_negative_count": 7453,
         "fixed_negative_ids_hash": "7FB9B1DB4D177C6FE5D5BB67F5C1E039792C1E9261CE262025061C4F694863E3",
         "mask_hashes": {
-          "128": "5D1B3E5C423236322EE18A76A3AD6F42565DFC60B907E167B6A2D3FB33B66996",
-          "256": "DBAEAFE218BDF398E2173D7643298A3846D85E09058154701CD30DC1968DDD0D",
-          "32": "87FB2F9B2130E45AAB9F3D8E9300844107E194AFD916AEEAF6F814119D84284B",
-          "512": "4276E1C7565BA593AB754A203C10217744DB1D8B3C9D6F2FE5ED3C6A63944892",
-          "64": "6B7CA4E4D9A20137567D8353F3FFEFE653AC60B8D180FD3EDA490D51C96E9568",
-          "full": "C3DA66570D50A20E28893D1BFDC952E9BB9C1C4BA4A07824FE54DD3357E492B1"
+          "128": "97E83E2B9336455AA5F3164A7C3F1407327A483E0122263AA9EADF7D60845C4F",
+          "256": "45A07D469C13F8195DA26A902F42BD4D7B60C1FCA50AA858224101C932327A52",
+          "32": "4478E1F72DFB1EA551552B0C0F181C586F428D6E5BAA0BBA46625F2D4B08E278",
+          "512": "77A6262689B63662BC1670097BF36EDD0B69BAA4685A2D181C2F8C66038697A8",
+          "64": "F6E643247D1B0F35E38B762E37CA6A24450C1CB3CBCCCF2FE5ABA8D84930250D",
+          "full": "2F6AB6B8DC4A3D188A1E7D064489A4F42F3AC08DFFFC7704108686A895BF84D0"
         },
         "nested": true,
         "positive_count_full": 545,
@@ -1001,16 +1031,20 @@
     "real_test_predictions_generated": false
   },
   "frozen_data_changed": false,
+  "github_ci_status_at_report_generation": "success",
   "hygiene": {
     "data_files_changed": [],
     "forbidden_weight_or_secret_files": [],
     "secret_pattern_matches": [],
     "status": "PASS"
   },
+  "implementation_blockers": [],
+  "inventory_count": 162,
+  "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8",
   "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
   "protocol_conflicts": [],
   "readiness": {
-    "CI_STATUS": "NOT_RUN",
+    "CI_STATUS": "completed",
     "FINAL_AGGREGATION_READY": false,
     "PHASE15_READY": true,
     "REAL_EXPERIMENT_READY": false,
@@ -1030,7 +1064,7 @@
           "returncode": 0,
           "status": "PASS",
           "stderr_tail": "",
-          "stdout_tail": "\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"23D9666BF294BE647F62F6017C674FCAF4DF7CF8C1BE941F24C8942168F5E9BC\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
+          "stdout_tail": "\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"B434F2778B239BB2DE15310E16C9BB199B1619E8931A3D32DBEC9F3AEE8D98F9\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
         },
         {
           "command": "python -m compileall -q src scripts tests",
@@ -1051,7 +1085,7 @@
           "returncode": 0,
           "status": "PASS",
           "stderr_tail": "",
-          "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
+          "stdout_tail": "........................................................................ [ 46%]\n........................................................................ [ 93%]\n..........                                                               [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
         },
         {
           "command": "python scripts/validate_schemas.py",
@@ -1065,7 +1099,7 @@
           "returncode": 0,
           "status": "PASS",
           "stderr_tail": "",
-          "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0\"\n}\n"
+          "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\"\n}\n"
         },
         {
           "command": "python scripts/validate_sequential_prompts.py",
@@ -1100,6 +1134,14 @@
         "reports/luna_max_review_cycles.json"
       ],
       "self_review": {
+        "canonical_summary": {
+          "consecutive_clean_cycles": 2,
+          "cycles": 2,
+          "no_new_defects": true,
+          "rounds_per_cycle": 5,
+          "status": "PASS",
+          "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
+        },
         "completed_rounds_per_sequence": 5,
         "consecutive_no_new_defect_sequences": 2,
         "required_rounds": 5,
@@ -1154,7 +1196,7 @@
                     "returncode": 0,
                     "status": "PASS",
                     "stderr_tail": "",
-                    "stdout_tail": "..................................                                       [100%]\n"
+                    "stdout_tail": "...................................                                      [100%]\n"
                   }
                 ],
                 "name": "cross-review",
@@ -1245,7 +1287,7 @@
                     "returncode": 0,
                     "status": "PASS",
                     "stderr_tail": "",
-                    "stdout_tail": "........................................................................ [ 51%]\n...................................................................      [100%]\n"
+                    "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n"
                   },
                   {
                     "command": [
@@ -1365,7 +1407,7 @@
                     "returncode": 0,
                     "status": "PASS",
                     "stderr_tail": "",
-                    "stdout_tail": "..................................                                       [100%]\n"
+                    "stdout_tail": "...................................                                      [100%]\n"
                   }
                 ],
                 "name": "cross-review",
@@ -1456,7 +1498,7 @@
                     "returncode": 0,
                     "status": "PASS",
                     "stderr_tail": "",
-                    "stdout_tail": "........................................................................ [ 51%]\n...................................................................      [100%]\n"
+                    "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n"
                   },
                   {
                     "command": [
@@ -1544,9 +1586,41 @@
     },
     "phase15_executed": false,
     "real_experiment_ran": false,
+    "runtime_blockers": [
+      "Phase 15 has not been executed on the target server",
+      "Model-family runtime assets are not prepared",
+      "GPU and Azure live integration have not been validated",
+      "No real approved production run exists"
+    ],
+    "runtime_status": "BLOCKED",
+    "scientific_protocol_conflicts": [],
+    "self_review": {
+      "consecutive_clean_cycles": 2,
+      "cycles": 2,
+      "no_new_defects": true,
+      "rounds_per_cycle": 5,
+      "status": "PASS",
+      "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
+    },
     "status": "PASS",
     "weights_downloaded": false
   },
+  "report_generation_parent_sha": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+  "report_only_commit_expected": true,
+  "review_summary": {
+    "consecutive_clean_cycles": 2,
+    "cycles": 2,
+    "no_new_defects": true,
+    "rounds_per_cycle": 5,
+    "status": "PASS",
+    "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
+  },
+  "runtime_blockers": [
+    "Phase 15 has not been executed on the target server",
+    "Model-family runtime assets are not prepared",
+    "GPU and Azure live integration have not been validated",
+    "No real approved production run exists"
+  ],
   "schema_version": 2,
   "scientific_change_guard": {
     "frozen_data_changed": false,
@@ -1561,7 +1635,16 @@
     "threshold_protocol_changed": false
   },
   "scientific_changes": [],
+  "scientific_protocol_conflicts": [],
   "self_review": {
+    "canonical_summary": {
+      "consecutive_clean_cycles": 2,
+      "cycles": 2,
+      "no_new_defects": true,
+      "rounds_per_cycle": 5,
+      "status": "PASS",
+      "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
+    },
     "completed_rounds_per_sequence": 5,
     "consecutive_no_new_defect_sequences": 2,
     "required_rounds": 5,
@@ -1616,7 +1699,7 @@
                 "returncode": 0,
                 "status": "PASS",
                 "stderr_tail": "",
-                "stdout_tail": "..................................                                       [100%]\n"
+                "stdout_tail": "...................................                                      [100%]\n"
               }
             ],
             "name": "cross-review",
@@ -1707,7 +1790,7 @@
                 "returncode": 0,
                 "status": "PASS",
                 "stderr_tail": "",
-                "stdout_tail": "........................................................................ [ 51%]\n...................................................................      [100%]\n"
+                "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n"
               },
               {
                 "command": [
@@ -1827,7 +1910,7 @@
                 "returncode": 0,
                 "status": "PASS",
                 "stderr_tail": "",
-                "stdout_tail": "..................................                                       [100%]\n"
+                "stdout_tail": "...................................                                      [100%]\n"
               }
             ],
             "name": "cross-review",
@@ -1918,7 +2001,7 @@
                 "returncode": 0,
                 "status": "PASS",
                 "stderr_tail": "",
-                "stdout_tail": "........................................................................ [ 51%]\n...................................................................      [100%]\n"
+                "stdout_tail": "........................................................................ [ 51%]\n....................................................................     [100%]\n"
               },
               {
                 "command": [
@@ -1992,6 +2075,14 @@
     ],
     "source": "reports/luna_max_review_cycles.json",
     "status": "PASS"
+  },
+  "self_review_summary": {
+    "consecutive_clean_cycles": 2,
+    "cycles": 2,
+    "no_new_defects": true,
+    "rounds_per_cycle": 5,
+    "status": "PASS",
+    "subagent_profile_verification": "NOT_VERIFIED; see manifest routing limitation"
   },
   "static_search": {
     "matches": {

@@ -1,10 +1,13 @@
 # Final production correctness repair
 
 - Status: `PASS`
+- Local code readiness: `PASS`
+- Server runtime readiness: `NOT_RUN`
 - Scientific changes: `0`
 - Frozen data changed: `false`
-- CI status: `NOT_RUN`
-- Self-review: `5 rounds x 2 sequences`; consecutive clean sequences: `2`
+- CI status/conclusion: `completed/success`
+- Audited code commit: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
+- Self-review: `5 rounds x 2 cycles`; consecutive clean cycles: `2`
 
 ## Execution boundary
 
@@ -33,6 +36,7 @@
 
 ## Engineering changes
 
+- `.github/workflows/cpu-ci.yml`
 - `PROJECT_STATE.json`
 - `SETUP_READY.md`
 - `configs/experiments/execution_stage_plans.yaml`
@@ -206,18 +210,29 @@
 - `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260522.md`
 - `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260523.md`
 - `reports/checkpoint_schema_audit.json`
+- `reports/ci_verification.json`
 - `reports/component_bundle_production_audit.json`
 - `reports/component_training_audit.json`
 - `reports/device_contract_audit.json`
 - `reports/execution_stage_plan_audit.json`
 - `reports/expected_experiment_runs.csv`
 - `reports/expected_experiment_runs.json`
+- `reports/final_cleanup_protocol_guard.json`
+- `reports/final_cleanup_protocol_guard.md`
+- `reports/final_cleanup_worklog.json`
+- `reports/final_cleanup_worklog.md`
 - `reports/final_preexperiment_closure.json`
 - `reports/final_preexperiment_closure.md`
 - `reports/final_production_correctness_repair.json`
 - `reports/final_production_correctness_repair.md`
+- `reports/final_readiness_consistency_audit.json`
+- `reports/final_readiness_consistency_audit.md`
+- `reports/final_readiness_snapshot.json`
+- `reports/final_readiness_snapshot.md`
 - `reports/final_runtime_integration_audit.json`
 - `reports/final_runtime_integration_audit.md`
+- `reports/final_status_inventory_before.json`
+- `reports/final_status_inventory_before.md`
 - `reports/generated_sequential_prompts_manifest.json`
 - `reports/generation_baseline_protocol_resolution.json`
 - `reports/generation_baseline_protocol_resolution.md`
@@ -243,6 +258,7 @@
 - `reports/q1b_device_report.json`
 - `reports/q1b_predictor_factory_audit.json`
 - `reports/q1b_single_task_composition_audit.json`
+- `reports/q3_mask_wiring_audit.json`
 - `reports/reasoning_judge_contract.json`
 - `reports/reasoning_judge_contract_audit.json`
 - `reports/reasoning_metrics_golden_test.json`
@@ -262,10 +278,14 @@
 - `schemas/reasoning_judge_output.schema.json`
 - `scripts/audit_final_preexperiment_closure.py`
 - `scripts/audit_final_production_correctness.py`
+- `scripts/audit_final_readiness_consistency.py`
 - `scripts/audit_final_runtime_integration.py`
 - `scripts/audit_local_production_correctness.py`
 - `scripts/audit_table2_confidence_intervals.py`
 - `scripts/generate_sequential_prompts.py`
+- `scripts/readiness_utils.py`
+- `scripts/refresh_final_cleanup_protocol_guard.py`
+- `scripts/refresh_final_readiness_snapshot.py`
 - `scripts/run_luna_max_review_cycles.py`
 - `scripts/run_single_experiment.py`
 - `scripts/self_review_runtime_integration.py`
@@ -306,6 +326,7 @@
 - `tests/test_azure.py`
 - `tests/test_checkpoint_device_contract.py`
 - `tests/test_component_production_runner.py`
+- `tests/test_final_readiness_consistency.py`
 - `tests/test_final_runtime_integration.py`
 - `tests/test_luna_max_01_generation.py`
 - `tests/test_luna_max_08_red_team.py`

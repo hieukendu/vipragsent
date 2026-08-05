@@ -1,10 +1,14 @@
 # Final pre-experiment production closure
 
 Status: `PASS`
-Code commit at audit: `487134bf0e1b0b3d5f3165f0e7a71785141d4c8d`
+Local code readiness: `PASS`
+Server runtime readiness: `NOT_RUN`
+Audited code commit: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
+Report generation parent SHA: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
+CI status/conclusion: `completed/success`
 Inventory: `162` rows
 Frozen data unchanged: `true`
-Self-review: `0 rounds x 0 sequences`; consecutive clean sequences: `0`
+Self-review: `5 rounds x 2 cycles`; consecutive clean cycles: `2`
 
 Phase 15, model downloads, Azure requests, real training, real test prediction, approvals, and the global production DAG were not executed.
 
