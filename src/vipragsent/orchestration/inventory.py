@@ -12,11 +12,55 @@ from ..hashing import sha256_json
 from ..protocol import validate_protocol_resolution
 
 
-INVENTORY_COLUMNS = ["run_id", "research_question", "system", "variant", "backbone", "seed", "budget", "task", "split", "checkpoint_role", "dependencies", "expected_outputs", "reusable_checkpoint_key", "resolution_status"]
+INVENTORY_COLUMNS = [
+    "experiment_id", "run_id", "research_question", "system_id", "system", "display_name", "variant",
+    "backbone", "seed", "budget", "task", "split", "dependencies", "required_phase15_assets",
+    "checkpoint_role", "expected_outputs", "reusable_checkpoint_key", "selection_metric", "evaluation_protocol",
+    "approval_required", "execution_status", "approval_status", "protocol_resolution_status", "resolution_status",
+]
 Q3_BUDGETS = ("32", "64", "128", "256", "512", "full")
+DISPLAY_NAMES = {
+    "phobert_pragmatic_single_task": "PhoBERT pragmatic single-task bundle",
+    "phobert_pragmatic_finetune": "PhoBERT pragmatic fine-tune",
+    "xlmr_pragmatic_finetune": "XLM-R pragmatic fine-tune",
+    "sailor_pragmatic_sft": "Sailor-7B pragmatic SFT",
+    "vistral_pragmatic_sft": "Vistral-7B pragmatic SFT",
+    "vipragsent_no_auxiliary_vistral": "ViPragSent - no auxiliary losses",
+    "cot_only_vistral": "Vistral CoT-only",
+    "explanation_only_vistral": "Vistral explanation-only",
+    "vipragsent_full_vistral": "Full ViPragSent Vistral",
+    "vipragsent_full_phobert": "Full ViPragSent PhoBERT",
+}
 
 
 def _row(**values: Any) -> dict[str, Any]:
+    values.setdefault("experiment_id", values.get("run_id"))
+    values.setdefault("system_id", values.get("system"))
+    values.setdefault("system", values.get("system_id"))
+    values.setdefault("display_name", DISPLAY_NAMES.get(str(values.get("system_id")), str(values.get("system_id"))))
+    values.setdefault("required_phase15_assets", "azure_deployment;prompt_manifest" if values.get("backbone") == "azure" else "model_weights;tokenizer;runtime_profile")
+    question = str(values.get("research_question", "")).casefold()
+    values.setdefault("selection_metric", {
+        "q1a": "macro_prag_f1_dev",
+        "q1b": "ord_external_f1",
+        "q2": "macro_prag_f1_dev",
+        "q3": "sarcasm_dev_f1",
+        "q4": "macro_pragmatic_ece_test;dev_macro_pragmatic_f1_by_epoch",
+        "backbone_sensitivity": "macro_prag_f1_test",
+    }.get(question, "not_applicable"))
+    values.setdefault("evaluation_protocol", {
+        "q1a": "q1a_frozen_dev_threshold_v1",
+        "q1b": "q1b_external_retention_v1",
+        "q2": "q2_ablation_v1",
+        "q3": "q3_low_resource_masked_v1",
+        "q4": "q4_pragmatic_calibration_v1",
+        "backbone_sensitivity": "backbone_sensitivity_v1",
+    }.get(question, "setup_preflight_v1"))
+    values.setdefault("approval_required", True)
+    values.setdefault("execution_status", "NOT_STARTED")
+    values.setdefault("approval_status", "PENDING_USER_APPROVAL")
+    values.setdefault("protocol_resolution_status", values.get("resolution_status", "RESOLVED"))
+    values.setdefault("resolution_status", "RESOLVED")
     return {column: values.get(column, "") for column in INVENTORY_COLUMNS}
 
 
@@ -29,15 +73,13 @@ def build_expected_runs(root: str | Path = ".") -> dict[str, Any]:
         ("xlmr_pragmatic_finetune", "pragmatic_finetune", "xlmr_large", "pragmatic"),
         ("sailor_pragmatic_sft", "pragmatic_sft", "sailor_7b", "pragmatic"),
         ("vistral_pragmatic_sft", "pragmatic_sft", "vistral_7b", "pragmatic"),
-        ("vistral_no_auxiliary", "no_auxiliary", "vistral_7b", "pragmatic"),
+        ("vipragsent_no_auxiliary_vistral", "no_auxiliary", "vistral_7b", "pragmatic"),
         ("cot_only_vistral", "cot_only", "vistral_7b", "pragmatic"),
         ("explanation_only_vistral", "explanation_only", "vistral_7b", "pragmatic"),
         ("vipragsent_full_vistral", "full", "vistral_7b", "pragmatic"),
     ):
         for seed in TRAINING_SEEDS:
-            resolution = "CONFLICT" if system in {"vistral_pragmatic_sft", "vistral_no_auxiliary"} else "RESOLVED"
-            reuse_system = "vistral_pragmatic_sft" if system == "vistral_no_auxiliary" else system
-            rows.append(_row(run_id=f"q1a_{system}_{seed}", research_question="Q1a", system=system, variant=variant, backbone=backbone, seed=seed, task=task, split="vipragsent_test", checkpoint_role=system, dependencies="preflight_validation;rationale_generation", expected_outputs="predictions;metrics;history", reusable_checkpoint_key=f"{reuse_system}:{seed}", resolution_status=resolution))
+            rows.append(_row(run_id=f"q1a_{system}_{seed}", research_question="Q1a", system=system, variant=variant, backbone=backbone, seed=seed, task=task, split="vipragsent_test", checkpoint_role=system, dependencies="preflight_validation;rationale_generation", expected_outputs="predictions;metrics;history", reusable_checkpoint_key=f"{system}:{seed}"))
     for system, variant in (("azure_gpt41_mini_zeroshot", "zero_shot"), ("azure_gpt41_mini_8shot", "eight_shot")):
         rows.append(_row(run_id=f"q1a_{system}", research_question="Q1a", system=system, variant=variant, backbone="azure", seed="", task="pragmatic", split="vipragsent_test", checkpoint_role=system, dependencies="preflight_validation", expected_outputs="predictions;usage", reusable_checkpoint_key=system))
     q1b_systems = (("phobert_pol_single", "phobert_base", "polarity"), ("phobert_emo_single", "phobert_base", "emotion"), ("phobert_multitask_8head", "phobert_base", "polarity;emotion"), ("xlmr_multitask_8head", "xlmr_large", "polarity;emotion"), ("sailor_multitask_8head", "sailor_7b", "polarity;emotion"), ("vistral_multitask_8head", "vistral_7b", "polarity;emotion"), ("vipragsent_full_phobert", "phobert_base", "polarity;emotion"))
@@ -60,8 +102,9 @@ def build_expected_runs(root: str | Path = ".") -> dict[str, Any]:
     for item in q4_resolution:
         if item["resolution_status"] != "RESOLVED":
             continue
+        system = item["resolved_checkpoint_id"]
         for seed in TRAINING_SEEDS:
-            rows.append(_row(run_id=f"q4_{item['resolved_checkpoint_id']}_{seed}", research_question="Q4", system=item["display_label"], variant="calibration", backbone="vistral_7b" if "vistral" in item["resolved_checkpoint_id"] else "phobert_base", seed=seed, task="polarity_ece", split="test;dev_history", checkpoint_role=item["resolved_checkpoint_id"], dependencies="reused_predictions;reused_histories", expected_outputs="reliability_bins;learning_curve", reusable_checkpoint_key=f"{item['resolved_checkpoint_id']}:{seed}", resolution_status=item["resolution_status"]))
+            rows.append(_row(run_id=f"q4_{system}_{seed}", research_question="Q4", system=system, display_name=DISPLAY_NAMES.get(system, system), variant="pragmatic_calibration", backbone=item["backbone"], seed=seed, task="pragmatic_ece;learning_curve", split="vipragsent_test;vipragsent_dev_history", checkpoint_role=system, dependencies="reused_predictions;reused_histories", expected_outputs="q4_per_seed;reliability_bins;learning_curve", reusable_checkpoint_key=f"{system}:{seed}"))
     for system, backbone in (("vipragsent_full_phobert", "phobert_base"), ("vipragsent_full_vistral", "vistral_7b")):
         for seed in TRAINING_SEEDS:
             rows.append(_row(run_id=f"backbone_sensitivity_{system}_{seed}", research_question="backbone_sensitivity", system=system, variant="full", backbone=backbone, seed=seed, task="pragmatic;ordinary;polarity_ece;profiling", split="test", checkpoint_role=system, dependencies="reused_predictions;reused_profiles", expected_outputs="backbone_sensitivity", reusable_checkpoint_key=f"{system}:{seed}"))
@@ -73,7 +116,7 @@ def build_expected_runs(root: str | Path = ".") -> dict[str, Any]:
 
 def validate_inventory(inventory: dict[str, Any]) -> None:
     rows = list(inventory.get("rows", []))
-    required = {"run_id", "research_question", "system", "variant", "backbone", "task", "split", "checkpoint_role", "dependencies", "expected_outputs", "reusable_checkpoint_key"}
+    required = {"experiment_id", "run_id", "research_question", "system_id", "system", "display_name", "variant", "backbone", "task", "split", "dependencies", "required_phase15_assets", "checkpoint_role", "expected_outputs", "reusable_checkpoint_key", "selection_metric", "evaluation_protocol", "approval_required", "execution_status", "approval_status", "protocol_resolution_status"}
     missing = [row.get("run_id", "<missing>") for row in rows if not required.issubset(row) or any(row.get(key) in {"", None} for key in required)]
     if missing:
         raise ValueError(f"Inventory rows are missing required semantic fields: {missing[:5]}")

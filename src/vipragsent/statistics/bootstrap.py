@@ -6,6 +6,9 @@ from dataclasses import dataclass
 import numpy as np
 
 
+APPROVED_P_VALUE_METHOD = "paired_hierarchical_bootstrap_sign_plus_one_v1"
+
+
 def _width(values: object) -> int:
     if isinstance(values, dict):
         first = next(iter(values.values()))
@@ -31,6 +34,25 @@ class BootstrapResult:
 
 def _percentile(values: np.ndarray, percentile: float) -> float:
     return float(np.percentile(values, percentile, method="linear"))
+
+
+def sign_plus_one_two_sided_p_value(distribution: Sequence[float]) -> float:
+    """Return the approved finite-resample-corrected two-sided sign p-value."""
+    values = np.asarray(distribution, dtype=float)
+    if values.ndim != 1 or values.size == 0:
+        raise ValueError("A non-empty one-dimensional bootstrap distribution is required")
+    resamples = values.size
+    p_lower = (1.0 + float(np.count_nonzero(values <= 0.0))) / (resamples + 1.0)
+    p_upper = (1.0 + float(np.count_nonzero(values >= 0.0))) / (resamples + 1.0)
+    return min(1.0, 2.0 * min(p_lower, p_upper))
+
+
+def _p_value_for_method(distribution: Sequence[float], method: str | None) -> float | None:
+    if method is None:
+        return None
+    if method != APPROVED_P_VALUE_METHOD:
+        raise ValueError(f"Unknown or prohibited p-value method: {method}")
+    return sign_plus_one_two_sided_p_value(distribution)
 
 
 def hierarchical_bootstrap(
@@ -95,11 +117,7 @@ def paired_bootstrap_comparison(
             )
         distribution.append(float(np.mean(deltas)))
     values = np.asarray(distribution)
-    p_value = None
-    if p_value_method == "mid_p_two_sided":
-        p_value = min(1.0, float(2 * min(np.mean(values <= 0), np.mean(values >= 0))))
-    elif p_value_method is not None:
-        raise ValueError(f"Unknown p-value method: {p_value_method}")
+    p_value = _p_value_for_method(distribution, p_value_method)
     return BootstrapResult(observed, _percentile(values, 2.5), _percentile(values, 97.5), distribution, p_value)
 
 
@@ -127,11 +145,7 @@ def paired_bootstrap_trainable_vs_azure(
         azure_score = metric(_slice(azure[0], example_indices), _slice(azure[1], example_indices))
         distribution.append(float(np.mean(train_scores) - azure_score))
     values = np.asarray(distribution)
-    p_value = None
-    if p_value_method == "mid_p_two_sided":
-        p_value = min(1.0, float(2 * min(np.mean(values <= 0), np.mean(values >= 0))))
-    elif p_value_method is not None:
-        raise ValueError(f"Unknown p-value method: {p_value_method}")
+    p_value = _p_value_for_method(distribution, p_value_method)
     return BootstrapResult(observed, _percentile(values, 2.5), _percentile(values, 97.5), distribution, p_value)
 
 

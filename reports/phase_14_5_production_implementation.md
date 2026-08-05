@@ -4,8 +4,8 @@ The implementation repair completed the non-server code paths and exercised them
 
 ## Inventory
 
-- Expected runs: **156**
-- Counts: `{"Q1a": 29, "Q1b": 22, "Q2": 18, "Q3": 78, "Q4": 3, "backbone_sensitivity": 6}`
+- Expected runs: **162**
+- Counts: `{"Q1a": 29, "Q1b": 22, "Q2": 18, "Q3": 78, "Q4": 9, "backbone_sensitivity": 6}`
 
 ## Deferred runtime
 
@@ -18,6 +18,4 @@ The implementation repair completed the non-server code paths and exercised them
 
 ## Conflicts
 
-- `SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY`
-- `SCIENTIFIC_PROTOCOL_CONFLICT_Q4`
-- `SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE`
+- `None`

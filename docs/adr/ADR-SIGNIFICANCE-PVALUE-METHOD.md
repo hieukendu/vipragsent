@@ -2,13 +2,13 @@
 
 ## Status
 
-CONFLICT, awaiting an explicit statistical protocol decision.
+RESOLVED by the sequential experiment protocol approval.
 
 ## Decision
 
-The implementation exposes a versioned p-value strategy interface and refuses to label
-significance results PASS while the exact two-sided empirical p-value definition and finite
-resample correction are unspecified by the locked protocol.
-
-The paired hierarchical resampling, percentile confidence intervals, fixed label spaces, and
-Holm correction are implemented independently of this unresolved method.
+Use `paired_hierarchical_bootstrap_sign_plus_one_v1` with left-minus-right differences,
+1,000 resamples, bootstrap seed `20260525`, percentile 95% intervals, and plus-one
+finite-resample correction. The raw two-sided p-value is `min(1, 2 * min(p_lower,
+p_upper))`, where `p_lower = (1 + count(delta <= 0)) / (B + 1)` and
+`p_upper = (1 + count(delta >= 0)) / (B + 1)`. Apply Holm correction within each
+seven-metric family.

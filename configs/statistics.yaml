@@ -5,4 +5,7 @@ trainable:
 azure:
   hierarchy: test_example
 confidence_interval: percentile_95
-multiple_comparisons: holm
+multiple_comparisons: holm_within_7_metric_family
+method_id: paired_hierarchical_bootstrap_sign_plus_one_v1
+difference_direction: left_minus_right
+finite_resample_correction: plus_one

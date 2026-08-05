@@ -10,7 +10,7 @@
       "command": "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
       "returncode": 0,
       "stderr_tail": "",
-      "stdout_tail": ".............................                                            [100%]\n"
+      "stdout_tail": ".....................................                                    [100%]\n"
     }
   ],
   "defects_confirmed": [
@@ -302,18 +302,14 @@
       "errors": [],
       "model_count": 4,
       "passed": true,
-      "scientific_protocol_conflicts": [
-        "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
-        "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
-        "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
-      ]
+      "scientific_protocol_conflicts": []
     },
     "named_production_handlers": true,
     "temporary_behavior": true
   },
   "implementation_passed": true,
   "phase": "14.5",
-  "phase14_ready": false,
+  "phase14_ready": true,
   "production_dag_kinds_have_named_handlers": true,
   "repair_items": [
     {
@@ -399,7 +395,7 @@
     {
       "description": "production evaluation/statistics and conflict gates",
       "repair": "Q",
-      "status": "BLOCKED"
+      "status": "PASS"
     },
     {
       "description": "profiling and cost accounting",
@@ -409,7 +405,7 @@
     {
       "description": "matrix and expected-run inventory",
       "repair": "S",
-      "status": "BLOCKED"
+      "status": "PASS"
     },
     {
       "description": "execution-context isolation",
@@ -423,20 +419,16 @@
       "Q1b": 22,
       "Q2": 18,
       "Q3": 78,
-      "Q4": 3,
+      "Q4": 9,
       "backbone_sensitivity": 6
     },
     "errors": [],
-    "expected_run_count": 156,
+    "expected_run_count": 162,
     "warnings": [
       "ruff executable is unavailable in the current environment; CI will run the declared dev dependency"
     ]
   },
-  "scientific_protocol_conflicts": [
-    "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
-    "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
-    "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
-  ],
+  "scientific_protocol_conflicts": [],
   "server_paths_have_explicit_blockers_and_injected_tests": true,
   "tests_added": [
     "causal decoder/EOS tests",

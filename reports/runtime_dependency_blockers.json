@@ -42,11 +42,7 @@
     },
     "exit_code": 2,
     "passed": false,
-    "scientific_protocol_conflicts": [
-      "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
-      "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
-      "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
-    ],
+    "scientific_protocol_conflicts": [],
     "warnings": []
   },
   "runtime_blockers": [
@@ -57,10 +53,6 @@
     "bitsandbytes is not installed for NF4 QLoRA",
     "Phase 15 model/tokenizer smoke report is missing"
   ],
-  "scientific_protocol_conflicts": [
-    "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
-    "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
-    "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
-  ],
+  "scientific_protocol_conflicts": [],
   "weights_downloaded": false
 }

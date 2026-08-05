@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ViPragSent sequential run approval status",
+  "type": "object",
+  "required": ["run_id", "status", "approved_by", "approved_at"],
+  "properties": {
+    "run_id": {"type": "string", "minLength": 1},
+    "status": {"type": "string", "enum": ["PENDING_USER_APPROVAL", "APPROVED", "REJECTED"]},
+    "approved_by": {"type": ["string", "null"]},
+    "approved_at": {"type": ["string", "null"]}
+  },
+  "additionalProperties": false
+}

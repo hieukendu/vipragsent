@@ -38,6 +38,61 @@ def macro_pragmatic_f1(true: Mapping[str, Sequence[int]], pred: Mapping[str, Seq
     return float(np.mean([binary_macro_f1(true[key], pred[key]) for key in PRAGMATIC_LABELS]))
 
 
+def pragmatic_reliability_bins(
+    true: Mapping[str, Sequence[int]],
+    probabilities: Mapping[str, Sequence[float]],
+    *,
+    bins: int = 10,
+) -> dict[str, list[dict[str, float | int]]]:
+    """Build raw-positive-probability reliability bins for each pragmatic label."""
+    if set(true) != set(PRAGMATIC_LABELS) or set(probabilities) != set(PRAGMATIC_LABELS):
+        raise ValueError("Pragmatic calibration requires all six canonical labels")
+    if bins != 10:
+        raise ValueError("The locked pragmatic ECE protocol uses exactly ten bins")
+    edges = np.linspace(0.0, 1.0, bins + 1)
+    output: dict[str, list[dict[str, float | int]]] = {}
+    for label in PRAGMATIC_LABELS:
+        y_true = np.asarray(true[label], dtype=int)
+        probs = np.asarray(probabilities[label], dtype=float)
+        if y_true.ndim != 1 or probs.ndim != 1 or y_true.shape != probs.shape:
+            raise ValueError(f"Calibration inputs are not aligned for {label}")
+        if np.any((probs < 0.0) | (probs > 1.0)):
+            raise ValueError(f"Calibration probabilities are outside [0, 1] for {label}")
+        rows: list[dict[str, float | int]] = []
+        for index in range(bins):
+            lower, upper = float(edges[index]), float(edges[index + 1])
+            mask = (probs >= lower) & ((probs < upper) if index < bins - 1 else (probs <= upper))
+            count = int(mask.sum())
+            mean_confidence = float(probs[mask].mean()) if count else 0.0
+            empirical_rate = float(y_true[mask].mean()) if count else 0.0
+            rows.append({
+                "bin_index": index,
+                "bin_lower": lower,
+                "bin_upper": upper,
+                "count": count,
+                "mean_confidence": mean_confidence,
+                "empirical_positive_rate": empirical_rate,
+                "absolute_gap": abs(mean_confidence - empirical_rate) if count else 0.0,
+            })
+        output[label] = rows
+    return output
+
+
+def pragmatic_ece(
+    true: Mapping[str, Sequence[int]],
+    probabilities: Mapping[str, Sequence[float]],
+    *,
+    bins: int = 10,
+) -> tuple[dict[str, float], float, dict[str, list[dict[str, float | int]]]]:
+    """Compute per-label and macro pragmatic ECE without thresholding or pooling seeds."""
+    reliability = pragmatic_reliability_bins(true, probabilities, bins=bins)
+    ece_by_label: dict[str, float] = {}
+    for label, rows in reliability.items():
+        total = sum(int(row["count"]) for row in rows)
+        ece_by_label[label] = float(sum(int(row["count"]) / total * float(row["absolute_gap"]) for row in rows if row["count"]) if total else 0.0)
+    return ece_by_label, float(np.mean([ece_by_label[label] for label in PRAGMATIC_LABELS])), reliability
+
+
 def reliability_bins(
     true: Sequence[int], probabilities: Sequence[Sequence[float]], *, bins: int = 10
 ) -> list[dict[str, float | int | None]]:

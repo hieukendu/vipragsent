@@ -205,11 +205,11 @@ def _write_reports(
         "resolution_status": protocol["resolution_status"],
         "scientific_protocol_conflicts": conflicts,
         "evidence": {
-            "Q1A": "configs/experiments/q1a/system_roles.yaml resolves vistral_baseline and no_auxiliary to identical fingerprints",
+            "Q1A": "configs/experiments/q1a/system_roles.yaml assigns vipragsent_no_auxiliary_vistral a distinct six-task homoscedastic-loss fingerprint",
             "Q1B": "configs/experiments/q1b/checkpoint_matrix.yaml explicitly names polarity_v1 and emotion_v1; both manifests validate",
             "Q3": "configs/experiments/q3/system_aliases.yaml maps every generic label to a concrete system with RESOLVED status",
-            "Q4": "configs/experiments/q4/checkpoint_resolution.yaml preserves pragmatic-only checkpoint conflicts and resolves only full ViPragSent Vistral",
-            "SIGNIFICANCE_PVALUE": "configs/statistics/significance_method.yaml does not specify an authoritative exact raw p-value formula",
+            "Q4": "configs/experiments/q4/checkpoint_resolution.yaml resolves the three approved pragmatic systems and six-label raw-probability calibration",
+            "SIGNIFICANCE_PVALUE": "configs/statistics/significance_method.yaml records the paired hierarchical bootstrap plus-one sign p-value method",
         },
     }
     atomic_write_json(ROOT / "reports/scientific_protocol_conflicts.json", scientific)

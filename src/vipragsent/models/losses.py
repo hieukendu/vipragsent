@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+from collections.abc import Iterable, Mapping
 
 import torch
 from torch import Tensor, nn
@@ -54,9 +54,13 @@ def classification_losses(
 class UncertaintyWeightedMultiTaskLoss(nn.Module):
     """Eight independent homoscedastic parameters and the locked 0.5 coefficients."""
 
-    def __init__(self, rationale_beta: float = RATIONALE_BETA) -> None:
+    def __init__(self, rationale_beta: float = RATIONALE_BETA, tasks: Iterable[str] | None = None) -> None:
         super().__init__()
-        self.log_variances = nn.ParameterDict({key: nn.Parameter(torch.zeros(())) for key in (*PRAGMATIC_LABELS, "polarity", "emotion")})
+        task_keys = tuple(tasks) if tasks is not None else (*PRAGMATIC_LABELS, "polarity", "emotion")
+        allowed = set(PRAGMATIC_LABELS) | {"polarity", "emotion"}
+        if not task_keys or not set(task_keys).issubset(allowed) or len(set(task_keys)) != len(task_keys):
+            raise ValueError("Uncertainty tasks must be a non-empty subset of canonical classification tasks")
+        self.log_variances = nn.ParameterDict({key: nn.Parameter(torch.zeros(())) for key in task_keys})
         self.rationale_beta = rationale_beta
 
     def forward(self, losses: Mapping[str, Tensor], rationale_loss: Tensor | None = None) -> tuple[Tensor, dict[str, Tensor]]:

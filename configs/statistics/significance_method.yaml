@@ -1,7 +1,14 @@
-resolution_status: CONFLICT
-method_id: null
+resolution_status: RESOLVED
+method_id: paired_hierarchical_bootstrap_sign_plus_one_v1
 difference_direction: left_minus_right
-raw_p_value_definition: null
-finite_resample_correction: null
+resamples: 1000
+bootstrap_seed: 20260525
+confidence_interval: percentile_95
+finite_resample_correction: plus_one
+raw_p_value_definition: two_sided_sign_test_plus_one
+p_lower_definition: (1 + count(delta <= 0)) / (B + 1)
+p_upper_definition: (1 + count(delta >= 0)) / (B + 1)
+two_sided_p_value_definition: min(1, 2 * min(p_lower, p_upper))
+multiple_comparisons: holm_within_7_metric_family
 approval_source: 21_MASTER_EXPERIMENT_MATRIX.md; configs/statistics.yaml
-evidence: The locked sources specify paired hierarchical bootstrap and Holm correction but do not specify the exact two-sided p-value formula or finite-resample correction.
+evidence: User-approved paired hierarchical bootstrap sign p-value with plus-one finite-resample correction.

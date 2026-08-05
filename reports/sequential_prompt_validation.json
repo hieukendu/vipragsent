@@ -1,0 +1,22 @@
+{
+  "aggregation_count": 5,
+  "approval_contract": {
+    "next_run_allowed": "NO",
+    "status": "PENDING_USER_APPROVAL"
+  },
+  "azure_job_count": 11,
+  "errors": [],
+  "execution_policy": {
+    "automatic_next_run": false,
+    "execution_policy": "sequential_review_gated",
+    "global_full_dag_enabled": false,
+    "maximum_concurrent_gpu_jobs": 1,
+    "require_user_approval_after_each_run": true
+  },
+  "expected_prompt_count": 183,
+  "experiment_count": 162,
+  "inventory_hash": "1CFDCDD57DDDA2F6C00175C8B522C8A9C4E3D1C989166A8C41B5DB188A1B5AB9",
+  "phase15_model_count": 4,
+  "prompt_count": 183,
+  "status": "PASS"
+}

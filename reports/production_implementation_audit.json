@@ -14,11 +14,7 @@
       "errors": [],
       "model_count": 4,
       "passed": true,
-      "scientific_protocol_conflicts": [
-        "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
-        "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
-        "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
-      ]
+      "scientific_protocol_conflicts": []
     },
     "named_production_handlers": true,
     "temporary_behavior": true
@@ -76,18 +72,14 @@
       "Q1b": 22,
       "Q2": 18,
       "Q3": 78,
-      "Q4": 3,
+      "Q4": 9,
       "backbone_sensitivity": 6
     },
-    "derived_run_count": 156,
-    "inventory_hash": "6A2E8D8D5527D011AED2376AFB7E7C0C69DFB8DA9E6D1E77028F6DF0C1B6BB3B"
+    "derived_run_count": 162,
+    "inventory_hash": "1CFDCDD57DDDA2F6C00175C8B522C8A9C4E3D1C989166A8C41B5DB188A1B5AB9"
   },
-  "phase14_ready": false,
-  "scientific_protocol_conflicts": [
-    "SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY",
-    "SCIENTIFIC_PROTOCOL_CONFLICT_Q4",
-    "SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE"
-  ],
+  "phase14_ready": true,
+  "scientific_protocol_conflicts": [],
   "warnings": [
     "ruff executable is unavailable in the current environment; CI will run the declared dev dependency"
   ]

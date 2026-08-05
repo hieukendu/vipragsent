@@ -11,11 +11,8 @@ Status: BLOCKED
 - bitsandbytes is not installed for NF4 QLoRA
 - Phase 15 model/tokenizer smoke report is missing
 - complete Phase 16 production manifest is not present
-- unresolved scientific protocol conflict
 
 ## Scientific protocol conflicts
-- SCIENTIFIC_PROTOCOL_CONFLICT_Q1A_VISTRAL_NO_AUXILIARY
-- SCIENTIFIC_PROTOCOL_CONFLICT_Q4
-- SCIENTIFIC_PROTOCOL_CONFLICT_SIGNIFICANCE_PVALUE
+- None
 
 The report distinguishes implementation checks from deferred runtime and protocol readiness.

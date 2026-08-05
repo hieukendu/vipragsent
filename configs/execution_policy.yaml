@@ -1,0 +1,9 @@
+schema_version: 1
+execution_policy: sequential_review_gated
+global_full_dag_enabled: false
+maximum_concurrent_gpu_jobs: 1
+automatic_next_run: false
+require_user_approval_after_each_run: true
+approval_status_initial: PENDING_USER_APPROVAL
+next_run_allowed_initial: NO
+one_job_at_a_time: true

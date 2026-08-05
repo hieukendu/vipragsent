@@ -7,7 +7,7 @@ from typing import Any
 import torch
 from torch import Tensor, nn
 
-from ..constants import RATIONALE_BETA
+from ..constants import PRAGMATIC_LABELS, RATIONALE_BETA
 from .backbones import DummyBackbone, pool_hidden_states
 from .heads import ClassificationHeads
 from .rationale_decoder import RationaleDecoder
@@ -26,6 +26,7 @@ VARIANT_IDS = {
     "phobert_pragmatic_finetune",
     "xlmr_pragmatic_finetune",
     "vistral_pragmatic_sft",
+    "vipragsent_no_auxiliary_vistral",
     "sailor_pragmatic_sft",
     "phobert_multitask_8head",
     "xlmr_multitask_8head",
@@ -61,7 +62,7 @@ class VariantConfig:
             return {"polarity"}
         if self.name in {"phobert_emo_single"}:
             return {"emotion"}
-        if self.name in {"phobert_pragmatic_finetune", "xlmr_pragmatic_finetune", "sailor_pragmatic_sft", "vistral_pragmatic_sft", "explanation_only_vistral"}:
+        if self.name in {"phobert_pragmatic_finetune", "xlmr_pragmatic_finetune", "sailor_pragmatic_sft", "vistral_pragmatic_sft", "vipragsent_no_auxiliary_vistral", "explanation_only_vistral"}:
             return {"pragmatic"}
         if self.name == "no_emotion_auxiliary":
             return {"pragmatic", "polarity"}
@@ -81,7 +82,35 @@ class VariantConfig:
     def has_uncertainty_weighting(self) -> bool:
         if self.use_uncertainty_weighting is not None:
             return self.use_uncertainty_weighting
-        return self.name != "no_uncertainty_weighting"
+        return self.name in {
+            "full",
+            "vipragsent_full",
+            "vipragsent_full_phobert",
+            "vipragsent_full_vistral",
+            "no_emotion_auxiliary",
+            "no_polarity_auxiliary",
+            "no_rationale",
+            "vipragsent_no_auxiliary_vistral",
+        }
+
+    @property
+    def loss_aggregation(self) -> str:
+        return "homoscedastic_uncertainty" if self.has_uncertainty_weighting else "equal_weight"
+
+    @property
+    def uncertainty_task_keys(self) -> tuple[str, ...]:
+        if not self.has_uncertainty_weighting:
+            return ()
+        if self.name == "vipragsent_no_auxiliary_vistral":
+            return tuple(PRAGMATIC_LABELS)
+        keys: list[str] = []
+        if "pragmatic" in self.active_tasks:
+            keys.extend(PRAGMATIC_LABELS)
+        if "polarity" in self.active_tasks:
+            keys.append("polarity")
+        if "emotion" in self.active_tasks:
+            keys.append("emotion")
+        return tuple(keys)
 
     @property
     def is_checkpoint_bundle(self) -> bool:
@@ -93,7 +122,7 @@ class ViPragSentModel(nn.Module):
         super().__init__()
         self.backbone = backbone
         self.config = config
-        self.heads = ClassificationHeads(config.hidden_size)
+        self.heads = ClassificationHeads(config.hidden_size, active_tasks=config.active_tasks)
         self.rationale_decoder = RationaleDecoder(config.hidden_size, config.rationale_vocab_size) if config.has_rationale_decoder else None
 
     @property
