@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Mapping
+import gc
+import os
+from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +22,7 @@ def resolve_selected_cuda_device(
     """Resolve the one device selected by preflight without silently sharding."""
     value = selected_device
     if value is None:
-        value = __import__("os").environ.get("VIPRAGSENT_SELECTED_CUDA_DEVICE", "cpu")
+        value = os.environ.get("VIPRAGSENT_SELECTED_CUDA_DEVICE", "cpu")
     if isinstance(value, int):
         value = f"cuda:{value}"
     device = torch_module.device(value)
@@ -43,7 +45,29 @@ def _device_string(device: torch.device) -> str:
     return str(device)
 
 
+def _map_device(value: Any) -> torch.device:
+    if isinstance(value, int):
+        return torch.device(f"cuda:{value}")
+    return torch.device(value)
+
+
+def _quantized_input_device(model: nn.Module) -> torch.device | None:
+    contract = getattr(model, "_vipragsent_qlora_contract", None)
+    if not isinstance(contract, Mapping):
+        return None
+    selected = contract.get("input_device") or contract.get("selected_device")
+    if selected is not None:
+        return _map_device(selected)
+    device_map = contract.get("device_map")
+    if isinstance(device_map, Mapping) and device_map.get("") is not None:
+        return _map_device(device_map[""])
+    return None
+
+
 def resolve_model_input_device(model: nn.Module, fallback: torch.device | str | None = None) -> torch.device:
+    quantized_device = _quantized_input_device(model)
+    if quantized_device is not None:
+        return quantized_device
     devices = _parameter_devices(model)
     if len(devices) > 1:
         raise RuntimeBlocked(f"model parameters span multiple devices: {sorted(map(str, devices))}")
@@ -72,21 +96,58 @@ def place_task_modules(model: nn.Module, device: torch.device | str) -> nn.Modul
     for name, child in model.named_children():
         if name != "backbone":
             child.to(target)
+    task_devices = {
+        parameter.device
+        for name, parameter in model.named_parameters()
+        if not name.startswith("backbone.")
+    }
+    if task_devices and task_devices != {target}:
+        raise RuntimeBlocked(f"task modules are not on selected device {target}: {sorted(map(str, task_devices))}")
     return model
 
 
-def move_batch_to_device(value: Any, device: torch.device | str) -> Any:
+def move_batch_to_device(
+    value: Any,
+    device: torch.device | str,
+    *,
+    preserve_keys: Sequence[str] = (),
+) -> Any:
     """Recursively transfer tensors while preserving all non-tensor metadata."""
     target = torch.device(device)
     if isinstance(value, Tensor):
         return value.to(target)
     if isinstance(value, Mapping):
-        return type(value)((key, move_batch_to_device(item, target)) for key, item in value.items())
+        items = [
+            (key, item if str(key) in preserve_keys else move_batch_to_device(item, target, preserve_keys=()))
+            for key, item in value.items()
+        ]
+        try:
+            return type(value)(items)
+        except (TypeError, ValueError):
+            return dict(items)
     if isinstance(value, list):
         return [move_batch_to_device(item, target) for item in value]
     if isinstance(value, tuple):
         return tuple(move_batch_to_device(item, target) for item in value)
     return value
+
+
+DEFAULT_METADATA_KEYS = ("sample_ids", "sample_id", "text", "raw_text", "metadata", "examples")
+
+
+def move_batch_to_model_device(
+    batch: Mapping[str, Any],
+    model: nn.Module,
+    *,
+    device: torch.device | str | None = None,
+    preserve_keys: Sequence[str] = DEFAULT_METADATA_KEYS,
+) -> dict[str, Any]:
+    """Move tensor inputs/targets while leaving IDs and text in host memory."""
+    target = device or resolve_model_input_device(model)
+    moved = move_batch_to_device(batch, target, preserve_keys=preserve_keys)
+    if not isinstance(moved, Mapping):
+        raise RuntimeBlocked("model batch must remain a mapping after device preparation")
+    return dict(moved)
 
 
 def _tensor_devices(value: Any) -> set[torch.device]:
@@ -125,6 +186,9 @@ def assert_runtime_device_contract(
     target = torch.device(selected_device)
     blockers: list[str] = []
     model_devices = _parameter_devices(model)
+    quantized_input = _quantized_input_device(model)
+    if quantized_input is not None and quantized_input != target:
+        blockers.append(f"quantized model input device is {quantized_input}, not selected device {target}")
     if len(model_devices) > 1:
         blockers.append("mixed-device model parameters")
     if target not in model_devices and model_devices:
@@ -152,6 +216,7 @@ def assert_runtime_device_contract(
         raise RuntimeBlocked("; ".join(blockers))
     return {
         "selected_device": _device_string(target),
+        "input_device": _device_string(quantized_input or target),
         "device_index": target.index,
         "device_name": (torch.cuda.get_device_name(target) if target.type == "cuda" else "cpu"),
         "compute_capability": (".".join(map(str, torch.cuda.get_device_capability(target))) if target.type == "cuda" else "n/a"),
@@ -173,3 +238,71 @@ def assert_runtime_device_contract(
 
 def write_device_report(path: str | Path, report: Mapping[str, Any]) -> None:
     atomic_write_json(path, dict(report))
+
+
+class DeviceContractReporter:
+    """Write exactly one first-batch device report for a custom executor."""
+
+    def __init__(
+        self,
+        path: str | Path,
+        model: nn.Module,
+        selected_device: torch.device | str,
+        *,
+        model_family: str = "unknown",
+        quantized: bool = False,
+        device_map: Mapping[str, Any] | None = None,
+        uncertainty_module: nn.Module | None = None,
+        require_lora: bool = False,
+    ) -> None:
+        self.path = Path(path)
+        self.model = model
+        self.selected_device = torch.device(selected_device)
+        self.kwargs = {
+            "model_family": model_family,
+            "quantized": quantized,
+            "device_map": device_map,
+            "uncertainty_module": uncertainty_module,
+            "require_lora": require_lora,
+        }
+        self.written = False
+
+    def observe(self, batch: Mapping[str, Any], loss: Tensor | None = None) -> dict[str, Any]:
+        if self.written:
+            return {}
+        try:
+            report = assert_runtime_device_contract(self.model, self.selected_device, batch=batch, loss=loss, **self.kwargs)
+        except RuntimeBlocked as exc:
+            report = {
+                "selected_device": str(self.selected_device),
+                "input_device": str(self.selected_device),
+                "status": "BLOCKED",
+                "blockers": [str(exc)],
+            }
+            write_device_report(self.path, report)
+            self.written = True
+            raise
+        write_device_report(self.path, report)
+        self.written = True
+        return report
+
+
+def release_model_resources(
+    model: nn.Module | None = None,
+    optimizer: torch.optim.Optimizer | None = None,
+    loader: Any | None = None,
+    *,
+    clear_cuda_cache: bool = True,
+) -> None:
+    """Release one-at-a-time executor resources without moving quantized models."""
+    if optimizer is not None:
+        optimizer.state.clear()
+    if loader is not None:
+        close = getattr(loader, "close", None)
+        if callable(close):
+            close()
+    if model is not None and not getattr(model, "_vipragsent_quantized", False):
+        model.to("cpu")
+    gc.collect()
+    if clear_cuda_cache and torch.cuda.is_available():
+        torch.cuda.empty_cache()

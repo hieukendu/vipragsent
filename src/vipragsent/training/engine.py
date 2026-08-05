@@ -2,8 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-import random
-import tempfile
 import time
 from collections.abc import Callable, Iterable, Mapping
 from dataclasses import asdict, dataclass, field
@@ -27,11 +25,17 @@ from ..models.losses import (
 from ..orchestration.status import RuntimeBlocked
 from ..runtime.device import (
     assert_runtime_device_contract,
-    move_batch_to_device,
+    move_batch_to_model_device,
     resolve_model_input_device,
     resolve_selected_cuda_device,
     tensor_devices,
     write_device_report,
+)
+from .checkpoints import (
+    build_checkpoint_payload,
+    infer_required_head_prefixes,
+    load_checkpoint,
+    save_checkpoint,
 )
 from .class_weights import ClassWeightBundle
 from .config_resolver import ResolvedTrainingConfig
@@ -131,53 +135,11 @@ class SelectionResult:
 SelectionCallback = Callable[["TrainingEngine", list[dict[str, Any]]], SelectionResult]
 
 
-def _rng_state() -> dict[str, Any]:
-    state: dict[str, Any] = {
-        "python": random.getstate(),
-        "numpy": np.random.get_state(),
-        "torch": torch.get_rng_state().tolist(),
-    }
-    if torch.cuda.is_available():
-        state["cuda"] = [item.tolist() for item in torch.cuda.get_rng_state_all()]
-    return state
-
-
-def _restore_rng_state(state: dict[str, Any]) -> None:
-    if not state:
-        return
-
-    def as_tuple(value: Any) -> Any:
-        return tuple(as_tuple(item) for item in value) if isinstance(value, list) else value
-
-    random.setstate(as_tuple(state["python"]))
-    numpy_state = state["numpy"]
-    np.random.set_state((numpy_state[0], np.asarray(numpy_state[1], dtype=np.uint32), numpy_state[2], numpy_state[3], numpy_state[4]))
-    torch.set_rng_state(torch.tensor(state["torch"], dtype=torch.uint8))
-    if torch.cuda.is_available() and state.get("cuda"):
-        torch.cuda.set_rng_state_all([torch.tensor(item, dtype=torch.uint8) for item in state["cuda"]])
-
-
-def _atomic_torch_save(path: Path, payload: dict[str, Any]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    descriptor, temporary = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
-    try:
-        with os.fdopen(descriptor, "wb") as handle:
-            torch.save(payload, handle)
-            handle.flush()
-            os.fsync(handle.fileno())
-        os.replace(temporary, path)
-    except Exception:
-        try:
-            os.unlink(temporary)
-        except OSError:
-            pass
-        raise
-
-
 class CheckpointManager:
-    def __init__(self, root: str | Path, run_id: str) -> None:
+    def __init__(self, root: str | Path, run_id: str, *, allow_legacy_fixture: bool = False) -> None:
         self.path = Path(root) / run_id
         self.path.mkdir(parents=True, exist_ok=True)
+        self.allow_legacy_fixture = allow_legacy_fixture
 
     def _payload(
         self,
@@ -187,14 +149,14 @@ class CheckpointManager:
         loss_aggregator: nn.Module,
         state: RunState,
     ) -> dict[str, Any]:
-        return {
-            "model": model.state_dict(),
-            "optimizer": optimizer.state_dict(),
-            "scheduler": scheduler.state_dict() if scheduler else None,
-            "loss_aggregator": loss_aggregator.state_dict(),
-            "state": asdict(state),
-            "rng_state": _rng_state(),
-        }
+        return build_checkpoint_payload(
+            model,
+            optimizer,
+            scheduler,
+            loss_aggregator,
+            asdict(state),
+            metadata={"producer": "TrainingEngine", "run_id": self.path.name},
+        )
 
     def save(
         self,
@@ -206,7 +168,7 @@ class CheckpointManager:
         state: RunState,
     ) -> Path:
         path = self.path / f"{name}.pt"
-        _atomic_torch_save(path, self._payload(model, optimizer, scheduler, loss_aggregator, state))
+        save_checkpoint(path, self._payload(model, optimizer, scheduler, loss_aggregator, state))
         return path
 
     def _load_payload(
@@ -218,28 +180,42 @@ class CheckpointManager:
         loss_aggregator: nn.Module,
         *,
         restore_training_state: bool,
+        allow_legacy_fixture: bool | None = None,
     ) -> RunState:
-        payload = torch.load(path, map_location="cpu", weights_only=False)
-        model.load_state_dict(payload["model"])
-        if restore_training_state and optimizer is not None:
-            optimizer.load_state_dict(payload["optimizer"])
-            if scheduler is not None and payload.get("scheduler") is not None:
-                scheduler.load_state_dict(payload["scheduler"])
-            _restore_rng_state(payload.get("rng_state", {}))
-        loss_aggregator.load_state_dict(payload.get("loss_aggregator", {}))
-        return RunState(**payload["state"])
+        result = load_checkpoint(
+            path,
+            model,
+            optimizer=optimizer,
+            scheduler=scheduler,
+            loss_aggregator=loss_aggregator,
+            restore_training_state=restore_training_state,
+            allow_legacy_fixture=self.allow_legacy_fixture if allow_legacy_fixture is None else allow_legacy_fixture,
+            required_head_prefixes=infer_required_head_prefixes(model),
+            report_path=self.path / "load_reports" / f"{path.stem}.json",
+        )
+        state = dict(result.run_state)
+        fields = RunState.__dataclass_fields__
+        return RunState(**{name: state[name] for name in fields if name in state})
 
-    def load_latest(self, model: nn.Module, optimizer: torch.optim.Optimizer, scheduler: Any, loss_aggregator: nn.Module) -> RunState | None:
+    def load_latest(
+        self,
+        model: nn.Module,
+        optimizer: torch.optim.Optimizer,
+        scheduler: Any,
+        loss_aggregator: nn.Module,
+        *,
+        allow_legacy_fixture: bool | None = None,
+    ) -> RunState | None:
         checkpoints = sorted(self.path.glob("epoch_*.pt"))
         if not checkpoints:
             return None
-        return self._load_payload(checkpoints[-1], model, optimizer, scheduler, loss_aggregator, restore_training_state=True)
+        return self._load_payload(checkpoints[-1], model, optimizer, scheduler, loss_aggregator, restore_training_state=True, allow_legacy_fixture=allow_legacy_fixture)
 
-    def load_best(self, model: nn.Module, loss_aggregator: nn.Module) -> RunState | None:
+    def load_best(self, model: nn.Module, loss_aggregator: nn.Module, *, allow_legacy_fixture: bool | None = None) -> RunState | None:
         path = self.path / "best.pt"
         if not path.exists():
             return None
-        return self._load_payload(path, model, None, None, loss_aggregator, restore_training_state=False)
+        return self._load_payload(path, model, None, None, loss_aggregator, restore_training_state=False, allow_legacy_fixture=allow_legacy_fixture)
 
 
 class EvaluationAccessGate:
@@ -333,7 +309,7 @@ class TrainingEngine:
         return torch.autocast(device_type="cuda", dtype=dtype)
 
     def _prepare_batch(self, batch: dict[str, Any]) -> dict[str, Any]:
-        return move_batch_to_device(batch, self.device)
+        return move_batch_to_model_device(batch, self.model, device=self.device)
 
     def _write_first_step_device_report(self, batch: Mapping[str, Any], loss: Tensor) -> None:
         if self._device_report_written:
