@@ -117,6 +117,7 @@ class ComponentBundleExecutor:
         return (
             component_root / "training/history.json",
             component_root / "training/history.csv",
+            component_root / "selection/freeze_manifest.json",
             component_root / "selection/best_checkpoint.json",
             component_root / "selection/selection_metric.json",
             component_root / "selection/threshold.json",
@@ -136,8 +137,19 @@ class ComponentBundleExecutor:
             return False
         if record.get("checkpoint_sha256") != sha256_file(component_root / "checkpoints/best/model.pt"):
             return False
-        prediction_hashes = record.get("prediction_sha256", {})
-        return all(prediction_hashes.get(name) == sha256_file(component_root / name) for name in ("predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl"))
+        artifact_hashes = record.get("artifact_hashes", {})
+        if not artifact_hashes:
+            return False
+        for name, expected_hash in artifact_hashes.items():
+            if name == "checksums.sha256":
+                continue
+            path = component_root / name
+            if not path.exists() or sha256_file(path) != expected_hash:
+                return False
+        return all(
+            (component_root / name).exists()
+            for name in ("predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl")
+        )
 
     def _synthetic_rows(self, component: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
         def rows(split: str) -> list[dict[str, Any]]:
@@ -167,12 +179,20 @@ class ComponentBundleExecutor:
                 raise ValueError(f"component {component} returned incomplete production-shaped outputs")
             cost = float(result.get("cost_gpu_hours", 0.0))
         selected_threshold = (result or {}).get("threshold", 0.5 if component in SIX_COMPONENTS else "NOT_APPLICABLE")
+        best_epoch = int((result or {}).get("best_epoch", history[-1].get("epoch", 1)))
+        selection_metric = float((result or {}).get("best_dev_metric", (result or {}).get("dev_metric", history[-1].get("dev_metric", 0.0))))
+        selection_metric_name = str((result or {}).get("selection_metric_name", "dev_component_metric"))
+        checkpoint_schema_version = int((result or {}).get("checkpoint_schema_version", 1))
         if [str(row.get("sample_id")) for row in dev_rows] != list(self.dev_sample_ids) or [str(row.get("sample_id")) for row in test_rows] != list(self.test_sample_ids):
             raise ValueError(f"component {component} predictions are not in the frozen sample order")
         _write_jsonl(component_root / "predictions/dev_predictions.jsonl", dev_rows)
         _write_jsonl(component_root / "predictions/test_predictions.jsonl", test_rows)
         atomic_write_json(component_root / "training/history.json", history)
         atomic_write_text(component_root / "training/history.csv", "epoch,train_loss,dev_metric\n" + "\n".join(f"{row.get('epoch', 1)},{row.get('train_loss', 0.0)},{row.get('dev_metric', 0.0)}" for row in history) + "\n")
+        if result is not None:
+            for name in ("optimizer_summary", "scheduler_summary", "class_weights", "checkpoint_load_report", "checkpoint_metadata"):
+                if name in result:
+                    atomic_write_json(component_root / f"training/{name}.json", result[name])
         def metric_payload(rows: list[dict[str, Any]], split: str) -> dict[str, Any]:
             is_binary = component in SIX_COMPONENTS
             gold = [int(row.get("gold", {}).get(component, 0)) for row in rows] if is_binary else []
@@ -200,9 +220,8 @@ class ComponentBundleExecutor:
             }
         atomic_write_json(component_root / "metrics/dev_metrics.json", metric_payload(dev_rows, "dev"))
         atomic_write_json(component_root / "metrics/test_metrics.json", metric_payload(test_rows, "test"))
-        atomic_write_json(component_root / "selection/best_checkpoint.json", {"component": component, "path": "checkpoints/best/model.pt", "best_epoch": history[-1].get("epoch", 1)})
-        dev_metric = float((result or {}).get("dev_metric", history[-1].get("dev_metric", 0.0)))
-        atomic_write_json(component_root / "selection/selection_metric.json", {"component": component, "name": "dev_component_metric", "value": dev_metric})
+        dev_metric = selection_metric
+        atomic_write_json(component_root / "selection/selection_metric.json", {"component": component, "name": selection_metric_name, "value": dev_metric, "split": "dev", "threshold": selected_threshold})
         atomic_write_json(component_root / "selection/threshold.json", {"component": component, "threshold": selected_threshold if component in SIX_COMPONENTS else "NOT_APPLICABLE", "applicability": "APPLICABLE" if component in SIX_COMPONENTS else "NOT_APPLICABLE", "reason": "pragmatic binary threshold tuned on dev" if component in SIX_COMPONENTS else "multiclass component has no binary threshold"})
         for location in (component_root / "checkpoints/best", component_root / "checkpoints/latest"):
             location.mkdir(parents=True, exist_ok=True)
@@ -222,16 +241,39 @@ class ComponentBundleExecutor:
 
             shutil.copy2(best_path, component_root / "checkpoints/best/model.pt")
             shutil.copy2(latest_path, component_root / "checkpoints/latest/model.pt")
+            if checkpoint_schema_version >= 2:
+                for checkpoint_path in (component_root / "checkpoints/best/model.pt", component_root / "checkpoints/latest/model.pt"):
+                    payload = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+                    if not isinstance(payload, Mapping) or payload.get("schema_version") != checkpoint_schema_version or not isinstance(payload.get("model_state_dict"), Mapping) or not payload["model_state_dict"]:
+                        raise ValueError(f"component {component} checkpoint is not a populated schema-v{checkpoint_schema_version} checkpoint: {checkpoint_path}")
         checkpoint_hash = sha256_file(component_root / "checkpoints/best/model.pt")
         model_revision = str((result or {}).get("model_revision", "fixture"))
         tokenizer_revision = str((result or {}).get("tokenizer_revision", "fixture"))
-        best_epoch = history[-1].get("epoch", 1)
         selection_metric = dev_metric
-        atomic_write_json(component_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "component": component, "seed": self.seed, "model_revision": model_revision, "tokenizer_revision": tokenizer_revision, "config_hash": self.config_hash, "dataset_hash": self.data_hash, "best_epoch": best_epoch, "selection_metric": selection_metric, "checkpoint_path": "checkpoints/best/model.pt", "checkpoint_sha256": checkpoint_hash, "synthetic_results": result is None})
+        atomic_write_json(component_root / "selection/best_checkpoint.json", {"component": component, "path": "checkpoints/best/model.pt", "best_epoch": best_epoch, "checkpoint_sha256": checkpoint_hash})
+        atomic_write_json(component_root / "selection/freeze_manifest.json", {"frozen": True, "component": component, "best_epoch": best_epoch, "selection_metric": selection_metric, "selection_metric_name": selection_metric_name, "threshold": selected_threshold, "checkpoint_schema_version": checkpoint_schema_version, "checkpoint_sha256": checkpoint_hash, "config_hash": self.config_hash, "dataset_hash": self.data_hash})
+        atomic_write_json(component_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "schema_version": checkpoint_schema_version, "component": component, "seed": self.seed, "model_revision": model_revision, "tokenizer_revision": tokenizer_revision, "config_hash": self.config_hash, "dataset_hash": self.data_hash, "best_epoch": best_epoch, "selection_metric": selection_metric, "selection_metric_name": selection_metric_name, "checkpoint_path": "checkpoints/best/model.pt", "checkpoint_sha256": checkpoint_hash, "checkpoint_metadata": (result or {}).get("checkpoint_metadata", {}), "sample_hashes": (result or {}).get("sample_hashes", {}), "class_weights_hash": (result or {}).get("class_weights_hash", "NOT_APPLICABLE"), "synthetic_results": result is None})
         required = self._required(component_root) + (component_root / "checkpoints/checkpoint_manifest.json",)
-        records = {path.relative_to(component_root).as_posix(): sha256_file(path) for path in required if path.name != "checksums.sha256"}
+        optional = []
+        if result is not None and "device_report_path" in result:
+            device_report = Path(str(result["device_report_path"]))
+            if not device_report.exists():
+                raise FileNotFoundError(f"component {component} returned missing device report: {device_report}")
+            optional.append(device_report)
+        records = {path.relative_to(component_root).as_posix(): sha256_file(path) for path in (*required, *optional) if path.name != "checksums.sha256"}
         atomic_write_text(component_root / "checksums.sha256", "".join(f"{digest}  {name}\n" for name, digest in sorted(records.items())))
-        return {"status": "PASS", "checkpoint_sha256": checkpoint_hash, "cost_gpu_hours": cost, "artifact_hashes": records, "prediction_sha256": {name: records[name] for name in ("predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl")}, "best_epoch": best_epoch, "selection_metric": selection_metric, "model_revision": model_revision, "tokenizer_revision": tokenizer_revision, "synthetic_results": result is None}
+        return {"status": "PASS", "checkpoint_sha256": checkpoint_hash, "checkpoint_schema_version": checkpoint_schema_version, "cost_gpu_hours": cost, "artifact_hashes": records, "prediction_sha256": {name: records[name] for name in ("predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl")}, "best_epoch": best_epoch, "selection_metric": selection_metric, "selection_metric_name": selection_metric_name, "model_revision": model_revision, "tokenizer_revision": tokenizer_revision, "sample_hashes": (result or {}).get("sample_hashes", {}), "class_weights_hash": (result or {}).get("class_weights_hash", "NOT_APPLICABLE"), "synthetic_results": result is None}
+
+    def _release_runtime_resources(self) -> None:
+        owners: list[Any] = []
+        for callback in (self.model_loader, self.component_runner):
+            owner = getattr(callback, "__self__", callback)
+            if owner is not None and all(owner is not existing for existing in owners):
+                owners.append(owner)
+        for owner in owners:
+            release = getattr(owner, "release_runtime", None)
+            if callable(release):
+                release()
 
     def _combine(self) -> None:
         combined: dict[str, dict[str, Any]] = {sample_id: {"sample_id": sample_id, "gold": {}, "predictions": {}, "probabilities": {}} for sample_id in self.test_sample_ids}
@@ -304,6 +346,7 @@ class ComponentBundleExecutor:
                 self._append_event("component_interrupted", component=component, error=str(exc))
                 raise
             finally:
+                self._release_runtime_resources()
                 del model
                 gc.collect()
                 if torch.cuda.is_available():
@@ -311,7 +354,7 @@ class ComponentBundleExecutor:
         self._combine()
         state["status"] = "PASS"
         component_hashes = {component: state["components"][component]["checkpoint_sha256"] for component in self.component_names}
-        manifest = {"status": "PASS", "component_names": list(self.component_names), "component_count": len(self.component_names), "component_checkpoint_sha256": component_hashes, "component_best_epochs": {component: state["components"][component].get("best_epoch") for component in self.component_names}, "component_selection_metrics": {component: state["components"][component].get("selection_metric") for component in self.component_names}, "cost_gpu_hours": state["cost_gpu_hours"], "total_measured_gpu_hours": state["cost_gpu_hours"], "seed": self.seed, "config_hash": self.config_hash, "data_hash": self.data_hash, "model_hash": self.model_hash, "dev_sample_count": len(self.dev_sample_ids), "test_sample_count": len(self.test_sample_ids), "dev_order_sha256": sha256_json(list(self.dev_sample_ids)), "test_order_sha256": sha256_json(list(self.test_sample_ids)), "combined_prediction_order_sha256": sha256_json({"dev": list(self.dev_sample_ids), "test": list(self.test_sample_ids)}), "resume_status": "RESUMABLE" if resume else "NEW"}
+        manifest = {"status": "PASS", "schema_version": 2, "component_names": list(self.component_names), "component_count": len(self.component_names), "component_checkpoint_sha256": component_hashes, "component_checkpoint_schema_versions": {component: state["components"][component].get("checkpoint_schema_version", 1) for component in self.component_names}, "component_best_epochs": {component: state["components"][component].get("best_epoch") for component in self.component_names}, "component_selection_metrics": {component: state["components"][component].get("selection_metric") for component in self.component_names}, "cost_gpu_hours": state["cost_gpu_hours"], "total_measured_gpu_hours": state["cost_gpu_hours"], "seed": self.seed, "config_hash": self.config_hash, "data_hash": self.data_hash, "model_hash": self.model_hash, "dev_sample_count": len(self.dev_sample_ids), "test_sample_count": len(self.test_sample_ids), "dev_order_sha256": sha256_json(list(self.dev_sample_ids)), "test_order_sha256": sha256_json(list(self.test_sample_ids)), "combined_prediction_order_sha256": sha256_json({"dev": list(self.dev_sample_ids), "test": list(self.test_sample_ids)}), "resume_status": "RESUMABLE" if resume else "NEW"}
         atomic_write_json(self.manifest_path, manifest)
         atomic_write_json(self.state_path, state)
         self._append_event("bundle_completed", cost_gpu_hours=state["cost_gpu_hours"])
