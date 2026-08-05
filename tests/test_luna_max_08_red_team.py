@@ -23,6 +23,7 @@ from vipragsent.orchestration.aggregation import _table2
 from vipragsent.orchestration.executors.component_production import ProductionComponentRunner
 from vipragsent.orchestration.q1b_predictor import DiskBackedQ1BPredictor
 from vipragsent.orchestration.sequential import load_inventory
+from vipragsent.training.checkpoints import build_checkpoint_payload, save_checkpoint
 from vipragsent.training.engine import CheckpointManager, RunState
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -334,8 +335,11 @@ def test_red_team_custom_q1b_predictor_moves_inputs_and_rejects_zero_matching_ch
         seed=20260521,
         as_dict=lambda _root: {},
     )
-    torch.save({"model_state_dict": {"totally.unrelated": torch.ones(1)}}, source.checkpoint_path)
     model = DeviceCheckingModel()
+    save_checkpoint(
+        source.checkpoint_path,
+        build_checkpoint_payload(model, None, None, None, {"status": "fixture"}),
+    )
     predictor = DiskBackedQ1BPredictor(
         ROOT,
         {"system_id": "phobert_pol_single", "seed": 20260521},
@@ -375,7 +379,7 @@ def test_red_team_q1b_loader_rejects_zero_matching_keys(tmp_path: Path) -> None:
         tokenizer=SimpleNamespace(batch_encode=lambda _texts, **_kwargs: {"input_ids": [[1, 2]], "attention_mask": [[1, 1]]}),
     )
     with pytest.raises((RuntimeError, ValueError, KeyError)):
-        predictor.predict("vsfc", _example("external", split="test"))
+        predictor.validate_checkpoint()
     checkpoint.unlink(missing_ok=True)
 
 

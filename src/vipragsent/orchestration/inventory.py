@@ -7,6 +7,7 @@ from typing import Any
 
 import yaml
 
+from ..atomic import atomic_write_text
 from ..constants import TRAINING_SEEDS
 from ..hashing import sha256_file, sha256_json
 from ..protocol import validate_protocol_resolution
@@ -236,7 +237,7 @@ def write_expected_runs(root: str | Path = ".") -> dict[str, Any]:
     inventory = build_expected_runs(root)
     reports = root / "reports"
     reports.mkdir(parents=True, exist_ok=True)
-    (reports / "expected_experiment_runs.json").write_text(json.dumps(inventory, indent=2, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+    atomic_write_text(reports / "expected_experiment_runs.json", json.dumps(inventory, indent=2, ensure_ascii=False, sort_keys=True) + "\n")
     with (reports / "expected_experiment_runs.csv").open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=INVENTORY_COLUMNS, lineterminator="\n")
         writer.writeheader()

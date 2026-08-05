@@ -18,6 +18,12 @@ from ...evaluation.reasoning_judge import (
 )
 from ...hashing import sha256_file
 from ...models.generation import parse_cot_generation_record
+from ...runtime.device import (
+    assert_runtime_device_contract,
+    move_batch_to_model_device,
+    resolve_model_input_device,
+    write_device_report,
+)
 
 
 class GenerationProtocolConflict(RuntimeError):
@@ -259,11 +265,26 @@ class ReasoningGenerationExecutor:
         self.seed = seed
         self.config_hash = config_hash
         self.data_hash = data_hash
+        self.device = resolve_model_input_device(model)
+        self._device_report_written = False
         self.protocol = load_reasoning_protocol(self.root)
         validation = validate_reasoning_protocol_files(self.root)
         if validation["status"] != "PASS":
             raise ValueError("reasoning protocol is not validated")
         self.run_root.mkdir(parents=True, exist_ok=True)
+
+    def _prepare_device_batch(self, batch: Mapping[str, Any]) -> dict[str, Any]:
+        moved = move_batch_to_model_device(batch, self.model, device=self.device)
+        if not self._device_report_written:
+            report = assert_runtime_device_contract(
+                self.model,
+                self.device,
+                model_family="vistral_7b",
+                batch=moved,
+            )
+            write_device_report(self.run_root / "training/device_report.json", report)
+            self._device_report_written = True
+        return moved
 
     def _decode(self, value: Any) -> str:
         if isinstance(value, str):
@@ -297,9 +318,10 @@ class ReasoningGenerationExecutor:
                 sample_id = str(record["sample_id"])
                 try:
                     input_ids, attention_mask = self._record_inputs(record)
+                    batch = self._prepare_device_batch({"input_ids": input_ids, "attention_mask": attention_mask})
                     generated = self.model.generate(
-                        input_ids=input_ids,
-                        attention_mask=attention_mask,
+                        input_ids=batch["input_ids"],
+                        attention_mask=batch["attention_mask"],
                         do_sample=bool(decoding["do_sample"]),
                         num_beams=int(decoding["num_beams"]),
                         max_new_tokens=int(decoding["max_new_tokens"]),
@@ -369,7 +391,19 @@ class ReasoningGenerationExecutor:
             self.model.train()
             losses: list[float] = []
             for record in usable:
-                loss = teacher_forced_generation_loss(self.model, record["input_ids"], record["target_ids"], target_mask=record.get("target_mask"))
+                batch = self._prepare_device_batch(
+                    {
+                        "input_ids": record["input_ids"],
+                        "target_ids": record["target_ids"],
+                        "target_mask": record.get("target_mask"),
+                    }
+                )
+                loss = teacher_forced_generation_loss(
+                    self.model,
+                    batch["input_ids"],
+                    batch["target_ids"],
+                    target_mask=batch.get("target_mask"),
+                )
                 loss.backward()
                 if gradient_clipping is not None:
                     torch.nn.utils.clip_grad_norm_(self.model.parameters(), float(gradient_clipping))

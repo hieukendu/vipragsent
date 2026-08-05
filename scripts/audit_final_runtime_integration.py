@@ -7,7 +7,10 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from _bootstrap import ROOT
+try:
+    from _bootstrap import ROOT
+except ModuleNotFoundError:  # pragma: no cover - supports importing the script in tests
+    from scripts._bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json, atomic_write_text
 from vipragsent.evaluation.reasoning_judge import validate_reasoning_protocol_files
 from vipragsent.orchestration.inventory import build_expected_runs
@@ -17,6 +20,13 @@ from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolut
 
 BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
 SAFE_TEST_SELECTOR = "not server and not gpu and not azure_live and not model_download"
+RUNTIME_BLOCKERS = [
+    "Phase 15 has not been executed on the target server",
+    "Model-family runtime assets are not prepared",
+    "GPU and Azure live integration have not been validated",
+    "No real approved production run exists",
+]
+NEXT_ACTION = "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review."
 
 
 def _run(root: Path, command: list[str], *, timeout: int = 600) -> dict[str, Any]:
@@ -45,7 +55,10 @@ def _device_report(root: Path) -> dict[str, Any]:
     required = ("resolve_selected_cuda_device", "place_non_quantized_model", "resolve_model_input_device", "move_batch_to_device", "assert_runtime_device_contract")
     checks = {
         "canonical_device_module": all(name in device for name in required),
-        "training_engine_uses_contract": all(name in engine for name in ("move_batch_to_device", "assert_runtime_device_contract", "write_device_report")),
+        "training_engine_uses_contract": (
+            ("move_batch_to_model_device" in engine or "move_batch_to_device" in engine)
+            and all(name in engine for name in ("assert_runtime_device_contract", "write_device_report"))
+        ),
         "factory_places_complete_non_quantized_model": "place_non_quantized_model" in factory,
         "qlora_uses_explicit_device_map": "device_map" in qlora and "device_map=device_map" in qlora,
         "collator_is_device_neutral": ".to(" not in collator and ".cuda(" not in collator,
@@ -200,7 +213,7 @@ def _readiness(root: Path, *, checks: dict[str, Any], safe_commands: list[dict[s
     implementation_checks = [report.get("status") == "PASS" for report in checks.values()]
     implementation_passed = not protocol["scientific_protocol_conflicts"] and frozen["unchanged"] and registry["status"] == "PASS" and stage_plans["status"] == "PASS" and all(implementation_checks) and all(command["returncode"] == 0 for command in safe_commands) and self_review["status"] == "PASS"
     weights_downloaded = bool(state.get("weights_downloaded"))
-    runtime_blockers = ["Phase 15 has not been executed on the target server", "Model-family runtime assets are not prepared", "No real approved production run exists"]
+    runtime_blockers = RUNTIME_BLOCKERS
     return {
         "status": "PASS" if implementation_passed else "FAIL",
         "SETUP_CODE_READY": implementation_passed,
@@ -244,7 +257,10 @@ def main() -> int:
         self_review_command = {"command": ["python", "scripts/self_review_runtime_integration.py"], "returncode": 0, "status": "PASS", "skipped": True}
     else:
         self_review_command = _run(root, ["python", "scripts/self_review_runtime_integration.py"], timeout=900)
-    self_review = json.loads((root / "reports/runtime_self_review.json").read_text(encoding="utf-8")) if (root / "reports/runtime_self_review.json").exists() else {"status": "FAIL", "error": "self-review report is missing"}
+    review_path = root / "reports/luna_max_review_cycles.json"
+    if not review_path.exists():
+        review_path = root / "reports/runtime_self_review.json"
+    self_review = json.loads(review_path.read_text(encoding="utf-8")) if review_path.exists() else {"status": "FAIL", "error": "self-review report is missing"}
     if self_review_command["returncode"] != 0:
         self_review["command_returncode"] = self_review_command["returncode"]
     readiness = _readiness(root, checks=contract_reports, safe_commands=safe_commands + [self_review_command], self_review=self_review)
@@ -274,7 +290,7 @@ def main() -> int:
         "contract_reports": contract_reports,
         "self_review": self_review,
         "safe_commands": safe_commands + [self_review_command],
-        "next_action": "Run exactly one approved Phase 15 model-family prompt on the target server, print the complete report, and stop for user review.",
+        "next_action": NEXT_ACTION,
     }
     atomic_write_json(root / "reports/final_runtime_integration_audit.json", final)
     atomic_write_text(root / "reports/final_runtime_integration_audit.md", "\n".join([

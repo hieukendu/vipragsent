@@ -22,7 +22,8 @@ None
 ## Runtime blockers
 - Phase 15 has not been executed on the target server
 - Model-family runtime assets are not prepared
+- GPU and Azure live integration have not been validated
 - No real approved production run exists
 
 ## Exact next action
-Run exactly one approved Phase 15 model-family prompt on the target server, print the complete report, and stop for user review.
+Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.

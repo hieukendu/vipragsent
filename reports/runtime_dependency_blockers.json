@@ -1,12 +1,13 @@
 {
   "approved_run_count": 0,
   "implementation_blockers": [],
-  "next_action": "Run exactly one approved Phase 15 model-family prompt on the target server, print the complete report, and stop for user review.",
+  "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
   "phase": "15",
   "real_run_count": 0,
   "runtime_blockers": [
     "Phase 15 has not been executed on the target server",
     "Model-family runtime assets are not prepared",
+    "GPU and Azure live integration have not been validated",
     "No real approved production run exists"
   ],
   "scientific_protocol_conflicts": [],

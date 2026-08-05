@@ -15,6 +15,12 @@ from ...evaluation.reasoning_judge import (
     compute_reasoning_metrics,
 )
 from ...hashing import sha256_file
+from ...runtime.device import (
+    assert_runtime_device_contract,
+    move_batch_to_model_device,
+    resolve_model_input_device,
+    write_device_report,
+)
 
 
 @dataclass(frozen=True)
@@ -166,6 +172,8 @@ class ExplanationReuseExecutor:
         self.source = source
         if getattr(model, "rationale_decoder", None) is None:
             raise RuntimeError("approved full model does not expose a rationale decoder")
+        self.device = resolve_model_input_device(model)
+        self._device_report_written = False
 
     def generate_reasoning_split(self, split: str, records: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
         rows: list[dict[str, Any]] = []
@@ -184,8 +192,13 @@ class ExplanationReuseExecutor:
                     input_ids = input_ids.unsqueeze(0)
                 if attention.ndim == 1:
                     attention = attention.unsqueeze(0)
-                encoded = self.model.backbone(input_ids=input_ids, attention_mask=attention)
-                decoded = self.model.rationale_decoder.greedy_decode(encoded.last_hidden_state, attention, bos, eos, 160)
+                batch = move_batch_to_model_device({"input_ids": input_ids, "attention_mask": attention}, self.model, device=self.device)
+                if not self._device_report_written:
+                    report = assert_runtime_device_contract(self.model, self.device, model_family="vistral_7b", batch=batch)
+                    write_device_report(self.run_root / "training/device_report.json", report)
+                    self._device_report_written = True
+                encoded = self.model.backbone(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"])
+                decoded = self.model.rationale_decoder.greedy_decode(encoded.last_hidden_state, batch["attention_mask"], bos, eos, 160)
                 reasoning = _decode(self.tokenizer, decoded[0])
                 rows.append({"sample_id": str(record["sample_id"]), "split": split, "generated_reasoning": reasoning, "raw_generation": reasoning, "generation_status": "PASS" if reasoning else "INVALID", "failure_reason": None if reasoning else "empty_rationale", "truncated": bool(len(decoded[0]) >= 160 and eos not in decoded[0].tolist()), "inference_output_source": "judge_of_rationale_decoder_output"})
         atomic_write_text(self.run_root / f"reasoning/{split}_reasoning.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows))
@@ -205,6 +218,6 @@ class ExplanationReuseExecutor:
         return metrics
 
     def write_source_provenance(self) -> dict[str, Any]:
-        provenance = {"status": "PASS", "source": self.source.as_dict(self.root), "additional_training": False, "optimizer_created": False, "scheduler_created": False, "backward_calls": 0, "direct_classification_outputs_used": False, "inference_output_source": "judge_of_rationale_decoder_output"}
+        provenance = {"status": "PASS", "source": self.source.as_dict(self.root), "source_system_id": "vipragsent_full_vistral", "same_seed_source": True, "additional_training": False, "optimizer_created": False, "scheduler_created": False, "backward_calls": 0, "direct_classification_outputs_used": False, "rationale_decoder_enabled_at_inference": True, "native_causal_lm_generation_used": False, "inference_output_source": "judge_of_rationale_decoder_output"}
         atomic_write_json(self.run_root / "source/source_provenance.json", provenance)
         return provenance

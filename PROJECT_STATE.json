@@ -11,7 +11,7 @@
   "implementation_blockers": [],
   "manual_paper_analysis_pending": true,
   "maximum_concurrent_gpu_jobs": 1,
-  "next_action": "Run exactly one approved Phase 15 model-family prompt on the target server, print the complete report, and stop for user review.",
+  "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
   "phase15_code_ready": true,
   "phase15_runtime_ready": false,
   "phase_handoff_directory": "reports/phases",
@@ -21,6 +21,7 @@
   "runtime_blockers": [
     "Phase 15 has not been executed on the target server",
     "Model-family runtime assets are not prepared",
+    "GPU and Azure live integration have not been validated",
     "No real approved production run exists"
   ],
   "runtime_environment_ready": false,
