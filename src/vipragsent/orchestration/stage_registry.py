@@ -55,6 +55,7 @@ from .executors.generation import (
 )
 from .executors.q4 import resolve_and_extract_q4_source
 from .preflight_single import run_single_preflight
+from .provenance import expected_inference_provenance, validate_inference_provenance
 from .run_store import RunStore, artifact_hashes, git_commit, utc_now
 from .system_registry import resolve_execution_spec
 
@@ -802,7 +803,7 @@ def _generation_stage(context: RunContext, entry: RunEntry, stage: str) -> Stage
 def _fixture_explanation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
     run_root = Path(context.run_root)
     if stage == "resolve_approved_full_vistral_source":
-        atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source_system_id": "vipragsent_full_vistral", "source_checkpoint_key": f"vipragsent_full_vistral:{entry.seed}", "source_run_id": "fixture_full_vistral", "source_checkpoint_sha256": "fixture-source-checkpoint", "source_approval_sha256": "fixture-source-approval", "same_seed": True, "additional_training": False, "direct_classification_outputs_used": False, "synthetic_results": True})
+        atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source_system_id": "vipragsent_full_vistral", "source_checkpoint_key": f"vipragsent_full_vistral:{entry.seed}", "source_run_id": "fixture_full_vistral", "source_checkpoint_sha256": "fixture-source-checkpoint", "source_approval_sha256": "fixture-source-approval", "same_seed_source": True, "same_seed": True, "additional_training": False, "direct_classification_outputs_used": False, "rationale_decoder_enabled_at_inference": True, "native_causal_lm_generation_used": False, "inference_output_source": "judge_of_rationale_decoder_output", "synthetic_results": True})
         return StageOutcome.passed(summary={"source_system_id": "vipragsent_full_vistral", "same_seed": True, "additional_training": False, "synthetic_results": True}, expected_files=("source/source_provenance.json",))
     if stage == "validate_source_checkpoint":
         provenance = _load_mapping(run_root / "source/source_provenance.json")
@@ -849,7 +850,7 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
             source = resolve_approved_full_vistral_source(context.root, entry.raw)
         except Exception as exc:
             return StageOutcome.blocked(str(exc))
-        atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source": source.as_dict(context.root), "additional_training": False, "direct_classification_outputs_used": False, "inference_output_source": "judge_of_rationale_decoder_output"})
+        atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source": source.as_dict(context.root), "source_system_id": "vipragsent_full_vistral", "same_seed_source": True, "additional_training": False, "direct_classification_outputs_used": False, "rationale_decoder_enabled_at_inference": True, "native_causal_lm_generation_used": False, "inference_output_source": "judge_of_rationale_decoder_output"})
         return StageOutcome.passed(summary=source.as_dict(context.root), expected_files=("source/source_provenance.json",))
     source_payload = _load_mapping(run_root / "source/source_provenance.json")
     if not source_payload:
@@ -1082,8 +1083,7 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         "paper_artifacts": [_relative(path, context.root) for path in sorted((run_root / "paper_artifacts").rglob("*")) if path.is_file()],
         "figure_backing": [_relative(path, context.root) for path in sorted((run_root / "figure_backing").rglob("*")) if path.is_file()],
         "external_finetuning": False,
-        "inference_output_source": "judge_of_generated_reasoning" if entry.system_id == "cot_only_vistral" else "judge_of_rationale_decoder_output" if entry.system_id == "explanation_only_vistral" else "classification_heads",
-        "rationale_decoder_enabled_at_inference": False,
+        **expected_inference_provenance(entry.system_id, execution_kind=entry.execution_kind),
     })
     checkpoint_manifest = _load_mapping(run_root / "checkpoints/checkpoint_manifest.json")
     resolved_config = _load_mapping(run_root / "training/resolved_training_config.json")
@@ -1095,8 +1095,7 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         "q3_mask_hash": checkpoint_manifest.get("q3_mask_hash", "NOT_APPLICABLE"),
         "q3_budget": entry.budget if entry.research_question == "Q3" else "NOT_APPLICABLE",
         "generation_protocol_id": _load_mapping(context.root / "configs/experiments/generation_reasoning_protocol.yaml").get("protocol_version", "NOT_APPLICABLE") if entry.system_id in {"cot_only_vistral", "explanation_only_vistral"} else "NOT_APPLICABLE",
-        "direct_classification_outputs_used": False if entry.system_id in {"cot_only_vistral", "explanation_only_vistral"} else True,
-        "additional_training": False if entry.system_id == "explanation_only_vistral" else entry.system_id == "cot_only_vistral" if entry.system_id in {"cot_only_vistral", "explanation_only_vistral"} else entry.execution_kind in {"trainable", "component_bundle", "generation"},
+        "provenance_contract_version": 1,
     })
     atomic_write_json(manifest_path, manifest)
     metrics_path = run_root / "metrics.json"
@@ -1155,8 +1154,11 @@ def _validate_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
             missing.append("synthetic_results=true in a production run")
         if manifest.get("external_finetuning") is True:
             missing.append("external_finetuning=true")
-        if manifest.get("rationale_decoder_enabled_at_inference") is True:
-            missing.append("rationale decoder enabled at inference")
+    missing.extend(validate_inference_provenance(manifest, source="run_manifest", allow_fixture_parser=context.fixture))
+    if entry.system_id == "explanation_only_vistral":
+        source = _load_mapping(run_root / "source/source_provenance.json")
+        source_payload = {"system_id": entry.system_id, **source}
+        missing.extend(validate_inference_provenance(source_payload, source="source_provenance", allow_fixture_parser=context.fixture))
     approval = json.loads((run_root / "approval_status.json").read_text(encoding="utf-8")) if (run_root / "approval_status.json").exists() else {}
     if approval.get("status") != "PENDING_USER_APPROVAL":
         missing.append("approval is not pending")

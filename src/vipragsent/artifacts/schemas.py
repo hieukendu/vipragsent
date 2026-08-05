@@ -5,6 +5,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from ..orchestration.provenance import validate_inference_provenance
+
 REQUIRED_COLUMNS = {
     "table_2_pragmatic.csv": "system,backbone,seed_count,implicit_f1,implicit_ci_low,implicit_ci_high,sarcasm_f1,sarcasm_ci_low,sarcasm_ci_high,irony_f1,irony_ci_low,irony_ci_high,idiom_f1,idiom_ci_low,idiom_ci_high,code_switching_f1,code_switching_ci_low,code_switching_ci_high,mocking_f1,mocking_ci_low,mocking_ci_high,macro_prag_f1,macro_prag_ci_low,macro_prag_ci_high,invalid_output_rate",
     "table_3_external_retention.csv": "system,polarity_checkpoint,emotion_checkpoint,vsfc_macro_f1,vsmec_macro_f1,aivivn_macro_f1,ord_f1,seed_count,training_data,external_finetuning",
@@ -66,6 +68,7 @@ def validate_production_artifact(root: str | Path, run_records: list[dict[str, A
             errors.append(f"run {record.get('system')} contains synthetic results")
         if record.get("model_revision") == "fixture" or record.get("tokenizer_revision") == "fixture":
             errors.append(f"run {record.get('system')} uses fixture revisions")
+        errors.extend(validate_inference_provenance(record, source=f"run {record.get('system')}", allow_fixture_parser=False))
     for path in Path(root).rglob("*"):
         if not path.is_file():
             continue

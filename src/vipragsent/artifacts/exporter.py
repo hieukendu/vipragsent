@@ -22,6 +22,7 @@ from ..evaluation.metrics import (
 )
 from ..hashing import sha256_file, sha256_json
 from ..manual import ERROR_ANALYSIS_COLUMNS
+from ..orchestration.provenance import validate_inference_provenance
 from ..statistics.bootstrap import (
     hierarchical_bootstrap,
     holm_bonferroni,
@@ -509,6 +510,7 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
         "gradient_accumulation_steps", "effective_batch_size", "inference_output_source",
         "rationale_decoder_enabled_at_inference", "data_fingerprint", "config_hash", "code_commit",
     }
+    provenance_errors_by_path: list[str] = []
     for path in manifest_files:
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
@@ -520,10 +522,9 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
             raise ValueError(f"Fixture or synthetic run cannot enter production export: {path}")
         if payload.get("external_finetuning") is True:
             raise ValueError(f"External fine-tuning is prohibited for this production run: {path}")
-        if payload.get("inference_output_source") not in {"classification_heads", "judge_of_generated_reasoning", "judge_of_rationale_decoder_output", "parsed_generated_labels"}:
-            raise ValueError(f"Production run has an invalid inference output source: {path}")
-        if payload.get("rationale_decoder_enabled_at_inference") is not False:
-            raise ValueError(f"Rationale decoder must be disabled at inference: {path}")
+        provenance_errors = validate_inference_provenance(payload, source=str(path), allow_fixture_parser=False)
+        if provenance_errors:
+            provenance_errors_by_path.extend(provenance_errors)
         seed = _normalise_seed(payload.get("seed"), path)
         is_azure = payload.get("backbone") == "azure" or str(payload.get("system", "")).startswith("azure_")
         if not is_azure and seed not in TRAINING_SEEDS:
@@ -567,6 +568,8 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
         missing_systems = sorted(expected_systems - actual_systems)
         if missing_systems:
             raise ValueError(f"Production export is missing expected systems: {missing_systems}")
+    if provenance_errors_by_path:
+        raise ValueError("; ".join(provenance_errors_by_path))
     return records
 
 

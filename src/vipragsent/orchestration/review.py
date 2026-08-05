@@ -9,6 +9,7 @@ import yaml
 
 from ..hashing import sha256_file, sha256_json
 from .contracts import ExecutionKind, RunContext, RunEntry
+from .provenance import expected_inference_provenance, validate_inference_provenance
 from .run_store import artifact_hashes, git_commit, utc_now
 from .variant_diff import changed_components_against_full_phobert
 
@@ -17,6 +18,8 @@ COMMON_FIELDS = (
     "execution_mode", "run_status", "user_review_status", "next_run_allowed", "dataset_fingerprint", "split_hashes",
     "model_repository", "model_revision", "tokenizer_revision", "preprocessing_name", "preprocessing_version", "configuration_hash",
     "code_commit", "start_time", "end_time", "wall_clock_seconds", "warnings", "blockers", "validation_status", "artifact_paths", "artifact_sha256",
+    "additional_training", "source_system_id", "same_seed_source", "direct_classification_outputs_used",
+    "rationale_decoder_enabled_at_inference", "native_causal_lm_generation_used", "inference_output_source",
 )
 TRAINABLE_FIELDS = (
     "optimizer", "learning_rate", "weight_decay", "scheduler", "warmup_ratio", "precision", "physical_batch_size",
@@ -69,6 +72,12 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
     start_time = str(state.get("created_at") or utc_now())
     end_time = utc_now()
     applicability: dict[str, str] = {}
+    protocol_provenance = expected_inference_provenance(entry.system_id, execution_kind=entry.execution_kind)
+    observed_provenance = {key: manifest.get(key, value) for key, value in protocol_provenance.items()}
+    if manifest:
+        provenance_errors = validate_inference_provenance(manifest, source="run_manifest", allow_fixture_parser=context.fixture)
+        if provenance_errors:
+            raise ValueError("; ".join(provenance_errors))
     fields: dict[str, Any] = {
         "run_id": entry.run_id,
         "experiment_id": None if entry.is_azure else entry.run_id,
@@ -114,6 +123,8 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
         "NEXT_RUN_ALLOWED": "NO",
         "applicability": applicability,
         "prediction_hashes": prediction_hashes,
+        **observed_provenance,
+        "provenance_contract_version": int(manifest.get("provenance_contract_version", 1)),
     }
     if generation:
         protocol = _load_yaml(context.root / "configs/experiments/generation_reasoning_protocol.yaml", {})
@@ -156,6 +167,10 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
                 "additional_training": False,
                 "direct_classification_outputs_used": False,
             })
+            fields["source_system_id"] = source_data.get("source_system_id", fields["source_system_id"])
+            fields["same_seed_source"] = source_data.get("same_seed_source", fields["same_seed_source"])
+            fields["rationale_decoder_enabled_at_inference"] = source_data.get("rationale_decoder_enabled_at_inference", fields["rationale_decoder_enabled_at_inference"])
+            fields["native_causal_lm_generation_used"] = source_data.get("native_causal_lm_generation_used", fields["native_causal_lm_generation_used"])
             fields["rationale_source_hash"] = source_data.get("checkpoint_sha256", source.get("source_checkpoint_sha256", "NOT_APPLICABLE"))
     if trainable:
         training_config = _load_json(run_root / "training/optimizer_summary.json", {})
@@ -248,6 +263,7 @@ def validate_review_summary(summary: Mapping[str, Any], *, completed: bool = Fal
         errors.append("USER_REVIEW_STATUS must remain PENDING")
     if summary.get("NEXT_RUN_ALLOWED") != "NO":
         errors.append("NEXT_RUN_ALLOWED must remain NO")
+    errors.extend(validate_inference_provenance(summary, source="review_summary", allow_fixture_parser=False))
     if completed:
         if summary.get("RUN_STATUS") != "PASS" or summary.get("validation_status") != "PASS":
             errors.append("completed summary must be public PASS with validation_status=PASS")
