@@ -5,6 +5,10 @@
   "required": ["run_id", "seed", "model_revision", "tokenizer_revision", "data_fingerprint", "preprocessing_name", "preprocessing_version", "physical_batch_size", "gradient_accumulation_steps", "effective_batch_size", "inference_output_source", "rationale_decoder_enabled_at_inference"],
   "properties": {
     "run_id": {"type": "string"},
+    "system": {"type": "string"},
+    "system_id": {"type": "string"},
+    "execution_kind": {"type": "string"},
+    "mode": {"enum": ["fixture", "full"]},
     "seed": {"type": "integer"},
     "model_revision": {"type": "string"},
     "tokenizer_revision": {"type": "string"},
@@ -15,6 +19,42 @@
     "gradient_accumulation_steps": {"type": "integer"},
     "effective_batch_size": {"type": "integer"},
     "inference_output_source": {"enum": ["classification_heads", "judge_of_generated_reasoning", "judge_of_rationale_decoder_output", "parsed_generated_labels"]},
-    "rationale_decoder_enabled_at_inference": {"type": "boolean"}
-  }
+    "rationale_decoder_enabled_at_inference": {"type": "boolean"},
+    "additional_training": {"type": "boolean"},
+    "source_system_id": {"type": "string"},
+    "same_seed_source": {"type": "boolean"},
+    "direct_classification_outputs_used": {"type": "boolean"},
+    "native_causal_lm_generation_used": {"type": "boolean"},
+    "provenance_contract_version": {"type": "integer", "minimum": 1}
+  },
+  "allOf": [
+    {
+      "if": {"required": ["system_id"], "properties": {"system_id": {"const": "explanation_only_vistral"}}},
+      "then": {
+        "required": ["additional_training", "source_system_id", "same_seed_source", "direct_classification_outputs_used", "native_causal_lm_generation_used"],
+        "properties": {
+          "additional_training": {"const": false},
+          "source_system_id": {"const": "vipragsent_full_vistral"},
+          "same_seed_source": {"const": true},
+          "direct_classification_outputs_used": {"const": false},
+          "rationale_decoder_enabled_at_inference": {"const": true},
+          "native_causal_lm_generation_used": {"const": false},
+          "inference_output_source": {"const": "judge_of_rationale_decoder_output"}
+        }
+      }
+    },
+    {
+      "if": {"required": ["system_id"], "properties": {"system_id": {"const": "cot_only_vistral"}}},
+      "then": {
+        "required": ["additional_training", "direct_classification_outputs_used", "native_causal_lm_generation_used"],
+        "properties": {
+          "additional_training": {"const": true},
+          "direct_classification_outputs_used": {"const": false},
+          "rationale_decoder_enabled_at_inference": {"const": false},
+          "native_causal_lm_generation_used": {"const": true},
+          "inference_output_source": {"const": "judge_of_generated_reasoning"}
+        }
+      }
+    }
+  ]
 }

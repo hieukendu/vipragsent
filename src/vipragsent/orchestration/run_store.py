@@ -17,6 +17,7 @@ from .contracts import (
     RunStatus,
     StageStatus,
 )
+from .provenance import expected_inference_provenance
 
 
 def utc_now() -> str:
@@ -92,13 +93,7 @@ class RunStore:
 
     def _write_baseline_files(self) -> None:
         entry = self.context.entry
-        inference_source = "classification_heads"
-        additional_training = entry.execution_kind in {"trainable", "component_bundle", "generation"}
-        if entry.system_id == "cot_only_vistral":
-            inference_source = "judge_of_generated_reasoning"
-        elif entry.system_id == "explanation_only_vistral":
-            inference_source = "judge_of_rationale_decoder_output"
-            additional_training = False
+        provenance = expected_inference_provenance(entry.system_id, execution_kind=entry.execution_kind)
         snapshot = {
             "run_id": entry.run_id,
             "execution_kind": entry.execution_kind,
@@ -128,9 +123,7 @@ class RunStore:
             "model_revision": entry.model_revision or ("fixture" if self.context.fixture else ""),
             "tokenizer_revision": entry.tokenizer_revision or ("fixture" if self.context.fixture else ""),
             "external_finetuning": False,
-            "inference_output_source": inference_source,
-            "rationale_decoder_enabled_at_inference": False,
-            "additional_training": additional_training,
+            **provenance,
             "code_commit": git_commit(self.context.root),
             "status": "NOT_STARTED",
         })

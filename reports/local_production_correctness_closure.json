@@ -1,0 +1,95 @@
+{
+  "code_commit_at_audit": "4e11f569dcfacf8242135cabd77cf44f4994f41a",
+  "defects_covered": [
+    "Defect 9",
+    "Defect 10"
+  ],
+  "evidence": [
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_provenance_artifacts.py::test_explanation_manifest_truthful_rationale_inference"
+      ],
+      "defect": "Defect 9",
+      "fixture_input_sha256": "10E4020725D7BFE270011A046A870BD31B8D7F4ABE424D56BE4FB69A94A5FC18",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_provenance_artifacts.py::test_explanation_manifest_truthful_rationale_inference"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_provenance_artifacts.py::test_explanation_validator_accepts_truthful_provenance"
+      ],
+      "defect": "Defect 9",
+      "fixture_input_sha256": "9112723FFC990AF814CAE84A61FEA9DED406735CE5E13E5103185372321D88BA",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_provenance_artifacts.py::test_explanation_validator_accepts_truthful_provenance"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_provenance_artifacts.py::test_cot_manifest_marks_native_causal_generation"
+      ],
+      "defect": "Defect 9",
+      "fixture_input_sha256": "DEAD54B1D1472217873930299A60D0FDA67E568F583E2E5FADA540C57C31F847",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_provenance_artifacts.py::test_cot_manifest_marks_native_causal_generation"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_provenance_artifacts.py::test_generation_provenance_system_specific"
+      ],
+      "defect": "Defect 10",
+      "fixture_input_sha256": "0666BA8D81BB9250AFD89D9D874A2C61D9027FE40728F7DF4A28AB9C9BF09AD0",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_provenance_artifacts.py::test_generation_provenance_system_specific"
+    }
+  ],
+  "evidence_scope": "role-07 production-shaped synthetic CPU tests",
+  "execution_safety": {
+    "approval_recorded": false,
+    "azure_request_made": false,
+    "experiment_started": false,
+    "gpu_training_executed": false,
+    "model_downloaded": false,
+    "phase15_executed": false,
+    "real_predictions_generated": false
+  },
+  "production_proof": false,
+  "schema_version": 1,
+  "status": "PASS",
+  "test_source_sha256": "6CA1C4D3E6846131CCCB3F53BBBD49D6431991C03CE6B6E8B2328E93B808B874"
+}
