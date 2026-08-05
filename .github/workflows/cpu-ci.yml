@@ -23,3 +23,5 @@ jobs:
         run: python -m pytest -q -m "not server and not gpu and not azure_live and not model_download"
       - name: Production implementation audit
         run: python scripts/audit_production_implementation.py
+      - name: Final production correctness audit
+        run: python scripts/audit_final_production_correctness.py

@@ -76,6 +76,9 @@ def run_fake_smoke(model_family: str, *, tokenizer_loader: Callable[[], Any], mo
             checks["qlora_target_discovery"] = any(target in name for name in names for target in ("q_proj", "k_proj", "v_proj", "o_proj", "lora"))
             checks["base_freeze"] = any(not parameter.requires_grad for parameter in model.parameters())
             checks["lora_gradients"] = any("lora" in name.lower() and parameter.grad is not None for name, parameter in model.named_parameters())
+            contract = getattr(getattr(model, "backbone", model), "_vipragsent_qlora_contract", {})
+            checks["nf4_double_quant"] = contract.get("quant_type") == "nf4" and contract.get("double_quant") is True
+            checks["gradient_checkpointing"] = contract.get("gradient_checkpointing") is True
         else:
             checks.update({"qlora_target_discovery": True, "base_freeze": True, "lora_gradients": True})
     except Exception as exc:
@@ -125,7 +128,7 @@ def verify_model_family(
         if tokenizer_loader is None or model_loader is None:
             try:
                 from ..data.tokenizers import create_tokenizer
-                from ..models.backbones import load_pretrained_backbone
+                from ..models.factory import build_production_model
 
                 def tokenizer_loader(path, revision):
                     return create_tokenizer(
@@ -135,16 +138,15 @@ def verify_model_family(
                         execution_mode="production",
                     )
 
-                family_type = "encoder" if spec.get("architecture") == "encoder" else "causal"
-
                 def model_loader(path, revision):
-                    return load_pretrained_backbone(
-                        spec["repo_id"],
-                        revision=revision,
-                        family=family_type,
-                        local_path=path,
-                        local_files_only=True,
-                    )
+                    variant = {
+                        "phobert_base": "phobert_pragmatic_finetune",
+                        "xlmr_large": "xlmr_pragmatic_finetune",
+                        "sailor_7b": "sailor_pragmatic_sft",
+                        "vistral_7b": "vistral_pragmatic_sft",
+                    }[model_family]
+                    model, _ = build_production_model(model_family, variant, local_snapshot=path, execution_mode="production")
+                    return model
             except Exception as exc:
                 blockers.append(f"runtime loader unavailable: {exc}")
         if not blockers and tokenizer_loader and model_loader:

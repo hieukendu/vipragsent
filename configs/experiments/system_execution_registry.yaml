@@ -1,0 +1,403 @@
+schema_version: 1
+source: generated_from_approved_inventory_and_protocol_configs
+systems:
+  - system_id: azure_gpt41_mini
+    model_family: azure_gpt41_mini
+    executor_kind: azure
+    variant_id: azure_dedicated_prompts
+    active_heads: [polarity, emotion]
+    active_losses: [structured_output]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: fixed_prompt_no_checkpoint
+    selection_metric: ord_external_f1
+    evaluation_strategy: q1b_external_retention
+    external_evaluation_strategy: three_way_ordinary_retention
+    output_source: parsed_structured_output
+    reusable_checkpoint_key_pattern: azure_gpt41_mini:dedicated_prompts
+    approved_source_reference: configs/experiments/q1b/checkpoint_matrix.yaml
+  - system_id: azure_gpt41_mini_8shot
+    model_family: azure_gpt41_mini
+    executor_kind: azure
+    variant_id: azure_pragmatic_8shot
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+    active_losses: [structured_output]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: fixed_prompt_no_checkpoint
+    selection_metric: macro_prag_f1_dev
+    evaluation_strategy: q1a_frozen_dev_threshold
+    external_evaluation_strategy: not_applicable
+    output_source: parsed_structured_output
+    reusable_checkpoint_key_pattern: azure_gpt41_mini_8shot
+    approved_source_reference: configs/experiments/q3/system_aliases.yaml
+  - system_id: azure_gpt41_mini_zeroshot
+    model_family: azure_gpt41_mini
+    executor_kind: azure
+    variant_id: azure_pragmatic_zeroshot
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+    active_losses: [structured_output]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: fixed_prompt_no_checkpoint
+    selection_metric: macro_prag_f1_dev
+    evaluation_strategy: q1a_frozen_dev_threshold
+    external_evaluation_strategy: not_applicable
+    output_source: parsed_structured_output
+    reusable_checkpoint_key_pattern: azure_gpt41_mini_zeroshot
+    approved_source_reference: configs/experiments/master_matrix.yaml
+  - system_id: cot_only_vistral
+    model_family: vistral_7b
+    executor_kind: generation_baseline
+    variant_id: cot_only_vistral
+    active_heads: []
+    active_losses: [generation_cross_entropy]
+    uncertainty_tasks: []
+    rationale_training: true
+    rationale_inference: true
+    checkpoint_semantics: generated_label_checkpoint
+    selection_metric: macro_prag_f1_dev
+    evaluation_strategy: generated_label_parser
+    external_evaluation_strategy: not_applicable
+    output_source: parsed_generated_labels
+    reusable_checkpoint_key_pattern: cot_only_vistral:{seed}
+    approved_source_reference: configs/experiments/master_matrix.yaml
+  - system_id: explanation_only_vistral
+    model_family: vistral_7b
+    executor_kind: generation_baseline
+    variant_id: explanation_only_vistral
+    active_heads: []
+    active_losses: [generation_cross_entropy]
+    uncertainty_tasks: []
+    rationale_training: true
+    rationale_inference: true
+    checkpoint_semantics: generated_explanation_checkpoint
+    selection_metric: macro_prag_f1_dev
+    evaluation_strategy: generated_label_parser
+    external_evaluation_strategy: not_applicable
+    output_source: parsed_generated_labels
+    reusable_checkpoint_key_pattern: explanation_only_vistral:{seed}
+    approved_source_reference: configs/experiments/master_matrix.yaml
+  - system_id: full_phobert
+    model_family: phobert_base
+    executor_kind: single_model_trainable
+    variant_id: full
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [pragmatic, polarity, emotion, rationale]
+    uncertainty_tasks: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    rationale_training: true
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q2_ablation
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: full_phobert:{seed}
+    approved_source_reference: configs/experiments/q2/protocol.yaml
+  - system_id: no_emotion_auxiliary_phobert
+    model_family: phobert_base
+    executor_kind: single_model_trainable
+    variant_id: no_emotion_auxiliary
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity]
+    active_losses: [pragmatic, polarity, rationale]
+    uncertainty_tasks: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity]
+    rationale_training: true
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q2_ablation
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: no_emotion_auxiliary_phobert:{seed}
+    approved_source_reference: configs/experiments/q2/protocol.yaml
+  - system_id: no_multitask
+    model_family: phobert_base
+    executor_kind: independent_checkpoint_bundle
+    variant_id: no_multitask
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [independent_single_task_losses]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: eight_independent_component_checkpoints
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q2_ablation
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: no_multitask_bundle:{seed}
+    approved_source_reference: configs/experiments/q2/protocol.yaml
+  - system_id: no_polarity_auxiliary_phobert
+    model_family: phobert_base
+    executor_kind: single_model_trainable
+    variant_id: no_polarity_auxiliary
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, emotion]
+    active_losses: [pragmatic, emotion, rationale]
+    uncertainty_tasks: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, emotion]
+    rationale_training: true
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q2_ablation
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: no_polarity_auxiliary_phobert:{seed}
+    approved_source_reference: configs/experiments/q2/protocol.yaml
+  - system_id: no_rationale_phobert
+    model_family: phobert_base
+    executor_kind: single_model_trainable
+    variant_id: no_rationale
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [pragmatic, polarity, emotion]
+    uncertainty_tasks: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q2_ablation
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: no_rationale_phobert:{seed}
+    approved_source_reference: configs/experiments/q2/protocol.yaml
+  - system_id: no_uncertainty_weighting_phobert
+    model_family: phobert_base
+    executor_kind: single_model_trainable
+    variant_id: no_uncertainty_weighting
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [pragmatic, polarity, emotion, rationale]
+    uncertainty_tasks: []
+    rationale_training: true
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q2_ablation
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: no_uncertainty_weighting_phobert:{seed}
+    approved_source_reference: configs/experiments/q2/protocol.yaml
+  - system_id: phobert_emo_single
+    model_family: phobert_base
+    executor_kind: evaluation_only
+    variant_id: phobert_emo_single
+    active_heads: [emotion]
+    active_losses: [emotion]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: approved_reused_checkpoint
+    selection_metric: ord_external_f1
+    evaluation_strategy: q1b_external_retention
+    external_evaluation_strategy: three_way_ordinary_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: phobert_emo_single:{seed}
+    approved_source_reference: configs/experiments/q1b/checkpoint_matrix.yaml
+  - system_id: phobert_multitask_8head
+    model_family: phobert_base
+    executor_kind: evaluation_only
+    variant_id: vipragsent_full_phobert
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [pragmatic, polarity, emotion]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: approved_reused_checkpoint
+    selection_metric: ord_external_f1
+    evaluation_strategy: q1b_external_retention
+    external_evaluation_strategy: three_way_ordinary_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: phobert_multitask_8head:{seed}
+    approved_source_reference: configs/experiments/q1b/checkpoint_matrix.yaml
+  - system_id: phobert_pol_single
+    model_family: phobert_base
+    executor_kind: evaluation_only
+    variant_id: phobert_pol_single
+    active_heads: [polarity]
+    active_losses: [polarity]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: approved_reused_checkpoint
+    selection_metric: ord_external_f1
+    evaluation_strategy: q1b_external_retention
+    external_evaluation_strategy: three_way_ordinary_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: phobert_pol_single:{seed}
+    approved_source_reference: configs/experiments/q1b/checkpoint_matrix.yaml
+  - system_id: phobert_pragmatic_finetune
+    model_family: phobert_base
+    executor_kind: single_model_trainable
+    variant_id: phobert_pragmatic_finetune
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+    active_losses: [pragmatic]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q1a_frozen_dev_threshold
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: phobert_pragmatic_finetune:{seed}
+    approved_source_reference: configs/experiments/q1a/system_roles.yaml
+  - system_id: phobert_pragmatic_single_task
+    model_family: phobert_base
+    executor_kind: single_task_bundle
+    variant_id: phobert_pragmatic_single_task
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+    active_losses: [six_independent_pragmatic_losses]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: six_independent_component_checkpoints
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q1a_frozen_dev_threshold
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: phobert_pragmatic_single_task:{seed}
+    approved_source_reference: configs/experiments/master_matrix.yaml
+  - system_id: sailor_multitask_8head
+    model_family: sailor_7b
+    executor_kind: evaluation_only
+    variant_id: vipragsent_full
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [pragmatic, polarity, emotion]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: approved_reused_checkpoint
+    selection_metric: ord_external_f1
+    evaluation_strategy: q1b_external_retention
+    external_evaluation_strategy: three_way_ordinary_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: sailor_multitask_8head:{seed}
+    approved_source_reference: configs/experiments/q1b/checkpoint_matrix.yaml
+  - system_id: sailor_pragmatic_sft
+    model_family: sailor_7b
+    executor_kind: single_model_trainable
+    variant_id: sailor_pragmatic_sft
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+    active_losses: [pragmatic_equal_weight]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q1a_frozen_dev_threshold
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: sailor_pragmatic_sft:{seed}
+    approved_source_reference: configs/experiments/master_matrix.yaml
+  - system_id: vipragsent_full_phobert
+    model_family: phobert_base
+    executor_kind: evaluation_only
+    variant_id: full
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [pragmatic, polarity, emotion]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: approved_reused_checkpoint
+    selection_metric: ord_external_f1
+    evaluation_strategy: q1b_external_retention
+    external_evaluation_strategy: three_way_ordinary_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: vipragsent_full_phobert:{seed}
+    approved_source_reference: configs/experiments/q1b/checkpoint_matrix.yaml
+  - system_id: vipragsent_full_vistral
+    model_family: vistral_7b
+    executor_kind: single_model_trainable
+    variant_id: vipragsent_full_vistral
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [pragmatic, polarity, emotion, rationale]
+    uncertainty_tasks: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    rationale_training: true
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q1a_frozen_dev_threshold
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: vipragsent_full_vistral:{seed}
+    approved_source_reference: configs/experiments/q1a/system_roles.yaml
+  - system_id: vipragsent_no_auxiliary_vistral
+    model_family: vistral_7b
+    executor_kind: single_model_trainable
+    variant_id: vipragsent_no_auxiliary_vistral
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+    active_losses: [pragmatic_homoscedastic_uncertainty]
+    uncertainty_tasks: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: distinct_six_task_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q1a_frozen_dev_threshold
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: vipragsent_no_auxiliary_vistral:{seed}
+    approved_source_reference: configs/experiments/q1a/system_roles.yaml
+  - system_id: vistral_multitask_8head
+    model_family: vistral_7b
+    executor_kind: evaluation_only
+    variant_id: vipragsent_full_vistral
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [pragmatic, polarity, emotion]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: approved_reused_checkpoint
+    selection_metric: ord_external_f1
+    evaluation_strategy: q1b_external_retention
+    external_evaluation_strategy: three_way_ordinary_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: vistral_multitask_8head:{seed}
+    approved_source_reference: configs/experiments/q1b/checkpoint_matrix.yaml
+  - system_id: vistral_pragmatic_sft
+    model_family: vistral_7b
+    executor_kind: single_model_trainable
+    variant_id: vistral_pragmatic_sft
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+    active_losses: [pragmatic_equal_weight]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q1a_frozen_dev_threshold
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: vistral_pragmatic_sft:{seed}
+    approved_source_reference: configs/experiments/q1a/system_roles.yaml
+  - system_id: xlmr_multitask_8head
+    model_family: xlmr_large
+    executor_kind: evaluation_only
+    variant_id: vipragsent_full_phobert
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking, polarity, emotion]
+    active_losses: [pragmatic, polarity, emotion]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: approved_reused_checkpoint
+    selection_metric: ord_external_f1
+    evaluation_strategy: q1b_external_retention
+    external_evaluation_strategy: three_way_ordinary_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: xlmr_multitask_8head:{seed}
+    approved_source_reference: configs/experiments/q1b/checkpoint_matrix.yaml
+  - system_id: xlmr_pragmatic_finetune
+    model_family: xlmr_large
+    executor_kind: single_model_trainable
+    variant_id: xlmr_pragmatic_finetune
+    active_heads: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+    active_losses: [pragmatic]
+    uncertainty_tasks: []
+    rationale_training: false
+    rationale_inference: false
+    checkpoint_semantics: single_joint_checkpoint
+    selection_metric: dev_macro_pragmatic_f1
+    evaluation_strategy: q1a_frozen_dev_threshold
+    external_evaluation_strategy: q1b_external_retention
+    output_source: classification_heads
+    reusable_checkpoint_key_pattern: xlmr_pragmatic_finetune:{seed}
+    approved_source_reference: configs/experiments/master_matrix.yaml

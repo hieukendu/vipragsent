@@ -1,0 +1,12 @@
+{
+  "bundle_executors": {
+    "no_multitask": "independent_checkpoint_bundle",
+    "phobert_pragmatic_single_task": "single_task_bundle"
+  },
+  "generation_baselines": {
+    "cot_only_vistral": "generation_baseline",
+    "explanation_only_vistral": "generation_baseline"
+  },
+  "registry_entry_count": 25,
+  "status": "PASS"
+}

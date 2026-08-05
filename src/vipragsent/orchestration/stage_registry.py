@@ -19,6 +19,12 @@ from ..evaluation.metrics import binary_macro_f1
 from ..hashing import sha256_file, sha256_json
 from ..models.variants import VariantConfig, build_dummy_model
 from ..runtime.model_assets import read_family_status
+from ..training.class_weights import (
+    compute_train_only_class_weights,
+    persist_class_weights,
+    synthetic_class_weights,
+)
+from ..training.config_resolver import persist_resolved_training_config, resolve_training_config
 from ..training.engine import TrainingConfig, TrainingEngine
 from .contracts import (
     ExecutionKind,
@@ -28,8 +34,18 @@ from .contracts import (
 )
 from .preflight_single import run_single_preflight
 from .run_store import RunStore, artifact_hashes, git_commit, utc_now
+from .system_registry import resolve_execution_spec
 
 StageHandler = Callable[[], StageOutcome]
+
+
+class _FixturePagedAdamW8bit(torch.optim.AdamW):
+    """CPU-only stand-in used by synthetic integration tests, never production runs."""
+
+
+class _FixtureBitsAndBytes:
+    class optim:
+        PagedAdamW8bit = _FixturePagedAdamW8bit
 
 
 def _write_json(path: Path, payload: Mapping[str, Any]) -> str:
@@ -38,7 +54,10 @@ def _write_json(path: Path, payload: Mapping[str, Any]) -> str:
 
 
 def _relative(path: Path, root: Path) -> str:
-    return path.resolve().relative_to(root.resolve()).as_posix()
+    try:
+        return path.resolve().relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return path.resolve().as_posix()
 
 
 def _copy(source: Path, target: Path) -> None:
@@ -48,62 +67,34 @@ def _copy(source: Path, target: Path) -> None:
     shutil.copy2(source, target)
 
 
-def _entry_variant(entry: RunEntry) -> str:
-    if entry.system_id == "vipragsent_no_auxiliary_vistral":
-        return entry.system_id
-    if "pol_single" in entry.system_id:
-        return "phobert_pol_single"
-    if "emo_single" in entry.system_id:
-        return "phobert_emo_single"
-    if "no_multitask" in entry.system_id:
-        return "no_multitask"
-    if "no_emotion" in entry.system_id:
-        return "no_emotion_auxiliary"
-    if "no_polarity" in entry.system_id:
-        return "no_polarity_auxiliary"
-    if "no_rationale" in entry.system_id:
-        return "no_rationale"
-    if entry.system_id in {"vipragsent_full_vistral", "vipragsent_full_phobert"}:
-        return entry.system_id
-    if "vistral" in entry.system_id:
-        return "vistral_pragmatic_sft"
-    if "sailor" in entry.system_id:
-        return "sailor_pragmatic_sft"
-    if "pragmatic" in entry.system_id:
-        return "phobert_pragmatic_finetune"
-    return entry.system_id
+def _execution_spec(root: Path, entry: RunEntry):
+    return resolve_execution_spec(root, entry.system_id)
 
 
-def _active_tasks(entry: RunEntry) -> set[str]:
-    name = _entry_variant(entry)
-    if name in {"phobert_pol_single"}:
-        return {"polarity"}
-    if name in {"phobert_emo_single"}:
-        return {"emotion"}
-    if name == "vipragsent_no_auxiliary_vistral":
-        return {"pragmatic"}
-    if name == "no_emotion_auxiliary":
-        return {"pragmatic", "polarity"}
-    if name == "no_polarity_auxiliary":
-        return {"pragmatic", "emotion"}
-    if "pragmatic" in name or "sft" in name or "pragmatic" in entry.task:
-        return {"pragmatic"}
-    return {"pragmatic", "polarity", "emotion"}
+def _entry_variant(entry: RunEntry, root: Path | None = None) -> str:
+    return _execution_spec(root or Path("."), entry).variant_id
+
+
+def _active_tasks(entry: RunEntry, root: Path | None = None) -> set[str]:
+    heads = set(resolve_execution_spec(root or Path("."), entry.system_id).active_heads)
+    return {task for task, labels in (("pragmatic", set(PRAGMATIC_LABELS)), ("polarity", {"polarity"}), ("emotion", {"emotion"})) if heads & labels}
 
 
 def _metric_name(entry: RunEntry) -> str:
-    selection = str(entry.raw.get("selection_metric") or entry.raw.get("primary_dev_selection_metric") or "")
-    if "polarity" in selection or "polarity" in entry.task:
-        return "dev_polarity_macro_f1"
-    if "emotion" in selection or ("emotion" in entry.task and "pragmatic" not in entry.task):
-        return "dev_emotion_macro_f1"
-    if entry.research_question == "Q3" or "sarcasm" in selection:
-        return "dev_sarcasm_macro_f1"
-    return "dev_macro_pragmatic_f1"
+    selection = str(entry.raw.get("selection_metric") or "")
+    return {
+        "macro_prag_f1_dev": "dev_macro_pragmatic_f1",
+        "sarcasm_dev_f1": "dev_sarcasm_binary_macro_f1",
+        "dev_macro_pragmatic_f1": "dev_macro_pragmatic_f1",
+        "dev_sarcasm_macro_f1": "dev_sarcasm_macro_f1",
+        "dev_sarcasm_binary_macro_f1": "dev_sarcasm_binary_macro_f1",
+        "dev_polarity_macro_f1": "dev_polarity_macro_f1",
+        "dev_emotion_macro_f1": "dev_emotion_macro_f1",
+    }.get(selection, "dev_macro_pragmatic_f1")
 
 
-def _fixture_batches(entry: RunEntry, split: str, *, batch_size: int = 4) -> list[dict[str, Any]]:
-    tasks = _active_tasks(entry)
+def _fixture_batches(entry: RunEntry, split: str, *, batch_size: int = 4, include_rationale: bool = False, root: Path | None = None) -> list[dict[str, Any]]:
+    tasks = _active_tasks(entry, root)
     batches: list[dict[str, Any]] = []
     for batch_index in range(2):
         ids = [f"fixture_{entry.run_id}_{split}_{batch_index}_{index}" for index in range(batch_size)]
@@ -122,7 +113,13 @@ def _fixture_batches(entry: RunEntry, split: str, *, batch_size: int = 4) -> lis
             "targets": targets,
         }
         if "pragmatic" in tasks:
-            batch["pragmatic_pos_weight"] = {key: torch.tensor(1.0) for key in PRAGMATIC_LABELS}
+            batch["pragmatic_pos_weight"] = {key: 1.0 for key in PRAGMATIC_LABELS}
+        if include_rationale:
+            rationale = torch.tensor([[1, 3 + ((index + batch_index) % 10), 4, 2] for index in range(batch_size)], dtype=torch.long)
+            batch["rationale_input_ids"] = rationale
+            batch["rationale_attention_mask"] = torch.ones_like(rationale)
+            batch["rationale_targets"] = rationale.clone()
+            batch["rationale_loss_mask"] = torch.ones(batch_size, dtype=torch.float32)
         batches.append(batch)
     return batches
 
@@ -146,6 +143,8 @@ def _metrics_from_rows(path: Path) -> dict[str, Any]:
     true: dict[str, list[int]] = {key: [] for key in PRAGMATIC_LABELS}
     pred: dict[str, list[int]] = {key: [] for key in PRAGMATIC_LABELS}
     probabilities: dict[str, list[float]] = {key: [] for key in PRAGMATIC_LABELS}
+    polarity_true: list[int] = []
+    polarity_probabilities: list[list[float]] = []
     for row in rows:
         gold = row.get("gold", {})
         predictions = row.get("predictions", {})
@@ -159,6 +158,9 @@ def _metrics_from_rows(path: Path) -> dict[str, Any]:
             if isinstance(value, list):
                 value = value[-1]
             probabilities[key].append(float(value if value is not None else predictions[key]))
+        if "polarity" in gold and isinstance(probs.get("polarity"), list):
+            polarity_true.append(int(gold["polarity"]))
+            polarity_probabilities.append([float(item) for item in probs["polarity"]])
     active = [key for key in PRAGMATIC_LABELS if true[key]]
     if active:
         output["per_label_f1"] = {key: binary_macro_f1(true[key], pred[key]) for key in active}
@@ -168,35 +170,73 @@ def _metrics_from_rows(path: Path) -> dict[str, Any]:
     else:
         output["per_label_f1"] = {}
         output["macro_pragmatic_f1"] = "NOT_APPLICABLE"
+    if polarity_true:
+        from ..evaluation.metrics import expected_calibration_error
+
+        output["polarity_dev_ece"] = expected_calibration_error(polarity_true, polarity_probabilities, bins=10)
     return output
+
+
+def _fixture_generation_train(context: RunContext, entry: RunEntry) -> StageOutcome:
+    """Synthetic generation-baseline adapter; it never constructs a classifier variant."""
+    run_root = Path(context.run_root)
+    spec = _execution_spec(context.root, entry)
+    resolved = resolve_training_config(entry, spec, root=context.root, runtime_status={"successful_batch": 1})
+    persist_resolved_training_config(context.root, run_root, resolved)
+    persist_class_weights(context.root, run_root, synthetic_class_weights())
+    for split in ("dev", "test"):
+        rows: list[dict[str, Any]] = []
+        for index in range(8):
+            gold = {label: int((index + offset) % 2) for offset, label in enumerate(PRAGMATIC_LABELS)}
+            probabilities = {label: 0.75 if gold[label] else 0.25 for label in PRAGMATIC_LABELS}
+            rows.append({"sample_id": f"fixture_{entry.run_id}_{split}_{index}", "gold": gold, "predictions": gold, "probabilities": probabilities, "generation_executor": spec.variant_id})
+        atomic_write_text(run_root / f"predictions/{split}_predictions.jsonl", "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows))
+        atomic_write_json(run_root / f"metrics/{split}_metrics.json", _metrics_from_rows(run_root / f"predictions/{split}_predictions.jsonl"))
+    history = [{"epoch": float(epoch), "train_loss": 1.0 / epoch, "dev_loss": 1.0 / epoch, "dev_metric": 1.0, "dev_macro_pragmatic_f1": 1.0, "seconds": 0.0} for epoch in range(1, 4)]
+    atomic_write_json(run_root / "training/history.json", history)
+    _csv_history(run_root / "training/history.csv", history)
+    atomic_write_json(run_root / "training/optimizer_summary.json", {"optimizer": "generation_executor", "learning_rate": resolved.learning_rate, "weight_decay": resolved.weight_decay, "groups": [], "trainable": 0, "frozen": 0, "executor_kind": spec.executor_kind})
+    atomic_write_json(run_root / "training/scheduler_summary.json", {"scheduler": resolved.scheduler, "warmup_ratio": resolved.warmup_ratio, "warmup_steps": 0, "total_optimizer_steps": 0, "executor_kind": spec.executor_kind})
+    atomic_write_json(run_root / "training/resource_usage.json", {"fixture": True, "successful_gpu_hours": 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": 0.0})
+    checkpoint = run_root / "checkpoints/best/model.pt"
+    latest = run_root / "checkpoints/latest/model.pt"
+    checkpoint.parent.mkdir(parents=True, exist_ok=True)
+    latest.parent.mkdir(parents=True, exist_ok=True)
+    torch.save({"executor_kind": spec.executor_kind, "variant_id": spec.variant_id, "synthetic_results": True}, checkpoint)
+    shutil.copy2(checkpoint, latest)
+    digest = sha256_file(checkpoint)
+    atomic_write_json(run_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "best": _relative(checkpoint, run_root), "latest": _relative(latest, run_root), "checkpoint_sha256": digest, "model_revision": "fixture", "executor_kind": spec.executor_kind})
+    atomic_write_json(run_root / "selection/best_checkpoint.json", {"path": _relative(checkpoint, run_root), "sha256": digest, "best_epoch": 3})
+    atomic_write_json(run_root / "selection/selection_metric.json", {"name": "dev_macro_pragmatic_f1", "value": 1.0, "best_epoch": 3})
+    atomic_write_json(run_root / "selection/thresholds.json", {label: 0.5 for label in PRAGMATIC_LABELS})
+    return StageOutcome.passed(summary={"mode": "fixture", "synthetic_results": True, "executor_kind": spec.executor_kind, "best_epoch": 3, "best_dev_metric": 1.0, "checkpoint_path": _relative(checkpoint, run_root), "checkpoint_sha256": digest}, expected_files=("training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json"))
 
 
 def _fixture_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     run_root = Path(context.run_root)
     family = "causal" if entry.backbone in {"sailor_7b", "vistral_7b"} else "encoder"
-    config = VariantConfig(name=_entry_variant(entry), backbone_family=family, hidden_size=12, vocab_size=32, rationale_enabled_for_training=False)
+    spec = _execution_spec(context.root, entry)
+    config = VariantConfig(name=spec.variant_id, backbone_family=family, hidden_size=12, vocab_size=32, rationale_enabled_for_training=spec.rationale_training)
     model = build_dummy_model(config)
+    fixture_batch = 1 if family == "causal" else 8 if entry.backbone == "xlmr_large" else 32
+    resolved = resolve_training_config(entry, spec, root=context.root, runtime_status={"successful_batch": fixture_batch})
+    resolved_payload = resolved.as_dict() | {"fixture": True}
+    persist_resolved_training_config(context.root, run_root, resolved)
+    weights = synthetic_class_weights()
+    persist_class_weights(context.root, run_root, weights)
     output_root = run_root / "_engine_output"
     engine = TrainingEngine(
         model,
-        TrainingConfig(
-            learning_rate=0.05,
-            weight_decay=0.0,
-            max_epochs=2,
-            physical_batch_size=4,
-            effective_batch_size=4,
-            gradient_accumulation_steps=1,
-            precision="fp32",
-            primary_metric=_metric_name(entry),
-            patience=10,
-            use_uncertainty_weighting=config.has_uncertainty_weighting,
-        ),
+        TrainingConfig.from_resolved(resolved),
         run_id="model",
         checkpoint_root=run_root / "_engine_checkpoints",
+        class_weights=weights,
+        resolved_config=resolved_payload,
+        optimizer_module=_FixtureBitsAndBytes if family == "causal" else None,
     )
-    train_batches = _fixture_batches(entry, "train")
-    dev_batches = _fixture_batches(entry, "dev")
-    test_batches = _fixture_batches(entry, "test")
+    train_batches = _fixture_batches(entry, "train", include_rationale=spec.rationale_training, root=context.root)
+    dev_batches = _fixture_batches(entry, "dev", include_rationale=spec.rationale_training, root=context.root)
+    test_batches = _fixture_batches(entry, "test", include_rationale=spec.rationale_training, root=context.root)
     state = engine.train(
         train_batches,
         seed=int(entry.seed or 20260521),
@@ -208,16 +248,20 @@ def _fixture_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     history = list(state.history)
     atomic_write_json(run_root / "training/history.json", history)
     _csv_history(run_root / "training/history.csv", history)
-    atomic_write_json(run_root / "training/optimizer_summary.json", {"optimizer": "AdamW", "learning_rate": 0.05, "weight_decay": 0.0, "fixture": True})
-    atomic_write_json(run_root / "training/scheduler_summary.json", {"scheduler": "linear", "warmup_ratio": 0.1, "fixture": True})
+    atomic_write_json(run_root / "training/optimizer_summary.json", engine.optimizer_summary | {"fixture": True})
+    atomic_write_json(run_root / "training/scheduler_summary.json", engine.scheduler_summary | {"fixture": True})
     atomic_write_json(run_root / "training/resource_usage.json", {"fixture": True, "successful_gpu_hours": 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": 0.0})
     engine_checkpoint = run_root / "_engine_checkpoints/model/best.pt"
     best_checkpoint = run_root / "checkpoints/best/model.pt"
     latest_checkpoint = run_root / "checkpoints/latest/model.pt"
     _copy(engine_checkpoint, best_checkpoint)
-    _copy(run_root / "_engine_checkpoints/model/epoch_002.pt", latest_checkpoint)
+    epoch_checkpoints = sorted((run_root / "_engine_checkpoints/model").glob("epoch_*.pt"))
+    if not epoch_checkpoints:
+        return StageOutcome.failed("training engine did not persist an epoch checkpoint")
+    _copy(epoch_checkpoints[-1], latest_checkpoint)
     checkpoint_hash = sha256_file(best_checkpoint)
-    atomic_write_json(run_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "best": _relative(best_checkpoint, run_root), "latest": _relative(latest_checkpoint, run_root), "checkpoint_sha256": checkpoint_hash, "model_revision": "fixture", "variant_fingerprint": sha256_json({"variant": _entry_variant(entry), "tasks": sorted(_active_tasks(entry))})})
+    q3_data = {"budget": entry.budget, "selected_positive_count": min(int(entry.budget), 4) if entry.research_question == "Q3" and str(entry.budget) != "full" else 4, "fixed_negative_count": 4, "pos_weight": 1.0, "mask_hash": "fixture"} if entry.research_question == "Q3" else {}
+    atomic_write_json(run_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "best": _relative(best_checkpoint, run_root), "latest": _relative(latest_checkpoint, run_root), "checkpoint_sha256": checkpoint_hash, "model_revision": "fixture", "variant_fingerprint": sha256_json({"system_id": entry.system_id, "variant": spec.variant_id, "tasks": sorted(_active_tasks(entry, context.root))}), "executor_kind": spec.executor_kind, "q3_mask_hash": q3_data.get("mask_hash", "NOT_APPLICABLE"), **q3_data})
     _copy(output_root / "dev_predictions.jsonl", run_root / "predictions/dev_predictions.jsonl")
     _copy(output_root / "test_predictions.jsonl", run_root / "predictions/test_predictions.jsonl")
     dev_metrics = _metrics_from_rows(run_root / "predictions/dev_predictions.jsonl")
@@ -240,37 +284,80 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     from ..models.factory import build_production_model
 
     root = context.root
-    family = entry.backbone
+    spec_entry = _execution_spec(root, entry)
+    family = spec_entry.model_family
     cache = read_family_status(root, family, "cache")
     snapshot = cache.get("local_path")
     if not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {family}")
-    model, spec = build_production_model(family, _entry_variant(entry), local_snapshot=snapshot, execution_mode="production")
+    model, spec = build_production_model(family, spec_entry.variant_id, local_snapshot=snapshot, execution_mode="production")
     tokenizer = create_tokenizer(family, revision=spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
     bundle = load_vipragsent(root / "data/processed/vipragsent")
+    runtime_status = read_family_status(root, family, "batch")
+    resolved = resolve_training_config(entry, spec_entry, root=root, runtime_status=runtime_status)
+    persist_resolved_training_config(root, context.run_root, resolved)
+    weights = compute_train_only_class_weights(
+        bundle.train,
+        dataset_hash=bundle.fingerprint,
+        code_commit=git_commit(root),
+    )
+    persist_class_weights(root, context.run_root, weights)
+    rationale_records: dict[str, Any] | None = None
+    if spec_entry.rationale_training:
+        rationale_path = root / "data/processed/rationales/approved_generated_rationales_train.jsonl"
+        if not rationale_path.exists():
+            return StageOutcome.blocked(f"Approved generated rationale artifact is unavailable: {rationale_path}")
+        rationale_records = {}
+        for line in rationale_path.read_text(encoding="utf-8").splitlines():
+            if line.strip():
+                row = json.loads(line)
+                rationale_records[str(row["sample_id"])] = row
+    q3_masks = None
+    q3_mask_hash = None
+    if entry.research_question == "Q3":
+        from ..data.masks import load_validated_q3_masks
+
+        q3_path = root / "data/processed/q3_low_resource_sarcasm"
+        q3_masks, q3_report = load_validated_q3_masks(q3_path, {item.sample_id: item for item in bundle.train}, strict_frozen=True)
+        q3_mask_hash = q3_report["mask_hashes"][str(entry.budget)]
     preprocessor = TextPreprocessor(PreprocessingSpec(family, entry.preprocessing_name or "vncorenlp_rdrsegmenter", entry.preprocessing_version or "locked-v1", tokenizer_revision=spec.tokenizer_revision, model_revision=spec.revision, execution_mode="production"))
-    collator = BatchCollator(tokenizer, preprocessor)
-    batch_size = int(read_family_status(root, family, "batch").get("successful_batch") or 1)
+    collator = BatchCollator(tokenizer, preprocessor, q3_masks=q3_masks, budget=str(entry.budget) if entry.research_question == "Q3" else None, mask_hash=q3_mask_hash, class_weights=weights.as_dict(), rationale_records=rationale_records)
+    evaluation_collator = BatchCollator(tokenizer, preprocessor, class_weights=weights.as_dict(), rationale_records=rationale_records)
+    batch_size = resolved.physical_batch_size
     def batches(examples: list[DatasetExample]) -> list[dict[str, Any]]:
         return [collator(examples[index:index + batch_size]) for index in range(0, len(examples), batch_size)]
-    train_batches, dev_batches, test_batches = batches(bundle.train), batches(bundle.dev), batches(bundle.test)
-    config = TrainingConfig(primary_metric=_metric_name(entry), physical_batch_size=batch_size, effective_batch_size=int(entry.raw.get("effective_batch_size") or 32), precision=str(entry.raw.get("precision") or "bf16"))
-    engine = TrainingEngine(model, config, run_id="model", checkpoint_root=Path(context.run_root) / "_engine_checkpoints")
+    train_batches = batches(bundle.train)
+    dev_batches = [evaluation_collator(bundle.dev[index:index + batch_size]) for index in range(0, len(bundle.dev), batch_size)]
+    test_batches = [evaluation_collator(bundle.test[index:index + batch_size]) for index in range(0, len(bundle.test), batch_size)]
+    config = TrainingConfig.from_resolved(resolved)
+    engine = TrainingEngine(model, config, run_id="model", checkpoint_root=Path(context.run_root) / "_engine_checkpoints", class_weights=weights, resolved_config=resolved.as_dict())
     state = engine.train(train_batches, seed=int(entry.seed), dev_batches=dev_batches, test_batches=test_batches, output_root=Path(context.run_root) / "_engine_output", run_metadata={"mode": "full", "model_revision": spec.revision, "tokenizer_revision": spec.tokenizer_revision, "model_repository": spec.repo_id})
+    peak_vram = max((float(row.get("peak_memory_gb", 0.0)) for row in state.history), default=0.0)
+    wall_seconds = sum(float(row.get("seconds", 0.0)) for row in state.history)
+    atomic_write_json(Path(context.run_root) / "training/resource_usage.json", {"fixture": False, "successful_gpu_hours": wall_seconds / 3600.0 if torch.cuda.is_available() else 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": peak_vram, "wall_seconds": wall_seconds, "measurement_source": "TrainingEngine epoch timing and CUDA peak memory"})
     # Production uses the same engine outputs and checkpoint contract as the fixture adapter.
-    return _materialize_engine_outputs(context, entry, state, model_revision=spec.revision, tokenizer_revision=spec.tokenizer_revision)
+    return _materialize_engine_outputs(context, entry, state, model_revision=spec.revision, tokenizer_revision=spec.tokenizer_revision, resolved=resolved.as_dict(), q3_mask_hash=q3_mask_hash)
 
 
-def _materialize_engine_outputs(context: RunContext, entry: RunEntry, state: Any, *, model_revision: str, tokenizer_revision: str) -> StageOutcome:
+def _materialize_engine_outputs(context: RunContext, entry: RunEntry, state: Any, *, model_revision: str, tokenizer_revision: str, resolved: Mapping[str, Any] | None = None, q3_mask_hash: str | None = None) -> StageOutcome:
     run_root = Path(context.run_root)
     output_root = run_root / "_engine_output"
     _copy(output_root / "dev_predictions.jsonl", run_root / "predictions/dev_predictions.jsonl")
     _copy(output_root / "test_predictions.jsonl", run_root / "predictions/test_predictions.jsonl")
     atomic_write_json(run_root / "training/history.json", state.history)
     _csv_history(run_root / "training/history.csv", state.history)
-    atomic_write_json(run_root / "training/optimizer_summary.json", {"optimizer": "AdamW", "learning_rate": "locked_config", "weight_decay": "locked_config"})
-    atomic_write_json(run_root / "training/scheduler_summary.json", {"scheduler": "locked_config", "warmup_ratio": "locked_config"})
-    atomic_write_json(run_root / "training/resource_usage.json", {"fixture": False, "successful_gpu_hours": "measured", "failed_or_retried_gpu_hours": "measured"})
+    engine_manifest = output_root / "run_manifest.json"
+    if engine_manifest.exists():
+        root_manifest = _load_mapping(run_root / "run_manifest.json")
+        root_manifest.update(json.loads(engine_manifest.read_text(encoding="utf-8")))
+        atomic_write_json(run_root / "run_manifest.json", root_manifest)
+    if not (run_root / "training/optimizer_summary.json").exists():
+        return StageOutcome.failed("training engine did not persist the resolved optimizer summary")
+    if not (run_root / "training/scheduler_summary.json").exists():
+        return StageOutcome.failed("training engine did not persist the resolved scheduler summary")
+    resource_path = run_root / "training/resource_usage.json"
+    if not resource_path.exists():
+        atomic_write_json(resource_path, {"fixture": False, "successful_gpu_hours": 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": 0.0})
     checkpoint = run_root / "_engine_checkpoints/model/best.pt"
     latest = sorted((run_root / "_engine_checkpoints/model").glob("epoch_*.pt"))[-1]
     best = run_root / "checkpoints/best/model.pt"
@@ -278,7 +365,7 @@ def _materialize_engine_outputs(context: RunContext, entry: RunEntry, state: Any
     _copy(checkpoint, best)
     _copy(latest, latest_target)
     digest = sha256_file(best)
-    atomic_write_json(run_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "best": _relative(best, run_root), "latest": _relative(latest_target, run_root), "checkpoint_sha256": digest, "model_revision": model_revision, "tokenizer_revision": tokenizer_revision})
+    atomic_write_json(run_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "best": _relative(best, run_root), "latest": _relative(latest_target, run_root), "checkpoint_sha256": digest, "model_revision": model_revision, "tokenizer_revision": tokenizer_revision, "resolved_training_config_hash": (resolved or {}).get("config_hash", ""), "q3_mask_hash": q3_mask_hash or "NOT_APPLICABLE"})
     for name in ("dev_metrics.json", "test_metrics.json"):
         source = run_root / "metrics" / name
         if not source.exists():
@@ -398,8 +485,50 @@ def _evaluate_dev(context: RunContext, entry: RunEntry) -> StageOutcome:
     if not path.exists():
         return StageOutcome.blocked("dev predictions are missing")
     metrics = _metrics_from_rows(path)
+    if entry.research_question == "Q3":
+        metrics["sarcasm_dev_f1"] = (metrics.get("per_label_f1") or {}).get("sarcasm")
     atomic_write_json(run_root / "metrics/dev_metrics.json", metrics)
     return StageOutcome.passed(summary=metrics, expected_files=("predictions/dev_predictions.jsonl", "metrics/dev_metrics.json"))
+
+
+def _evaluate_q1b_external(context: RunContext, entry: RunEntry) -> StageOutcome:
+    from ..evaluation.external_retention import (
+        NormalizedExternalExample,
+        evaluate_external_retention,
+    )
+
+    run_root = Path(context.run_root)
+    if context.fixture:
+        datasets = {
+            "vsfc": [NormalizedExternalExample("vsfc_0", "fixture", "positive"), NormalizedExternalExample("vsfc_1", "fixture", "negative"), NormalizedExternalExample("vsfc_2", "fixture", "neutral")],
+            "vsmec": [NormalizedExternalExample("vsmec_0", "fixture", "anger"), NormalizedExternalExample("vsmec_1", "fixture", "sadness"), NormalizedExternalExample("vsmec_2", "fixture", "other")],
+            "aivivn": [NormalizedExternalExample("aivivn_0", "fixture", "positive"), NormalizedExternalExample("aivivn_1", "fixture", "negative"), NormalizedExternalExample("aivivn_2", "fixture", "neutral")],
+        }
+        predictions = {key: {row.sample_id: row.label for row in rows} for key, rows in datasets.items()}
+        manifest_hash = "fixture"
+    else:
+        payload = context.metadata.get("external_retention")
+        if not isinstance(payload, Mapping):
+            return StageOutcome.blocked("Q1b external retention inputs are not available")
+        datasets = payload.get("datasets")
+        predictions = payload.get("predictions")
+        if not isinstance(datasets, Mapping) or not isinstance(predictions, Mapping):
+            return StageOutcome.blocked("Q1b external retention inputs are malformed")
+        manifest_hash = str(payload.get("external_manifest_hash") or "")
+        if not manifest_hash:
+            return StageOutcome.blocked("Q1b external manifest hash is missing")
+    result = evaluate_external_retention(
+        datasets,
+        predictions,
+        source_checkpoint_id=str(entry.source_checkpoint_id or entry.system_id),
+        source_seed=entry.seed,
+        external_manifest_hash=manifest_hash,
+        output_root=run_root,
+    )
+    dev_metrics = _load_mapping(run_root / "metrics/dev_metrics.json")
+    result = result | {"polarity_dev_ece": dev_metrics.get("polarity_dev_ece", "NOT_APPLICABLE")}
+    atomic_write_json(run_root / "metrics/test_metrics.json", result)
+    return StageOutcome.passed(summary=result, expected_files=("predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json"))
 
 
 def _freeze_selection(context: RunContext, entry: RunEntry) -> StageOutcome:
@@ -425,7 +554,11 @@ def _evaluate_test(context: RunContext, entry: RunEntry) -> StageOutcome:
         return StageOutcome.blocked("test evaluation is prohibited before selection freeze")
     if not prediction.exists():
         return StageOutcome.blocked("test predictions are missing")
+    if entry.research_question in {"Q1b", "Q2"}:
+        return _evaluate_q1b_external(context, entry)
     metrics = _metrics_from_rows(prediction)
+    if entry.research_question == "Q3":
+        metrics["sarcasm_test_f1"] = (metrics.get("per_label_f1") or {}).get("sarcasm")
     metrics["thresholds_source"] = "selection/freeze_manifest.json"
     metrics["test_threshold_tuning"] = False
     atomic_write_json(run_root / "metrics/test_metrics.json", metrics)
@@ -511,6 +644,16 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         "external_finetuning": False,
         "inference_output_source": "classification_heads",
         "rationale_decoder_enabled_at_inference": False,
+    })
+    checkpoint_manifest = _load_mapping(run_root / "checkpoints/checkpoint_manifest.json")
+    resolved_config = _load_mapping(run_root / "training/resolved_training_config.json")
+    class_weight_path = run_root / "training/class_weights.json"
+    manifest.update({
+        "resolved_training_config_hash": resolved_config.get("config_hash", "NOT_APPLICABLE"),
+        "class_weights_path": _relative(class_weight_path, context.root) if class_weight_path.exists() else "NOT_APPLICABLE",
+        "class_weights_sha256": sha256_file(class_weight_path) if class_weight_path.exists() else "NOT_APPLICABLE",
+        "q3_mask_hash": checkpoint_manifest.get("q3_mask_hash", "NOT_APPLICABLE"),
+        "q3_budget": entry.budget if entry.research_question == "Q3" else "NOT_APPLICABLE",
     })
     atomic_write_json(manifest_path, manifest)
     metrics_path = run_root / "metrics.json"
@@ -761,7 +904,10 @@ def build_single_experiment_stage_registry(root: str | Path, entry_mapping: Mapp
 
 
 def _train_or_reuse(context: RunContext, entry: RunEntry) -> StageOutcome:
+    spec = _execution_spec(context.root, entry)
     if entry.execution_kind == ExecutionKind.TRAINABLE.value:
+        if spec.executor_kind == "generation_baseline":
+            return _fixture_generation_train(context, entry) if context.fixture else StageOutcome.blocked("Generation baseline requires its dedicated production generation executor")
         return _fixture_train(context, entry) if context.fixture else _real_train(context, entry)
     return _reuse_or_extract(context, entry)
 

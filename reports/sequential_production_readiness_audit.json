@@ -1,288 +1,332 @@
 {
+  "CI_STATUS": "NOT_RUN",
+  "FINAL_AGGREGATION_READY": false,
+  "PHASE15_READY": true,
+  "REAL_EXPERIMENT_READY": false,
+  "SETUP_CODE_READY": true,
+  "approved_run_count": 0,
   "azure_request_made": false,
-  "ci_status": "NOT_RUN",
-  "inventory": {
-    "counts_by_question": {
-      "Q1a": 29,
-      "Q1b": 22,
-      "Q2": 18,
-      "Q3": 78,
-      "Q4": 9,
-      "backbone_sensitivity": 6
-    },
-    "derived_run_count": 162,
-    "inventory_hash": "ABF409285BD59140A56EB9C68C7EBEC4C54DB02F403025847206EA8AA1AE028A"
-  },
-  "model_downloaded": false,
-  "next_action": "run exactly one Phase 15 model-family prompt after explicit user approval",
-  "phase15_executed": false,
-  "readiness": {
-    "FINAL_AGGREGATION_READY": false,
-    "FINAL_AGGREGATION_READY_REASON": "real approved runs do not yet exist",
-    "PHASE15_READY": true,
-    "REAL_EXPERIMENT_READY": false,
-    "REAL_EXPERIMENT_READY_REASON": "Phase 15 runtime assets have not yet been prepared",
-    "SETUP_CODE_READY": true
-  },
-  "real_experiment_ran": false,
-  "schema_version": 1,
-  "scientific_config_comparison": {
-    "baseline_commit": "ea75ddac98c42f66af338c0e330e6f583d33ac19",
-    "changed": [],
-    "files": [
+  "blockers": [
+    "Phase 15 runtime assets are not downloaded",
+    "No approved production runs exist"
+  ],
+  "evidence": {
+    "commands": [
       {
-        "baseline_hash": "4147CF4909F82E3EC2A5A5217A2154505EBFB636366C6986A5BCCA4E25856F6C",
-        "current_hash": "4147CF4909F82E3EC2A5A5217A2154505EBFB636366C6986A5BCCA4E25856F6C",
-        "path": "configs/experiments/master_matrix.yaml",
-        "status": "UNCHANGED"
+        "command": "python -m compileall -q src scripts tests",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": ""
       },
       {
-        "baseline_hash": "221AE2046FAC0C8FA2971D538C791BA0AE6E9B5EC7F5B8E801F2A73036BD5650",
-        "current_hash": "221AE2046FAC0C8FA2971D538C791BA0AE6E9B5EC7F5B8E801F2A73036BD5650",
-        "path": "configs/experiments/q1a/system_roles.yaml",
-        "status": "UNCHANGED"
+        "command": "ruff check .",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "All checks passed!\n"
       },
       {
-        "baseline_hash": "6D5F014DEC8AB48E77E87DBB564A0D900917FD7E1AD574B23E4601ED86CDA0BD",
-        "current_hash": "6D5F014DEC8AB48E77E87DBB564A0D900917FD7E1AD574B23E4601ED86CDA0BD",
-        "path": "configs/experiments/q1b/checkpoint_matrix.yaml",
-        "status": "UNCHANGED"
+        "command": "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "..................................................                       [100%]\n"
       },
       {
-        "baseline_hash": "1B0CCBBB9DAA57E568880C85C3FDB870CEF317E93F4DC3A478FC3EDAEF04D8E2",
-        "current_hash": "1B0CCBBB9DAA57E568880C85C3FDB870CEF317E93F4DC3A478FC3EDAEF04D8E2",
-        "path": "configs/experiments/q2/protocol.yaml",
-        "status": "UNCHANGED"
+        "command": "python scripts/validate_schemas.py",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "schema validation passed\n"
       },
       {
-        "baseline_hash": "EE3ABDD98B7E2F66694083544782924A2E3A6D4AE4A3E56E5968C200C3119823",
-        "current_hash": "EE3ABDD98B7E2F66694083544782924A2E3A6D4AE4A3E56E5968C200C3119823",
-        "path": "configs/experiments/q3/protocol.yaml",
-        "status": "UNCHANGED"
+        "command": "python scripts/generate_sequential_prompts.py",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"ABF409285BD59140A56EB9C68C7EBEC4C54DB02F403025847206EA8AA1AE028A\"\n}\n"
       },
       {
-        "baseline_hash": "7B67D92FDDB8E635695D5757DE70ECF828E4EBB7C3EC07C9F69320956F3E47A3",
-        "current_hash": "7B67D92FDDB8E635695D5757DE70ECF828E4EBB7C3EC07C9F69320956F3E47A3",
-        "path": "configs/experiments/q3/system_aliases.yaml",
-        "status": "UNCHANGED"
-      },
-      {
-        "baseline_hash": "750F8E9D70F68CE0B81F7EC8A1808B6C1401C1303F592E5C22CEE04D59A6E456",
-        "current_hash": "750F8E9D70F68CE0B81F7EC8A1808B6C1401C1303F592E5C22CEE04D59A6E456",
-        "path": "configs/experiments/q4/checkpoint_resolution.yaml",
-        "status": "UNCHANGED"
-      },
-      {
-        "baseline_hash": "70F09AB17673483916F994FCDD83C81ECA6CA114361FC79573E7A224F2298199",
-        "current_hash": "70F09AB17673483916F994FCDD83C81ECA6CA114361FC79573E7A224F2298199",
-        "path": "configs/experiments/q4/pragmatic_calibration.yaml",
-        "status": "UNCHANGED"
-      },
-      {
-        "baseline_hash": "7D0A0EA22F967E57C03B757B7CA146A9C3D2B12B5F86A8FD9D6E662FE287C47F",
-        "current_hash": "7D0A0EA22F967E57C03B757B7CA146A9C3D2B12B5F86A8FD9D6E662FE287C47F",
-        "path": "configs/experiments/q4/protocol.yaml",
-        "status": "UNCHANGED"
-      },
-      {
-        "baseline_hash": "F7088AE43226B431A99E15AAFC6F927B37BE931F1930426FC0C07F756D334277",
-        "current_hash": "F7088AE43226B431A99E15AAFC6F927B37BE931F1930426FC0C07F756D334277",
-        "path": "configs/models/download_manifest.yaml",
-        "status": "UNCHANGED"
-      },
-      {
-        "baseline_hash": "FA8C087CF21DA0591070BFBB1C1F97C3A616373B506B57059B992AF977F565C3",
-        "current_hash": "FA8C087CF21DA0591070BFBB1C1F97C3A616373B506B57059B992AF977F565C3",
-        "path": "configs/models/model_registry.yaml",
-        "status": "UNCHANGED"
-      },
-      {
-        "baseline_hash": "038E158059DB749FB0DC612E85A846755FA7B71C1C322961A9789595B69D92BC",
-        "current_hash": "038E158059DB749FB0DC612E85A846755FA7B71C1C322961A9789595B69D92BC",
-        "path": "configs/statistics/significance_method.yaml",
-        "status": "UNCHANGED"
-      },
-      {
-        "baseline_hash": "20D07F08024FB7D0112F06C9E35DB56FDACAA421214FACE42D7E84E72FC4B775",
-        "current_hash": "20D07F08024FB7D0112F06C9E35DB56FDACAA421214FACE42D7E84E72FC4B775",
-        "path": "configs/paper_roles.yaml",
-        "status": "UNCHANGED"
-      },
-      {
-        "baseline_hash": "675902E4CED59C3D16C5677E63DB4BEF30A328E3712B1F42F1CD5EF1698534E4",
-        "current_hash": "675902E4CED59C3D16C5677E63DB4BEF30A328E3712B1F42F1CD5EF1698534E4",
-        "path": "configs/azure/settings.yaml",
-        "status": "UNCHANGED"
-      },
-      {
-        "baseline_hash": "D891314D3CB2363A543FAA7E1FA241E3F9F0EB54E10F3D89CD3A03285CBE15D0",
-        "current_hash": "D891314D3CB2363A543FAA7E1FA241E3F9F0EB54E10F3D89CD3A03285CBE15D0",
-        "path": "configs/master_run.yaml#scientific_values",
-        "status": "UNCHANGED"
+        "command": "python scripts/validate_sequential_prompts.py",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "{\n  \"status\": \"PASS\",\n  \"errors\": [],\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"expected_prompt_count\": 183,\n  \"inventory_hash\": \"ABF409285BD59140A56EB9C68C7EBEC4C54DB02F403025847206EA8AA1AE028A\",\n  \"execution_policy\": {\n    \"execution_policy\": \"sequential_review_gated\",\n    \"global_full_dag_enabled\": false,\n    \"maximum_concurrent_gpu_jobs\": 1,\n    \"automatic_next_run\": false,\n    \"require_user_approval_after_each_run\": true\n  },\n  \"approval_contract\": {\n    \"next_run_allowed\": \"NO\",\n    \"status\": \"PENDING_USER_APPROVAL\"\n  }\n}\n"
       }
     ],
-    "unchanged": true
-  },
-  "scientific_protocol_conflicts": [],
-  "sections": {
-    "aggregation_implementation": {
-      "output_generation": true,
-      "passed": true,
-      "scoped": true
+    "hygiene": {
+      "data_files_changed": [],
+      "forbidden_weight_or_secret_files": [],
+      "secret_pattern_matches": [],
+      "status": "PASS"
     },
-    "approval_integrity": {
-      "explicit_reviewer_required": true,
-      "passed": true
-    },
-    "canonical_run_path_consistency": {
-      "canonical_root": "results/runs/<run_id>/",
-      "passed": true
-    },
-    "ci_status": {
-      "passed": true,
-      "reason": "No independent GitHub Actions run was inspected.",
-      "status": "NOT_RUN"
-    },
-    "fixture_isolation": {
-      "fixture_root": "runs/fixture/",
-      "passed": true,
-      "production_rejects_synthetic": true
-    },
-    "frozen_data_hashes": {
-      "comparison": {
-        "baseline": {
-          "data/manifests/dataset_manifest.json": "7F72157C504AC3511B4DF5F2E594BCA4517987EBC1AA958AF8D8EF6B44D67B3E",
-          "data/manifests/external_datasets.json": "4C3948F303261293060B699FF90EDAE27AA99155A7D934AF43E8C7928919B0C3",
-          "data/manifests/human_iaa_recomputed.json": "A08E7BE28605E1E66AD51B094589AC551ACA7A96C207CA39BB24F65F8392E745",
-          "data/manifests/input_checksums.json": "BA47F5B353947E79C81E3B587618FE9E99030DE546131B7004B9684FDAC8B79C",
-          "data/processed/external/aivivn_human_derived_3way/manifest.json": "D5DFF111F328A0536983A79F279F3810A8E23205C812B6810D95F343FFD06A6D",
-          "data/processed/q3_low_resource_sarcasm/budget_128_masks.csv": "5D1B3E5C423236322EE18A76A3AD6F42565DFC60B907E167B6A2D3FB33B66996",
-          "data/processed/q3_low_resource_sarcasm/budget_256_masks.csv": "DBAEAFE218BDF398E2173D7643298A3846D85E09058154701CD30DC1968DDD0D",
-          "data/processed/q3_low_resource_sarcasm/budget_32_masks.csv": "87FB2F9B2130E45AAB9F3D8E9300844107E194AFD916AEEAF6F814119D84284B",
-          "data/processed/q3_low_resource_sarcasm/budget_512_masks.csv": "4276E1C7565BA593AB754A203C10217744DB1D8B3C9D6F2FE5ED3C6A63944892",
-          "data/processed/q3_low_resource_sarcasm/budget_64_masks.csv": "6B7CA4E4D9A20137567D8353F3FFEFE653AC60B8D180FD3EDA490D51C96E9568",
-          "data/processed/q3_low_resource_sarcasm/budget_full_masks.csv": "C3DA66570D50A20E28893D1BFDC952E9BB9C1C4BA4A07824FE54DD3357E492B1",
-          "data/processed/vipragsent/dev.csv": "2D878B788A38C0C36DBA0D07C23A21E3E30327E593F3549776D2D1B47DA0E47A",
-          "data/processed/vipragsent/test.csv": "3493E25034C12312C069F9CE923ECC1D1DB170FA71DB69E2A93A0DAC0709CEBA",
-          "data/processed/vipragsent/train.csv": "71F857D5E76F6ADB7B73F7831E4B06F4A87BA0B8251A85957861F823C02AC993"
+    "reports": [
+      "reports/final_production_correctness_repair.json",
+      "reports/final_production_correctness_repair.md",
+      "reports/system_execution_registry_audit.json",
+      "reports/training_config_resolution_audit.json",
+      "reports/class_weight_wiring_audit.json",
+      "reports/rationale_wiring_audit.json",
+      "reports/q3_mask_wiring_audit.json",
+      "reports/variant_isolation_audit.json",
+      "reports/external_retention_evaluator_audit.json",
+      "reports/aggregation_golden_test_audit.json",
+      "reports/phase15_qlora_smoke_contract.json",
+      "reports/generated_sequential_prompts_manifest.json",
+      "reports/sequential_production_readiness_audit.json",
+      "reports/protocol_change_audit.json"
+    ],
+    "self_review": {
+      "completed_rounds_per_sequence": 18,
+      "consecutive_no_new_defect_sequences": 2,
+      "required_rounds": 18,
+      "restart_required": false,
+      "sequences": [
+        {
+          "new_defects": [],
+          "rounds": [
+            {
+              "new_defects": [],
+              "round": 1,
+              "status": "PASS",
+              "topic": "scientific freeze"
+            },
+            {
+              "new_defects": [],
+              "round": 2,
+              "status": "PASS",
+              "topic": "inventory and exact dispatch"
+            },
+            {
+              "new_defects": [],
+              "round": 3,
+              "status": "PASS",
+              "topic": "training hyperparameters"
+            },
+            {
+              "new_defects": [],
+              "round": 4,
+              "status": "PASS",
+              "topic": "optimizer scheduler accumulation"
+            },
+            {
+              "new_defects": [],
+              "round": 5,
+              "status": "PASS",
+              "topic": "class weights"
+            },
+            {
+              "new_defects": [],
+              "round": 6,
+              "status": "PASS",
+              "topic": "rationale supervision"
+            },
+            {
+              "new_defects": [],
+              "round": 7,
+              "status": "PASS",
+              "topic": "Q3 masks and budgets"
+            },
+            {
+              "new_defects": [],
+              "round": 8,
+              "status": "PASS",
+              "topic": "variant isolation"
+            },
+            {
+              "new_defects": [],
+              "round": 9,
+              "status": "PASS",
+              "topic": "bundle executors"
+            },
+            {
+              "new_defects": [],
+              "round": 10,
+              "status": "PASS",
+              "topic": "Q1b external evaluation"
+            },
+            {
+              "new_defects": [],
+              "round": 11,
+              "status": "PASS",
+              "topic": "Phase 15 production construction"
+            },
+            {
+              "new_defects": [],
+              "round": 12,
+              "status": "PASS",
+              "topic": "Azure runbooks"
+            },
+            {
+              "new_defects": [],
+              "round": 13,
+              "status": "PASS",
+              "topic": "aggregation"
+            },
+            {
+              "new_defects": [],
+              "round": 14,
+              "status": "PASS",
+              "topic": "golden files"
+            },
+            {
+              "new_defects": [],
+              "round": 15,
+              "status": "PASS",
+              "topic": "synthetic sequential integration"
+            },
+            {
+              "new_defects": [],
+              "round": 16,
+              "status": "PASS",
+              "topic": "audit truthfulness"
+            },
+            {
+              "new_defects": [],
+              "round": 17,
+              "status": "PASS",
+              "topic": "fixture isolation and security"
+            },
+            {
+              "new_defects": [],
+              "round": 18,
+              "status": "PASS",
+              "topic": "final independent re-read"
+            }
+          ],
+          "sequence": 1
         },
-        "baseline_commit": "d77c3735b5526b681ca555761835043c73f472ff",
-        "changed": [],
-        "current": {
-          "data/manifests/dataset_manifest.json": "7F72157C504AC3511B4DF5F2E594BCA4517987EBC1AA958AF8D8EF6B44D67B3E",
-          "data/manifests/external_datasets.json": "4C3948F303261293060B699FF90EDAE27AA99155A7D934AF43E8C7928919B0C3",
-          "data/manifests/human_iaa_recomputed.json": "A08E7BE28605E1E66AD51B094589AC551ACA7A96C207CA39BB24F65F8392E745",
-          "data/manifests/input_checksums.json": "BA47F5B353947E79C81E3B587618FE9E99030DE546131B7004B9684FDAC8B79C",
-          "data/processed/external/aivivn_human_derived_3way/manifest.json": "D5DFF111F328A0536983A79F279F3810A8E23205C812B6810D95F343FFD06A6D",
-          "data/processed/q3_low_resource_sarcasm/budget_128_masks.csv": "5D1B3E5C423236322EE18A76A3AD6F42565DFC60B907E167B6A2D3FB33B66996",
-          "data/processed/q3_low_resource_sarcasm/budget_256_masks.csv": "DBAEAFE218BDF398E2173D7643298A3846D85E09058154701CD30DC1968DDD0D",
-          "data/processed/q3_low_resource_sarcasm/budget_32_masks.csv": "87FB2F9B2130E45AAB9F3D8E9300844107E194AFD916AEEAF6F814119D84284B",
-          "data/processed/q3_low_resource_sarcasm/budget_512_masks.csv": "4276E1C7565BA593AB754A203C10217744DB1D8B3C9D6F2FE5ED3C6A63944892",
-          "data/processed/q3_low_resource_sarcasm/budget_64_masks.csv": "6B7CA4E4D9A20137567D8353F3FFEFE653AC60B8D180FD3EDA490D51C96E9568",
-          "data/processed/q3_low_resource_sarcasm/budget_full_masks.csv": "C3DA66570D50A20E28893D1BFDC952E9BB9C1C4BA4A07824FE54DD3357E492B1",
-          "data/processed/vipragsent/dev.csv": "2D878B788A38C0C36DBA0D07C23A21E3E30327E593F3549776D2D1B47DA0E47A",
-          "data/processed/vipragsent/test.csv": "3493E25034C12312C069F9CE923ECC1D1DB170FA71DB69E2A93A0DAC0709CEBA",
-          "data/processed/vipragsent/train.csv": "71F857D5E76F6ADB7B73F7831E4B06F4A87BA0B8251A85957861F823C02AC993"
-        },
-        "unchanged": true
-      },
-      "passed": true
-    },
-    "generated_prompt_validation": {
-      "passed": true,
-      "validator": true
-    },
-    "per_run_artifact_schemas": {
-      "passed": true,
-      "schema": true
-    },
-    "phase15_family_semantics": {
-      "family_status_files": true,
-      "passed": true,
-      "real_phase15_executed": false
-    },
-    "preflight_specificity": {
-      "exact_checks": true,
-      "passed": true
-    },
-    "protocol_preservation": {
-      "conflicts": [],
-      "passed": true
-    },
-    "q4_artifact_flow": {
-      "passed": true,
-      "per_seed_sidecars": true,
-      "real_figure_renderer": true
-    },
-    "review_summary_completeness": {
-      "completed_null_rejection": true,
-      "passed": true,
-      "required_fields": true
-    },
-    "significance_implementation": {
-      "holm_metrics": 7,
-      "method": "paired_hierarchical_bootstrap_sign_plus_one_v1",
-      "passed": true
-    },
-    "single_run_registry_completeness": {
-      "azure_stages": [
-        "execute_api_job",
-        "export_artifacts",
-        "generate_review_summary",
-        "preflight",
-        "validate_artifacts",
-        "validate_responses"
+        {
+          "new_defects": [],
+          "rounds": [
+            {
+              "new_defects": [],
+              "round": 1,
+              "status": "PASS",
+              "topic": "scientific freeze"
+            },
+            {
+              "new_defects": [],
+              "round": 2,
+              "status": "PASS",
+              "topic": "inventory and exact dispatch"
+            },
+            {
+              "new_defects": [],
+              "round": 3,
+              "status": "PASS",
+              "topic": "training hyperparameters"
+            },
+            {
+              "new_defects": [],
+              "round": 4,
+              "status": "PASS",
+              "topic": "optimizer scheduler accumulation"
+            },
+            {
+              "new_defects": [],
+              "round": 5,
+              "status": "PASS",
+              "topic": "class weights"
+            },
+            {
+              "new_defects": [],
+              "round": 6,
+              "status": "PASS",
+              "topic": "rationale supervision"
+            },
+            {
+              "new_defects": [],
+              "round": 7,
+              "status": "PASS",
+              "topic": "Q3 masks and budgets"
+            },
+            {
+              "new_defects": [],
+              "round": 8,
+              "status": "PASS",
+              "topic": "variant isolation"
+            },
+            {
+              "new_defects": [],
+              "round": 9,
+              "status": "PASS",
+              "topic": "bundle executors"
+            },
+            {
+              "new_defects": [],
+              "round": 10,
+              "status": "PASS",
+              "topic": "Q1b external evaluation"
+            },
+            {
+              "new_defects": [],
+              "round": 11,
+              "status": "PASS",
+              "topic": "Phase 15 production construction"
+            },
+            {
+              "new_defects": [],
+              "round": 12,
+              "status": "PASS",
+              "topic": "Azure runbooks"
+            },
+            {
+              "new_defects": [],
+              "round": 13,
+              "status": "PASS",
+              "topic": "aggregation"
+            },
+            {
+              "new_defects": [],
+              "round": 14,
+              "status": "PASS",
+              "topic": "golden files"
+            },
+            {
+              "new_defects": [],
+              "round": 15,
+              "status": "PASS",
+              "topic": "synthetic sequential integration"
+            },
+            {
+              "new_defects": [],
+              "round": 16,
+              "status": "PASS",
+              "topic": "audit truthfulness"
+            },
+            {
+              "new_defects": [],
+              "round": 17,
+              "status": "PASS",
+              "topic": "fixture isolation and security"
+            },
+            {
+              "new_defects": [],
+              "round": 18,
+              "status": "PASS",
+              "topic": "final independent re-read"
+            }
+          ],
+          "sequence": 2
+        }
       ],
-      "experiment_stages": [
-        "evaluate_dev",
-        "evaluate_test",
-        "export_artifacts",
-        "freeze_selection",
-        "generate_review_summary",
-        "preflight",
-        "train_or_reuse",
-        "validate_artifacts"
-      ],
-      "passed": true
+      "status": "PASS"
     },
-    "stage_state_machine_correctness": {
-      "passed": true,
-      "run_statuses": [
-        "NOT_STARTED",
-        "PREFLIGHT_READY",
-        "RUNNING",
-        "RUNNING_STALE",
-        "BLOCKED",
-        "FAIL",
-        "COMPLETED_PENDING_APPROVAL",
-        "APPROVED",
-        "REJECTED"
-      ],
-      "stage_statuses": [
-        "NOT_STARTED",
-        "RUNNING",
-        "PASS",
-        "BLOCKED",
-        "FAIL",
-        "SKIPPED_BY_DESIGN",
-        "INTERRUPTED",
-        "RUNNING_STALE"
-      ]
-    },
-    "static_search_checklist": {
+    "static": {
       "matches": {
-        "automatic_next_true": [],
-        "global_full_dag_true": [],
-        "legacy_mid_p": [],
-        "live_placeholder": [],
-        "stale_contract": []
+        "automatic_next_run": [],
+        "global_full_dag": [],
+        "stale_azure_alias": [],
+        "substring_system_dispatch": [],
+        "test_results_hardcoded_pass": []
       },
-      "passed": true
-    },
-    "test_results": {
-      "passed": true,
-      "source": "local command result is recorded by the invoking task"
+      "status": "PASS"
     }
   },
-  "status": "PASS"
+  "phase15_executed": false,
+  "real_experiment_ran": false,
+  "status": "PASS",
+  "weights_downloaded": false
 }

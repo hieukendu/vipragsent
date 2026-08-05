@@ -1,0 +1,86 @@
+{
+  "cases": [
+    {
+      "actual": {
+        "effective_batch_size": 32,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 2e-05,
+        "maximum_epochs": 10,
+        "optimizer": "AdamW",
+        "rationale_inference": false,
+        "rationale_training": false,
+        "scheduler": "linear",
+        "uncertainty_weighting_enabled": false
+      },
+      "config_hash": "B4BF87166A64A6A9BA9448928492C6F6FD4A2914D988596C338DD569C29FB2EC",
+      "expected": {
+        "effective_batch_size": 32,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 2e-05,
+        "maximum_epochs": 10,
+        "optimizer": "AdamW",
+        "rationale_inference": false,
+        "rationale_training": false,
+        "scheduler": "linear",
+        "uncertainty_weighting_enabled": false
+      },
+      "run_id": "q1a_phobert_pragmatic_finetune_20260521",
+      "status": "PASS"
+    },
+    {
+      "actual": {
+        "effective_batch_size": 16,
+        "gradient_accumulation_steps": 8,
+        "learning_rate": 0.0001,
+        "maximum_epochs": 3,
+        "optimizer": "paged_adamw_8bit",
+        "rationale_inference": false,
+        "rationale_training": true,
+        "scheduler": "cosine",
+        "uncertainty_weighting_enabled": true
+      },
+      "config_hash": "D40F772C5115B2F324BC69EA76E9D03DF9D4930F62ADBA2F64FDA84183C18CB4",
+      "expected": {
+        "effective_batch_size": 16,
+        "gradient_accumulation_steps": 8,
+        "learning_rate": 0.0001,
+        "maximum_epochs": 3,
+        "optimizer": "paged_adamw_8bit",
+        "rationale_inference": false,
+        "rationale_training": true,
+        "scheduler": "cosine",
+        "uncertainty_weighting_enabled": true
+      },
+      "run_id": "q1a_vipragsent_full_vistral_20260521",
+      "status": "PASS"
+    },
+    {
+      "actual": {
+        "effective_batch_size": 32,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 2e-05,
+        "maximum_epochs": 10,
+        "optimizer": "AdamW",
+        "rationale_inference": false,
+        "rationale_training": true,
+        "scheduler": "linear",
+        "uncertainty_weighting_enabled": false
+      },
+      "config_hash": "EC3B0B2E0E6F00E77ACDCEC3C2DEB3D83A049EC8F880B6AF75A8E079CAEE6FE2",
+      "expected": {
+        "effective_batch_size": 32,
+        "gradient_accumulation_steps": 1,
+        "learning_rate": 2e-05,
+        "maximum_epochs": 10,
+        "optimizer": "AdamW",
+        "rationale_inference": false,
+        "rationale_training": true,
+        "scheduler": "linear",
+        "uncertainty_weighting_enabled": false
+      },
+      "run_id": "q2_no_uncertainty_weighting_20260521",
+      "status": "PASS"
+    }
+  ],
+  "status": "PASS"
+}

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import os
 from collections.abc import Callable
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -158,8 +157,11 @@ def handle_azure_baseline(env: HandlerEnvironment, node: DAGNode) -> HandlerResu
 
 def _gpu_training(env: HandlerEnvironment, node: DAGNode) -> HandlerResult:
     _require_full(env)
-    if not os.getenv("CUDA_VISIBLE_DEVICES") and not __import__("torch").cuda.is_available():
-        raise RuntimeBlocked("GPU training requires CUDA; no model weights or training state were initialized")
+    from ..runtime.hardware import validate_hardware
+
+    hardware = validate_hardware(env.root)
+    if hardware.get("status") != "PASS":
+        raise RuntimeBlocked("GPU training hardware preflight failed: " + ", ".join(hardware.get("blockers", [])))
     cache_manifest = env.root / "data/model_cache_manifest.json"
     if not cache_manifest.exists():
         raise RuntimeBlocked("Phase 15 verified model cache manifest is unavailable")

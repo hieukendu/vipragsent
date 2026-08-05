@@ -24,6 +24,10 @@ from ..models.losses import (
     equal_weight_loss,
     token_cross_entropy,
 )
+from .class_weights import ClassWeightBundle
+from .config_resolver import ResolvedTrainingConfig
+from .optimizers import build_optimizer
+from .schedulers import build_scheduler
 from .seeding import seed_everything
 
 
@@ -44,6 +48,34 @@ class TrainingConfig:
     warmup_ratio: float = 0.1
     use_uncertainty_weighting: bool = True
     rationale_beta: float = 0.3
+    optimizer: str = "AdamW"
+    gradient_checkpointing: bool = False
+    deterministic_algorithms: str = "warn_only"
+    qlora: dict[str, Any] = field(default_factory=dict)
+
+    @classmethod
+    def from_resolved(cls, resolved: ResolvedTrainingConfig) -> TrainingConfig:
+        return cls(
+            learning_rate=resolved.learning_rate,
+            weight_decay=resolved.weight_decay,
+            max_epochs=resolved.maximum_epochs,
+            effective_batch_size=resolved.effective_batch_size,
+            physical_batch_size=resolved.physical_batch_size,
+            max_grad_norm=resolved.gradient_clipping,
+            patience=resolved.patience,
+            min_delta=resolved.minimum_delta,
+            precision=resolved.precision,
+            gradient_accumulation_steps=resolved.gradient_accumulation_steps,
+            primary_metric=resolved.selection_metric,
+            scheduler=resolved.scheduler,
+            warmup_ratio=resolved.warmup_ratio,
+            use_uncertainty_weighting=resolved.uncertainty_weighting_enabled,
+            rationale_beta=resolved.rationale_beta,
+            optimizer=resolved.optimizer,
+            gradient_checkpointing=resolved.gradient_checkpointing,
+            deterministic_algorithms=resolved.deterministic_algorithms,
+            qlora=dict(resolved.qlora),
+        )
 
     def __post_init__(self) -> None:
         if self.precision not in {"fp32", "bf16", "fp16"}:
@@ -224,6 +256,9 @@ class TrainingEngine:
         run_id: str,
         checkpoint_root: str | Path = "checkpoints",
         runtime_hooks: Mapping[str, Callable[..., Any]] | None = None,
+        class_weights: ClassWeightBundle | Mapping[str, Any] | None = None,
+        resolved_config: Mapping[str, Any] | None = None,
+        optimizer_module: Any | None = None,
     ) -> None:
         self.model = model
         self.config = config
@@ -233,30 +268,23 @@ class TrainingEngine:
         variant_uncertainty = bool(getattr(variant_config, "has_uncertainty_weighting", True))
         self.uses_uncertainty_weighting = bool(config.use_uncertainty_weighting and variant_uncertainty)
         uncertainty_tasks = getattr(variant_config, "uncertainty_task_keys", None) or (*PRAGMATIC_LABELS, "polarity", "emotion")
-        self.loss_aggregator = UncertaintyWeightedMultiTaskLoss(config.rationale_beta, tasks=uncertainty_tasks)
+        self.loss_aggregator = UncertaintyWeightedMultiTaskLoss(config.rationale_beta, tasks=uncertainty_tasks) if self.uses_uncertainty_weighting else nn.Identity()
         try:
             device = next(model.parameters()).device
             self.loss_aggregator.to(device)
         except StopIteration:
             pass
 
-        decay: list[nn.Parameter] = []
-        no_decay: list[nn.Parameter] = []
-        for name, parameter in model.named_parameters():
-            if not parameter.requires_grad:
-                continue
-            if name.endswith(".bias") or "norm" in name.lower() or "layernorm" in name.lower():
-                no_decay.append(parameter)
-            else:
-                decay.append(parameter)
-        optimizer_groups: list[dict[str, Any]] = []
-        if decay:
-            optimizer_groups.append({"params": decay, "weight_decay": config.weight_decay, "name": "model_decay"})
-        if no_decay:
-            optimizer_groups.append({"params": no_decay, "weight_decay": 0.0, "name": "model_no_decay"})
-        if self.uses_uncertainty_weighting:
-            optimizer_groups.append({"params": list(self.loss_aggregator.parameters()), "weight_decay": 0.0, "name": "uncertainty_no_decay"})
-        self.optimizer = torch.optim.AdamW(optimizer_groups, lr=config.learning_rate)
+        self.optimizer, self.optimizer_summary = build_optimizer(
+            model,
+            optimizer_name=config.optimizer,
+            learning_rate=config.learning_rate,
+            weight_decay=config.weight_decay,
+            uncertainty_parameters=self.loss_aggregator.parameters() if self.uses_uncertainty_weighting else (),
+            optimizer_module=optimizer_module,
+        )
+        self.class_weights = class_weights.as_dict() if isinstance(class_weights, ClassWeightBundle) else dict(class_weights or {})
+        self.resolved_config = dict(resolved_config or {})
         self.checkpoints = CheckpointManager(checkpoint_root, run_id)
         self.gate = EvaluationAccessGate()
         self.scheduler: Any = None
@@ -265,17 +293,13 @@ class TrainingEngine:
     def _ensure_scheduler(self, total_steps: int) -> None:
         if self.scheduler is not None and self._scheduler_total_steps == total_steps:
             return
-        warmup = max(0, int(total_steps * self.config.warmup_ratio))
-
-        def schedule(step: int) -> float:
-            if step < warmup and warmup:
-                return max(step, 1) / warmup
-            progress = (step - warmup) / max(total_steps - warmup, 1)
-            if self.config.scheduler == "cosine":
-                return 0.5 * (1.0 + np.cos(np.pi * min(max(progress, 0.0), 1.0)))
-            return max(0.0, 1.0 - min(max(progress, 0.0), 1.0))
-
-        self.scheduler = torch.optim.lr_scheduler.LambdaLR(self.optimizer, schedule)
+        self.scheduler, self.scheduler_summary = build_scheduler(
+            self.optimizer,
+            scheduler_name=self.config.scheduler,
+            warmup_ratio=self.config.warmup_ratio,
+            total_steps=total_steps,
+        )
+        self.scheduler_summary.update({"steps_per_epoch": total_steps // max(self.config.max_epochs, 1), "gradient_accumulation_steps": self.config.gradient_accumulation_steps, "epochs": self.config.max_epochs})
         self._scheduler_total_steps = total_steps
 
     def _autocast(self) -> Any:
@@ -285,6 +309,18 @@ class TrainingEngine:
         return torch.autocast(device_type="cuda", dtype=dtype)
 
     def _loss(self, batch: dict[str, Any]) -> tuple[Tensor, dict[str, Tensor]]:
+        pragmatic_weights = dict(self.class_weights.get("pragmatic_pos_weight", {}) or {})
+        pragmatic_weights.update(dict(batch.get("pragmatic_pos_weight") or {}))
+        polarity_weight = self.class_weights.get("polarity_weight", batch.get("polarity_weight"))
+        emotion_weight = self.class_weights.get("emotion_weight", batch.get("emotion_weight"))
+        if polarity_weight is not None and not isinstance(polarity_weight, Tensor):
+            polarity_weight = torch.tensor([float(polarity_weight[label]) for label in POLARITY_LABELS], dtype=torch.float32)
+        if emotion_weight is not None and not isinstance(emotion_weight, Tensor):
+            emotion_weight = torch.tensor([float(emotion_weight[label]) for label in EMOTION_LABELS], dtype=torch.float32)
+        if isinstance(polarity_weight, Tensor):
+            polarity_weight = polarity_weight.to(batch["input_ids"].device)
+        if isinstance(emotion_weight, Tensor):
+            emotion_weight = emotion_weight.to(batch["input_ids"].device)
         with self._autocast():
             output = self.model(
                 batch["input_ids"],
@@ -295,9 +331,9 @@ class TrainingEngine:
             losses = classification_losses(
                 output["logits"],
                 batch["targets"],
-                pragmatic_pos_weight=batch.get("pragmatic_pos_weight"),
-                polarity_weight=batch.get("polarity_weight"),
-                emotion_weight=batch.get("emotion_weight"),
+                pragmatic_pos_weight=pragmatic_weights or None,
+                polarity_weight=polarity_weight,
+                emotion_weight=emotion_weight,
                 active_tasks=self.model.config.active_tasks,
                 target_masks=batch.get("target_masks"),
                 sarcasm_target_mask=batch.get("sarcasm_target_mask"),
@@ -464,9 +500,14 @@ class TrainingEngine:
                 "prediction_files": [name for name, enabled in (("dev_predictions.jsonl", True), ("test_predictions.jsonl", test_selection is not None)) if enabled],
                 "precision_requested": self.config.precision,
                 "precision_runtime": self.config.precision if torch.cuda.is_available() else "fp32_cpu_fallback",
+                "optimizer": self.optimizer_summary,
+                "scheduler": getattr(self, "scheduler_summary", {}),
+                "resolved_training_config": self.resolved_config,
                 **dict(metadata or {}),
             },
         )
+        atomic_write_json(output_root.parent / "training/optimizer_summary.json", self.optimizer_summary)
+        atomic_write_json(output_root.parent / "training/scheduler_summary.json", getattr(self, "scheduler_summary", {}))
 
     def train(
         self,
@@ -505,7 +546,8 @@ class TrainingEngine:
                     (total / len(window)).backward()
                     window_loss += float(total.detach().cpu())
                     state.micro_batches += 1
-                nn.utils.clip_grad_norm_(list(self.model.parameters()) + list(self.loss_aggregator.parameters()), self.config.max_grad_norm)
+                optimizer_parameters = list(self.model.parameters()) + (list(self.loss_aggregator.parameters()) if self.uses_uncertainty_weighting else [])
+                nn.utils.clip_grad_norm_(optimizer_parameters, self.config.max_grad_norm)
                 self.optimizer.step()
                 if self.scheduler is not None:
                     self.scheduler.step()

@@ -17,9 +17,10 @@ This runbook names exactly one Azure job. Do not start another job, experiment, 
 
 1. Run `python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_128 --stage preflight`.
 2. If preflight is BLOCKED or FAIL, paste the report into the Codex chat and stop.
-3. After preflight passes, run `python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_128 --stage all`.
-4. On interruption, resume only this job with `python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_128 --resume`.
-5. Use only the frozen prompt/schema manifest for this job. Do not log secrets, use the direct OpenAI endpoint, or silently change demonstrations, deployment, budget, or retry policy.
+3. After preflight passes, execute exactly this stage order: `preflight` -> `execute_api_job` -> `validate_responses` -> `export_artifacts` -> `validate_artifacts` -> `generate_review_summary`.
+4. Run that locked sequence with `python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_128 --stage all`.
+5. On interruption, resume only this job with `python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_128 --resume`.
+6. Use only the frozen prompt/schema manifest for this job. Do not log secrets, use the direct OpenAI endpoint, or silently change demonstrations, deployment, budget, or retry policy.
 
 ## Required review handoff
 

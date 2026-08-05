@@ -53,6 +53,10 @@ def build_qlora_backbone(
             task_type="FEATURE_EXTRACTION",
         )
         model = get_peft_model(model, lora_config)
+        if hasattr(model, "gradient_checkpointing_enable"):
+            model.gradient_checkpointing_enable()
+        if hasattr(model, "config"):
+            model.config.gradient_checkpointing = True
     except Exception as exc:
         if isinstance(exc, RuntimeBlocked):
             raise
@@ -60,6 +64,17 @@ def build_qlora_backbone(
     for name, parameter in model.named_parameters():
         if "lora_" not in name:
             parameter.requires_grad = False
+    model._vipragsent_qlora_contract = {
+        "load_in_4bit": True,
+        "quant_type": "nf4",
+        "double_quant": True,
+        "compute_dtype": "bf16",
+        "target_modules": ["q_proj", "k_proj", "v_proj", "o_proj"],
+        "rank": 16,
+        "alpha": 32,
+        "dropout": 0.05,
+        "gradient_checkpointing": True,
+    }
     return model
 
 

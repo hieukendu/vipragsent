@@ -23,6 +23,7 @@ VARIANT_IDS = {
     "vipragsent_full_phobert",
     "vipragsent_full_vistral",
     "phobert_pragmatic_finetune",
+    "phobert_pragmatic_single_task",
     "xlmr_pragmatic_finetune",
     "vistral_pragmatic_sft",
     "vipragsent_no_auxiliary_vistral",
@@ -55,13 +56,13 @@ class VariantConfig:
 
     @property
     def active_tasks(self) -> set[str]:
-        if self.name.startswith("cot_only"):
+        if self.name in {"cot_only_vistral", "explanation_only_vistral"}:
             return set()
         if self.name in {"phobert_pol_single"}:
             return {"polarity"}
         if self.name in {"phobert_emo_single"}:
             return {"emotion"}
-        if self.name in {"phobert_pragmatic_finetune", "xlmr_pragmatic_finetune", "sailor_pragmatic_sft", "vistral_pragmatic_sft", "vipragsent_no_auxiliary_vistral", "explanation_only_vistral"}:
+        if self.name in {"phobert_pragmatic_finetune", "phobert_pragmatic_single_task", "xlmr_pragmatic_finetune", "sailor_pragmatic_sft", "vistral_pragmatic_sft", "vipragsent_no_auxiliary_vistral"}:
             return {"pragmatic"}
         if self.name == "no_emotion_auxiliary":
             return {"pragmatic", "polarity"}
@@ -75,7 +76,7 @@ class VariantConfig:
     def has_rationale_decoder(self) -> bool:
         if self.rationale_enabled_for_training is not None:
             return self.rationale_enabled_for_training
-        return self.name in {"full", "vipragsent_full", "vipragsent_full_phobert", "vipragsent_full_vistral", "no_emotion_auxiliary", "no_polarity_auxiliary", "explanation_only_vistral"}
+        return self.name in {"full", "vipragsent_full", "vipragsent_full_phobert", "vipragsent_full_vistral", "no_emotion_auxiliary", "no_polarity_auxiliary", "no_uncertainty_weighting"}
 
     @property
     def has_uncertainty_weighting(self) -> bool:
@@ -144,7 +145,7 @@ class ViPragSentModel(nn.Module):
         hidden = encoded.last_hidden_state
         pooled = pool_hidden_states(hidden, attention_mask, self.config.backbone_family)
         outputs: dict[str, Any] = {"logits": self.heads(pooled, active_tasks=self.config.active_tasks)}
-        if self.rationale_decoder is not None and rationale_input_ids is not None:
+        if self.training and self.rationale_decoder is not None and rationale_input_ids is not None:
             target_attention = rationale_attention_mask if rationale_attention_mask is not None else torch.ones_like(rationale_input_ids)
             outputs["rationale_logits"], outputs["rationale_labels"], outputs["rationale_padding_mask"] = self.rationale_decoder.teacher_forcing(
                 rationale_input_ids, target_attention, hidden, attention_mask
@@ -210,6 +211,18 @@ class IndependentCheckpointBundle(nn.Module):
         )
         self.components = nn.ModuleDict(components)
 
+    def forward(
+        self,
+        input_ids: Tensor,
+        attention_mask: Tensor,
+        **_: Tensor | None,
+    ) -> dict[str, Any]:
+        logits: dict[str, Tensor] = {}
+        for component in self.components.values():
+            output = component(input_ids, attention_mask)
+            logits.update(output["logits"])
+        return {"logits": logits}
+
     @property
     def checkpoint_ids(self) -> tuple[str, ...]:
         return tuple([f"phobert_{key}_single" for key in ("implicit_sentiment", "sarcasm", "irony", "idiom_figurative", "code_switching", "mocking")] + ["phobert_pol_single", "phobert_emo_single"])
@@ -219,6 +232,77 @@ class IndependentCheckpointBundle(nn.Module):
         return tuple(component.active_head_keys[0] for component in self.components.values())  # type: ignore[attr-defined]
 
 
-def build_dummy_model(config: VariantConfig | None = None) -> ViPragSentModel:
+class SingleTaskPragmaticBundle(nn.Module):
+    """Six independent pragmatic heads for the approved ordinary single-task baseline."""
+
+    def __init__(self, backbone_factory: Callable[[], nn.Module], config: VariantConfig) -> None:
+        super().__init__()
+        self.config = config
+        self.components = nn.ModuleDict(
+            {
+                key: SingleTaskClassifier(
+                    backbone_factory(),
+                    VariantConfig("phobert_pragmatic_finetune", config.backbone_family, config.hidden_size, config.vocab_size),
+                    output_key=key,
+                )
+                for key in PRAGMATIC_LABELS
+            }
+        )
+
+    @property
+    def checkpoint_ids(self) -> tuple[str, ...]:
+        return tuple(f"phobert_{key}_single" for key in PRAGMATIC_LABELS)
+
+    @property
+    def active_head_keys(self) -> tuple[str, ...]:
+        return tuple(PRAGMATIC_LABELS)
+
+    @property
+    def inference_output_source(self) -> str:
+        return "classification_heads"
+
+    @property
+    def rationale_decoder_enabled_at_inference(self) -> bool:
+        return False
+
+    def forward(self, input_ids: Tensor, attention_mask: Tensor, **_: Tensor | None) -> dict[str, Any]:
+        logits: dict[str, Tensor] = {}
+        for component in self.components.values():
+            logits.update(component(input_ids, attention_mask)["logits"])
+        return {"logits": logits}
+
+
+class GenerationBaselineModel(nn.Module):
+    """Production construction marker for generation baselines.
+
+    Label parsing and generation are owned by the generation executor; this
+    model deliberately exposes no classification heads.
+    """
+
+    def __init__(self, backbone: nn.Module, config: VariantConfig) -> None:
+        super().__init__()
+        self.backbone = backbone
+        self.config = config
+
+    @property
+    def inference_output_source(self) -> str:
+        return "parsed_generated_labels"
+
+    @property
+    def rationale_decoder_enabled_at_inference(self) -> bool:
+        return False
+
+    def forward(self, input_ids: Tensor, attention_mask: Tensor, **_: Tensor | None) -> dict[str, Any]:
+        encoded = self.backbone(input_ids=input_ids, attention_mask=attention_mask)
+        return {"generation_hidden_states": encoded.last_hidden_state, "logits": {}}
+
+
+def build_dummy_model(config: VariantConfig | None = None) -> nn.Module:
     config = config or VariantConfig(name="vipragsent_full", rationale_enabled_for_training=True)
+    if config.name == "no_multitask":
+        return IndependentCheckpointBundle(lambda: DummyBackbone(config.vocab_size, config.hidden_size), config)
+    if config.name == "phobert_pragmatic_single_task":
+        return SingleTaskPragmaticBundle(lambda: DummyBackbone(config.vocab_size, config.hidden_size), config)
+    if config.name in {"cot_only_vistral", "explanation_only_vistral"}:
+        return GenerationBaselineModel(DummyBackbone(config.vocab_size, config.hidden_size), config)
     return ViPragSentModel(DummyBackbone(config.vocab_size, config.hidden_size), config)

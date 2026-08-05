@@ -716,9 +716,9 @@ def export_production_artifacts(*, repo_root: str | Path = ".", run_id: str = "f
             table2_rows.append({column: record.get(column, "") for column in table2_columns} | {
                 "system": record["system"],
                 "backbone": record["backbone"],
-                "seed_count": record.get("seed_count", 1),
+                "seed_count": record["seed_count"],
                 "macro_prag_f1": record["macro_prag_f1"],
-                "invalid_output_rate": record.get("invalid_output_rate", 0.0),
+                "invalid_output_rate": record["invalid_output_rate"],
             })
     table_rows["table_2_pragmatic.csv"] = table2_rows
     for filename in PRODUCTION_PAPER_TABLES[1:]:
