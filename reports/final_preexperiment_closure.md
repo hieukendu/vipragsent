@@ -1,7 +1,7 @@
 # Final pre-experiment production closure
 
 Status: `PASS`
-Code commit at audit: `cb5cde04cd3e3c546d1b35711197a82b6d5bb254`
+Code commit at audit: `2a5b11c11e5e6b7f36a1edfbf5448b2b394c426b`
 Inventory: `162` rows
 Frozen data unchanged: `true`
 Self-review: `25 rounds x 2 sequences`; consecutive clean sequences: `2`
