@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
 from collections.abc import Callable
+from dataclasses import dataclass
 from typing import Any
 
 import torch
@@ -11,7 +11,6 @@ from ..constants import PRAGMATIC_LABELS, RATIONALE_BETA
 from .backbones import DummyBackbone, pool_hidden_states
 from .heads import ClassificationHeads
 from .rationale_decoder import RationaleDecoder
-
 
 VARIANT_IDS = {
     "full",

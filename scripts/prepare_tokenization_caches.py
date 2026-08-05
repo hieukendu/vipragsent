@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
 
 from _bootstrap import ROOT
 from vipragsent.data.loaders import load_vipragsent
-from vipragsent.data.preprocessing import DeterministicSegmenter, PreprocessingSpec, TextPreprocessor, VnCoreNLPSegmenter
+from vipragsent.data.preprocessing import (
+    DeterministicSegmenter,
+    PreprocessingSpec,
+    TextPreprocessor,
+    VnCoreNLPSegmenter,
+)
 from vipragsent.models.factory import load_model_registry
 
 

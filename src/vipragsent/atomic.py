@@ -4,9 +4,10 @@ import json
 import os
 import tempfile
 import time
+from collections.abc import Iterator
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Iterator
+from typing import Any
 
 
 def atomic_write_text(path: str | Path, text: str) -> Path:

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json, atomic_write_text

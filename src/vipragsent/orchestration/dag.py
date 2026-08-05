@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
-from collections.abc import Mapping
-from typing import Any, Callable
+from typing import Any
 
 from ..atomic import atomic_write_json
 from ..config import load_yaml
-from .status import HandlerResult, NodeStatus, ProtocolConflict, RuntimeBlocked, RunExitCode
+from .status import HandlerResult, NodeStatus, ProtocolConflict, RunExitCode, RuntimeBlocked
 
 
 @dataclass(frozen=True)

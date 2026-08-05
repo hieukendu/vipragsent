@@ -22,7 +22,6 @@ from vipragsent.orchestration.preflight import run_preflight
 from vipragsent.orchestration.status import HandlerResult
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
-
 DEFERRED_SERVER_REQUIREMENTS = [
     "Java 17 and VnCoreNLP resources",
     "PEFT",
@@ -130,7 +129,7 @@ def _temporary_behavior_checks() -> list[str]:
         fixture = export_fixture_artifacts(repo_root=ROOT, output_root=root / "fixture")
         if fixture["core_experiments_ready"] or validate_artifact_tree(root / "fixture/artifacts"):
             errors.append("temporary fixture exporter failed isolation/schema validation")
-        metrics = root / "results/runs/system/1/metrics.json"
+        metrics = root / "runs/fixture/legacy_adapter/system/1/metrics.json"
         metrics.parent.mkdir(parents=True, exist_ok=True)
         metrics.write_text(json.dumps({"mode": "fixture", "synthetic_results": True, "system": "fixture", "seed": 1, "model_revision": "fixture", "tokenizer_revision": "fixture"}) + "\n", encoding="utf-8")
         try:
@@ -213,7 +212,8 @@ def _write_reports(
         },
     }
     atomic_write_json(ROOT / "reports/scientific_protocol_conflicts.json", scientific)
-    atomic_write_text(ROOT / "reports/scientific_protocol_conflicts.md", "# Scientific protocol conflicts\n\n" + "\n".join([f"- {key}: `{value}`" for key, value in protocol["resolution_status"].items()]) + "\n\n## Active conflict codes\n\n" + "\n".join(f"- `{code}`" for code in conflicts) + "\n")
+    active_conflicts = "\n".join(f"- `{code}`" for code in conflicts) or "None"
+    atomic_write_text(ROOT / "reports/scientific_protocol_conflicts.md", "# Scientific protocol conflicts\n\n" + "\n".join([f"- {key}: `{value}`" for key, value in protocol["resolution_status"].items()]) + "\n\n## Active conflict codes\n\n" + active_conflicts + "\n")
     runtime = {
         "phase": "14.5",
         "preflight": preflight.as_dict(),
@@ -271,7 +271,7 @@ def _write_reports(
         "next_phase_ready": not conflicts and not errors,
     }
     atomic_write_json(ROOT / "reports/phases/phase_14_5_handoff.json", handoff)
-    atomic_write_text(ROOT / "reports/phases/phase_14_5_status.md", "# Phase 14.5 status\n\n- Status: `" + status + "`\n- Tests passed: `" + str((not errors)).lower() + "`\n- Production implementation audit passed: `" + str((not errors)).lower() + "`\n- Next phase ready: `" + str(handoff["next_phase_ready"]).lower() + "`\n\n## Scientific protocol conflicts\n\n" + "\n".join(f"- `{item}`" for item in conflicts or ["None"]) + "\n")
+    atomic_write_text(ROOT / "reports/phases/phase_14_5_status.md", "# Phase 14.5 status\n\n- Status: `" + status + "`\n- Tests passed: `" + str(not errors).lower() + "`\n- Production implementation audit passed: `" + str(not errors).lower() + "`\n- Next phase ready: `" + str(handoff["next_phase_ready"]).lower() + "`\n\n## Scientific protocol conflicts\n\n" + "\n".join(f"- `{item}`" for item in conflicts or ["None"]) + "\n")
     audit = {
         "implementation_passed": not errors,
         "errors": errors,

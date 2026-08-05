@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import torch
 from torch import Tensor, nn
 
 from ..constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS

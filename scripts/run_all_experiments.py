@@ -9,7 +9,11 @@ from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json
 from vipragsent.config import load_yaml
 from vipragsent.orchestration.dag import load_master_dag
-from vipragsent.orchestration.handlers import HandlerEnvironment, build_execution_context, build_handler_registry
+from vipragsent.orchestration.handlers import (
+    HandlerEnvironment,
+    build_execution_context,
+    build_handler_registry,
+)
 from vipragsent.orchestration.preflight import run_preflight
 from vipragsent.orchestration.status import NodeStatus, RunExitCode
 
@@ -34,8 +38,10 @@ def main() -> int:
         parser.error("--preflight-only is valid only with --mode full")
 
     master_config = load_yaml(ROOT / args.config)
-    if args.mode == "full" and not args.preflight_only and not master_config.get("global_full_dag_enabled", False) and not args.enable_global_full_dag:
+    if args.mode == "full" and not args.preflight_only:
         print("BLOCKED: global full-DAG execution is disabled by the sequential_review_gated policy.")
+        if args.enable_global_full_dag:
+            print("The legacy override flag is intentionally rejected; execute exactly one run through the sequential CLI.")
         print("Run exactly one experiment with scripts/run_single_experiment.py --experiment-id <EXPERIMENT_ID>.")
         print("Run exactly one Azure job with scripts/run_single_azure_job.py --job-id <AZURE_JOB_ID>.")
         print("After review, record explicit approval before using scripts/aggregate_approved_runs.py.")

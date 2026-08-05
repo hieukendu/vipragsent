@@ -1,18 +1,25 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any
 
 import numpy as np
 
 from ..constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS, TRAINING_SEEDS
 from ..hashing import sha256_file
-from ..protocol import validate_protocol_resolution
 from ..orchestration.status import ProtocolConflict
+from ..protocol import validate_protocol_resolution
 from ..statistics.bootstrap import BootstrapResult, paired_bootstrap_comparison
 from ..statistics.significance import load_p_value_strategy
-from .metrics import align_prediction_rows, binary_macro_f1, expected_calibration_error, macro_pragmatic_f1, multiclass_macro_f1, pragmatic_ece, reliability_bins
+from .metrics import (
+    align_prediction_rows,
+    binary_macro_f1,
+    macro_pragmatic_f1,
+    multiclass_macro_f1,
+    pragmatic_ece,
+)
 from .thresholds import tune_pragmatic_thresholds
 
 

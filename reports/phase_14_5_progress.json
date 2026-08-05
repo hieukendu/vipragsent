@@ -10,7 +10,7 @@
       "command": "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
       "returncode": 0,
       "stderr_tail": "",
-      "stdout_tail": ".....................................                                    [100%]\n"
+      "stdout_tail": ".......................................                                  [100%]\n"
     }
   ],
   "defects_confirmed": [
@@ -424,9 +424,7 @@
     },
     "errors": [],
     "expected_run_count": 162,
-    "warnings": [
-      "ruff executable is unavailable in the current environment; CI will run the declared dev dependency"
-    ]
+    "warnings": []
   },
   "scientific_protocol_conflicts": [],
   "server_paths_have_explicit_blockers_and_injected_tests": true,

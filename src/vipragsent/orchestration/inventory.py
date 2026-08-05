@@ -8,14 +8,15 @@ from typing import Any
 import yaml
 
 from ..constants import TRAINING_SEEDS
-from ..hashing import sha256_json
+from ..hashing import sha256_file, sha256_json
 from ..protocol import validate_protocol_resolution
-
 
 INVENTORY_COLUMNS = [
     "experiment_id", "run_id", "research_question", "system_id", "system", "display_name", "variant",
     "backbone", "seed", "budget", "task", "split", "dependencies", "required_phase15_assets",
     "checkpoint_role", "expected_outputs", "reusable_checkpoint_key", "selection_metric", "evaluation_protocol",
+    "execution_kind", "model_repository", "model_revision", "tokenizer_revision", "preprocessing_name",
+    "preprocessing_version", "source_checkpoint_id", "q3_mask_path", "q3_mask_hash", "training_applicability",
     "approval_required", "execution_status", "approval_status", "protocol_resolution_status", "resolution_status",
 ]
 Q3_BUDGETS = ("32", "64", "128", "256", "512", "full")
@@ -61,11 +62,34 @@ def _row(**values: Any) -> dict[str, Any]:
     values.setdefault("approval_status", "PENDING_USER_APPROVAL")
     values.setdefault("protocol_resolution_status", values.get("resolution_status", "RESOLVED"))
     values.setdefault("resolution_status", "RESOLVED")
+    if "execution_kind" not in values:
+        if values.get("backbone") == "azure":
+            values["execution_kind"] = "azure"
+        elif str(values.get("research_question", "")).casefold() == "q4":
+            values["execution_kind"] = "artifact_extraction"
+        elif str(values.get("research_question", "")).casefold() == "q1b":
+            values["execution_kind"] = "evaluation_only"
+        elif "reused_predictions" in str(values.get("dependencies", "")):
+            values["execution_kind"] = "checkpoint_reuse"
+        else:
+            values["execution_kind"] = "trainable"
+    values.setdefault("training_applicability", "NOT_APPLICABLE" if values["execution_kind"] in {"evaluation_only", "checkpoint_reuse", "artifact_extraction", "azure"} else "APPLICABLE")
+    values.setdefault("model_repository", "" if values.get("backbone") == "azure" else values.get("backbone", ""))
+    values.setdefault("model_revision", "" if values.get("backbone") == "azure" else values.get("model_revision", ""))
+    values.setdefault("tokenizer_revision", "" if values.get("backbone") == "azure" else values.get("tokenizer_revision", ""))
+    values.setdefault("preprocessing_name", "azure_prompt_protocol" if values.get("backbone") == "azure" else "vncorenlp_rdrsegmenter")
+    values.setdefault("preprocessing_version", "locked-v1")
+    values.setdefault("source_checkpoint_id", values.get("reusable_checkpoint_key", ""))
+    values.setdefault("q3_mask_path", "" if values.get("research_question") != "Q3" else f"data/processed/q3_low_resource_sarcasm/budget_{values.get('budget')}_masks.csv")
+    values.setdefault("q3_mask_hash", "")
     return {column: values.get(column, "") for column in INVENTORY_COLUMNS}
 
 
 def build_expected_runs(root: str | Path = ".") -> dict[str, Any]:
     root = Path(root)
+    registry_path = root / "configs/models/model_registry.yaml"
+    registry_payload = yaml.safe_load(registry_path.read_text(encoding="utf-8")) if registry_path.exists() else {}
+    registry = registry_payload.get("models", {})
     rows: list[dict[str, Any]] = []
     for system, variant, backbone, task in (
         ("phobert_pragmatic_single_task", "single_task_bundle", "phobert_base", "pragmatic"),
@@ -108,6 +132,15 @@ def build_expected_runs(root: str | Path = ".") -> dict[str, Any]:
     for system, backbone in (("vipragsent_full_phobert", "phobert_base"), ("vipragsent_full_vistral", "vistral_7b")):
         for seed in TRAINING_SEEDS:
             rows.append(_row(run_id=f"backbone_sensitivity_{system}_{seed}", research_question="backbone_sensitivity", system=system, variant="full", backbone=backbone, seed=seed, task="pragmatic;ordinary;polarity_ece;profiling", split="test", checkpoint_role=system, dependencies="reused_predictions;reused_profiles", expected_outputs="backbone_sensitivity", reusable_checkpoint_key=f"{system}:{seed}"))
+    for row in rows:
+        spec = registry.get(row.get("backbone"), {})
+        if row.get("backbone") != "azure":
+            row["model_repository"] = spec.get("repo_id", row.get("model_repository", ""))
+            row["model_revision"] = spec.get("revision", row.get("model_revision", ""))
+            row["tokenizer_revision"] = spec.get("tokenizer_revision", row.get("tokenizer_revision", ""))
+        if row.get("research_question") == "Q3":
+            mask = root / str(row["q3_mask_path"])
+            row["q3_mask_hash"] = sha256_file(mask) if mask.exists() else ""
     protocol = validate_protocol_resolution(root)
     inventory = {"schema_version": 1, "source": "configs/experiments/master_matrix.yaml and locked supporting registry", "training_seeds": list(TRAINING_SEEDS), "q3_budgets": list(Q3_BUDGETS), "scientific_protocol_conflicts": protocol["scientific_protocol_conflicts"], "rows": rows, "counts_by_question": {question: sum(row["research_question"] == question for row in rows) for question in ("Q1a", "Q1b", "Q2", "Q3", "Q4", "backbone_sensitivity")}, "derived_run_count": len(rows), "inventory_hash": sha256_json(rows)}
     validate_inventory(inventory)
@@ -116,7 +149,7 @@ def build_expected_runs(root: str | Path = ".") -> dict[str, Any]:
 
 def validate_inventory(inventory: dict[str, Any]) -> None:
     rows = list(inventory.get("rows", []))
-    required = {"experiment_id", "run_id", "research_question", "system_id", "system", "display_name", "variant", "backbone", "task", "split", "dependencies", "required_phase15_assets", "checkpoint_role", "expected_outputs", "reusable_checkpoint_key", "selection_metric", "evaluation_protocol", "approval_required", "execution_status", "approval_status", "protocol_resolution_status"}
+    required = {"experiment_id", "run_id", "research_question", "system_id", "system", "display_name", "variant", "backbone", "task", "split", "dependencies", "required_phase15_assets", "checkpoint_role", "expected_outputs", "reusable_checkpoint_key", "selection_metric", "evaluation_protocol", "execution_kind", "training_applicability", "approval_required", "execution_status", "approval_status", "protocol_resolution_status"}
     missing = [row.get("run_id", "<missing>") for row in rows if not required.issubset(row) or any(row.get(key) in {"", None} for key in required)]
     if missing:
         raise ValueError(f"Inventory rows are missing required semantic fields: {missing[:5]}")
@@ -146,6 +179,8 @@ def validate_inventory(inventory: dict[str, Any]) -> None:
     azure_q1b = [row for row in rows if row["research_question"] == "Q1b" and row["backbone"] == "azure"]
     if len(azure_q1b) != 1 or azure_q1b[0].get("seed") is not None:
         raise ValueError("Q1b must contain exactly one non-seeded Azure row")
+    if any(row.get("execution_kind") not in {"trainable", "checkpoint_reuse", "evaluation_only", "azure", "artifact_extraction"} for row in rows):
+        raise ValueError("Inventory contains an unsupported execution_kind")
 
 
 def write_expected_runs(root: str | Path = ".") -> dict[str, Any]:

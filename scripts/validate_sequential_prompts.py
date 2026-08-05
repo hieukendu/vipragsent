@@ -10,7 +10,11 @@ from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json
 from vipragsent.hashing import sha256_file
 from vipragsent.orchestration.inventory import build_expected_runs
-from vipragsent.orchestration.sequential import AZURE_JOB_TYPES, build_azure_job_inventory, load_execution_policy
+from vipragsent.orchestration.sequential import (
+    AZURE_JOB_TYPES,
+    build_azure_job_inventory,
+    load_execution_policy,
+)
 
 
 def _expected_entries(root: Path, inventory: dict[str, Any]) -> dict[str, Any]:
@@ -40,7 +44,7 @@ def _validate_prompt_text(path: Path, item: dict[str, Any], expected: dict[str, 
         mentioned = {value for value in all_model_families if value in text}
         if mentioned != {identifier}:
             errors.append(f"{path}: prompt names model families {sorted(mentioned)}, expected only {identifier}")
-        required = (identifier, "download_all_models.py", "--model-family", "verify_model_smoke.py", "PENDING_USER_APPROVAL", "stop")
+        required = (identifier, "download_all_models.py", "--model-family", "verify_model_smoke.py", "--model-family", "PENDING_USER_APPROVAL", "stop")
     else:
         required = ("aggregate_approved_runs.py", "APPROVED", "PENDING_USER_APPROVAL", "stop")
     for fragment in required:

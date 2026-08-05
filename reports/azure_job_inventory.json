@@ -2,9 +2,11 @@
   "job_count": 11,
   "jobs": [
     {
+      "backbone": "azure",
       "budget": "",
       "dependencies": "preflight_validation",
       "display_name": "azure rationale generation",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_rationale_generation",
       "job_type": "rationale_generation",
@@ -12,12 +14,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "setup",
       "split": "vipragsent_train",
-      "task": "rationale"
+      "system_id": "azure_rationale_generation",
+      "task": "rationale",
+      "variant": "rationale_generation"
     },
     {
+      "backbone": "azure",
       "budget": "",
       "dependencies": "preflight_validation",
       "display_name": "azure pragmatic zero shot",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_pragmatic_zero_shot",
       "job_type": "pragmatic_zero_shot",
@@ -25,12 +31,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q1a",
       "split": "vipragsent_test",
-      "task": "pragmatic"
+      "system_id": "azure_pragmatic_zero_shot",
+      "task": "pragmatic",
+      "variant": "pragmatic_zero_shot"
     },
     {
+      "backbone": "azure",
       "budget": "",
       "dependencies": "preflight_validation",
       "display_name": "azure pragmatic 8 shot",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_pragmatic_8_shot",
       "job_type": "pragmatic_8_shot",
@@ -38,12 +48,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q1a",
       "split": "vipragsent_test",
-      "task": "pragmatic"
+      "system_id": "azure_pragmatic_8_shot",
+      "task": "pragmatic",
+      "variant": "pragmatic_8_shot"
     },
     {
+      "backbone": "azure",
       "budget": "",
       "dependencies": "preflight_validation",
       "display_name": "azure polarity dedicated",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_polarity_dedicated",
       "job_type": "polarity_dedicated_prompt",
@@ -51,12 +65,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q1b",
       "split": "vipragsent_test",
-      "task": "polarity"
+      "system_id": "azure_polarity_dedicated",
+      "task": "polarity",
+      "variant": "polarity_dedicated_prompt"
     },
     {
+      "backbone": "azure",
       "budget": "",
       "dependencies": "preflight_validation",
       "display_name": "azure emotion dedicated",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_emotion_dedicated",
       "job_type": "emotion_dedicated_prompt",
@@ -64,12 +82,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q1b",
       "split": "vipragsent_test",
-      "task": "emotion"
+      "system_id": "azure_emotion_dedicated",
+      "task": "emotion",
+      "variant": "emotion_dedicated_prompt"
     },
     {
+      "backbone": "azure",
       "budget": "32",
       "dependencies": "preflight_validation",
       "display_name": "azure q3 pragmatic 8 shot 32",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_q3_pragmatic_8_shot_32",
       "job_type": "q3_budget_specific_pragmatic_8_shot",
@@ -77,12 +99,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q3",
       "split": "vipragsent_test",
-      "task": "sarcasm"
+      "system_id": "azure_q3_pragmatic_8_shot_32",
+      "task": "sarcasm",
+      "variant": "q3_budget_specific_pragmatic_8_shot"
     },
     {
+      "backbone": "azure",
       "budget": "64",
       "dependencies": "preflight_validation",
       "display_name": "azure q3 pragmatic 8 shot 64",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_q3_pragmatic_8_shot_64",
       "job_type": "q3_budget_specific_pragmatic_8_shot",
@@ -90,12 +116,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q3",
       "split": "vipragsent_test",
-      "task": "sarcasm"
+      "system_id": "azure_q3_pragmatic_8_shot_64",
+      "task": "sarcasm",
+      "variant": "q3_budget_specific_pragmatic_8_shot"
     },
     {
+      "backbone": "azure",
       "budget": "128",
       "dependencies": "preflight_validation",
       "display_name": "azure q3 pragmatic 8 shot 128",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_q3_pragmatic_8_shot_128",
       "job_type": "q3_budget_specific_pragmatic_8_shot",
@@ -103,12 +133,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q3",
       "split": "vipragsent_test",
-      "task": "sarcasm"
+      "system_id": "azure_q3_pragmatic_8_shot_128",
+      "task": "sarcasm",
+      "variant": "q3_budget_specific_pragmatic_8_shot"
     },
     {
+      "backbone": "azure",
       "budget": "256",
       "dependencies": "preflight_validation",
       "display_name": "azure q3 pragmatic 8 shot 256",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_q3_pragmatic_8_shot_256",
       "job_type": "q3_budget_specific_pragmatic_8_shot",
@@ -116,12 +150,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q3",
       "split": "vipragsent_test",
-      "task": "sarcasm"
+      "system_id": "azure_q3_pragmatic_8_shot_256",
+      "task": "sarcasm",
+      "variant": "q3_budget_specific_pragmatic_8_shot"
     },
     {
+      "backbone": "azure",
       "budget": "512",
       "dependencies": "preflight_validation",
       "display_name": "azure q3 pragmatic 8 shot 512",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_q3_pragmatic_8_shot_512",
       "job_type": "q3_budget_specific_pragmatic_8_shot",
@@ -129,12 +167,16 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q3",
       "split": "vipragsent_test",
-      "task": "sarcasm"
+      "system_id": "azure_q3_pragmatic_8_shot_512",
+      "task": "sarcasm",
+      "variant": "q3_budget_specific_pragmatic_8_shot"
     },
     {
+      "backbone": "azure",
       "budget": "full",
       "dependencies": "preflight_validation",
       "display_name": "azure q3 pragmatic 8 shot full",
+      "execution_kind": "azure",
       "execution_policy": "sequential_review_gated",
       "job_id": "azure_q3_pragmatic_8_shot_full",
       "job_type": "q3_budget_specific_pragmatic_8_shot",
@@ -142,7 +184,9 @@
       "required_phase15_assets": "azure_deployment;prompt_manifest",
       "research_question": "Q3",
       "split": "vipragsent_test",
-      "task": "sarcasm"
+      "system_id": "azure_q3_pragmatic_8_shot_full",
+      "task": "sarcasm",
+      "variant": "q3_budget_specific_pragmatic_8_shot"
     }
   ],
   "schema_version": 1

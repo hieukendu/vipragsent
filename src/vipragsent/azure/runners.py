@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Callable, Iterable, Mapping
 from pathlib import Path
-from typing import Any, Callable, Iterable, Mapping
+from typing import Any
 
 from ..atomic import atomic_write_json, exclusive_lock
 from ..data.rationales import rationale_only_target, rationale_plus_labels_target

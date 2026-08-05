@@ -7,7 +7,8 @@
     "run_id": {"type": "string", "minLength": 1},
     "status": {"type": "string", "enum": ["PENDING_USER_APPROVAL", "APPROVED", "REJECTED"]},
     "approved_by": {"type": ["string", "null"]},
-    "approved_at": {"type": ["string", "null"]}
+    "approved_at": {"type": ["string", "null"]},
+    "record": {"type": "object"}
   },
   "additionalProperties": false
 }

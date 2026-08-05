@@ -4,8 +4,6 @@ import csv
 import json
 from pathlib import Path
 from typing import Any
-from typing import Iterable
-
 
 REQUIRED_COLUMNS = {
     "table_2_pragmatic.csv": "system,backbone,seed_count,implicit_f1,implicit_ci_low,implicit_ci_high,sarcasm_f1,sarcasm_ci_low,sarcasm_ci_high,irony_f1,irony_ci_low,irony_ci_high,idiom_f1,idiom_ci_low,idiom_ci_high,code_switching_f1,code_switching_ci_low,code_switching_ci_high,mocking_f1,mocking_ci_low,mocking_ci_high,macro_prag_f1,macro_prag_ci_low,macro_prag_ci_high,invalid_output_rate",

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from _bootstrap import ROOT
 from vipragsent.config_validation import validate_config_tree

@@ -4,11 +4,20 @@ import csv
 import json
 import shutil
 import zipfile
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
-from ..constants import ALL_LABEL_KEYS, DATASET_SPLITS, EMOTION_LABELS, EXPECTED_SPLIT_COUNTS, POLARITY_LABELS, PRAGMATIC_LABELS, SPLIT_SEED
+from ..constants import (
+    ALL_LABEL_KEYS,
+    DATASET_SPLITS,
+    EMOTION_LABELS,
+    EXPECTED_SPLIT_COUNTS,
+    POLARITY_LABELS,
+    PRAGMATIC_LABELS,
+    SPLIT_SEED,
+)
 from ..hashing import fingerprint_files, sha256_file
 from .labels import validate_label_dict
 
@@ -26,7 +35,7 @@ class DatasetExample:
     source_dataset: str = "SEACrowd/ViSoBERT"
 
     @classmethod
-    def from_row(cls, row: dict[str, str], *, split: str | None = None) -> "DatasetExample":
+    def from_row(cls, row: dict[str, str], *, split: str | None = None) -> DatasetExample:
         actual_split = split or row.get("split", "")
         if actual_split not in DATASET_SPLITS:
             raise DatasetValidationError(f"Invalid split for {row.get('sample_id')}: {actual_split!r}")

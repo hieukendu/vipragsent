@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Iterable
 
 
 @dataclass
@@ -27,7 +27,7 @@ class PhaseHandoff:
         root.mkdir(parents=True, exist_ok=True)
         stem = root / f"phase_{self.phase}"
         payload = asdict(self)
-        payload["generated_at_utc"] = datetime.now(timezone.utc).isoformat()
+        payload["generated_at_utc"] = datetime.now(UTC).isoformat()
         handoff_path = stem.with_name(stem.name + "_handoff.json")
         status_path = stem.with_name(stem.name + "_status.md")
         handoff_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

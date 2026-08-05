@@ -5,13 +5,13 @@ import json
 import os
 import random
 from collections import defaultdict
+from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import Any, Iterable, Mapping
+from typing import Any
 
 from .atomic import atomic_write_json
 from .constants import PRAGMATIC_LABELS
 from .data.annotation import cohen_kappa, krippendorff_alpha_nominal, raw_agreement
-
 
 SAMPLING_SEED = 20260525
 MANUAL_CATEGORIES = (

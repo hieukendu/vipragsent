@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any, Iterable, Mapping
+from typing import Any
 
-from ..constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS
+from ..constants import PRAGMATIC_LABELS
 from ..hashing import sha256_json
 from .schemas import strict_label_schema
 

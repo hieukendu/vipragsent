@@ -15,7 +15,6 @@ from vipragsent.orchestration.inventory import build_expected_runs
 from vipragsent.orchestration.preflight import run_preflight
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
-
 DEFERRED_RUNTIME_REQUIREMENTS = [
     "A100 or A100 MIG runtime",
     "Java 17 and VnCoreNLP resources",

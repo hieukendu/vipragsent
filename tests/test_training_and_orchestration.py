@@ -3,9 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import torch
-
-from vipragsent.models.variants import VariantConfig, build_dummy_model
 from vipragsent.orchestration.dag import DAGNode, ExperimentDAG, load_master_dag
 from vipragsent.orchestration.status import ProtocolConflict, RunExitCode
 from vipragsent.training.engine import EvaluationAccessGate

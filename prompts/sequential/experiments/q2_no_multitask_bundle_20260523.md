@@ -16,6 +16,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 - Split: `dev;external_test`
 - Dependencies: `phobert_jobs`
 - Required Phase 15 assets: `model_weights;tokenizer;runtime_profile`
+- Execution kind: `trainable`
 - Expected artifacts: `bundle_metrics;predictions`
 - Selection metric: `macro_prag_f1_dev`
 - Evaluation protocol: `q2_ablation_v1`
@@ -32,7 +33,7 @@ This runbook names exactly one inventory entry. Do not start another experiment 
 
 ## Required review handoff
 
-The run must complete these stages in order: preflight, train_or_run, evaluate_dev, freeze_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary.
+The run must complete these stages in order: preflight, train_or_reuse, evaluate_dev, freeze_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary.
 
 Print the complete review summary with `python scripts/print_run_review_summary.py --run-id q2_no_multitask_bundle_20260523` and paste it into the Codex chat. It must include `RUN_STATUS`, `USER_REVIEW_STATUS`, `NEXT_RUN_ALLOWED`, artifact hashes, and blockers.
 
