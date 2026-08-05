@@ -6,8 +6,8 @@
 - Scientific changes: `0`
 - Frozen data changed: `false`
 - CI status/conclusion: `completed/success`
-- Audited code commit: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
-- Self-review: `5 rounds x 2 cycles`; consecutive clean cycles: `2`
+- Audited code commit: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
+- Self-review: `6 rounds x 2 cycles`; consecutive clean cycles: `2`
 
 ## Execution boundary
 
@@ -37,7 +37,11 @@
 ## Engineering changes
 
 - `.github/workflows/cpu-ci.yml`
+- `FINAL_CHECKSUMS.sha256`
 - `PROJECT_STATE.json`
+- `RELEASE_MANIFEST.json`
+- `REPRODUCIBILITY_REPORT.md`
+- `SETUP_CHECKSUMS.sha256`
 - `SETUP_READY.md`
 - `configs/experiments/execution_stage_plans.yaml`
 - `configs/experiments/generation_reasoning_protocol.yaml`
@@ -213,12 +217,16 @@
 - `reports/ci_verification.json`
 - `reports/component_bundle_production_audit.json`
 - `reports/component_training_audit.json`
+- `reports/current_task_luna_worker_routing.json`
+- `reports/current_task_luna_worker_routing.md`
 - `reports/device_contract_audit.json`
 - `reports/execution_stage_plan_audit.json`
 - `reports/expected_experiment_runs.csv`
 - `reports/expected_experiment_runs.json`
 - `reports/final_cleanup_protocol_guard.json`
 - `reports/final_cleanup_protocol_guard.md`
+- `reports/final_cleanup_review_cycles.json`
+- `reports/final_cleanup_review_cycles.md`
 - `reports/final_cleanup_worklog.json`
 - `reports/final_cleanup_worklog.md`
 - `reports/final_preexperiment_closure.json`
@@ -334,3 +342,9 @@
 - `tests/test_provenance_artifacts.py`
 - `tests/test_q1b_dependencies.py`
 - `tests/test_table2_statistics.py`
+
+- Review source: `reports/final_cleanup_review_cycles.json`
+- Execution mode: `SINGLE_AGENT`
+- Subagents called: `false`
+- No new defects: `true`
+- Historical subagent profile verification: `NOT_VERIFIED`

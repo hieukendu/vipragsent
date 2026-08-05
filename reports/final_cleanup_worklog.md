@@ -46,3 +46,14 @@
 - Status: `PASS` for report-only packaging; the final report SHA is intentionally not embedded in its own report.
 - Commit B scope is limited to generated reports, readiness state, and checksum artifacts; no protected source/data/configuration/test/workflow file is included.
 - The final commit may contain only generated reports/readiness state and checksum artifacts; no protected source, data, configuration, or tests.
+
+## Phase 7 - Final review metadata closure
+
+- Code evidence SHA: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
+- Root cause: the loader selected the historical Luna report before the authoritative cleanup report, reducing the current six-round review to five rounds.
+- Fix: explicit cleanup, historical Luna, and runtime fallback precedence; strict current/historical normalization; canonical metadata propagation to snapshots, final reports, and consistency audits.
+- CPU-only suite: `194 passed`
+- Two complete review cycles: `2 x 6 rounds`, all `PASS`, zero new defects.
+- Manager routing: requested `gpt-5.6-luna` at maximum available effort; resolved profile `NOT_VERIFIED`; `workers_spawned=0`; no worker output integrated.
+- Protected manifest before/after: `FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953` / `FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953`
+- No Phase 15, model download, live Azure request, GPU training, real predictions, approval, or experiment execution.

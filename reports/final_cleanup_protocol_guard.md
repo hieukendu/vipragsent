@@ -1,8 +1,8 @@
 # Final cleanup protocol guard
 
 - Status: `PASS`
-- Before commit reference: `fc4779e5f6cb217136288015a6aee2fc311d12bd`
-- After worktree HEAD: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
+- Before commit reference: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
+- After worktree HEAD: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
 - Baseline basis: `untouched task-start worktree manifest; canonical LF bytes; ignored UIT fixtures included`
 - Protected source manifest before: `FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953`
 - Protected source manifest after: `FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953`

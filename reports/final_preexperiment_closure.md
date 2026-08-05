@@ -3,12 +3,17 @@
 Status: `PASS`
 Local code readiness: `PASS`
 Server runtime readiness: `NOT_RUN`
-Audited code commit: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
-Report generation parent SHA: `b34672abe50bde88fa0f1ef8fd745a66f15037c0`
+Audited code commit: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
+Report generation parent SHA: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
 CI status/conclusion: `completed/success`
 Inventory: `162` rows
 Frozen data unchanged: `true`
-Self-review: `5 rounds x 2 cycles`; consecutive clean cycles: `2`
+Self-review: `6 rounds x 2 cycles`; consecutive clean cycles: `2`
+- Review source: `reports/final_cleanup_review_cycles.json`
+- Execution mode: `SINGLE_AGENT`
+- Subagents called: `false`
+- No new defects: `true`
+- Historical subagent profile verification: `NOT_VERIFIED`
 
 Phase 15, model downloads, Azure requests, real training, real test prediction, approvals, and the global production DAG were not executed.
 

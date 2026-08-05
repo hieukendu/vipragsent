@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "task": "final-review-metadata-closure",
+  "status": "PASS",
+  "starting_code_sha": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "completed_at_utc": "2026-08-05T23:51:42Z",
+  "manager_requested_model": "gpt-5.6-luna",
+  "manager_requested_reasoning_effort": "maximum available",
+  "manager_resolved_model": null,
+  "manager_resolved_reasoning_effort": null,
+  "manager_profile_verification": "NOT_VERIFIED",
+  "manager_profile_verification_source": "The runtime session exposed no verifiable model-profile metadata.",
+  "execution_mode": "SINGLE_AGENT",
+  "subagents_called": false,
+  "worker_model_allowlist": [
+    "gpt-5.6-luna"
+  ],
+  "workers_spawned": 0,
+  "manager_workers_spawned": 0,
+  "worker_attempts": [],
+  "accepted_worker_patches": [],
+  "rejected_worker_patches": [],
+  "worker_self_reports_used": false,
+  "cycles_completed": 2,
+  "rounds_per_cycle": 6,
+  "consecutive_clean_cycles": 2,
+  "no_new_defects_in_two_complete_cycles": true,
+  "ci_run_id": 31055939769,
+  "ci_run_number": 20,
+  "ci_head_sha": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "protected_manifest_before_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
+  "protected_manifest_after_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
+  "protected_source_unchanged": true,
+  "cycles": [
+    {
+      "cycle": 1,
+      "status": "PASS",
+      "new_defects": [],
+      "rounds": [
+        {
+          "round": 1,
+          "name": "structural and diff audit",
+          "commands": ["python -m compileall -q src scripts tests", "ruff check src scripts tests", "git diff --check"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 2,
+          "name": "targeted regression and integration tests",
+          "commands": ["python -m pytest -q tests/test_final_readiness_consistency.py tests/test_final_runtime_integration.py tests/test_preexperiment_closure.py tests/test_luna_max_08_red_team.py --disable-warnings --maxfail=20"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 3,
+          "name": "red-team execution",
+          "commands": ["python -m pytest -q tests/test_luna_max_08_red_team.py --disable-warnings --maxfail=50"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 4,
+          "name": "full CPU validation",
+          "commands": ["python -m pytest -q -m not server and not gpu and not azure_live and not model_download --disable-warnings --maxfail=20"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 5,
+          "name": "manager-only adversarial metadata and worker-isolation assertions",
+          "commands": ["canonical review fields, historical profile, and zero-worker routing assertions"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 6,
+          "name": "final readiness consistency audit",
+          "commands": ["python scripts/audit_final_readiness_consistency.py"],
+          "status": "PASS",
+          "new_defects": []
+        }
+      ]
+    },
+    {
+      "cycle": 2,
+      "status": "PASS",
+      "new_defects": [],
+      "rounds": [
+        {
+          "round": 1,
+          "name": "structural and diff audit",
+          "commands": ["python -m compileall -q src scripts tests", "ruff check src scripts tests", "git diff --check"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 2,
+          "name": "targeted regression and integration tests",
+          "commands": ["python -m pytest -q tests/test_final_readiness_consistency.py tests/test_final_runtime_integration.py tests/test_preexperiment_closure.py tests/test_luna_max_08_red_team.py --disable-warnings --maxfail=20"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 3,
+          "name": "red-team execution",
+          "commands": ["python -m pytest -q tests/test_luna_max_08_red_team.py --disable-warnings --maxfail=50"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 4,
+          "name": "full CPU validation",
+          "commands": ["python -m pytest -q -m not server and not gpu and not azure_live and not model_download --disable-warnings --maxfail=20"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 5,
+          "name": "manager-only adversarial metadata and worker-isolation assertions",
+          "commands": ["canonical review fields, historical profile, and zero-worker routing assertions"],
+          "status": "PASS",
+          "new_defects": []
+        },
+        {
+          "round": 6,
+          "name": "final readiness consistency audit",
+          "commands": ["python scripts/audit_final_readiness_consistency.py"],
+          "status": "PASS",
+          "new_defects": []
+        }
+      ]
+    }
+  ],
+  "execution_boundary": {
+    "phase15_started": false,
+    "model_downloaded": false,
+    "azure_live_called": false,
+    "gpu_training_executed": false,
+    "real_predictions_generated": false,
+    "experiment_started": false,
+    "approval_recorded": false
+  }
+}

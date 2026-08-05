@@ -44,7 +44,7 @@
           "result": "PASS",
           "new_issue_found": false,
           "fix_applied": false,
-          "evidence": ["reports/ci_verification.json", "reports/final_readiness_snapshot.json", "cpu-ci run 31026573490"]
+          "evidence": ["reports/ci_verification.json", "reports/final_readiness_snapshot.json", "cpu-ci run 31055939769"]
         },
         {
           "cycle": 1,
@@ -106,7 +106,7 @@
           "result": "PASS",
           "new_issue_found": false,
           "fix_applied": false,
-          "evidence": ["reports/ci_verification.json", "reports/final_readiness_snapshot.json", "cpu-ci run 31026573490"]
+          "evidence": ["reports/ci_verification.json", "reports/final_readiness_snapshot.json", "cpu-ci run 31055939769"]
         },
         {
           "cycle": 2,
@@ -133,8 +133,9 @@
   "rounds_per_cycle": 6,
   "no_new_defects_in_two_complete_cycles": true,
   "protected_source_manifest_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
-  "audited_code_commit": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
-  "ci_run_id": 31026573490,
+  "audited_code_commit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "ci_run_id": 31055939769,
+  "current_task_review_evidence": "reports/final_review_metadata_fix_cycles.json",
   "inventory_rows": 162,
   "execution_boundary": {
     "phase15_executed": false,
