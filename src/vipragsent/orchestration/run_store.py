@@ -69,6 +69,8 @@ class RunStore:
             state = self.load()
             self.recover_stale(state)
             self.invalidate_stale_preflight(state)
+            state["code_commit"] = git_commit(self.context.root)
+            state["code_tree"] = git_tree(self.context.root)
             self.save(state)
             return state
         if self.state_path.exists() and not resume:
