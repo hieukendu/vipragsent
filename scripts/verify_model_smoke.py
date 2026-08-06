@@ -31,7 +31,18 @@ def main() -> int:
     report = verify_model_family(ROOT, args.model_family, registry=registry, fake=args.fake)
     atomic_write_json(ROOT / "data/model_smoke_report.json", report | {"selected_model_family": args.model_family, "manifest": args.manifest, "actual_local_loads": not args.fake})
     status = "PASS" if report.get("status") == "PASS" else "BLOCKED"
-    write_phase_handoff("15", status, inputs_read=[args.manifest, args.registry, "32_RUNTIME_PREFLIGHT_CHECKLIST.md"], files_created=["data/model_smoke_report.json", f"data/model_smoke_status/{args.model_family}.json"], tests_run=["offline tokenizer load", "offline model load", "forward", "backward", "finite loss", "gradient checks"], tests_passed=status == "PASS", blockers=list(report.get("blockers", [])), next_phase_ready=False)
+    handoff = write_phase_handoff(
+        "15",
+        status,
+        inputs_read=[args.manifest, args.registry, "32_RUNTIME_PREFLIGHT_CHECKLIST.md"],
+        files_created=["data/model_smoke_report.json", f"data/model_smoke_status/{args.model_family}.json"],
+        tests_run=["offline tokenizer load", "offline model load", "forward", "backward", "finite loss", "gradient checks"],
+        tests_passed=status == "PASS",
+        blockers=list(report.get("blockers", [])),
+        next_phase_ready=False,
+        model_family=args.model_family,
+    )
+    report["phase15_handoff_status"] = handoff.status
     print(json.dumps(report, indent=2, ensure_ascii=False))
     return 0 if status == "PASS" else 2
 
