@@ -6,7 +6,11 @@ from types import SimpleNamespace
 
 import pytest
 from scripts._bootstrap import ROOT
-from scripts.audit_final_production_correctness import _is_local_only_path
+from scripts.audit_final_production_correctness import (
+    _hygiene_evidence,
+    _is_local_only_path,
+    _is_untracked_local_artifact,
+)
 from scripts.audit_production_implementation import _runtime_command
 from scripts.readiness_utils import merge_snapshot_into_report
 from scripts.validate_schemas import has_material_artifacts
@@ -90,6 +94,14 @@ def test_final_audit_ignores_only_known_local_environment_roots() -> None:
     assert _is_local_only_path("src/pkg/__pycache__/module.pyc")
     assert not _is_local_only_path(".env")
     assert not _is_local_only_path("src/vipragsent/runtime/model_assets.py")
+
+
+def test_final_audit_excludes_untracked_local_weights_but_detects_tracked_weights() -> None:
+    weight_path = "results/runs/example/checkpoints/best/model.pt"
+    assert _is_untracked_local_artifact(weight_path)
+    assert _is_untracked_local_artifact("hs_err_pid123.log")
+    assert not _is_untracked_local_artifact("results/runs/example/review_summary.json")
+    assert weight_path not in _hygiene_evidence([weight_path])["forbidden_weight_or_secret_files"]
 
 
 def test_cache_status_paths_are_portable_and_resolvable(tmp_path: Path) -> None:

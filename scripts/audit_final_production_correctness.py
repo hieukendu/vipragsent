@@ -79,6 +79,18 @@ LOCAL_ONLY_PATH_PREFIXES = (
     ".codex_input/",
     "data/model_cache/",
 )
+LOCAL_RUNTIME_ARTIFACT_SUFFIXES = (".pt", ".pth", ".bin", ".safetensors", ".ckpt")
+
+
+def _is_untracked_local_artifact(path: str) -> bool:
+    normalized = path.replace("\\", "/").strip('"').lstrip("/")
+    if normalized.startswith("./"):
+        normalized = normalized[2:]
+    name = Path(normalized).name.casefold()
+    return (
+        normalized.startswith("results/runs/")
+        and Path(normalized).suffix.casefold() in LOCAL_RUNTIME_ARTIFACT_SUFFIXES
+    ) or (name.startswith("hs_err_pid") and name.endswith(".log"))
 
 
 def _is_local_only_path(path: str) -> bool:
@@ -288,7 +300,8 @@ def _changed_paths() -> list[str]:
         if " -> " in value:
             value = value.rsplit(" -> ", 1)[-1]
         normalized = value.replace("\\", "/").strip('"')
-        if not _is_local_only_path(normalized):
+        untracked = line.startswith("??")
+        if not _is_local_only_path(normalized) and not (untracked and _is_untracked_local_artifact(normalized)):
             paths.add(normalized)
     return sorted(path for path in paths if not _is_local_only_path(path))
 
@@ -296,7 +309,21 @@ def _changed_paths() -> list[str]:
 def _hygiene_evidence(paths: list[str]) -> dict[str, Any]:
     forbidden_suffixes = (".pt", ".pth", ".bin", ".safetensors", ".ckpt")
     forbidden_names = {".env", ".env.local"}
-    forbidden = [path for path in paths if Path(path).suffix.casefold() in forbidden_suffixes or Path(path).name.casefold() in forbidden_names]
+    tracked_paths = set(
+        item
+        for item in subprocess.run(
+            ["git", "ls-files", "-z"],
+            cwd=ROOT,
+            capture_output=True,
+            check=True,
+        ).stdout.decode("utf-8", errors="replace").split("\0")
+        if item
+    )
+    forbidden = sorted(
+        path
+        for path in tracked_paths
+        if Path(path).suffix.casefold() in forbidden_suffixes or Path(path).name.casefold() in forbidden_names
+    )
     secret_pattern = re.compile(r"(?:sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,})")
     secret_matches: list[str] = []
     for relative in paths:

@@ -9,3 +9,12 @@ __pycache__/
 .ruff_cache/
 .mypy_cache/
 *.egg-info/
+
+# Local experiment weights/checkpoints stay on the execution host; metadata,
+# metrics, and provenance remain auditable and can be versioned separately.
+results/runs/**/*.pt
+results/runs/**/*.pth
+results/runs/**/*.bin
+results/runs/**/*.safetensors
+results/runs/**/*.ckpt
+hs_err_pid*.log
