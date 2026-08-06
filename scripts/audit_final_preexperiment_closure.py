@@ -3,7 +3,10 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
+import sys
+from pathlib import Path
 from typing import Any
 
 import yaml
@@ -20,6 +23,7 @@ from vipragsent.orchestration.inventory import build_expected_runs
 from vipragsent.orchestration.stage_plans import validate_stage_plan_registry
 from vipragsent.orchestration.system_registry import load_execution_registry
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
+from vipragsent.runtime.phase15_state import reconcile_phase15_state
 
 try:
     from readiness_utils import load_review, merge_snapshot_into_report, read_json
@@ -38,8 +42,15 @@ NEXT_ACTION = "Checkout the exact final repair SHA on the target server, run Pha
 
 def _run(command: list[str], *, timeout: int = 900) -> dict[str, Any]:
     try:
-        result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=timeout, check=False)
-        return {"command": command, "returncode": result.returncode, "status": "PASS" if result.returncode == 0 else "FAIL", "stdout_tail": result.stdout[-2500:], "stderr_tail": result.stderr[-2500:]}
+        resolved = list(command)
+        if resolved and resolved[0] == "python":
+            resolved[0] = sys.executable
+        elif resolved and resolved[0] == "ruff" and not shutil.which("ruff"):
+            local_ruff = Path(sys.executable).with_name("ruff")
+            if local_ruff.exists():
+                resolved[0] = str(local_ruff)
+        result = subprocess.run(resolved, cwd=ROOT, capture_output=True, text=True, timeout=timeout, check=False)
+        return {"command": resolved, "returncode": result.returncode, "status": "PASS" if result.returncode == 0 else "FAIL", "stdout_tail": result.stdout[-2500:], "stderr_tail": result.stderr[-2500:]}
     except (OSError, subprocess.TimeoutExpired) as exc:
         return {"command": command, "returncode": 1, "status": "FAIL", "stdout_tail": "", "stderr_tail": str(exc)}
 
@@ -235,7 +246,10 @@ def _write_state() -> dict[str, Any]:
         NEXT_ACTION,
         "",
     ]))
-    return state
+    # This audit may refresh setup metadata, but it must not erase a verified
+    # Phase 15 handoff written by the model/cache status writers.
+    reconcile_phase15_state(ROOT, require_local_snapshot=False)
+    return read_json(ROOT / "PROJECT_STATE.json", state)
 
 
 def _write_conflicts() -> None:
@@ -307,7 +321,7 @@ def main() -> int:
     final = {"schema_version": 1, "status": local_status, "code_commit_at_audit": _git_sha(), "baseline_commit": BASELINE_COMMIT, "starting_baseline_verified": BASELINE_COMMIT, "scientific_protocol_conflicts": [], "implementation_blockers": [], "runtime_blockers": RUNTIME_BLOCKERS, "execution_safety": {"phase15_executed": False, "model_downloaded": False, "azure_request_made": False, "real_training_executed": False, "real_test_predictions_generated": False, "approval_recorded": False, "full_dag_executed": False}, "local_validation_status": local_status, "github_ci_status_at_report_generation": "NOT_RUN", "inventory_count": len(inventory["rows"]), "inventory_hash": inventory["inventory_hash"], "frozen_hashes_unchanged": frozen["unchanged"], "frozen_hash_comparison": frozen, "generation_protocol": {"generation_prompt_sha256": protocol["generation_prompt_hash"], "judge_prompt_sha256": protocol["judge_prompt_hash"], "judge_schema_sha256": protocol["judge_schema_hash"]}, "self_review": self_review, "commands": commands, "next_action": NEXT_ACTION, "state": state}
     snapshot = read_json(ROOT / "reports/final_readiness_snapshot.json")
     if snapshot:
-        final = merge_snapshot_into_report(final, snapshot)
+        final = merge_snapshot_into_report(final, snapshot, root=ROOT)
     atomic_write_json(ROOT / "reports/final_preexperiment_closure.json", final)
     review_summary = final.get("review_summary", {})
     atomic_write_text(ROOT / "reports/final_preexperiment_closure.md", "\n".join([

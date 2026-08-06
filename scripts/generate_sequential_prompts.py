@@ -8,6 +8,7 @@ import yaml
 
 from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json, atomic_write_text
+from vipragsent.constants import RUNTIME_PREFLIGHT_CHECKLIST
 from vipragsent.hashing import sha256_file
 from vipragsent.orchestration.inventory import write_expected_runs
 from vipragsent.orchestration.sequential import build_azure_job_inventory, load_execution_policy
@@ -137,7 +138,7 @@ The setup task that generated this file must not execute Phase 15. Execute this 
 
 ## Required sequence
 
-1. Confirm the runtime preflight and server prerequisites from `32_RUNTIME_PREFLIGHT_CHECKLIST.md`.
+1. Confirm the runtime preflight and server prerequisites from `{RUNTIME_PREFLIGHT_CHECKLIST}`.
 2. Download only this family with `python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family {family}`.
 3. Run the offline revision/tokenizer/model verification for this family with `python scripts/verify_model_smoke.py --manifest data/model_cache_manifest.json --model-family {family}`.
 4. Run the locked forward/backward smoke and physical-batch probe for this family when the runtime checklist permits it. Use exactly `python scripts/probe_model_batch.py --model-family {family}` for the physical-batch probe.

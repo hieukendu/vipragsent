@@ -6,11 +6,12 @@ import json
 import yaml
 
 from _bootstrap import ROOT
+from vipragsent.constants import RUNTIME_PREFLIGHT_CHECKLIST
 from vipragsent.models.factory import build_production_model
 from vipragsent.phase import write_phase_handoff
 from vipragsent.runtime.batch_probe import probe_physical_batch
 from vipragsent.runtime.hardware import hardware_identity, validate_hardware
-from vipragsent.runtime.model_assets import read_family_status
+from vipragsent.runtime.model_assets import read_family_status, resolve_local_snapshot
 
 
 def main() -> int:
@@ -30,7 +31,7 @@ def main() -> int:
         print(json.dumps(report, indent=2))
         return 2
     cache = read_family_status(ROOT, args.model_family, "cache")
-    snapshot = cache.get("local_path")
+    snapshot = resolve_local_snapshot(ROOT, cache.get("local_path"))
     if not snapshot:
         blockers = ["local Phase 15 snapshot is missing"]
         write_phase_handoff("15", "BLOCKED", blockers=blockers, model_family=args.model_family)
@@ -66,7 +67,7 @@ def main() -> int:
     handoff = write_phase_handoff(
         "15",
         result["status"],
-        inputs_read=["configs/models/model_registry.yaml", "32_RUNTIME_PREFLIGHT_CHECKLIST.md"],
+        inputs_read=["configs/models/model_registry.yaml", RUNTIME_PREFLIGHT_CHECKLIST],
         files_created=[f"data/batch_probe_status/{args.model_family}.json"],
         blockers=[] if result["status"] == "PASS" else ["physical batch probe did not select a valid batch"],
         next_phase_ready=False,

@@ -81,7 +81,7 @@ def execute_single_run(
     if stage not in valid_stages:
         raise ValueError(f"Unknown sequential stage: {stage}")
     store_root = root / "runs" / "fixture" / "results" / "runs" if fixture else root / "results" / "runs"
-    state_path = store_root / entry.run_id / "run_state.json"
+    state_path = store_root / entry.run_id / "state.json"
     # The documented two-command workflow is preflight followed by all. That second command continues the same run.
     continue_existing = stage == "all" and state_path.exists()
     context = RunContext(root, entry, fixture=fixture, dry_run=dry_run, metadata={"resume": resume or continue_existing})

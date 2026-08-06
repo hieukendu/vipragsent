@@ -4,15 +4,20 @@ import ast
 import json
 import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
 
-from _bootstrap import ROOT
+try:
+    from _bootstrap import ROOT
+except ModuleNotFoundError:  # pragma: no cover - supports importing the script in tests
+    from scripts._bootstrap import ROOT
 from vipragsent.artifacts.exporter import export_fixture_artifacts, export_production_artifacts
 from vipragsent.artifacts.schemas import validate_artifact_tree
 from vipragsent.atomic import atomic_write_json, atomic_write_text
 from vipragsent.config_validation import validate_config_tree
+from vipragsent.constants import RUNTIME_PREFLIGHT_CHECKLIST
 from vipragsent.hashing import sha256_file
 from vipragsent.orchestration.context import ExecutionContext
 from vipragsent.orchestration.dag import load_master_dag
@@ -55,9 +60,21 @@ REPAIR_ITEMS = {
 }
 
 
+def _runtime_command(command: list[str]) -> list[str]:
+    resolved = list(command)
+    if resolved and resolved[0] == "python":
+        resolved[0] = sys.executable
+    elif resolved and resolved[0] == "ruff" and shutil.which("ruff") is None:
+        local_ruff = Path(sys.executable).with_name("ruff")
+        if local_ruff.exists():
+            resolved[0] = str(local_ruff)
+    return resolved
+
+
 def _run(command: list[str], *, timeout: int = 180) -> dict[str, Any]:
-    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=timeout, check=False)
-    return {"command": " ".join(command), "returncode": result.returncode, "stdout_tail": result.stdout[-4000:], "stderr_tail": result.stderr[-4000:]}
+    resolved = _runtime_command(command)
+    result = subprocess.run(resolved, cwd=ROOT, capture_output=True, text=True, timeout=timeout, check=False)
+    return {"command": " ".join(resolved), "returncode": result.returncode, "stdout_tail": result.stdout[-4000:], "stderr_tail": result.stderr[-4000:]}
 
 
 def _parse_files() -> list[str]:
@@ -240,7 +257,7 @@ def _write_reports(
         "phase14_ready": not errors and not conflicts,
         "scientific_protocol_conflicts": conflicts,
         "repair_items": [{"repair": key, "description": description, "status": statuses[key]} for key, description in REPAIR_ITEMS.items()],
-        "files_inspected": ["28_PAPER_EXPERIMENT_ROLE_REGISTRY.md", "29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md", "30_SPEC_COMPLETENESS_AUDIT.md", "31_IMPLEMENTATION_DECISIONS.md", "32_RUNTIME_PREFLIGHT_CHECKLIST.md"],
+        "files_inspected": ["28_PAPER_EXPERIMENT_ROLE_REGISTRY.md", "29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md", "30_SPEC_COMPLETENESS_AUDIT.md", "31_IMPLEMENTATION_DECISIONS.md", RUNTIME_PREFLIGHT_CHECKLIST],
         "defects_confirmed": ["fixture root manifest claimed core completion", "full DAG had scheduled/no-op handlers", "decoder lacked shifted causal teacher forcing", "training engine lacked real dev selection", "production/export/checksum/audit paths were incomplete"],
         "implementation_changes": checks,
         "tests_added": ["causal decoder/EOS tests", "uncertainty/Q3 mask tests", "independent checkpoint bundle tests", "CPU training selection/checkpoint/resume tests", "temporary fake full-DAG traversal"],
@@ -295,7 +312,7 @@ def main() -> int:
     config = validate_config_tree(ROOT)
     errors = [*parse_errors, *static_errors, *behavior_errors, *config["errors"]]
     warnings: list[str] = []
-    if shutil.which("ruff") is None:
+    if shutil.which("ruff") is None and not Path(sys.executable).with_name("ruff").exists():
         warnings.append("ruff executable is unavailable in the current environment; CI will run the declared dev dependency")
     preflight = run_preflight(ROOT, mode="full")
     inventory = build_expected_runs(ROOT)

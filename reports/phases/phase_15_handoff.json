@@ -7,9 +7,9 @@
   ],
   "files_created": [
     "data/model_cache_manifest.json",
-    "data/model_cache_status/vistral_7b.json",
-    "data/model_smoke_status/vistral_7b.json",
-    "data/batch_probe_status/vistral_7b.json",
+    "data/model_cache_status/phobert_base.json",
+    "data/model_smoke_status/phobert_base.json",
+    "data/batch_probe_status/phobert_base.json",
     "data/model_smoke_report.json"
   ],
   "tests_run": [
@@ -26,25 +26,25 @@
   "blockers": [],
   "next_phase_ready": true,
   "phase15_evidence": {
-    "model_family": "vistral_7b",
-    "repo_id": "Viet-Mistral/Vistral-7B-Chat",
-    "model_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
-    "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
-    "physical_batch": 2,
-    "effective_batch_size": 16,
-    "gradient_accumulation_steps": 8,
+    "model_family": "phobert_base",
+    "repo_id": "vinai/phobert-base",
+    "model_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
+    "tokenizer_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
+    "physical_batch": 32,
+    "effective_batch_size": 32,
+    "gradient_accumulation_steps": 1,
     "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
-    "local_snapshot": "/root/vipragsent/data/model_cache/vistral_7b",
+    "local_snapshot": "data/model_cache/phobert_base",
     "hashes": {
-      "cache_manifest_hash": "40E475581B1F46DF24388182361D6BBEAC5BA1A554E536164781B864FA82D888",
-      "smoke_verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF",
-      "batch_probe_hash": "5D5437A57B3879477004D0876262573A525D013E629C2530F232A1F27B6AF667"
+      "cache_manifest_hash": "71DF79A67A65B1EE472938D0DFF77297C0D77E20FEF1AF41E0013B1D384EFB0D",
+      "smoke_verification_hash": "A8F92BECA7F29131E72AEA1CBDDA7B02284D4F44385337263C70F25936E1D93B",
+      "batch_probe_hash": "F8A81090A28195E0573987B28970382845C24A29C3F5FEEB6534210ABE731CE0"
     },
     "status_artifacts": {
       "cache_manifest": "data/model_cache_manifest.json",
-      "cache_status": "data/model_cache_status/vistral_7b.json",
-      "smoke_status": "data/model_smoke_status/vistral_7b.json",
-      "batch_status": "data/batch_probe_status/vistral_7b.json",
+      "cache_status": "data/model_cache_status/phobert_base.json",
+      "smoke_status": "data/model_smoke_status/phobert_base.json",
+      "batch_status": "data/batch_probe_status/phobert_base.json",
       "smoke_report": "data/model_smoke_report.json"
     },
     "validation": {
@@ -54,5 +54,5 @@
     },
     "approval_basis": "standing_user_authorization_after_successful_audit"
   },
-  "generated_at_utc": "2026-08-06T09:44:35.699417+00:00"
+  "generated_at_utc": "2026-08-06T12:10:06.035778+00:00"
 }

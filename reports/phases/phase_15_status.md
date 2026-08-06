@@ -11,9 +11,9 @@
 
 ## Files created
 - `data/model_cache_manifest.json`
-- `data/model_cache_status/vistral_7b.json`
-- `data/model_smoke_status/vistral_7b.json`
-- `data/batch_probe_status/vistral_7b.json`
+- `data/model_cache_status/phobert_base.json`
+- `data/model_smoke_status/phobert_base.json`
+- `data/batch_probe_status/phobert_base.json`
 - `data/model_smoke_report.json`
 
 ## Tests run

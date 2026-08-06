@@ -8,6 +8,7 @@ import yaml
 
 from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json
+from vipragsent.constants import RUNTIME_PREFLIGHT_CHECKLIST
 from vipragsent.phase import write_phase_handoff
 from vipragsent.runtime.model_smoke import verify_model_family
 
@@ -34,7 +35,7 @@ def main() -> int:
     handoff = write_phase_handoff(
         "15",
         status,
-        inputs_read=[args.manifest, args.registry, "32_RUNTIME_PREFLIGHT_CHECKLIST.md"],
+        inputs_read=[args.manifest, args.registry, RUNTIME_PREFLIGHT_CHECKLIST],
         files_created=["data/model_smoke_report.json", f"data/model_smoke_status/{args.model_family}.json"],
         tests_run=["offline tokenizer load", "offline model load", "forward", "backward", "finite loss", "gradient checks"],
         tests_passed=status == "PASS",

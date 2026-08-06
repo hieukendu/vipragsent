@@ -9,9 +9,11 @@ from pathlib import Path
 from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json, atomic_write_text
 from vipragsent.config_validation import validate_config_tree
+from vipragsent.constants import RUNTIME_PREFLIGHT_CHECKLIST
 from vipragsent.hashing import sha256_file
 from vipragsent.orchestration.preflight import run_preflight
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
+from vipragsent.runtime.phase15_state import reconcile_phase15_state
 
 DEFERRED_RUNTIME_REQUIREMENTS = [
     "A100 or A100 MIG runtime",
@@ -143,10 +145,13 @@ def main() -> int:
         "blockers": blockers,
     })
     atomic_write_json(state_path, state)
+    # Setup refreshes are derivative writers. Preserve a finalized Phase 15
+    # handoff when one is already present instead of resetting runtime state.
+    reconcile_phase15_state(ROOT, require_local_snapshot=False)
     phase14 = {
         "phase": "14",
         "status": status,
-        "inputs_read": ["30_SPEC_COMPLETENESS_AUDIT.md", "31_IMPLEMENTATION_DECISIONS.md", "32_RUNTIME_PREFLIGHT_CHECKLIST.md", "reports/production_implementation_audit.json"],
+        "inputs_read": ["30_SPEC_COMPLETENESS_AUDIT.md", "31_IMPLEMENTATION_DECISIONS.md", RUNTIME_PREFLIGHT_CHECKLIST, "reports/production_implementation_audit.json"],
         "files_created": ["SETUP_FREEZE_MANIFEST.json", "SETUP_CHECKSUMS.sha256", "SETUP_READY.md", "PROJECT_STATE.json"],
         "tests_run": ["configuration validation", "semantic configuration audit", "production implementation audit", "fixture DAG and manifest validation", "frozen data hash comparison", "full runtime preflight"],
         "tests_passed": implementation_ready,
