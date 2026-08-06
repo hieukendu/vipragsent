@@ -88,6 +88,20 @@ def test_production_train_preprocessor_injects_vncorenlp(monkeypatch) -> None:
     assert preprocessor.segmenter is segmenter
 
 
+def test_production_train_resolves_only_the_validated_gpu(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(stage_registry, "validate_hardware", lambda _: {"status": "PASS", "selected_device_index": 0, "blockers": []})
+
+    selected, blocker = stage_registry._resolve_production_device(tmp_path)
+
+    assert selected == 0
+    assert blocker is None
+
+    monkeypatch.setattr(stage_registry, "validate_hardware", lambda _: {"status": "BLOCKED", "selected_device_index": None, "blockers": ["no CUDA"]})
+    selected, blocker = stage_registry._resolve_production_device(tmp_path)
+    assert selected is None
+    assert blocker == "GPU training hardware preflight failed: no CUDA"
+
+
 def test_device_contract_moves_nested_batches_and_rejects_mismatch() -> None:
     model = nn.Sequential(nn.Linear(3, 4), nn.Linear(4, 2))
     place_non_quantized_model(model, "cpu", model_family="fixture")

@@ -28,6 +28,7 @@ from ..runtime.device import (
     resolve_model_input_device,
     write_device_report,
 )
+from ..runtime.hardware import validate_hardware
 from ..runtime.model_assets import read_family_status, resolve_local_snapshot
 from ..training.checkpoints import infer_required_head_prefixes, load_checkpoint
 from ..training.class_weights import (
@@ -129,6 +130,17 @@ def _build_production_preprocessor(
         ),
         segmenter=segmenter,
     )
+
+
+def _resolve_production_device(root: Path) -> tuple[int | None, str | None]:
+    hardware = validate_hardware(root)
+    if hardware.get("status") != "PASS":
+        blockers = "; ".join(str(item) for item in hardware.get("blockers", [])) or "validated GPU runtime is unavailable"
+        return None, "GPU training hardware preflight failed: " + blockers
+    selected = hardware.get("selected_device_index")
+    if selected is None:
+        return None, "GPU training hardware preflight did not select a device"
+    return int(selected), None
 
 
 def _metric_name(entry: RunEntry) -> str:
@@ -426,11 +438,14 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     root = context.root
     spec_entry = _execution_spec(root, entry)
     family = spec_entry.model_family
+    selected_device, device_blocker = _resolve_production_device(root)
+    if device_blocker:
+        return StageOutcome.blocked(device_blocker)
     cache = read_family_status(root, family, "cache")
     snapshot = resolve_local_snapshot(root, cache.get("local_path"))
     if not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {family}")
-    model, spec = build_production_model(family, spec_entry.variant_id, local_snapshot=snapshot, execution_mode="production")
+    model, spec = build_production_model(family, spec_entry.variant_id, local_snapshot=snapshot, execution_mode="production", selected_device=selected_device)
     tokenizer = create_tokenizer(family, revision=spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
     bundle = load_vipragsent(root / "data/processed/vipragsent")
     runtime_status = read_family_status(root, family, "batch")
@@ -476,7 +491,7 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     dev_batches = [evaluation_collator(bundle.dev[index:index + batch_size]) for index in range(0, len(bundle.dev), batch_size)]
     test_batches = [evaluation_collator(bundle.test[index:index + batch_size]) for index in range(0, len(bundle.test), batch_size)]
     config = TrainingConfig.from_resolved(resolved)
-    engine = TrainingEngine(model, config, run_id="model", checkpoint_root=Path(context.run_root) / "_engine_checkpoints", class_weights=weights, resolved_config=resolved.as_dict())
+    engine = TrainingEngine(model, config, run_id="model", checkpoint_root=Path(context.run_root) / "_engine_checkpoints", class_weights=weights, resolved_config=resolved.as_dict(), selected_device=selected_device)
     state = engine.train(train_batches, seed=int(entry.seed), dev_batches=dev_batches, test_batches=test_batches, output_root=Path(context.run_root) / "_engine_output", run_metadata={"mode": "full", "model_revision": spec.revision, "tokenizer_revision": spec.tokenizer_revision, "model_repository": spec.repo_id})
     peak_vram = max((float(row.get("peak_memory_gb", 0.0)) for row in state.history), default=0.0)
     wall_seconds = sum(float(row.get("seconds", 0.0)) for row in state.history)
