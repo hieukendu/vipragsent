@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 import torch
@@ -50,14 +51,77 @@ def load_pretrained_backbone(
     revision: str,
     family: str,
     trust_remote_code: bool = False,
+    local_path: str | Path | None = None,
+    cache_dir: str | Path | None = None,
+    local_files_only: bool = False,
+    transformers_module: Any | None = None,
 ) -> nn.Module:
     """Load only the base transformer; no unused pretrained LM head is allocated."""
     if not revision:
         raise ValueError("An immutable model revision is required")
     try:
-        from transformers import AutoModel
-    except ImportError as exc:
+        transformers = transformers_module or __import__("transformers")
+        AutoModel = transformers.AutoModel
+    except (ImportError, AttributeError) as exc:
         raise RuntimeError("transformers is required for real model loading") from exc
-    model = AutoModel.from_pretrained(repo_id, revision=revision, trust_remote_code=trust_remote_code)
+    if trust_remote_code:
+        raise ValueError("trust_remote_code is prohibited without a reviewed ADR")
+    source = str(local_path) if local_path else repo_id
+    if local_path is not None and not Path(local_path).exists():
+        raise RuntimeError(f"Pinned local model snapshot is missing: {local_path}")
+    try:
+        model = AutoModel.from_pretrained(
+            source,
+            revision=revision,
+            trust_remote_code=False,
+            cache_dir=str(cache_dir) if cache_dir else None,
+            local_files_only=local_files_only or local_path is not None,
+            output_hidden_states=False,
+        )
+    except Exception as exc:
+        raise RuntimeError(f"Unable to load pinned backbone {repo_id}@{revision}: {exc}") from exc
     model._vipragsent_backbone_family = family
+    return model
+
+
+def load_pretrained_causal_lm(
+    repo_id: str,
+    *,
+    revision: str,
+    trust_remote_code: bool = False,
+    local_path: str | Path | None = None,
+    cache_dir: str | Path | None = None,
+    local_files_only: bool = False,
+    transformers_module: Any | None = None,
+) -> nn.Module:
+    """Load the native causal-LM interface used by the approved CoT system."""
+    if not revision:
+        raise ValueError("An immutable model revision is required")
+    try:
+        transformers = transformers_module or __import__("transformers")
+        AutoModelForCausalLM = transformers.AutoModelForCausalLM
+    except (ImportError, AttributeError) as exc:
+        raise RuntimeError("transformers with AutoModelForCausalLM is required for causal-LM loading") from exc
+    if trust_remote_code:
+        raise ValueError("trust_remote_code is prohibited without a reviewed ADR")
+    source = str(local_path) if local_path else repo_id
+    if local_path is not None and not Path(local_path).exists():
+        raise RuntimeError(f"Pinned local model snapshot is missing: {local_path}")
+    try:
+        model = AutoModelForCausalLM.from_pretrained(
+            source,
+            revision=revision,
+            trust_remote_code=False,
+            cache_dir=str(cache_dir) if cache_dir else None,
+            local_files_only=local_files_only or local_path is not None,
+            output_hidden_states=False,
+        )
+    except Exception as exc:
+        raise RuntimeError(f"Unable to load pinned causal LM {repo_id}@{revision}: {exc}") from exc
+    if not callable(getattr(model, "generate", None)):
+        raise RuntimeError("the pinned causal-LM does not expose generate()")
+    if not callable(getattr(model, "forward", None)):
+        raise RuntimeError("the pinned causal-LM does not expose forward()")
+    model._vipragsent_backbone_family = "causal"
+    model._vipragsent_causal_lm = True
     return model

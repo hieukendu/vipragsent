@@ -1,0 +1,350 @@
+# Final production correctness repair
+
+- Status: `PASS`
+- Local code readiness: `PASS`
+- Server runtime readiness: `NOT_RUN`
+- Scientific changes: `0`
+- Frozen data changed: `false`
+- CI status/conclusion: `completed/success`
+- Audited code commit: `8a553c836317908bd5410b4aeeb47f9264bbedc1`
+- Self-review: `6 rounds x 2 cycles`; consecutive clean cycles: `2`
+
+## Execution boundary
+
+- Phase 15, model download, Azure requests, GPU training, real predictions, approval, and final aggregation were not executed.
+
+## Runtime blockers
+
+- Phase 15 has not been executed on the target server
+- Model-family runtime assets are not prepared
+- GPU and Azure live integration have not been validated
+- No real approved production run exists
+
+## Evidence
+
+- scientific: `PASS`
+- registry: `PASS`
+- resolver: `PASS`
+- class_weights: `PASS`
+- rationale: `PASS`
+- q3: `PASS`
+- external: `PASS`
+- aggregation: `PASS`
+- variants: `PASS`
+- phase15: `PASS`
+- prompts: `PASS`
+
+## Engineering changes
+
+- `.github/workflows/cpu-ci.yml`
+- `FINAL_CHECKSUMS.sha256`
+- `PROJECT_STATE.json`
+- `RELEASE_MANIFEST.json`
+- `REPRODUCIBILITY_REPORT.md`
+- `SETUP_CHECKSUMS.sha256`
+- `SETUP_READY.md`
+- `configs/experiments/execution_stage_plans.yaml`
+- `configs/experiments/generation_reasoning_protocol.yaml`
+- `configs/experiments/q1b/producer_registry.yaml`
+- `configs/experiments/system_execution_registry.yaml`
+- `configs/schemas/prediction.schema.json`
+- `configs/schemas/run_metadata.schema.json`
+- `prompts/protocols/cot_only_reasoning_vi_v1.txt`
+- `prompts/protocols/reasoning_judge_gpt41mini_zeroshot_v1.txt`
+- `prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260521.md`
+- `prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260522.md`
+- `prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260523.md`
+- `prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_vistral_20260521.md`
+- `prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_vistral_20260522.md`
+- `prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_vistral_20260523.md`
+- `prompts/sequential/experiments/q1a_azure_gpt41_mini_8shot.md`
+- `prompts/sequential/experiments/q1a_azure_gpt41_mini_zeroshot.md`
+- `prompts/sequential/experiments/q1a_cot_only_vistral_20260521.md`
+- `prompts/sequential/experiments/q1a_cot_only_vistral_20260522.md`
+- `prompts/sequential/experiments/q1a_cot_only_vistral_20260523.md`
+- `prompts/sequential/experiments/q1a_explanation_only_vistral_20260521.md`
+- `prompts/sequential/experiments/q1a_explanation_only_vistral_20260522.md`
+- `prompts/sequential/experiments/q1a_explanation_only_vistral_20260523.md`
+- `prompts/sequential/experiments/q1a_phobert_pragmatic_finetune_20260521.md`
+- `prompts/sequential/experiments/q1a_phobert_pragmatic_finetune_20260522.md`
+- `prompts/sequential/experiments/q1a_phobert_pragmatic_finetune_20260523.md`
+- `prompts/sequential/experiments/q1a_phobert_pragmatic_single_task_20260521.md`
+- `prompts/sequential/experiments/q1a_phobert_pragmatic_single_task_20260522.md`
+- `prompts/sequential/experiments/q1a_phobert_pragmatic_single_task_20260523.md`
+- `prompts/sequential/experiments/q1a_sailor_pragmatic_sft_20260521.md`
+- `prompts/sequential/experiments/q1a_sailor_pragmatic_sft_20260522.md`
+- `prompts/sequential/experiments/q1a_sailor_pragmatic_sft_20260523.md`
+- `prompts/sequential/experiments/q1a_vipragsent_full_vistral_20260521.md`
+- `prompts/sequential/experiments/q1a_vipragsent_full_vistral_20260522.md`
+- `prompts/sequential/experiments/q1a_vipragsent_full_vistral_20260523.md`
+- `prompts/sequential/experiments/q1a_vipragsent_no_auxiliary_vistral_20260521.md`
+- `prompts/sequential/experiments/q1a_vipragsent_no_auxiliary_vistral_20260522.md`
+- `prompts/sequential/experiments/q1a_vipragsent_no_auxiliary_vistral_20260523.md`
+- `prompts/sequential/experiments/q1a_vistral_pragmatic_sft_20260521.md`
+- `prompts/sequential/experiments/q1a_vistral_pragmatic_sft_20260522.md`
+- `prompts/sequential/experiments/q1a_vistral_pragmatic_sft_20260523.md`
+- `prompts/sequential/experiments/q1a_xlmr_pragmatic_finetune_20260521.md`
+- `prompts/sequential/experiments/q1a_xlmr_pragmatic_finetune_20260522.md`
+- `prompts/sequential/experiments/q1a_xlmr_pragmatic_finetune_20260523.md`
+- `prompts/sequential/experiments/q1b_azure_gpt41_mini.md`
+- `prompts/sequential/experiments/q1b_phobert_emo_single_20260521.md`
+- `prompts/sequential/experiments/q1b_phobert_emo_single_20260522.md`
+- `prompts/sequential/experiments/q1b_phobert_emo_single_20260523.md`
+- `prompts/sequential/experiments/q1b_phobert_multitask_8head_20260521.md`
+- `prompts/sequential/experiments/q1b_phobert_multitask_8head_20260522.md`
+- `prompts/sequential/experiments/q1b_phobert_multitask_8head_20260523.md`
+- `prompts/sequential/experiments/q1b_phobert_pol_single_20260521.md`
+- `prompts/sequential/experiments/q1b_phobert_pol_single_20260522.md`
+- `prompts/sequential/experiments/q1b_phobert_pol_single_20260523.md`
+- `prompts/sequential/experiments/q1b_sailor_multitask_8head_20260521.md`
+- `prompts/sequential/experiments/q1b_sailor_multitask_8head_20260522.md`
+- `prompts/sequential/experiments/q1b_sailor_multitask_8head_20260523.md`
+- `prompts/sequential/experiments/q1b_vipragsent_full_phobert_20260521.md`
+- `prompts/sequential/experiments/q1b_vipragsent_full_phobert_20260522.md`
+- `prompts/sequential/experiments/q1b_vipragsent_full_phobert_20260523.md`
+- `prompts/sequential/experiments/q1b_vistral_multitask_8head_20260521.md`
+- `prompts/sequential/experiments/q1b_vistral_multitask_8head_20260522.md`
+- `prompts/sequential/experiments/q1b_vistral_multitask_8head_20260523.md`
+- `prompts/sequential/experiments/q1b_xlmr_multitask_8head_20260521.md`
+- `prompts/sequential/experiments/q1b_xlmr_multitask_8head_20260522.md`
+- `prompts/sequential/experiments/q1b_xlmr_multitask_8head_20260523.md`
+- `prompts/sequential/experiments/q2_full_20260521.md`
+- `prompts/sequential/experiments/q2_full_20260522.md`
+- `prompts/sequential/experiments/q2_full_20260523.md`
+- `prompts/sequential/experiments/q2_no_emotion_auxiliary_20260521.md`
+- `prompts/sequential/experiments/q2_no_emotion_auxiliary_20260522.md`
+- `prompts/sequential/experiments/q2_no_emotion_auxiliary_20260523.md`
+- `prompts/sequential/experiments/q2_no_multitask_bundle_20260521.md`
+- `prompts/sequential/experiments/q2_no_multitask_bundle_20260522.md`
+- `prompts/sequential/experiments/q2_no_multitask_bundle_20260523.md`
+- `prompts/sequential/experiments/q2_no_polarity_auxiliary_20260521.md`
+- `prompts/sequential/experiments/q2_no_polarity_auxiliary_20260522.md`
+- `prompts/sequential/experiments/q2_no_polarity_auxiliary_20260523.md`
+- `prompts/sequential/experiments/q2_no_rationale_20260521.md`
+- `prompts/sequential/experiments/q2_no_rationale_20260522.md`
+- `prompts/sequential/experiments/q2_no_rationale_20260523.md`
+- `prompts/sequential/experiments/q2_no_uncertainty_weighting_20260521.md`
+- `prompts/sequential/experiments/q2_no_uncertainty_weighting_20260522.md`
+- `prompts/sequential/experiments/q2_no_uncertainty_weighting_20260523.md`
+- `prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_128.md`
+- `prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_256.md`
+- `prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_32.md`
+- `prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_512.md`
+- `prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_64.md`
+- `prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_full.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_128_20260521.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_128_20260522.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_128_20260523.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_256_20260521.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_256_20260522.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_256_20260523.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_32_20260521.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_32_20260522.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_32_20260523.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_512_20260521.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_512_20260522.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_512_20260523.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_64_20260521.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_64_20260522.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_64_20260523.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_full_20260521.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_full_20260522.md`
+- `prompts/sequential/experiments/q3_phobert_pragmatic_finetune_full_20260523.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_128_20260521.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_128_20260522.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_128_20260523.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_256_20260521.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_256_20260522.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_256_20260523.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_32_20260521.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_32_20260522.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_32_20260523.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_512_20260521.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_512_20260522.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_512_20260523.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_64_20260521.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_64_20260522.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_64_20260523.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_full_20260521.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_full_20260522.md`
+- `prompts/sequential/experiments/q3_vipragsent_full_vistral_full_20260523.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_128_20260521.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_128_20260522.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_128_20260523.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_256_20260521.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_256_20260522.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_256_20260523.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_32_20260521.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_32_20260522.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_32_20260523.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_512_20260521.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_512_20260522.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_512_20260523.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_64_20260521.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_64_20260522.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_64_20260523.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_full_20260521.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_full_20260522.md`
+- `prompts/sequential/experiments/q3_vistral_pragmatic_sft_full_20260523.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_128_20260521.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_128_20260522.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_128_20260523.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_256_20260521.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_256_20260522.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_256_20260523.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_32_20260521.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_32_20260522.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_32_20260523.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_512_20260521.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_512_20260522.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_512_20260523.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_64_20260521.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_64_20260522.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_64_20260523.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_full_20260521.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_full_20260522.md`
+- `prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_full_20260523.md`
+- `prompts/sequential/experiments/q4_phobert_pragmatic_finetune_20260521.md`
+- `prompts/sequential/experiments/q4_phobert_pragmatic_finetune_20260522.md`
+- `prompts/sequential/experiments/q4_phobert_pragmatic_finetune_20260523.md`
+- `prompts/sequential/experiments/q4_vipragsent_full_vistral_20260521.md`
+- `prompts/sequential/experiments/q4_vipragsent_full_vistral_20260522.md`
+- `prompts/sequential/experiments/q4_vipragsent_full_vistral_20260523.md`
+- `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260521.md`
+- `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260522.md`
+- `prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260523.md`
+- `reports/checkpoint_schema_audit.json`
+- `reports/ci_verification.json`
+- `reports/component_bundle_production_audit.json`
+- `reports/component_training_audit.json`
+- `reports/current_task_luna_worker_routing.json`
+- `reports/current_task_luna_worker_routing.md`
+- `reports/device_contract_audit.json`
+- `reports/execution_stage_plan_audit.json`
+- `reports/expected_experiment_runs.csv`
+- `reports/expected_experiment_runs.json`
+- `reports/final_cleanup_protocol_guard.json`
+- `reports/final_cleanup_protocol_guard.md`
+- `reports/final_cleanup_review_cycles.json`
+- `reports/final_cleanup_review_cycles.md`
+- `reports/final_cleanup_worklog.json`
+- `reports/final_cleanup_worklog.md`
+- `reports/final_preexperiment_closure.json`
+- `reports/final_preexperiment_closure.md`
+- `reports/final_production_correctness_repair.json`
+- `reports/final_production_correctness_repair.md`
+- `reports/final_readiness_consistency_audit.json`
+- `reports/final_readiness_consistency_audit.md`
+- `reports/final_readiness_snapshot.json`
+- `reports/final_readiness_snapshot.md`
+- `reports/final_runtime_integration_audit.json`
+- `reports/final_runtime_integration_audit.md`
+- `reports/final_status_inventory_before.json`
+- `reports/final_status_inventory_before.md`
+- `reports/generated_sequential_prompts_manifest.json`
+- `reports/generation_baseline_protocol_resolution.json`
+- `reports/generation_baseline_protocol_resolution.md`
+- `reports/generation_causal_lm_audit.json`
+- `reports/generation_executor_audit.json`
+- `reports/inventory_dependency_audit.json`
+- `reports/local_production_correctness_closure.json`
+- `reports/local_production_correctness_closure.md`
+- `reports/luna_max_review_cycles.json`
+- `reports/luna_max_review_cycles.md`
+- `reports/luna_max_subagent_manifest.json`
+- `reports/luna_max_subagent_manifest.md`
+- `reports/phase_14_5_progress.json`
+- `reports/phase_14_5_progress.md`
+- `reports/phases/phase_14_5_handoff.json`
+- `reports/phases/phase_14_5_status.md`
+- `reports/production_implementation_audit.json`
+- `reports/production_implementation_audit.md`
+- `reports/protocol_change_audit.json`
+- `reports/provenance_truthfulness_audit.json`
+- `reports/q1b_dependency_graph.json`
+- `reports/q1b_dependency_graph.md`
+- `reports/q1b_device_report.json`
+- `reports/q1b_predictor_factory_audit.json`
+- `reports/q1b_single_task_composition_audit.json`
+- `reports/q3_mask_wiring_audit.json`
+- `reports/reasoning_judge_contract.json`
+- `reports/reasoning_judge_contract_audit.json`
+- `reports/reasoning_metrics_golden_test.json`
+- `reports/runtime_dependency_blockers.json`
+- `reports/runtime_self_review.json`
+- `reports/scientific_protocol_conflicts.json`
+- `reports/scientific_protocol_conflicts.md`
+- `reports/security_hygiene_audit.json`
+- `reports/sequential_production_readiness_audit.json`
+- `reports/sequential_prompt_manifest.json`
+- `reports/sequential_prompt_validation.json`
+- `reports/server_smoke_plan.md`
+- `reports/system_execution_registry_audit.json`
+- `reports/table2_confidence_interval_protocol_audit.json`
+- `reports/table2_joint_ci_audit.json`
+- `reports/variant_isolation_audit.json`
+- `schemas/reasoning_judge_output.schema.json`
+- `scripts/audit_final_preexperiment_closure.py`
+- `scripts/audit_final_production_correctness.py`
+- `scripts/audit_final_readiness_consistency.py`
+- `scripts/audit_final_runtime_integration.py`
+- `scripts/audit_local_production_correctness.py`
+- `scripts/audit_table2_confidence_intervals.py`
+- `scripts/generate_sequential_prompts.py`
+- `scripts/readiness_utils.py`
+- `scripts/refresh_final_cleanup_protocol_guard.py`
+- `scripts/refresh_final_readiness_snapshot.py`
+- `scripts/run_luna_max_review_cycles.py`
+- `scripts/run_single_experiment.py`
+- `scripts/self_review_runtime_integration.py`
+- `scripts/semantic_config_audit.py`
+- `scripts/validate_sequential_prompts.py`
+- `src/vipragsent/artifacts/exporter.py`
+- `src/vipragsent/artifacts/schemas.py`
+- `src/vipragsent/azure/client.py`
+- `src/vipragsent/evaluation/confidence_intervals.py`
+- `src/vipragsent/evaluation/reasoning_judge.py`
+- `src/vipragsent/models/backbones.py`
+- `src/vipragsent/models/factory.py`
+- `src/vipragsent/models/qlora.py`
+- `src/vipragsent/models/variants.py`
+- `src/vipragsent/orchestration/aggregation.py`
+- `src/vipragsent/orchestration/contracts.py`
+- `src/vipragsent/orchestration/executors/component_bundle.py`
+- `src/vipragsent/orchestration/executors/component_production.py`
+- `src/vipragsent/orchestration/executors/explanation_reuse.py`
+- `src/vipragsent/orchestration/executors/external_retention.py`
+- `src/vipragsent/orchestration/executors/generation.py`
+- `src/vipragsent/orchestration/inventory.py`
+- `src/vipragsent/orchestration/preflight_single.py`
+- `src/vipragsent/orchestration/provenance.py`
+- `src/vipragsent/orchestration/q1b_composition.py`
+- `src/vipragsent/orchestration/q1b_dependencies.py`
+- `src/vipragsent/orchestration/q1b_predictor.py`
+- `src/vipragsent/orchestration/review.py`
+- `src/vipragsent/orchestration/run_store.py`
+- `src/vipragsent/orchestration/single_run.py`
+- `src/vipragsent/orchestration/stage_plans.py`
+- `src/vipragsent/orchestration/stage_registry.py`
+- `src/vipragsent/orchestration/system_registry.py`
+- `src/vipragsent/runtime/device.py`
+- `src/vipragsent/training/checkpoints.py`
+- `src/vipragsent/training/config_resolver.py`
+- `src/vipragsent/training/engine.py`
+- `tests/test_azure.py`
+- `tests/test_checkpoint_device_contract.py`
+- `tests/test_component_production_runner.py`
+- `tests/test_final_readiness_consistency.py`
+- `tests/test_final_runtime_integration.py`
+- `tests/test_luna_max_01_generation.py`
+- `tests/test_luna_max_08_red_team.py`
+- `tests/test_preexperiment_closure.py`
+- `tests/test_provenance_artifacts.py`
+- `tests/test_q1b_dependencies.py`
+- `tests/test_table2_statistics.py`
+
+- Review source: `reports/final_cleanup_review_cycles.json`
+- Execution mode: `SINGLE_AGENT`
+- Subagents called: `false`
+- No new defects: `true`
+- Historical subagent profile verification: `NOT_VERIFIED`

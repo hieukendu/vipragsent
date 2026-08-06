@@ -1,0 +1,54 @@
+schema_version: 1
+deterministic_algorithms: warn_only
+rationale:
+  beta: 0.3
+  decoder_layers: 2
+  hidden_size: 128
+  attention_heads: 4
+  feed_forward_size: 512
+  dropout: 0.1
+  target_max_lengths: [96, 160]
+  label_smoothing: 0.0
+  inference_enabled: false
+encoder:
+  optimizer: AdamW
+  learning_rate: 0.00002
+  weight_decay: 0.01
+  scheduler: linear
+  warmup_ratio: 0.10
+  effective_batch_size: 32
+  maximum_epochs: 10
+  precision: bf16
+  gradient_clipping: 1.0
+  patience: 2
+  minimum_delta: 0.0001
+  gradient_checkpointing: false
+  physical_batch_probe:
+    phobert_base: [32, 16, 8]
+    xlmr_large: [8, 4, 2, 1]
+qlora_7b:
+  optimizer: paged_adamw_8bit
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  scheduler: cosine
+  warmup_ratio: 0.05
+  effective_batch_size: 16
+  maximum_epochs: 3
+  precision: bf16
+  gradient_clipping: 1.0
+  patience: 2
+  minimum_delta: 0.0001
+  gradient_checkpointing: true
+  physical_batch_probe:
+    sailor_7b: [2, 1]
+    vistral_7b: [2, 1]
+  quantization:
+    load_in_4bit: true
+    quant_type: nf4
+    double_quant: true
+    compute_dtype: bf16
+  lora:
+    target_modules: [q_proj, k_proj, v_proj, o_proj]
+    rank: 16
+    alpha: 32
+    dropout: 0.05

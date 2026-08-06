@@ -1,0 +1,67 @@
+{
+  "aggregation_prompt_count": 5,
+  "azure_called": false,
+  "azure_job_count": 11,
+  "execution_policy": {
+    "automatic_next_run": false,
+    "execution_policy": "sequential_review_gated",
+    "global_full_dag_enabled": false,
+    "maximum_concurrent_gpu_jobs": 1,
+    "require_user_approval_after_each_run": true
+  },
+  "experiment_count": 162,
+  "experiment_counts_by_question": {
+    "Q1a": 29,
+    "Q1b": 22,
+    "Q2": 18,
+    "Q3": 78,
+    "Q4": 9,
+    "backbone_sensitivity": 6
+  },
+  "full_run_started": false,
+  "generated_prompt_count": 183,
+  "next_action": "Run the first Phase 15 model-family prompt only after explicit user approval.",
+  "phase15_executed": false,
+  "phase15_model_count": 4,
+  "prompt_manifest": "reports/generated_sequential_prompts_manifest.json",
+  "prompt_validation": {
+    "aggregation_count": 5,
+    "approval_contract": {
+      "next_run_allowed": "NO",
+      "status": "PENDING_USER_APPROVAL"
+    },
+    "azure_job_count": 11,
+    "errors": [],
+    "execution_policy": {
+      "automatic_next_run": false,
+      "execution_policy": "sequential_review_gated",
+      "global_full_dag_enabled": false,
+      "maximum_concurrent_gpu_jobs": 1,
+      "require_user_approval_after_each_run": true
+    },
+    "expected_prompt_count": 183,
+    "experiment_count": 162,
+    "inventory_hash": "1CFDCDD57DDDA2F6C00175C8B522C8A9C4E3D1C989166A8C41B5DB188A1B5AB9",
+    "phase15_model_count": 4,
+    "prompt_count": 183,
+    "status": "PASS"
+  },
+  "protocol_resolution": {
+    "passed": true,
+    "resolution_status": {
+      "Q1A": "RESOLVED",
+      "Q1B": "RESOLVED",
+      "Q3": "RESOLVED",
+      "Q4": "RESOLVED",
+      "SIGNIFICANCE_PVALUE": "RESOLVED"
+    },
+    "scientific_protocol_conflicts": []
+  },
+  "real_experiment_executed": false,
+  "runtime_environment_ready": false,
+  "schema_version": 1,
+  "setup_frozen": true,
+  "setup_implementation_ready": true,
+  "status": "PASS",
+  "weights_downloaded": false
+}

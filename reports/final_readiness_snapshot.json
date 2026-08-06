@@ -1,0 +1,94 @@
+{
+  "audited_code_commit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "audited_source_manifest_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
+  "branch": "codex/phase-14-5-production-repair",
+  "branch_head_before_refresh": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "ci": {
+    "all_steps_conclusion": "success",
+    "branch": "codex/phase-14-5-production-repair",
+    "conclusion": "success",
+    "head_sha": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+    "job_conclusion": "success",
+    "job_id": 92473331259,
+    "job_name": "test",
+    "job_status": "completed",
+    "repository": "hieukendu/vipragsent",
+    "run_id": 31055939769,
+    "run_number": 20,
+    "schema_version": 1,
+    "status": "completed",
+    "steps_verified": 20,
+    "validation_errors": [],
+    "verification_source": "github_connector",
+    "verified_at_utc": "2026-08-05T23:24:49Z",
+    "workflow": "cpu-ci",
+    "workflow_id": 327304988
+  },
+  "evidence_boundary": {
+    "azure_live_free": true,
+    "cpu_only": true,
+    "model_download_free": true,
+    "network_free_local_tests": true,
+    "production_proof": false,
+    "synthetic": true
+  },
+  "execution_policy": {
+    "automatic_next_run": false,
+    "global_full_dag_enabled": false,
+    "maximum_concurrent_gpu_jobs": 1,
+    "user_review_required_after_every_completed_run": true
+  },
+  "implementation": {
+    "full_matrix_code_ready": true,
+    "implementation_blockers": [],
+    "phase15_code_ready": true,
+    "sequential_runtime_code_ready": true,
+    "setup_frozen": true,
+    "setup_implementation_ready": true,
+    "status": "PASS"
+  },
+  "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
+  "report_generation_parent_sha": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "report_only_commit_expected": true,
+  "repository": "hieukendu/vipragsent",
+  "review": {
+    "consecutive_clean_cycles": 2,
+    "cycles": 2,
+    "execution_mode": "SINGLE_AGENT",
+    "historical_subagent_profile_verification": "NOT_VERIFIED",
+    "no_new_defects": true,
+    "normalization_errors": [],
+    "rounds_per_cycle": 6,
+    "source": "reports/final_cleanup_review_cycles.json",
+    "source_selection_errors": [],
+    "status": "PASS",
+    "subagent_profile_verification": "NOT_VERIFIED",
+    "subagents_called": false,
+    "valid": true
+  },
+  "runtime": {
+    "LOCAL_CODE_READINESS": "PASS",
+    "REAL_EXPERIMENT_READINESS": false,
+    "SERVER_RUNTIME_READINESS": "NOT_RUN",
+    "approved_run_count": 0,
+    "final_aggregation_ready": false,
+    "phase15_runtime_ready": false,
+    "real_experiment_ready": false,
+    "real_run_count": 0,
+    "runtime_blockers": [
+      "Phase 15 has not been executed on the target server",
+      "Model-family runtime assets are not prepared",
+      "GPU and Azure live integration have not been validated",
+      "No real approved production run exists"
+    ],
+    "runtime_environment_ready": false,
+    "weights_downloaded": false
+  },
+  "schema_version": 1,
+  "scientific": {
+    "frozen_data_changed": false,
+    "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8",
+    "inventory_rows": 162,
+    "scientific_protocol_conflicts": []
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "checks": {
+    "actual_checkpoint_paths": true,
+    "dev_threshold_tuning": true,
+    "distinct_split_ids": true,
+    "measured_cost": true,
+    "multiclass_no_threshold": true,
+    "production_component_loader": true,
+    "six_and_eight_sets": true
+  },
+  "fixture_policy": "CPU synthetic only",
+  "production_policy": "requires Phase 15 local snapshot and real component checkpoints",
+  "status": "PASS"
+}

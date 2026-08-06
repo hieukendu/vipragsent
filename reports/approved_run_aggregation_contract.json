@@ -1,0 +1,22 @@
+{
+  "q4_outputs": [
+    "experiment_artifacts/tables/q4_pragmatic_calibration_per_seed.csv",
+    "experiment_artifacts/tables/q4_pragmatic_calibration_summary.csv",
+    "experiment_artifacts/backing_data/q4_pragmatic_reliability_bins.csv",
+    "experiment_artifacts/backing_data/q4_learning_curves.csv",
+    "experiment_artifacts/figures/q4_pragmatic_ece_heatmap.pdf",
+    "experiment_artifacts/figures/q4_pragmatic_ece_heatmap.png",
+    "experiment_artifacts/figures/q4_pragmatic_reliability_by_label.pdf",
+    "experiment_artifacts/figures/q4_pragmatic_reliability_by_label.png",
+    "experiment_artifacts/figures/q4_learning_curves.pdf",
+    "experiment_artifacts/figures/q4_learning_curves.png"
+  ],
+  "requires": [
+    "completed run",
+    "APPROVED status",
+    "valid summary hash",
+    "valid artifact hashes",
+    "no fixture provenance"
+  ],
+  "scoped_cli": "python scripts/aggregate_approved_runs.py --research-question <scope>"
+}

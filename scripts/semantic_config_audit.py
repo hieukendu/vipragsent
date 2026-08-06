@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from _bootstrap import ROOT
 from vipragsent.config_validation import validate_config_tree
@@ -11,7 +10,8 @@ def main() -> int:
     report = validate_config_tree(ROOT)
     report["full_inference_output_source"] = "classification_heads"
     report["rationale_decoder_enabled_at_inference"] = False
-    report["cot_only_output_source"] = "parsed_generated_labels"
+    report["cot_only_output_source"] = "judge_of_generated_reasoning"
+    report["generation_protocol_id"] = "reasoning_generation_shared_judge_v1"
     report["phobert_preprocessing"] = "vncorenlp_rdrsegmenter"
     output = ROOT / "reports/semantic_config_audit.json"
     output.parent.mkdir(parents=True, exist_ok=True)

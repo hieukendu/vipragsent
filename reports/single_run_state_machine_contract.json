@@ -1,0 +1,44 @@
+{
+  "azure_stages": [
+    "preflight",
+    "execute_api_job",
+    "validate_responses",
+    "export_artifacts",
+    "validate_artifacts",
+    "generate_review_summary"
+  ],
+  "completion_run_status": "COMPLETED_PENDING_APPROVAL",
+  "experiment_stages": [
+    "preflight",
+    "train_or_reuse",
+    "evaluate_dev",
+    "freeze_selection",
+    "evaluate_test",
+    "export_artifacts",
+    "validate_artifacts",
+    "generate_review_summary"
+  ],
+  "next_run_allowed": "NO",
+  "public_completed_status": "PASS",
+  "run_statuses": [
+    "NOT_STARTED",
+    "PREFLIGHT_READY",
+    "RUNNING",
+    "RUNNING_STALE",
+    "BLOCKED",
+    "FAIL",
+    "COMPLETED_PENDING_APPROVAL",
+    "APPROVED",
+    "REJECTED"
+  ],
+  "stage_statuses": [
+    "NOT_STARTED",
+    "RUNNING",
+    "PASS",
+    "BLOCKED",
+    "FAIL",
+    "SKIPPED_BY_DESIGN",
+    "INTERRUPTED",
+    "RUNNING_STALE"
+  ]
+}

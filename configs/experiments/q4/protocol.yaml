@@ -1,9 +1,40 @@
 q4:
-  calibration_head: intended_polarity_3way
+  title: Q4 - Pragmatic Calibration and Learning Dynamics
+  research_question: How well calibrated are the six pragmatic predictions, and how does pragmatic performance evolve during training?
+  calibration_head: six_pragmatic_binary_heads
+  split: vipragsent_test
+  probability_definition: raw_positive_class_probability_sigmoid
   bins: 10
   binning: equal_width
   temperature_scaling: false
+  aggregate_across_seeds: arithmetic_mean_and_sample_std_ddof_1
+  lower_is_better: true
   systems:
-    - phobert_finetune
-    - vistral_7b_sft
-    - vipragsent_full_vistral
+    - system_id: phobert_pragmatic_finetune
+      display_name: PhoBERT pragmatic fine-tune
+      checkpoint_id: phobert_pragmatic_finetune
+      backbone: phobert_base
+    - system_id: vistral_pragmatic_sft
+      display_name: Vistral-7B pragmatic SFT
+      checkpoint_id: vistral_pragmatic_sft
+      backbone: vistral_7b
+    - system_id: vipragsent_full_vistral
+      display_name: Full ViPragSent Vistral
+      checkpoint_id: vipragsent_full_vistral
+      backbone: vistral_7b
+  learning_dynamics:
+    split: vipragsent_dev
+    metric: dev_macro_pragmatic_f1
+    aggregation: arithmetic_mean_and_sample_std_ddof_1
+    test_metrics_forbidden: true
+  required_artifacts:
+    - experiment_artifacts/tables/q4_pragmatic_calibration_per_seed.csv
+    - experiment_artifacts/tables/q4_pragmatic_calibration_summary.csv
+    - experiment_artifacts/backing_data/q4_pragmatic_reliability_bins.csv
+    - experiment_artifacts/backing_data/q4_learning_curves.csv
+    - experiment_artifacts/figures/q4_pragmatic_ece_heatmap.pdf
+    - experiment_artifacts/figures/q4_pragmatic_ece_heatmap.png
+    - experiment_artifacts/figures/q4_pragmatic_reliability_by_label.pdf
+    - experiment_artifacts/figures/q4_pragmatic_reliability_by_label.png
+    - experiment_artifacts/figures/q4_learning_curves.pdf
+    - experiment_artifacts/figures/q4_learning_curves.png

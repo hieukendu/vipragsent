@@ -2,14 +2,22 @@ from __future__ import annotations
 
 import csv
 import json
-import math
 import shutil
 import zipfile
+from collections.abc import Iterable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
-from ..constants import ALL_LABEL_KEYS, DATASET_SPLITS, EXPECTED_SPLIT_COUNTS, PRAGMATIC_LABELS, SPLIT_SEED
+from ..constants import (
+    ALL_LABEL_KEYS,
+    DATASET_SPLITS,
+    EMOTION_LABELS,
+    EXPECTED_SPLIT_COUNTS,
+    POLARITY_LABELS,
+    PRAGMATIC_LABELS,
+    SPLIT_SEED,
+)
 from ..hashing import fingerprint_files, sha256_file
 from .labels import validate_label_dict
 
@@ -27,7 +35,7 @@ class DatasetExample:
     source_dataset: str = "SEACrowd/ViSoBERT"
 
     @classmethod
-    def from_row(cls, row: dict[str, str], *, split: str | None = None) -> "DatasetExample":
+    def from_row(cls, row: dict[str, str], *, split: str | None = None) -> DatasetExample:
         actual_split = split or row.get("split", "")
         if actual_split not in DATASET_SPLITS:
             raise DatasetValidationError(f"Invalid split for {row.get('sample_id')}: {actual_split!r}")
@@ -152,21 +160,31 @@ def load_vipragsent(processed_dir: str | Path = "data/processed/vipragsent") -> 
     return DatasetBundle(splits=splits, fingerprint=fingerprint_files(files), manifest=manifest)
 
 
-def calculate_loss_weights(train: Iterable[DatasetExample]) -> dict[str, Any]:
+def calculate_loss_weights(train: Iterable[DatasetExample], *, active_mask: Iterable[bool] | None = None) -> dict[str, Any]:
     rows = list(train)
+    if active_mask is not None:
+        flags = list(active_mask)
+        if len(flags) != len(rows):
+            raise ValueError("active_mask must align with train rows")
+        rows = [row for row, active in zip(rows, flags, strict=True) if active]
     if not rows:
         raise ValueError("Cannot calculate weights from an empty train split")
     pragmatic: dict[str, float] = {}
     for key in PRAGMATIC_LABELS:
         positives = sum(int(row.labels[key]) for row in rows)
         negatives = len(rows) - positives
-        pragmatic[key] = float(negatives / positives) if positives else math.inf
+        if positives == 0 or negatives == 0:
+            raise ValueError(f"Training-only pragmatic class has zero active count for {key}")
+        pragmatic[key] = float(negatives / positives)
     result: dict[str, Any] = {"pragmatic_pos_weight": pragmatic, "class_weight": {}}
     for field in ("polarity", "emotion"):
-        values = sorted({row.labels[field] for row in rows})
-        counts = {value: sum(row.labels[field] == value for row in rows) for value in values}
+        allowed = POLARITY_LABELS if field == "polarity" else EMOTION_LABELS
+        counts = {value: sum(row.labels[field] == value for row in rows) for value in allowed}
+        if any(count == 0 for count in counts.values()):
+            missing = [value for value, count in counts.items() if count == 0]
+            raise ValueError(f"Training-only {field} classes have zero active count: {missing}")
         result["class_weight"][field] = {
-            value: float(len(rows) / (len(values) * count)) if count else math.inf
+            value: float(len(rows) / (len(allowed) * count))
             for value, count in counts.items()
         }
     result["source_split"] = "train"

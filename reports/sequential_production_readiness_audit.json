@@ -1,0 +1,121 @@
+{
+  "CI_STATUS": "NOT_RUN",
+  "FINAL_AGGREGATION_READY": false,
+  "PHASE15_READY": true,
+  "REAL_EXPERIMENT_READY": false,
+  "SETUP_CODE_READY": true,
+  "approved_run_count": 0,
+  "azure_request_made": false,
+  "blockers": [
+    "Phase 15 has not been executed on the target server",
+    "Model-family runtime assets are not prepared",
+    "GPU and Azure live integration have not been validated",
+    "No real approved production run exists"
+  ],
+  "evidence": {
+    "commands": [
+      {
+        "command": "python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
+      },
+      {
+        "command": "python -m compileall -q src scripts tests",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": ""
+      },
+      {
+        "command": "ruff check .",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "All checks passed!\n"
+      },
+      {
+        "command": "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "........................................................................ [ 42%]\n........................................................................ [ 84%]\n..........................                                               [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
+      },
+      {
+        "command": "python scripts/validate_schemas.py",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "schema validation passed\n"
+      },
+      {
+        "command": "python scripts/generate_sequential_prompts.py",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\"\n}\n"
+      },
+      {
+        "command": "python scripts/validate_sequential_prompts.py",
+        "returncode": 0,
+        "status": "PASS",
+        "stderr_tail": "",
+        "stdout_tail": "\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"freeze_selection\",\n          \"generate_test_reasoning\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"generation\",\n        \"executor_kind\": \"generation_trainable\",\n        \"evaluation_strategy\": \"reasoning_generation_shared_judge\",\n        \"research_question\": null\n      },\n      \"explanation_only_vistral_reuse\": {\n        \"plan_id\": \"explanation_only_vistral_reuse\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_full_vistral_source\",\n          \"validate_source_checkpoint\",\n          \"generate_dev_reasoning_from_rationale_decoder\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"generate_test_reasoning_from_rationale_decoder\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  }\n}\n"
+      }
+    ],
+    "hygiene": {
+      "data_files_changed": [],
+      "forbidden_weight_or_secret_files": [],
+      "secret_pattern_matches": [],
+      "status": "PASS"
+    },
+    "reports": [
+      "reports/final_production_correctness_repair.json",
+      "reports/final_production_correctness_repair.md",
+      "reports/system_execution_registry_audit.json",
+      "reports/training_config_resolution_audit.json",
+      "reports/class_weight_wiring_audit.json",
+      "reports/rationale_wiring_audit.json",
+      "reports/q3_mask_wiring_audit.json",
+      "reports/variant_isolation_audit.json",
+      "reports/external_retention_evaluator_audit.json",
+      "reports/aggregation_golden_test_audit.json",
+      "reports/phase15_qlora_smoke_contract.json",
+      "reports/generated_sequential_prompts_manifest.json",
+      "reports/sequential_production_readiness_audit.json",
+      "reports/protocol_change_audit.json",
+      "reports/local_production_correctness_closure.json",
+      "reports/luna_max_review_cycles.json"
+    ],
+    "self_review": {
+      "consecutive_clean_cycles": 2,
+      "cycles": 2,
+      "execution_mode": "SINGLE_AGENT",
+      "historical_subagent_profile_verification": "NOT_VERIFIED",
+      "no_new_defects": true,
+      "normalization_errors": [],
+      "rounds_per_cycle": 6,
+      "source": "reports/final_cleanup_review_cycles.json",
+      "source_selection_errors": [],
+      "status": "PASS",
+      "subagent_profile_verification": "NOT_VERIFIED",
+      "subagents_called": false,
+      "valid": true
+    },
+    "static": {
+      "matches": {
+        "automatic_next_run": [],
+        "global_full_dag": [],
+        "stale_azure_alias": [],
+        "substring_system_dispatch": [],
+        "test_results_hardcoded_pass": []
+      },
+      "status": "PASS"
+    }
+  },
+  "phase15_executed": false,
+  "real_experiment_ran": false,
+  "status": "PASS",
+  "weights_downloaded": false
+}

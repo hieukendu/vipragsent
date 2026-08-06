@@ -1,0 +1,1307 @@
+{
+  "CI_STATUS": "PASS",
+  "LOCAL_CODE_READINESS": "PASS",
+  "REAL_EXPERIMENT_READINESS": false,
+  "SERVER_RUNTIME_READINESS": "NOT_RUN",
+  "audited_code_commit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "audited_source_manifest_sha256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
+  "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+  "branch_head_before_refresh": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "ci_conclusion": "success",
+  "ci_run_id": 31055939769,
+  "ci_run_number": 20,
+  "ci_status": "completed",
+  "ci_verified_head_sha": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "code_commit_at_audit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "commands": [
+    {
+      "command": "python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
+    },
+    {
+      "command": "python -m compileall -q src scripts tests",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ""
+    },
+    {
+      "command": "ruff check .",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "All checks passed!\n"
+    },
+    {
+      "command": "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "........................................................................ [ 42%]\n........................................................................ [ 84%]\n..........................                                               [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
+    },
+    {
+      "command": "python scripts/validate_schemas.py",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "schema validation passed\n"
+    },
+    {
+      "command": "python scripts/generate_sequential_prompts.py",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\"\n}\n"
+    },
+    {
+      "command": "python scripts/validate_sequential_prompts.py",
+      "returncode": 0,
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": "\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"freeze_selection\",\n          \"generate_test_reasoning\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"generation\",\n        \"executor_kind\": \"generation_trainable\",\n        \"evaluation_strategy\": \"reasoning_generation_shared_judge\",\n        \"research_question\": null\n      },\n      \"explanation_only_vistral_reuse\": {\n        \"plan_id\": \"explanation_only_vistral_reuse\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_full_vistral_source\",\n          \"validate_source_checkpoint\",\n          \"generate_dev_reasoning_from_rationale_decoder\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"generate_test_reasoning_from_rationale_decoder\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  }\n}\n"
+    }
+  ],
+  "engineering_changes": [
+    ".github/workflows/cpu-ci.yml",
+    "FINAL_CHECKSUMS.sha256",
+    "PROJECT_STATE.json",
+    "RELEASE_MANIFEST.json",
+    "REPRODUCIBILITY_REPORT.md",
+    "SETUP_CHECKSUMS.sha256",
+    "SETUP_READY.md",
+    "configs/experiments/execution_stage_plans.yaml",
+    "configs/experiments/generation_reasoning_protocol.yaml",
+    "configs/experiments/q1b/producer_registry.yaml",
+    "configs/experiments/system_execution_registry.yaml",
+    "configs/schemas/prediction.schema.json",
+    "configs/schemas/run_metadata.schema.json",
+    "prompts/protocols/cot_only_reasoning_vi_v1.txt",
+    "prompts/protocols/reasoning_judge_gpt41mini_zeroshot_v1.txt",
+    "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260521.md",
+    "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260522.md",
+    "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260523.md",
+    "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_vistral_20260521.md",
+    "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_vistral_20260522.md",
+    "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_vistral_20260523.md",
+    "prompts/sequential/experiments/q1a_azure_gpt41_mini_8shot.md",
+    "prompts/sequential/experiments/q1a_azure_gpt41_mini_zeroshot.md",
+    "prompts/sequential/experiments/q1a_cot_only_vistral_20260521.md",
+    "prompts/sequential/experiments/q1a_cot_only_vistral_20260522.md",
+    "prompts/sequential/experiments/q1a_cot_only_vistral_20260523.md",
+    "prompts/sequential/experiments/q1a_explanation_only_vistral_20260521.md",
+    "prompts/sequential/experiments/q1a_explanation_only_vistral_20260522.md",
+    "prompts/sequential/experiments/q1a_explanation_only_vistral_20260523.md",
+    "prompts/sequential/experiments/q1a_phobert_pragmatic_finetune_20260521.md",
+    "prompts/sequential/experiments/q1a_phobert_pragmatic_finetune_20260522.md",
+    "prompts/sequential/experiments/q1a_phobert_pragmatic_finetune_20260523.md",
+    "prompts/sequential/experiments/q1a_phobert_pragmatic_single_task_20260521.md",
+    "prompts/sequential/experiments/q1a_phobert_pragmatic_single_task_20260522.md",
+    "prompts/sequential/experiments/q1a_phobert_pragmatic_single_task_20260523.md",
+    "prompts/sequential/experiments/q1a_sailor_pragmatic_sft_20260521.md",
+    "prompts/sequential/experiments/q1a_sailor_pragmatic_sft_20260522.md",
+    "prompts/sequential/experiments/q1a_sailor_pragmatic_sft_20260523.md",
+    "prompts/sequential/experiments/q1a_vipragsent_full_vistral_20260521.md",
+    "prompts/sequential/experiments/q1a_vipragsent_full_vistral_20260522.md",
+    "prompts/sequential/experiments/q1a_vipragsent_full_vistral_20260523.md",
+    "prompts/sequential/experiments/q1a_vipragsent_no_auxiliary_vistral_20260521.md",
+    "prompts/sequential/experiments/q1a_vipragsent_no_auxiliary_vistral_20260522.md",
+    "prompts/sequential/experiments/q1a_vipragsent_no_auxiliary_vistral_20260523.md",
+    "prompts/sequential/experiments/q1a_vistral_pragmatic_sft_20260521.md",
+    "prompts/sequential/experiments/q1a_vistral_pragmatic_sft_20260522.md",
+    "prompts/sequential/experiments/q1a_vistral_pragmatic_sft_20260523.md",
+    "prompts/sequential/experiments/q1a_xlmr_pragmatic_finetune_20260521.md",
+    "prompts/sequential/experiments/q1a_xlmr_pragmatic_finetune_20260522.md",
+    "prompts/sequential/experiments/q1a_xlmr_pragmatic_finetune_20260523.md",
+    "prompts/sequential/experiments/q1b_azure_gpt41_mini.md",
+    "prompts/sequential/experiments/q1b_phobert_emo_single_20260521.md",
+    "prompts/sequential/experiments/q1b_phobert_emo_single_20260522.md",
+    "prompts/sequential/experiments/q1b_phobert_emo_single_20260523.md",
+    "prompts/sequential/experiments/q1b_phobert_multitask_8head_20260521.md",
+    "prompts/sequential/experiments/q1b_phobert_multitask_8head_20260522.md",
+    "prompts/sequential/experiments/q1b_phobert_multitask_8head_20260523.md",
+    "prompts/sequential/experiments/q1b_phobert_pol_single_20260521.md",
+    "prompts/sequential/experiments/q1b_phobert_pol_single_20260522.md",
+    "prompts/sequential/experiments/q1b_phobert_pol_single_20260523.md",
+    "prompts/sequential/experiments/q1b_sailor_multitask_8head_20260521.md",
+    "prompts/sequential/experiments/q1b_sailor_multitask_8head_20260522.md",
+    "prompts/sequential/experiments/q1b_sailor_multitask_8head_20260523.md",
+    "prompts/sequential/experiments/q1b_vipragsent_full_phobert_20260521.md",
+    "prompts/sequential/experiments/q1b_vipragsent_full_phobert_20260522.md",
+    "prompts/sequential/experiments/q1b_vipragsent_full_phobert_20260523.md",
+    "prompts/sequential/experiments/q1b_vistral_multitask_8head_20260521.md",
+    "prompts/sequential/experiments/q1b_vistral_multitask_8head_20260522.md",
+    "prompts/sequential/experiments/q1b_vistral_multitask_8head_20260523.md",
+    "prompts/sequential/experiments/q1b_xlmr_multitask_8head_20260521.md",
+    "prompts/sequential/experiments/q1b_xlmr_multitask_8head_20260522.md",
+    "prompts/sequential/experiments/q1b_xlmr_multitask_8head_20260523.md",
+    "prompts/sequential/experiments/q2_full_20260521.md",
+    "prompts/sequential/experiments/q2_full_20260522.md",
+    "prompts/sequential/experiments/q2_full_20260523.md",
+    "prompts/sequential/experiments/q2_no_emotion_auxiliary_20260521.md",
+    "prompts/sequential/experiments/q2_no_emotion_auxiliary_20260522.md",
+    "prompts/sequential/experiments/q2_no_emotion_auxiliary_20260523.md",
+    "prompts/sequential/experiments/q2_no_multitask_bundle_20260521.md",
+    "prompts/sequential/experiments/q2_no_multitask_bundle_20260522.md",
+    "prompts/sequential/experiments/q2_no_multitask_bundle_20260523.md",
+    "prompts/sequential/experiments/q2_no_polarity_auxiliary_20260521.md",
+    "prompts/sequential/experiments/q2_no_polarity_auxiliary_20260522.md",
+    "prompts/sequential/experiments/q2_no_polarity_auxiliary_20260523.md",
+    "prompts/sequential/experiments/q2_no_rationale_20260521.md",
+    "prompts/sequential/experiments/q2_no_rationale_20260522.md",
+    "prompts/sequential/experiments/q2_no_rationale_20260523.md",
+    "prompts/sequential/experiments/q2_no_uncertainty_weighting_20260521.md",
+    "prompts/sequential/experiments/q2_no_uncertainty_weighting_20260522.md",
+    "prompts/sequential/experiments/q2_no_uncertainty_weighting_20260523.md",
+    "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_128.md",
+    "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_256.md",
+    "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_32.md",
+    "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_512.md",
+    "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_64.md",
+    "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_full.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_128_20260521.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_128_20260522.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_128_20260523.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_256_20260521.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_256_20260522.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_256_20260523.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_32_20260521.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_32_20260522.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_32_20260523.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_512_20260521.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_512_20260522.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_512_20260523.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_64_20260521.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_64_20260522.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_64_20260523.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_full_20260521.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_full_20260522.md",
+    "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_full_20260523.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_128_20260521.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_128_20260522.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_128_20260523.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_256_20260521.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_256_20260522.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_256_20260523.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_32_20260521.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_32_20260522.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_32_20260523.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_512_20260521.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_512_20260522.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_512_20260523.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_64_20260521.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_64_20260522.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_64_20260523.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_full_20260521.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_full_20260522.md",
+    "prompts/sequential/experiments/q3_vipragsent_full_vistral_full_20260523.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_128_20260521.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_128_20260522.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_128_20260523.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_256_20260521.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_256_20260522.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_256_20260523.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_32_20260521.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_32_20260522.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_32_20260523.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_512_20260521.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_512_20260522.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_512_20260523.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_64_20260521.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_64_20260522.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_64_20260523.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_full_20260521.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_full_20260522.md",
+    "prompts/sequential/experiments/q3_vistral_pragmatic_sft_full_20260523.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_128_20260521.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_128_20260522.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_128_20260523.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_256_20260521.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_256_20260522.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_256_20260523.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_32_20260521.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_32_20260522.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_32_20260523.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_512_20260521.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_512_20260522.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_512_20260523.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_64_20260521.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_64_20260522.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_64_20260523.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_full_20260521.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_full_20260522.md",
+    "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_full_20260523.md",
+    "prompts/sequential/experiments/q4_phobert_pragmatic_finetune_20260521.md",
+    "prompts/sequential/experiments/q4_phobert_pragmatic_finetune_20260522.md",
+    "prompts/sequential/experiments/q4_phobert_pragmatic_finetune_20260523.md",
+    "prompts/sequential/experiments/q4_vipragsent_full_vistral_20260521.md",
+    "prompts/sequential/experiments/q4_vipragsent_full_vistral_20260522.md",
+    "prompts/sequential/experiments/q4_vipragsent_full_vistral_20260523.md",
+    "prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260521.md",
+    "prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260522.md",
+    "prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260523.md",
+    "reports/checkpoint_schema_audit.json",
+    "reports/ci_verification.json",
+    "reports/component_bundle_production_audit.json",
+    "reports/component_training_audit.json",
+    "reports/current_task_luna_worker_routing.json",
+    "reports/current_task_luna_worker_routing.md",
+    "reports/device_contract_audit.json",
+    "reports/execution_stage_plan_audit.json",
+    "reports/expected_experiment_runs.csv",
+    "reports/expected_experiment_runs.json",
+    "reports/final_cleanup_protocol_guard.json",
+    "reports/final_cleanup_protocol_guard.md",
+    "reports/final_cleanup_review_cycles.json",
+    "reports/final_cleanup_review_cycles.md",
+    "reports/final_cleanup_worklog.json",
+    "reports/final_cleanup_worklog.md",
+    "reports/final_preexperiment_closure.json",
+    "reports/final_preexperiment_closure.md",
+    "reports/final_production_correctness_repair.json",
+    "reports/final_production_correctness_repair.md",
+    "reports/final_readiness_consistency_audit.json",
+    "reports/final_readiness_consistency_audit.md",
+    "reports/final_readiness_snapshot.json",
+    "reports/final_readiness_snapshot.md",
+    "reports/final_runtime_integration_audit.json",
+    "reports/final_runtime_integration_audit.md",
+    "reports/final_status_inventory_before.json",
+    "reports/final_status_inventory_before.md",
+    "reports/generated_sequential_prompts_manifest.json",
+    "reports/generation_baseline_protocol_resolution.json",
+    "reports/generation_baseline_protocol_resolution.md",
+    "reports/generation_causal_lm_audit.json",
+    "reports/generation_executor_audit.json",
+    "reports/inventory_dependency_audit.json",
+    "reports/local_production_correctness_closure.json",
+    "reports/local_production_correctness_closure.md",
+    "reports/luna_max_review_cycles.json",
+    "reports/luna_max_review_cycles.md",
+    "reports/luna_max_subagent_manifest.json",
+    "reports/luna_max_subagent_manifest.md",
+    "reports/phase_14_5_progress.json",
+    "reports/phase_14_5_progress.md",
+    "reports/phases/phase_14_5_handoff.json",
+    "reports/phases/phase_14_5_status.md",
+    "reports/production_implementation_audit.json",
+    "reports/production_implementation_audit.md",
+    "reports/protocol_change_audit.json",
+    "reports/provenance_truthfulness_audit.json",
+    "reports/q1b_dependency_graph.json",
+    "reports/q1b_dependency_graph.md",
+    "reports/q1b_device_report.json",
+    "reports/q1b_predictor_factory_audit.json",
+    "reports/q1b_single_task_composition_audit.json",
+    "reports/q3_mask_wiring_audit.json",
+    "reports/reasoning_judge_contract.json",
+    "reports/reasoning_judge_contract_audit.json",
+    "reports/reasoning_metrics_golden_test.json",
+    "reports/runtime_dependency_blockers.json",
+    "reports/runtime_self_review.json",
+    "reports/scientific_protocol_conflicts.json",
+    "reports/scientific_protocol_conflicts.md",
+    "reports/security_hygiene_audit.json",
+    "reports/sequential_production_readiness_audit.json",
+    "reports/sequential_prompt_manifest.json",
+    "reports/sequential_prompt_validation.json",
+    "reports/server_smoke_plan.md",
+    "reports/system_execution_registry_audit.json",
+    "reports/table2_confidence_interval_protocol_audit.json",
+    "reports/table2_joint_ci_audit.json",
+    "reports/variant_isolation_audit.json",
+    "schemas/reasoning_judge_output.schema.json",
+    "scripts/audit_final_preexperiment_closure.py",
+    "scripts/audit_final_production_correctness.py",
+    "scripts/audit_final_readiness_consistency.py",
+    "scripts/audit_final_runtime_integration.py",
+    "scripts/audit_local_production_correctness.py",
+    "scripts/audit_table2_confidence_intervals.py",
+    "scripts/generate_sequential_prompts.py",
+    "scripts/readiness_utils.py",
+    "scripts/refresh_final_cleanup_protocol_guard.py",
+    "scripts/refresh_final_readiness_snapshot.py",
+    "scripts/run_luna_max_review_cycles.py",
+    "scripts/run_single_experiment.py",
+    "scripts/self_review_runtime_integration.py",
+    "scripts/semantic_config_audit.py",
+    "scripts/validate_sequential_prompts.py",
+    "src/vipragsent/artifacts/exporter.py",
+    "src/vipragsent/artifacts/schemas.py",
+    "src/vipragsent/azure/client.py",
+    "src/vipragsent/evaluation/confidence_intervals.py",
+    "src/vipragsent/evaluation/reasoning_judge.py",
+    "src/vipragsent/models/backbones.py",
+    "src/vipragsent/models/factory.py",
+    "src/vipragsent/models/qlora.py",
+    "src/vipragsent/models/variants.py",
+    "src/vipragsent/orchestration/aggregation.py",
+    "src/vipragsent/orchestration/contracts.py",
+    "src/vipragsent/orchestration/executors/component_bundle.py",
+    "src/vipragsent/orchestration/executors/component_production.py",
+    "src/vipragsent/orchestration/executors/explanation_reuse.py",
+    "src/vipragsent/orchestration/executors/external_retention.py",
+    "src/vipragsent/orchestration/executors/generation.py",
+    "src/vipragsent/orchestration/inventory.py",
+    "src/vipragsent/orchestration/preflight_single.py",
+    "src/vipragsent/orchestration/provenance.py",
+    "src/vipragsent/orchestration/q1b_composition.py",
+    "src/vipragsent/orchestration/q1b_dependencies.py",
+    "src/vipragsent/orchestration/q1b_predictor.py",
+    "src/vipragsent/orchestration/review.py",
+    "src/vipragsent/orchestration/run_store.py",
+    "src/vipragsent/orchestration/single_run.py",
+    "src/vipragsent/orchestration/stage_plans.py",
+    "src/vipragsent/orchestration/stage_registry.py",
+    "src/vipragsent/orchestration/system_registry.py",
+    "src/vipragsent/runtime/device.py",
+    "src/vipragsent/training/checkpoints.py",
+    "src/vipragsent/training/config_resolver.py",
+    "src/vipragsent/training/engine.py",
+    "tests/test_azure.py",
+    "tests/test_checkpoint_device_contract.py",
+    "tests/test_component_production_runner.py",
+    "tests/test_final_readiness_consistency.py",
+    "tests/test_final_runtime_integration.py",
+    "tests/test_luna_max_01_generation.py",
+    "tests/test_luna_max_08_red_team.py",
+    "tests/test_preexperiment_closure.py",
+    "tests/test_provenance_artifacts.py",
+    "tests/test_q1b_dependencies.py",
+    "tests/test_table2_statistics.py"
+  ],
+  "evidence": {
+    "aggregation": {
+      "missing_values_block": true,
+      "q4_ddof": 1,
+      "q4_summary_rows": 18,
+      "status": "PASS",
+      "table4": [
+        {
+          "backbone": "phobert_base",
+          "changed_components": "{\"optimizer\": \"same\"}",
+          "configuration": "full",
+          "gpu_hours": 2.0,
+          "ord_external_f1": 0.5,
+          "polarity_dev_ece": 0.2,
+          "prag_dev_f1": 0.7,
+          "relative_cost_to_full_phobert": 1.0,
+          "seed_count": 1
+        },
+        {
+          "backbone": "phobert_base",
+          "changed_components": "{\"optimizer\": \"same\"}",
+          "configuration": "variant",
+          "gpu_hours": 1.0,
+          "ord_external_f1": 0.8,
+          "polarity_dev_ece": 0.2,
+          "prag_dev_f1": 0.7,
+          "relative_cost_to_full_phobert": 0.5,
+          "seed_count": 1
+        }
+      ]
+    },
+    "class_weights": {
+      "content_hash": "F4548A80F3A088E438B1C4E2B5E911BEE2E783FF7A2A61CC709F7B6988499F02",
+      "counts": {
+        "emotion": {
+          "anger": 2,
+          "disgust": 1,
+          "enjoyment": 1,
+          "fear": 1,
+          "other": 1,
+          "sadness": 1,
+          "surprise": 1
+        },
+        "polarity": {
+          "negative": 3,
+          "neutral": 3,
+          "positive": 2
+        },
+        "pragmatic": {
+          "code_switching": {
+            "negative": 4,
+            "positive": 4
+          },
+          "idiom_figurative": {
+            "negative": 4,
+            "positive": 4
+          },
+          "implicit_sentiment": {
+            "negative": 4,
+            "positive": 4
+          },
+          "irony": {
+            "negative": 4,
+            "positive": 4
+          },
+          "mocking": {
+            "negative": 4,
+            "positive": 4
+          },
+          "sarcasm": {
+            "negative": 4,
+            "positive": 4
+          }
+        }
+      },
+      "source_split": "train",
+      "status": "PASS",
+      "train_loader_only": true
+    },
+    "external": {
+      "metrics": {
+        "aivivn_macro_f1": 1.0,
+        "external_finetuning": false,
+        "external_manifest_hash": "audit",
+        "external_preprocessing": "locked_normalized_test_only",
+        "optimizer_steps": 0,
+        "ord_f1": 0.8095238095238096,
+        "source_checkpoint_id": "audit",
+        "source_seed": 20260521,
+        "train_loader_created": false,
+        "vsfc_macro_f1": 1.0,
+        "vsmec_macro_f1": 0.42857142857142855
+      },
+      "no_external_finetuning": true,
+      "output_files": [
+        "external_retention_metrics.json",
+        "uit_vsfc_test_predictions.jsonl",
+        "uit_vsmec_test_predictions.jsonl",
+        "aivivn_test_predictions.jsonl"
+      ],
+      "status": "PASS"
+    },
+    "phase15": {
+      "batch_probe_cli": true,
+      "contract_checks": {
+        "bnb_4bit_use_double_quant": true,
+        "gradient_checkpointing_enable": true,
+        "k_proj": true,
+        "nf4": true,
+        "o_proj": true,
+        "prepare_model_for_kbit_training": true,
+        "q_proj": true,
+        "v_proj": true
+      },
+      "hardware_checks_real": true,
+      "smoke_executed": false,
+      "smoke_uses_production_factory": true,
+      "status": "PASS",
+      "weights_downloaded": false
+    },
+    "prompts": {
+      "approval_contract": {
+        "next_run_allowed": "NO",
+        "status": "PENDING_USER_APPROVAL"
+      },
+      "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8",
+      "prompt_count": 183,
+      "status": "PASS"
+    },
+    "q3": {
+      "dev_test_masks": "Q3 masks are supplied only to train collator",
+      "report": {
+        "budgets": [
+          "32",
+          "64",
+          "128",
+          "256",
+          "512",
+          "full"
+        ],
+        "expected_train_rows": 7998,
+        "fixed_negative_count": 7453,
+        "fixed_negative_ids_hash": "7FB9B1DB4D177C6FE5D5BB67F5C1E039792C1E9261CE262025061C4F694863E3",
+        "mask_hashes": {
+          "128": "97E83E2B9336455AA5F3164A7C3F1407327A483E0122263AA9EADF7D60845C4F",
+          "256": "45A07D469C13F8195DA26A902F42BD4D7B60C1FCA50AA858224101C932327A52",
+          "32": "4478E1F72DFB1EA551552B0C0F181C586F428D6E5BAA0BBA46625F2D4B08E278",
+          "512": "77A6262689B63662BC1670097BF36EDD0B69BAA4685A2D181C2F8C66038697A8",
+          "64": "F6E643247D1B0F35E38B762E37CA6A24450C1CB3CBCCCF2FE5ABA8D84930250D",
+          "full": "2F6AB6B8DC4A3D188A1E7D064489A4F42F3AC08DFFFC7704108686A895BF84D0"
+        },
+        "nested": true,
+        "positive_count_full": 545,
+        "removed_budgets": {},
+        "selected_positive_counts": {
+          "128": 128,
+          "256": 256,
+          "32": 32,
+          "512": 512,
+          "64": 64,
+          "full": 545
+        },
+        "valid_budgets": [
+          "32",
+          "64",
+          "128",
+          "256",
+          "512",
+          "full"
+        ]
+      },
+      "status": "PASS"
+    },
+    "rationale": {
+      "full_has_decoder": true,
+      "inference_decoder_output": false,
+      "no_rationale_has_decoder": false,
+      "no_uncertainty_has_decoder": true,
+      "status": "PASS",
+      "training_decoder_output": true
+    },
+    "registry": {
+      "executor_kinds": {
+        "artifact_extraction": 0,
+        "azure": 3,
+        "checkpoint_reuse": 0,
+        "evaluation_only": 7,
+        "generation_baseline": 0,
+        "generation_trainable": 1,
+        "independent_checkpoint_bundle": 1,
+        "rationale_checkpoint_reuse": 1,
+        "single_model_trainable": 11,
+        "single_task_bundle": 1
+      },
+      "extra_system_ids": [],
+      "invalid_entries": [],
+      "inventory_row_count": 162,
+      "inventory_system_count": 25,
+      "missing_system_ids": [],
+      "registry_file_sha256": "1DE8DF8823815FD0DE96EFA3887A5319ABA3997DDF94E1ACE93022F0B86EC3B1",
+      "registry_hash": "C210B1DC9F3AFFF49FF6CE05477BB5DDEDA96FB159D21826D650DDF3B11AC3C0",
+      "registry_system_count": 25,
+      "semantic_errors": [],
+      "status": "PASS"
+    },
+    "resolver": {
+      "cases": [
+        {
+          "actual": {
+            "effective_batch_size": 32,
+            "gradient_accumulation_steps": 1,
+            "learning_rate": 2e-05,
+            "maximum_epochs": 10,
+            "optimizer": "AdamW",
+            "rationale_inference": false,
+            "rationale_training": false,
+            "scheduler": "linear",
+            "uncertainty_weighting_enabled": false
+          },
+          "config_hash": "02F30BD3A8EB140A605BF300567015A0A0DB38DD6F6EC01D97EEBBEF77EF9E93",
+          "expected": {
+            "effective_batch_size": 32,
+            "gradient_accumulation_steps": 1,
+            "learning_rate": 2e-05,
+            "maximum_epochs": 10,
+            "optimizer": "AdamW",
+            "rationale_inference": false,
+            "rationale_training": false,
+            "scheduler": "linear",
+            "uncertainty_weighting_enabled": false
+          },
+          "run_id": "q1a_phobert_pragmatic_finetune_20260521",
+          "status": "PASS"
+        },
+        {
+          "actual": {
+            "effective_batch_size": 16,
+            "gradient_accumulation_steps": 8,
+            "learning_rate": 0.0001,
+            "maximum_epochs": 3,
+            "optimizer": "paged_adamw_8bit",
+            "rationale_inference": false,
+            "rationale_training": true,
+            "scheduler": "cosine",
+            "uncertainty_weighting_enabled": true
+          },
+          "config_hash": "DAEDCA1280759FAFD9BBD3F9809DD753003E6331576CC6B9284A2BC24A7A36C0",
+          "expected": {
+            "effective_batch_size": 16,
+            "gradient_accumulation_steps": 8,
+            "learning_rate": 0.0001,
+            "maximum_epochs": 3,
+            "optimizer": "paged_adamw_8bit",
+            "rationale_inference": false,
+            "rationale_training": true,
+            "scheduler": "cosine",
+            "uncertainty_weighting_enabled": true
+          },
+          "run_id": "q1a_vipragsent_full_vistral_20260521",
+          "status": "PASS"
+        },
+        {
+          "actual": {
+            "effective_batch_size": 32,
+            "gradient_accumulation_steps": 1,
+            "learning_rate": 2e-05,
+            "maximum_epochs": 10,
+            "optimizer": "AdamW",
+            "rationale_inference": false,
+            "rationale_training": true,
+            "scheduler": "linear",
+            "uncertainty_weighting_enabled": false
+          },
+          "config_hash": "262D3468A022F34292EF45EBEAF4CAF0ED6A431D396147C739734B6035B10B5B",
+          "expected": {
+            "effective_batch_size": 32,
+            "gradient_accumulation_steps": 1,
+            "learning_rate": 2e-05,
+            "maximum_epochs": 10,
+            "optimizer": "AdamW",
+            "rationale_inference": false,
+            "rationale_training": true,
+            "scheduler": "linear",
+            "uncertainty_weighting_enabled": false
+          },
+          "run_id": "q2_no_uncertainty_weighting_20260521",
+          "status": "PASS"
+        }
+      ],
+      "status": "PASS"
+    },
+    "scientific": {
+      "baseline": {
+        "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
+        "files": [
+          {
+            "baseline_hash": "675902E4CED59C3D16C5677E63DB4BEF30A328E3712B1F42F1CD5EF1698534E4",
+            "current_hash": "675902E4CED59C3D16C5677E63DB4BEF30A328E3712B1F42F1CD5EF1698534E4",
+            "path": "configs/azure/settings.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "15BB2AD172308E93FD6A18A0FB13CD3BF46551B2FFF8CF46ECE9019712AB6145",
+            "current_hash": "15BB2AD172308E93FD6A18A0FB13CD3BF46551B2FFF8CF46ECE9019712AB6145",
+            "path": "configs/execution_policy.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "574B7F5B1EA24F768DB6DE307918A7DEEADAA30B82A3FD98B3067809E6489296",
+            "current_hash": "574B7F5B1EA24F768DB6DE307918A7DEEADAA30B82A3FD98B3067809E6489296",
+            "path": "configs/experiments/master_inventory.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "4147CF4909F82E3EC2A5A5217A2154505EBFB636366C6986A5BCCA4E25856F6C",
+            "current_hash": "4147CF4909F82E3EC2A5A5217A2154505EBFB636366C6986A5BCCA4E25856F6C",
+            "path": "configs/experiments/master_matrix.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "221AE2046FAC0C8FA2971D538C791BA0AE6E9B5EC7F5B8E801F2A73036BD5650",
+            "current_hash": "221AE2046FAC0C8FA2971D538C791BA0AE6E9B5EC7F5B8E801F2A73036BD5650",
+            "path": "configs/experiments/q1a/system_roles.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "6D5F014DEC8AB48E77E87DBB564A0D900917FD7E1AD574B23E4601ED86CDA0BD",
+            "current_hash": "6D5F014DEC8AB48E77E87DBB564A0D900917FD7E1AD574B23E4601ED86CDA0BD",
+            "path": "configs/experiments/q1b/checkpoint_matrix.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "1B0CCBBB9DAA57E568880C85C3FDB870CEF317E93F4DC3A478FC3EDAEF04D8E2",
+            "current_hash": "1B0CCBBB9DAA57E568880C85C3FDB870CEF317E93F4DC3A478FC3EDAEF04D8E2",
+            "path": "configs/experiments/q2/protocol.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "EE3ABDD98B7E2F66694083544782924A2E3A6D4AE4A3E56E5968C200C3119823",
+            "current_hash": "EE3ABDD98B7E2F66694083544782924A2E3A6D4AE4A3E56E5968C200C3119823",
+            "path": "configs/experiments/q3/protocol.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "7B67D92FDDB8E635695D5757DE70ECF828E4EBB7C3EC07C9F69320956F3E47A3",
+            "current_hash": "7B67D92FDDB8E635695D5757DE70ECF828E4EBB7C3EC07C9F69320956F3E47A3",
+            "path": "configs/experiments/q3/system_aliases.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "750F8E9D70F68CE0B81F7EC8A1808B6C1401C1303F592E5C22CEE04D59A6E456",
+            "current_hash": "750F8E9D70F68CE0B81F7EC8A1808B6C1401C1303F592E5C22CEE04D59A6E456",
+            "path": "configs/experiments/q4/checkpoint_resolution.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "70F09AB17673483916F994FCDD83C81ECA6CA114361FC79573E7A224F2298199",
+            "current_hash": "70F09AB17673483916F994FCDD83C81ECA6CA114361FC79573E7A224F2298199",
+            "path": "configs/experiments/q4/pragmatic_calibration.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "7D0A0EA22F967E57C03B757B7CA146A9C3D2B12B5F86A8FD9D6E662FE287C47F",
+            "current_hash": "7D0A0EA22F967E57C03B757B7CA146A9C3D2B12B5F86A8FD9D6E662FE287C47F",
+            "path": "configs/experiments/q4/protocol.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "69FD01C43EB285D709ACDBDEF40D09EBE82950056C95B2844906F51A3755B73A",
+            "current_hash": "69FD01C43EB285D709ACDBDEF40D09EBE82950056C95B2844906F51A3755B73A",
+            "path": "configs/labels.json",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "DEB8AA5A07B1B2E29A238B2A6C50BECF603DE07600D143B76F521470E7A1CF93",
+            "current_hash": "DEB8AA5A07B1B2E29A238B2A6C50BECF603DE07600D143B76F521470E7A1CF93",
+            "path": "configs/losses.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "C337903822C3813650F25D242C06F0F148329B57D43674E0960BCB56281750AE",
+            "current_hash": "C337903822C3813650F25D242C06F0F148329B57D43674E0960BCB56281750AE",
+            "path": "configs/master_run.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "F7088AE43226B431A99E15AAFC6F927B37BE931F1930426FC0C07F756D334277",
+            "current_hash": "F7088AE43226B431A99E15AAFC6F927B37BE931F1930426FC0C07F756D334277",
+            "path": "configs/models/download_manifest.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "FA8C087CF21DA0591070BFBB1C1F97C3A616373B506B57059B992AF977F565C3",
+            "current_hash": "FA8C087CF21DA0591070BFBB1C1F97C3A616373B506B57059B992AF977F565C3",
+            "path": "configs/models/model_registry.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "20D07F08024FB7D0112F06C9E35DB56FDACAA421214FACE42D7E84E72FC4B775",
+            "current_hash": "20D07F08024FB7D0112F06C9E35DB56FDACAA421214FACE42D7E84E72FC4B775",
+            "path": "configs/paper_roles.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "3DDA6B10092C2E41C5DB02B732268AD71792286435CD73DCD20544A0C0C46DEC",
+            "current_hash": "3DDA6B10092C2E41C5DB02B732268AD71792286435CD73DCD20544A0C0C46DEC",
+            "path": "configs/runtime/a100_20gb.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "9275E1605B64551FB0FA04ED7D6A618109DDB1C06B240BBCB449E1DE74518214",
+            "current_hash": "9275E1605B64551FB0FA04ED7D6A618109DDB1C06B240BBCB449E1DE74518214",
+            "path": "configs/runtime/vncorenlp.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "C4E126874D5999460BA9C717E2AB42D68EC60F65826E1BBA5B1A7C2F0C108E98",
+            "current_hash": "C4E126874D5999460BA9C717E2AB42D68EC60F65826E1BBA5B1A7C2F0C108E98",
+            "path": "configs/schemas/artifact.schema.json",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "2329F1B0C0BB1AD699D60393AAAE1CAC980EA90F6B161050CC414122F8B58900",
+            "current_hash": "2329F1B0C0BB1AD699D60393AAAE1CAC980EA90F6B161050CC414122F8B58900",
+            "path": "configs/schemas/azure_request.schema.json",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "FBC4F3679F0AAF272B26FB0A4304AD1D65A0A9D65C7557B4C5E7ED68DE83918F",
+            "current_hash": "FBC4F3679F0AAF272B26FB0A4304AD1D65A0A9D65C7557B4C5E7ED68DE83918F",
+            "path": "configs/schemas/label_output.schema.json",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "BA1D08C604963F9D3C986AF37FFC3505BD92C0BD4B33C62D99A95C0E5003C94B",
+            "current_hash": "BA1D08C604963F9D3C986AF37FFC3505BD92C0BD4B33C62D99A95C0E5003C94B",
+            "path": "configs/schemas/rationale.schema.json",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "1D417CC472195A0385EB9BD0D29F5049B5298DF16422B54E73134AABBF233E46",
+            "current_hash": "1D417CC472195A0385EB9BD0D29F5049B5298DF16422B54E73134AABBF233E46",
+            "path": "configs/schemas/result.schema.json",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "A2AA5455969EA688D1BFA80F4709EA4E509AEA9AE3BAEE8CF28DE23F8D580721",
+            "current_hash": "A2AA5455969EA688D1BFA80F4709EA4E509AEA9AE3BAEE8CF28DE23F8D580721",
+            "path": "configs/source_hierarchy.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "45969DF69D65CF9C3940357B0DB294AD9A69E6307B94E4896DE3259AF83E2DAB",
+            "current_hash": "45969DF69D65CF9C3940357B0DB294AD9A69E6307B94E4896DE3259AF83E2DAB",
+            "path": "configs/statistics.yaml",
+            "status": "UNCHANGED"
+          },
+          {
+            "baseline_hash": "038E158059DB749FB0DC612E85A846755FA7B71C1C322961A9789595B69D92BC",
+            "current_hash": "038E158059DB749FB0DC612E85A846755FA7B71C1C322961A9789595B69D92BC",
+            "path": "configs/statistics/significance_method.yaml",
+            "status": "UNCHANGED"
+          }
+        ],
+        "inventory_delta": [],
+        "inventory_ids_unchanged": true,
+        "scientific_config_changed": []
+      },
+      "frozen_hashes": {
+        "baseline": {
+          "data/manifests/dataset_manifest.json": "7F72157C504AC3511B4DF5F2E594BCA4517987EBC1AA958AF8D8EF6B44D67B3E",
+          "data/manifests/external_datasets.json": "4C3948F303261293060B699FF90EDAE27AA99155A7D934AF43E8C7928919B0C3",
+          "data/manifests/human_iaa_recomputed.json": "A08E7BE28605E1E66AD51B094589AC551ACA7A96C207CA39BB24F65F8392E745",
+          "data/manifests/input_checksums.json": "BA47F5B353947E79C81E3B587618FE9E99030DE546131B7004B9684FDAC8B79C",
+          "data/processed/external/aivivn_human_derived_3way/manifest.json": "D5DFF111F328A0536983A79F279F3810A8E23205C812B6810D95F343FFD06A6D",
+          "data/processed/q3_low_resource_sarcasm/budget_128_masks.csv": "5D1B3E5C423236322EE18A76A3AD6F42565DFC60B907E167B6A2D3FB33B66996",
+          "data/processed/q3_low_resource_sarcasm/budget_256_masks.csv": "DBAEAFE218BDF398E2173D7643298A3846D85E09058154701CD30DC1968DDD0D",
+          "data/processed/q3_low_resource_sarcasm/budget_32_masks.csv": "87FB2F9B2130E45AAB9F3D8E9300844107E194AFD916AEEAF6F814119D84284B",
+          "data/processed/q3_low_resource_sarcasm/budget_512_masks.csv": "4276E1C7565BA593AB754A203C10217744DB1D8B3C9D6F2FE5ED3C6A63944892",
+          "data/processed/q3_low_resource_sarcasm/budget_64_masks.csv": "6B7CA4E4D9A20137567D8353F3FFEFE653AC60B8D180FD3EDA490D51C96E9568",
+          "data/processed/q3_low_resource_sarcasm/budget_full_masks.csv": "C3DA66570D50A20E28893D1BFDC952E9BB9C1C4BA4A07824FE54DD3357E492B1",
+          "data/processed/vipragsent/dev.csv": "2D878B788A38C0C36DBA0D07C23A21E3E30327E593F3549776D2D1B47DA0E47A",
+          "data/processed/vipragsent/test.csv": "3493E25034C12312C069F9CE923ECC1D1DB170FA71DB69E2A93A0DAC0709CEBA",
+          "data/processed/vipragsent/train.csv": "71F857D5E76F6ADB7B73F7831E4B06F4A87BA0B8251A85957861F823C02AC993"
+        },
+        "baseline_commit": "d77c3735b5526b681ca555761835043c73f472ff",
+        "changed": [],
+        "current": {
+          "data/manifests/dataset_manifest.json": "7F72157C504AC3511B4DF5F2E594BCA4517987EBC1AA958AF8D8EF6B44D67B3E",
+          "data/manifests/external_datasets.json": "4C3948F303261293060B699FF90EDAE27AA99155A7D934AF43E8C7928919B0C3",
+          "data/manifests/human_iaa_recomputed.json": "A08E7BE28605E1E66AD51B094589AC551ACA7A96C207CA39BB24F65F8392E745",
+          "data/manifests/input_checksums.json": "BA47F5B353947E79C81E3B587618FE9E99030DE546131B7004B9684FDAC8B79C",
+          "data/processed/external/aivivn_human_derived_3way/manifest.json": "D5DFF111F328A0536983A79F279F3810A8E23205C812B6810D95F343FFD06A6D",
+          "data/processed/q3_low_resource_sarcasm/budget_128_masks.csv": "5D1B3E5C423236322EE18A76A3AD6F42565DFC60B907E167B6A2D3FB33B66996",
+          "data/processed/q3_low_resource_sarcasm/budget_256_masks.csv": "DBAEAFE218BDF398E2173D7643298A3846D85E09058154701CD30DC1968DDD0D",
+          "data/processed/q3_low_resource_sarcasm/budget_32_masks.csv": "87FB2F9B2130E45AAB9F3D8E9300844107E194AFD916AEEAF6F814119D84284B",
+          "data/processed/q3_low_resource_sarcasm/budget_512_masks.csv": "4276E1C7565BA593AB754A203C10217744DB1D8B3C9D6F2FE5ED3C6A63944892",
+          "data/processed/q3_low_resource_sarcasm/budget_64_masks.csv": "6B7CA4E4D9A20137567D8353F3FFEFE653AC60B8D180FD3EDA490D51C96E9568",
+          "data/processed/q3_low_resource_sarcasm/budget_full_masks.csv": "C3DA66570D50A20E28893D1BFDC952E9BB9C1C4BA4A07824FE54DD3357E492B1",
+          "data/processed/vipragsent/dev.csv": "2D878B788A38C0C36DBA0D07C23A21E3E30327E593F3549776D2D1B47DA0E47A",
+          "data/processed/vipragsent/test.csv": "3493E25034C12312C069F9CE923ECC1D1DB170FA71DB69E2A93A0DAC0709CEBA",
+          "data/processed/vipragsent/train.csv": "71F857D5E76F6ADB7B73F7831E4B06F4A87BA0B8251A85957861F823C02AC993"
+        },
+        "unchanged": true
+      },
+      "protocol": {
+        "passed": true,
+        "resolution_status": {
+          "Q1A": "RESOLVED",
+          "Q1B": "RESOLVED",
+          "Q3": "RESOLVED",
+          "Q4": "RESOLVED",
+          "SIGNIFICANCE_PVALUE": "RESOLVED"
+        },
+        "scientific_protocol_conflicts": []
+      },
+      "status": "PASS"
+    },
+    "variants": {
+      "bundle_executors": {
+        "no_multitask": "independent_checkpoint_bundle",
+        "phobert_pragmatic_single_task": "single_task_bundle"
+      },
+      "generation_baselines": {
+        "cot_only_vistral": "generation_trainable",
+        "explanation_only_vistral": "rationale_checkpoint_reuse"
+      },
+      "generation_protocol": {
+        "checks": {
+          "exact_metrics": true,
+          "generation_file_exists": true,
+          "generation_hash_matches": true,
+          "judge_file_exists": true,
+          "judge_hash_matches": true,
+          "judge_receives_reasoning_only": true,
+          "retry_contract": true,
+          "schema_file_exists": true,
+          "schema_hash_matches": true,
+          "semantic_repair_disabled": true,
+          "single_judge_protocol": true,
+          "strict_schema": true,
+          "system_semantics": true
+        },
+        "errors": [],
+        "protocol": {
+          "cache": {
+            "include_gold_labels": false,
+            "key": "sha256(judge_protocol_id+expected_model_version+temperature+judge_prompt_template_hash+judge_schema_hash+normalized_reasoning)",
+            "normalization": "unicode_nfc_line_endings_lf_outer_whitespace_only",
+            "reuse_identical_normalized_reasoning": true
+          },
+          "decoding": {
+            "do_sample": false,
+            "max_new_tokens": 160,
+            "num_beams": 1,
+            "num_return_sequences": 1,
+            "repetition_penalty": 1.0,
+            "stop": "eos_or_maximum_length",
+            "temperature": "NOT_APPLICABLE",
+            "top_k": "NOT_APPLICABLE",
+            "top_p": "NOT_APPLICABLE"
+          },
+          "generation_prompt_hash": "E3E586054B17377B641F33384E1E7487922D91C1FEB74320F660BFC42C2FADEC",
+          "generation_prompt_path": "prompts/protocols/cot_only_reasoning_vi_v1.txt",
+          "invalid_policy": {
+            "invalid_stages": [
+              "generation",
+              "judge_request",
+              "judge_response"
+            ],
+            "non_empty_truncated_reasoning_is_invalid": false,
+            "preserve_raw_status": true,
+            "primary_invalid_effective_prediction": "all_zero"
+          },
+          "judge_deployment": "gpt-4.1-mini",
+          "judge_input": "generated_reasoning_only",
+          "judge_max_output_tokens": 128,
+          "judge_model": "GPT-4.1-mini",
+          "judge_model_version": "2025-04-14",
+          "judge_prompt_hash": "7A24FC5168BEEE0B6EA472C7F2D2CEDE95DF49C4631C8028EBBCB57238B17B19",
+          "judge_prompt_path": "prompts/protocols/reasoning_judge_gpt41mini_zeroshot_v1.txt",
+          "judge_protocol_id": "reasoning_judge_gpt41mini_zeroshot_v1",
+          "judge_schema_hash": "FF7F4EE3DC82805942118D2E97A5AAE55C9AB1396C7A6412A296AA6880D376E3",
+          "judge_schema_path": "schemas/reasoning_judge_output.schema.json",
+          "judge_temperature": 0,
+          "metrics": {
+            "diagnostics": [
+              "requested_count",
+              "valid_count",
+              "invalid_count",
+              "coverage_rate",
+              "invalid_generation_rate",
+              "invalid_judge_output_rate",
+              "missing_prediction_rate",
+              "truncation_rate",
+              "judge_cache_hits",
+              "judge_cache_misses",
+              "judge_retry_count",
+              "judge_input_tokens",
+              "judge_output_tokens",
+              "judge_request_count"
+            ],
+            "primary": "full_split_macro_pragmatic_f1_all_zero_fallback",
+            "secondary": "valid_only_macro_pragmatic_f1",
+            "significance_prediction_source": "effective_full_split_all_zero_fallback"
+          },
+          "original_sentence_visible": false,
+          "protocol_version": "reasoning_generation_shared_judge_v1",
+          "retry": {
+            "fallback_delays_seconds": [
+              2,
+              4,
+              8,
+              16
+            ],
+            "honor_retry_after": true,
+            "maximum_total_attempts": 5,
+            "retryable_status_codes": [
+              408,
+              429,
+              500,
+              502,
+              503,
+              504
+            ],
+            "retryable_transport_errors": [
+              "network_timeout",
+              "connection_reset"
+            ],
+            "semantic_retry": false
+          },
+          "schema_version": 1,
+          "semantic_repair": false,
+          "systems": {
+            "cot_only_vistral": {
+              "checkpoint_semantics": "own_generation_checkpoint",
+              "rationale_source": "data/processed/rationales/approved_generated_rationales_train.jsonl",
+              "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev",
+              "training": "generation_only_causal_cross_entropy"
+            },
+            "explanation_only_vistral": {
+              "checkpoint_semantics": "reuse_approved_full_vistral_same_seed",
+              "inference_source": "judge_of_rationale_decoder_output",
+              "selection_metric": "inherited_from_source_checkpoint",
+              "source_checkpoint_key_pattern": "vipragsent_full_vistral:{seed}",
+              "source_system_id": "vipragsent_full_vistral",
+              "training": "no_additional_training"
+            }
+          }
+        },
+        "status": "PASS"
+      },
+      "registry_entry_count": 25,
+      "status": "PASS"
+    }
+  },
+  "execution_safety": {
+    "approval_recorded": false,
+    "azure_request_made": false,
+    "full_dag_executed": false,
+    "gpu_training_executed": false,
+    "model_downloaded": false,
+    "phase15_executed": false,
+    "real_experiment_ran": false,
+    "real_test_predictions_generated": false
+  },
+  "frozen_data_changed": false,
+  "github_ci_status_at_report_generation": "success",
+  "hygiene": {
+    "data_files_changed": [],
+    "forbidden_weight_or_secret_files": [],
+    "secret_pattern_matches": [],
+    "status": "PASS"
+  },
+  "implementation_blockers": [],
+  "inventory_count": 162,
+  "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8",
+  "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
+  "protocol_conflicts": [],
+  "readiness": {
+    "CI_STATUS": "completed",
+    "FINAL_AGGREGATION_READY": false,
+    "PHASE15_READY": true,
+    "REAL_EXPERIMENT_READY": false,
+    "SETUP_CODE_READY": true,
+    "approved_run_count": 0,
+    "azure_request_made": false,
+    "blockers": [
+      "Phase 15 has not been executed on the target server",
+      "Model-family runtime assets are not prepared",
+      "GPU and Azure live integration have not been validated",
+      "No real approved production run exists"
+    ],
+    "evidence": {
+      "commands": [
+        {
+          "command": "python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
+          "returncode": 0,
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
+        },
+        {
+          "command": "python -m compileall -q src scripts tests",
+          "returncode": 0,
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": ""
+        },
+        {
+          "command": "ruff check .",
+          "returncode": 0,
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "All checks passed!\n"
+        },
+        {
+          "command": "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+          "returncode": 0,
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "........................................................................ [ 42%]\n........................................................................ [ 84%]\n..........................                                               [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
+        },
+        {
+          "command": "python scripts/validate_schemas.py",
+          "returncode": 0,
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "schema validation passed\n"
+        },
+        {
+          "command": "python scripts/generate_sequential_prompts.py",
+          "returncode": 0,
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\"\n}\n"
+        },
+        {
+          "command": "python scripts/validate_sequential_prompts.py",
+          "returncode": 0,
+          "status": "PASS",
+          "stderr_tail": "",
+          "stdout_tail": "\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"freeze_selection\",\n          \"generate_test_reasoning\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"generation\",\n        \"executor_kind\": \"generation_trainable\",\n        \"evaluation_strategy\": \"reasoning_generation_shared_judge\",\n        \"research_question\": null\n      },\n      \"explanation_only_vistral_reuse\": {\n        \"plan_id\": \"explanation_only_vistral_reuse\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_full_vistral_source\",\n          \"validate_source_checkpoint\",\n          \"generate_dev_reasoning_from_rationale_decoder\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"generate_test_reasoning_from_rationale_decoder\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  }\n}\n"
+        }
+      ],
+      "hygiene": {
+        "data_files_changed": [],
+        "forbidden_weight_or_secret_files": [],
+        "secret_pattern_matches": [],
+        "status": "PASS"
+      },
+      "reports": [
+        "reports/final_production_correctness_repair.json",
+        "reports/final_production_correctness_repair.md",
+        "reports/system_execution_registry_audit.json",
+        "reports/training_config_resolution_audit.json",
+        "reports/class_weight_wiring_audit.json",
+        "reports/rationale_wiring_audit.json",
+        "reports/q3_mask_wiring_audit.json",
+        "reports/variant_isolation_audit.json",
+        "reports/external_retention_evaluator_audit.json",
+        "reports/aggregation_golden_test_audit.json",
+        "reports/phase15_qlora_smoke_contract.json",
+        "reports/generated_sequential_prompts_manifest.json",
+        "reports/sequential_production_readiness_audit.json",
+        "reports/protocol_change_audit.json",
+        "reports/local_production_correctness_closure.json",
+        "reports/luna_max_review_cycles.json"
+      ],
+      "self_review": {
+        "canonical_summary": {
+          "consecutive_clean_cycles": 2,
+          "cycles": 2,
+          "execution_mode": "SINGLE_AGENT",
+          "historical_subagent_profile_verification": "NOT_VERIFIED",
+          "no_new_defects": true,
+          "normalization_errors": [],
+          "rounds_per_cycle": 6,
+          "source": "reports/final_cleanup_review_cycles.json",
+          "source_selection_errors": [],
+          "status": "PASS",
+          "subagent_profile_verification": "NOT_VERIFIED",
+          "subagents_called": false,
+          "valid": true
+        },
+        "consecutive_clean_cycles": 2,
+        "cycles": 2,
+        "execution_mode": "SINGLE_AGENT",
+        "historical_subagent_profile_verification": "NOT_VERIFIED",
+        "no_new_defects": true,
+        "normalization_errors": [],
+        "rounds_per_cycle": 6,
+        "source": "reports/final_cleanup_review_cycles.json",
+        "source_selection_errors": [],
+        "status": "PASS",
+        "subagent_profile_verification": "NOT_VERIFIED",
+        "subagents_called": false,
+        "valid": true
+      },
+      "static": {
+        "matches": {
+          "automatic_next_run": [],
+          "global_full_dag": [],
+          "stale_azure_alias": [],
+          "substring_system_dispatch": [],
+          "test_results_hardcoded_pass": []
+        },
+        "status": "PASS"
+      }
+    },
+    "phase15_executed": false,
+    "real_experiment_ran": false,
+    "runtime_blockers": [
+      "Phase 15 has not been executed on the target server",
+      "Model-family runtime assets are not prepared",
+      "GPU and Azure live integration have not been validated",
+      "No real approved production run exists"
+    ],
+    "runtime_status": "BLOCKED",
+    "scientific_protocol_conflicts": [],
+    "self_review": {
+      "consecutive_clean_cycles": 2,
+      "cycles": 2,
+      "execution_mode": "SINGLE_AGENT",
+      "historical_subagent_profile_verification": "NOT_VERIFIED",
+      "no_new_defects": true,
+      "normalization_errors": [],
+      "rounds_per_cycle": 6,
+      "source": "reports/final_cleanup_review_cycles.json",
+      "source_selection_errors": [],
+      "status": "PASS",
+      "subagent_profile_verification": "NOT_VERIFIED",
+      "subagents_called": false,
+      "valid": true
+    },
+    "status": "PASS",
+    "weights_downloaded": false
+  },
+  "report_generation_parent_sha": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "report_only_commit_expected": true,
+  "review_summary": {
+    "consecutive_clean_cycles": 2,
+    "cycles": 2,
+    "execution_mode": "SINGLE_AGENT",
+    "historical_subagent_profile_verification": "NOT_VERIFIED",
+    "no_new_defects": true,
+    "normalization_errors": [],
+    "rounds_per_cycle": 6,
+    "source": "reports/final_cleanup_review_cycles.json",
+    "source_selection_errors": [],
+    "status": "PASS",
+    "subagent_profile_verification": "NOT_VERIFIED",
+    "subagents_called": false,
+    "valid": true
+  },
+  "runtime_blockers": [
+    "Phase 15 has not been executed on the target server",
+    "Model-family runtime assets are not prepared",
+    "GPU and Azure live integration have not been validated",
+    "No real approved production run exists"
+  ],
+  "schema_version": 2,
+  "scientific_change_guard": {
+    "frozen_data_changed": false,
+    "generation_protocol_changed": false,
+    "labels_changed": false,
+    "optimization_protocol_changed": false,
+    "paper_facing_systems_changed": false,
+    "q3_changed": false,
+    "q4_changed": false,
+    "seeds_changed": false,
+    "significance_method_changed": false,
+    "threshold_protocol_changed": false
+  },
+  "scientific_changes": [],
+  "scientific_protocol_conflicts": [],
+  "self_review": {
+    "canonical_summary": {
+      "consecutive_clean_cycles": 2,
+      "cycles": 2,
+      "execution_mode": "SINGLE_AGENT",
+      "historical_subagent_profile_verification": "NOT_VERIFIED",
+      "no_new_defects": true,
+      "normalization_errors": [],
+      "rounds_per_cycle": 6,
+      "source": "reports/final_cleanup_review_cycles.json",
+      "source_selection_errors": [],
+      "status": "PASS",
+      "subagent_profile_verification": "NOT_VERIFIED",
+      "subagents_called": false,
+      "valid": true
+    },
+    "consecutive_clean_cycles": 2,
+    "cycles": 2,
+    "execution_mode": "SINGLE_AGENT",
+    "historical_subagent_profile_verification": "NOT_VERIFIED",
+    "no_new_defects": true,
+    "normalization_errors": [],
+    "rounds_per_cycle": 6,
+    "source": "reports/final_cleanup_review_cycles.json",
+    "source_selection_errors": [],
+    "status": "PASS",
+    "subagent_profile_verification": "NOT_VERIFIED",
+    "subagents_called": false,
+    "valid": true
+  },
+  "self_review_summary": {
+    "consecutive_clean_cycles": 2,
+    "cycles": 2,
+    "execution_mode": "SINGLE_AGENT",
+    "historical_subagent_profile_verification": "NOT_VERIFIED",
+    "no_new_defects": true,
+    "normalization_errors": [],
+    "rounds_per_cycle": 6,
+    "source": "reports/final_cleanup_review_cycles.json",
+    "source_selection_errors": [],
+    "status": "PASS",
+    "subagent_profile_verification": "NOT_VERIFIED",
+    "subagents_called": false,
+    "valid": true
+  },
+  "static_search": {
+    "matches": {
+      "automatic_next_run": [],
+      "global_full_dag": [],
+      "stale_azure_alias": [],
+      "substring_system_dispatch": [],
+      "test_results_hardcoded_pass": []
+    },
+    "status": "PASS"
+  },
+  "status": "PASS"
+}

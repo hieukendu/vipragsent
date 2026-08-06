@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "ViPragSent sequential run review summary",
+  "type": "object",
+  "required": [
+    "run_id", "experiment_id", "research_question", "system_id", "display_name", "variant", "backbone",
+    "seed", "budget", "execution_kind", "execution_mode", "run_status", "user_review_status", "dataset_fingerprint",
+    "split_hashes", "model_repository", "model_revision", "tokenizer_revision", "preprocessing_name",
+    "preprocessing_version", "configuration_hash", "code_commit", "artifact_paths", "artifact_sha256",
+    "warnings", "blockers", "validation_status", "RUN_STATUS", "USER_REVIEW_STATUS", "NEXT_RUN_ALLOWED"
+  ],
+  "properties": {
+    "user_review_status": {"type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"]},
+    "RUN_STATUS": {"type": "string", "enum": ["PASS", "BLOCKED", "FAIL"]},
+    "USER_REVIEW_STATUS": {"type": "string", "enum": ["PENDING", "APPROVED", "REJECTED"]},
+    "NEXT_RUN_ALLOWED": {"type": "string", "enum": ["YES", "NO"]},
+    "artifact_paths": {"type": "array"},
+    "artifact_sha256": {"type": "object"},
+    "warnings": {"type": "array"},
+    "blockers": {"type": "array"},
+    "run_id": {"type": "string", "minLength": 1},
+    "execution_kind": {"type": "string", "enum": ["trainable", "checkpoint_reuse", "evaluation_only", "azure", "artifact_extraction"]},
+    "run_status": {"type": "string", "enum": ["PASS", "BLOCKED", "FAIL"]}
+  },
+  "additionalProperties": true
+}

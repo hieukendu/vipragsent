@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import numpy as np
-
 from vipragsent.evaluation.metrics import binary_macro_f1, expected_calibration_error
 from vipragsent.evaluation.thresholds import tune_binary_threshold
 from vipragsent.statistics.bootstrap import hierarchical_bootstrap, holm_bonferroni

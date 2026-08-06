@@ -1,20 +1,34 @@
 {
-  "project": "ViPragSent",
-  "contract_revision": "setup-first-one-click-final",
-  "target_python": "3.11",
+  "approved_run_count": 0,
+  "automatic_next_run": false,
+  "contract_revision": "setup-first-sequential-review-gated-v1",
   "current_phase": "15",
-  "weights_downloaded": false,
+  "execution_policy": "sequential_review_gated",
+  "final_aggregation_ready": false,
+  "full_matrix_code_ready": true,
   "full_run_started": false,
-  "setup_frozen": false,
-  "core_experiments_ready": false,
+  "global_full_dag_enabled": false,
+  "implementation_blockers": [],
   "manual_paper_analysis_pending": true,
-  "blockers": [
-    "Model weights have not passed Phase 15 offline verification",
-    "A100 20 GB or an A100 MIG profile is not available",
-    "Java 17 LTS is required for VnCoreNLP",
-    "PEFT is not installed for QLoRA",
-    "bitsandbytes is not installed for NF4 QLoRA",
-    "Phase 15 model/tokenizer smoke report is missing"
+  "maximum_concurrent_gpu_jobs": 1,
+  "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
+  "phase15_code_ready": true,
+  "phase15_runtime_ready": false,
+  "phase_handoff_directory": "reports/phases",
+  "project": "ViPragSent",
+  "real_experiment_ready": false,
+  "real_run_count": 0,
+  "runtime_blockers": [
+    "Phase 15 has not been executed on the target server",
+    "Model-family runtime assets are not prepared",
+    "GPU and Azure live integration have not been validated",
+    "No real approved production run exists"
   ],
-  "phase_handoff_directory": "reports/phases"
+  "runtime_environment_ready": false,
+  "scientific_protocol_conflicts": [],
+  "sequential_runtime_code_ready": true,
+  "setup_frozen": true,
+  "setup_implementation_ready": true,
+  "target_python": "3.11",
+  "weights_downloaded": false
 }

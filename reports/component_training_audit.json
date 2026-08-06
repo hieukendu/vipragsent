@@ -1,0 +1,87 @@
+{
+  "code_commit_at_audit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "evidence": [
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_component_production_runner.py::test_component_runner_consumes_all_training_examples",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 1",
+      "fixture_input_sha256": "BE1D130F99F40C4BA5B33C83BD8B4767D37C76FCE45D4E7F59A22C804EE46D64",
+      "golden_input_sha256": null,
+      "label": "Defect 1",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_component_production_runner.py::test_component_runner_consumes_all_training_examples",
+      "test_source_sha256": "D28A42FCA069F7BB33F933569495630C1DD50E69BAE8A81BC94B3D9E62127BEC"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_component_production_runner.py::test_component_runner_runs_locked_epochs_or_early_stops",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 1",
+      "fixture_input_sha256": "76CD185598CB404CBC8EC887206D6C9337B6003B7CE5C35875EDE712BB61101D",
+      "golden_input_sha256": null,
+      "label": "Defect 1",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_component_production_runner.py::test_component_runner_runs_locked_epochs_or_early_stops",
+      "test_source_sha256": "D28A42FCA069F7BB33F933569495630C1DD50E69BAE8A81BC94B3D9E62127BEC"
+    },
+    {
+      "command": [
+        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "-m",
+        "pytest",
+        "-q",
+        "tests/test_component_production_runner.py::test_component_runner_writes_real_checkpoint",
+        "--disable-warnings",
+        "--maxfail=1"
+      ],
+      "defect": "Defect 1",
+      "fixture_input_sha256": "83A9B6C5DDC92FE68ABCBB5F0C7C028827D3E6CC9E7B62AED976FD95246AC1C8",
+      "golden_input_sha256": null,
+      "label": "Defect 1",
+      "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
+      "production_proof": false,
+      "returncode": 0,
+      "scope": "defect",
+      "status": "PASS",
+      "stderr_tail": "",
+      "stdout_tail": ".                                                                        [100%]\n",
+      "synthetic": true,
+      "test_name": "tests/test_component_production_runner.py::test_component_runner_writes_real_checkpoint",
+      "test_source_sha256": "D28A42FCA069F7BB33F933569495630C1DD50E69BAE8A81BC94B3D9E62127BEC"
+    }
+  ],
+  "full_train_split": true,
+  "locked_optimization": true,
+  "production_proof": false,
+  "real_checkpoint_paths": true,
+  "resume_hashes": true,
+  "schema_version": 1,
+  "status": "PASS"
+}

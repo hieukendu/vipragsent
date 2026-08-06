@@ -1,0 +1,174 @@
+{
+  "schema_version": 1,
+  "execution_mode": "SINGLE_AGENT",
+  "subagents_called": false,
+  "steps": [
+    {
+      "STEP": "Phase 1 - Read-only status inventory",
+      "BASELINE_SHA": "fc4779e5f6cb217136288015a6aee2fc311d12bd",
+      "FILES_INSPECTED": [
+        "reports/",
+        "scripts/",
+        "PROJECT_STATE.json",
+        "SETUP_READY.md",
+        ".github/workflows/cpu-ci.yml"
+      ],
+      "STALE_FIELDS_FOUND": [
+        "final runtime CI_STATUS NOT_RUN",
+        "final runtime Markdown zero review summary",
+        "final pre-experiment code SHA 487134...",
+        "final pre-experiment CI status NOT_RUN",
+        "final pre-experiment Markdown zero review summary",
+        "final production CI status NOT_RUN",
+        "missing exact-SHA CI evidence and canonical snapshot",
+        "missing executable cross-file consistency audit/tests"
+      ],
+      "ROOT_CAUSE": "Readiness generators hard-code local defaults and Markdown summaries instead of consuming one structured readiness snapshot; exact CI provenance was not persisted.",
+      "FILES_CHANGED": [
+        "reports/final_status_inventory_before.json",
+        "reports/final_status_inventory_before.md",
+        "reports/final_cleanup_worklog.json",
+        "reports/final_cleanup_worklog.md"
+      ],
+      "TESTS_ADDED": [],
+      "COMMANDS_RUN": [
+        "git fetch origin",
+        "git checkout codex/phase-14-5-production-repair",
+        "git pull --ff-only origin codex/phase-14-5-production-repair",
+        "git branch --show-current",
+        "git rev-parse HEAD",
+        "git status --short",
+        "git log -20 --oneline",
+        "git merge-base main HEAD",
+        "structured reports/state inspection",
+        "stale metadata scan"
+      ],
+      "RESULTS": "PASS; no scientific conflict, implementation blocker, inventory change, protected-source defect or stop condition found.",
+      "REMAINING_RISKS": "Exact final SHA evidence and the report-only two-commit provenance sequence remain to be completed."
+    },
+    {
+      "STEP": "Phase 2 - Report-generator repair",
+      "BASELINE_SHA": "fc4779e5f6cb217136288015a6aee2fc311d12bd",
+      "FILES_INSPECTED": [
+        "scripts/audit_final_runtime_integration.py",
+        "scripts/audit_final_preexperiment_closure.py",
+        "scripts/audit_final_production_correctness.py",
+        ".github/workflows/cpu-ci.yml"
+      ],
+      "STALE_FIELDS_FOUND": [
+        "NOT_RUN CI status defaults",
+        "zero-round Markdown defaults",
+        "ambiguous code_commit_at_audit semantics"
+      ],
+      "ROOT_CAUSE": "Three report generators independently selected current-status defaults and did not consume a shared structured readiness snapshot.",
+      "FILES_CHANGED": [
+        "scripts/readiness_utils.py",
+        "scripts/refresh_final_readiness_snapshot.py",
+        "scripts/audit_final_runtime_integration.py",
+        "scripts/audit_final_preexperiment_closure.py",
+        "scripts/audit_final_production_correctness.py"
+      ],
+      "TESTS_ADDED": [
+        "tests/test_final_readiness_consistency.py"
+      ],
+      "COMMANDS_RUN": [
+        "python -m compileall -q src scripts tests",
+        "ruff check .",
+        "python -m pytest -q tests/test_final_readiness_consistency.py",
+        "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+        "python scripts/validate_execution_registry.py",
+        "python scripts/validate_schemas.py",
+        "python scripts/generate_sequential_prompts.py",
+        "python scripts/validate_sequential_prompts.py",
+        "python scripts/audit_table2_confidence_intervals.py",
+        "python scripts/audit_final_production_correctness.py",
+        "VIPRAGSENT_SKIP_SELF_REVIEW=1 python scripts/audit_final_runtime_integration.py",
+        "git diff --check"
+      ],
+      "RESULTS": "PASS; all code-only checks and the full CPU suite passed.",
+      "REMAINING_RISKS": "Exact external CI evidence, protocol guard, canonical snapshot refresh and final report-only provenance remain pending."
+    },
+    {
+      "STEP": "Phase 3 - Commit A CI verification",
+      "BASELINE_SHA": "fc4779e5f6cb217136288015a6aee2fc311d12bd",
+      "CODE_EVIDENCE_SHA": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+      "FILES_CHANGED": [".github/workflows/cpu-ci.yml", "scripts/", "tests/"],
+      "COMMANDS_RUN": ["git push origin codex/phase-14-5-production-repair", "GitHub cpu-ci run 31026573490", "GitHub job 92376478149 step inspection"],
+      "RESULTS": "PASS; run 31026573490 completed successfully on the exact Commit A SHA; all 20 workflow steps completed with success.",
+      "REMAINING_RISKS": "Report-only evidence and final-HEAD CI remained pending."
+    },
+    {
+      "STEP": "Phase 4 - Canonical readiness evidence",
+      "BASELINE_SHA": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+      "FILES_CREATED_OR_REFRESHED": [
+        "reports/ci_verification.json",
+        "reports/final_readiness_snapshot.json",
+        "reports/final_readiness_snapshot.md",
+        "reports/final_cleanup_protocol_guard.json",
+        "reports/final_cleanup_protocol_guard.md",
+        "reports/final_runtime_integration_audit.json",
+        "reports/final_runtime_integration_audit.md",
+        "reports/final_preexperiment_closure.json",
+        "reports/final_preexperiment_closure.md",
+        "reports/final_production_correctness_repair.json",
+        "reports/final_production_correctness_repair.md",
+        "reports/final_readiness_consistency_audit.json",
+        "reports/final_readiness_consistency_audit.md"
+      ],
+      "RESULTS": "PASS; exact CI provenance, canonical snapshot, report generators, protected manifest guard, and cross-file audit agree; inventory remains 162 and scientific conflicts remain empty.",
+      "PROTECTED_MANIFEST_SHA256": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953"
+    },
+    {
+      "STEP": "Phase 5 - Two complete single-agent review cycles",
+      "BASELINE_SHA": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+      "FILES_CREATED": ["reports/final_cleanup_review_cycles.json", "reports/final_cleanup_review_cycles.md"],
+      "COMMANDS_RUN": ["Cycle 1: six rounds", "Cycle 2: six rounds", "complete local validation sequence in both cycles"],
+      "RESULTS": "PASS; 2 consecutive clean cycles x 6 rounds, 12/12 rounds PASS, zero new defects, zero fixes, subagents_called=false.",
+      "EXECUTION_BOUNDARY": "CPU-only and synthetic/network-free; no Phase 15, model download, Azure live, GPU training, real predictions, approval, production proof, or full DAG."
+    },
+    {
+      "STEP": "Phase 6 - Final report-only packaging",
+      "BASELINE_SHA": "b34672abe50bde88fa0f1ef8fd745a66f15037c0",
+      "COMMANDS_RUN": ["final consistency audit PASS", "protected manifest equality PASS", "final_reproducibility_audit.py returned expected BLOCKED runtime status", "SETUP_CHECKSUMS and FINAL_CHECKSUMS regenerated"],
+      "RESULTS": "PASS; reproducibility implementation checks passed and the audit truthfully remains BLOCKED only by deferred server/runtime requirements; only generated reports, readiness state, and checksum artifacts are staged for Commit B.",
+      "NEXT": "Create and push Refresh final readiness evidence, then verify exact final-HEAD cpu-ci. The final report SHA is intentionally not embedded in its own report."
+    },
+    {
+      "STEP": "Phase 7 - Final review metadata closure",
+      "BASELINE_SHA": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+      "CODE_EVIDENCE_SHA": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+      "FILES_CHANGED": [
+        "scripts/readiness_utils.py",
+        "scripts/audit_final_readiness_consistency.py",
+        "scripts/audit_final_runtime_integration.py",
+        "scripts/audit_final_preexperiment_closure.py",
+        "scripts/audit_final_production_correctness.py",
+        "tests/test_final_readiness_consistency.py"
+      ],
+      "ROOT_CAUSE": "The readiness loader selected the historical Luna report before the authoritative cleanup report and reduced the current six-round review to the historical five-round metadata.",
+      "FIX": "Authoritative cleanup, historical Luna, and runtime fallback precedence is now explicit; current and historical aliases are normalized without boolean coercion; all final reports and audits consume the canonical summary.",
+      "TESTS_ADDED": [
+        "cleanup precedence",
+        "Luna fallback",
+        "runtime fallback",
+        "invalid/no-source failure",
+        "six-round normalization",
+        "snapshot and final report metadata",
+        "wrong-source and five-round consistency rejection",
+        "historical NOT_VERIFIED preservation"
+      ],
+      "COMMANDS_RUN": [
+        "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+        "python -m pytest -q tests/test_final_readiness_consistency.py tests/test_final_runtime_integration.py tests/test_preexperiment_closure.py tests/test_luna_max_08_red_team.py",
+        "python scripts/audit_final_readiness_consistency.py",
+        "GitHub cpu-ci run 31055939769 on exact code SHA",
+        "two complete six-round manager-only review cycles"
+      ],
+      "RESULTS": "PASS; 194 CPU tests passed, targeted suites passed, both six-round cycles passed with zero new defects, and the consistency audit passed with zero errors.",
+      "REVIEW_ROUTING": "Manager requested gpt-5.6-luna at maximum available effort; resolved manager profile NOT_VERIFIED; workers_spawned=0; no worker output was integrated.",
+      "PROTECTED_MANIFEST_SHA256_BEFORE": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
+      "PROTECTED_MANIFEST_SHA256_AFTER": "FFA049B4A18D6F4A7D0E89851744CE3039D08C4DBCA670C6DF3C1D78BE6DB953",
+      "EXECUTION_BOUNDARY": "No Phase 15, model download, live Azure request, GPU training, real predictions, approval, or experiment execution."
+    }
+  ]
+}

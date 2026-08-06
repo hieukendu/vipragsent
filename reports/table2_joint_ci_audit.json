@@ -1,0 +1,56 @@
+{
+  "checks": {
+    "approved_method_exact": true,
+    "dedicated_evaluator": true,
+    "executable_golden_aggregation": true,
+    "generation_ci_is_applicable": true,
+    "no_mean_ci_fallback": true,
+    "no_unapproved_bound_averaging": true,
+    "per_label_and_macro": true,
+    "prediction_hash_binding": true,
+    "production_aggregator_uses_joint_evaluator": true
+  },
+  "golden_aggregation": {
+    "checks": {
+      "bounds_are_not_averaged": true,
+      "generation_ci_is_numeric": true,
+      "generation_direct_bootstrap_match": true,
+      "locked_seed_count": true,
+      "ordinary_direct_bootstrap_match": true,
+      "ordinary_macro_direct_bootstrap_match": true
+    },
+    "method": {
+      "azure_fixed_prediction_behavior": "test-example resampling only",
+      "bootstrap_seed": 20260525,
+      "confidence_level": 0.95,
+      "cross_seed_behavior": "hierarchical resampling; estimate and interval computed jointly, bounds are not averaged",
+      "method_id": "paired_hierarchical_bootstrap_sign_plus_one_v1",
+      "prediction_source": "effective_full_split_all_zero_fallback_when_present_else_predictions",
+      "resamples": 1000,
+      "resampling_unit": "seed_then_test_example",
+      "valid_only_usage": "diagnostic_only"
+    },
+    "status": "PASS",
+    "systems": [
+      "ordinary",
+      "cot_only_vistral"
+    ]
+  },
+  "method": {
+    "approval_source": "21_MASTER_EXPERIMENT_MATRIX.md; configs/statistics.yaml",
+    "bootstrap_seed": 20260525,
+    "confidence_interval": "percentile_95",
+    "difference_direction": "left_minus_right",
+    "evidence": "User-approved paired hierarchical bootstrap sign p-value with plus-one finite-resample correction.",
+    "finite_resample_correction": "plus_one",
+    "method_id": "paired_hierarchical_bootstrap_sign_plus_one_v1",
+    "multiple_comparisons": "holm_within_7_metric_family",
+    "p_lower_definition": "(1 + count(delta <= 0)) / (B + 1)",
+    "p_upper_definition": "(1 + count(delta >= 0)) / (B + 1)",
+    "raw_p_value_definition": "two_sided_sign_test_plus_one",
+    "resamples": 1000,
+    "resolution_status": "RESOLVED",
+    "two_sided_p_value_definition": "min(1, 2 * min(p_lower, p_upper))"
+  },
+  "status": "PASS"
+}

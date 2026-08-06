@@ -1,0 +1,39 @@
+schema_version: 1
+plans:
+  trainable_classifier:
+    execution_kind: trainable
+    executor_kind: single_model_trainable
+    stages: [preflight, train, evaluate_dev, freeze_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary]
+  component_bundle:
+    execution_kind: component_bundle
+    executor_kind: component_bundle
+    stages: [preflight, execute_components, combine_component_predictions, evaluate_dev, freeze_component_selection, evaluate_test, export_artifacts, validate_artifacts, generate_review_summary]
+  cot_only_vistral_generation:
+    execution_kind: generation
+    executor_kind: generation_trainable
+    evaluation_strategy: reasoning_generation_shared_judge
+    stages: [preflight, train_generation, generate_dev_reasoning, judge_dev_reasoning, compute_dev_reasoning_metrics, freeze_selection, generate_test_reasoning, judge_test_reasoning, compute_test_reasoning_metrics, export_artifacts, validate_artifacts, generate_review_summary]
+  explanation_only_vistral_reuse:
+    execution_kind: checkpoint_reuse
+    executor_kind: rationale_checkpoint_reuse
+    evaluation_strategy: rationale_only_shared_judge
+    stages: [preflight, resolve_approved_full_vistral_source, validate_source_checkpoint, generate_dev_reasoning_from_rationale_decoder, judge_dev_reasoning, compute_dev_reasoning_metrics, generate_test_reasoning_from_rationale_decoder, judge_test_reasoning, compute_test_reasoning_metrics, export_artifacts, validate_artifacts, generate_review_summary]
+  q1b_evaluation_only:
+    execution_kind: evaluation_only
+    executor_kind: evaluation_only
+    evaluation_strategy: q1b_external_retention
+    research_question: Q1b
+    stages: [preflight, resolve_approved_source, evaluate_external_tests, export_artifacts, validate_artifacts, generate_review_summary]
+  q4_source_extraction:
+    execution_kind: artifact_extraction
+    executor_kind: artifact_extraction
+    research_question: Q4
+    stages: [preflight, resolve_approved_source, validate_source_predictions, extract_pragmatic_calibration, extract_learning_history, export_artifacts, validate_artifacts, generate_review_summary]
+  checkpoint_reuse:
+    execution_kind: checkpoint_reuse
+    executor_kind: checkpoint_reuse
+    stages: [preflight, resolve_approved_source, evaluate_reused_test, export_artifacts, validate_artifacts, generate_review_summary]
+  azure:
+    execution_kind: azure
+    executor_kind: azure
+    stages: [preflight, execute_api_job, validate_responses, export_artifacts, validate_artifacts, generate_review_summary]
