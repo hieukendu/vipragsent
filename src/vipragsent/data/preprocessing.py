@@ -81,7 +81,12 @@ class VnCoreNLPSegmenter:
         except ImportError as exc:
             raise RuntimeBlocked("py_vncorenlp Python adapter is not installed") from exc
         try:
-            return VnCoreNLP(annotators=["wseg"], save_dir=str(self.resource_dir))
+            original_cwd = Path.cwd()
+            try:
+                client = VnCoreNLP(annotators=["wseg"], save_dir=str(self.resource_dir))
+            finally:
+                os.chdir(original_cwd)
+            return client
         except Exception as exc:
             raise RuntimeBlocked(f"VnCoreNLP failed to open configured resources: {exc}") from exc
 

@@ -267,6 +267,25 @@
       "repair_status": "REPAIRED_LOCAL_PENDING_AFFECTED_RUN",
       "protocol_impact": "NONE",
       "resume_command": "rerun the exact job-4 preflight, then resume the same job only after the repaired runtime gate passes"
+    },
+    {
+      "defect_id": "RUN4-VNCORENLP-TRAIN-WIRING",
+      "first_seen_at": "2026-08-06T16:54:06Z",
+      "triggering_job": "q1a_phobert_pragmatic_finetune_20260521",
+      "triggering_stage": "train preprocessor construction",
+      "exact_failing_command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_finetune_20260521 --stage all --resume",
+      "commit_sha": "741b4d5d0fa9832142f6d834d84df769d18ea6ec",
+      "tree_sha": "e63a49c928f03ca257f65fc20a5d5d1ac2bba170",
+      "failure_signature": "RuntimeBlocked: A VnCoreNLPSegmenter is required for production PhoBERT preprocessing after Java, resources, adapter, and preflight checks passed",
+      "stack_trace_or_log_path": "results/runs/q1a_phobert_pragmatic_finetune_20260521/state.json; src/vipragsent/orchestration/stage_registry.py:441",
+      "defect_class": "A_REPAIRABLE_IMPLEMENTATION_DEFECT",
+      "root_cause": "the train stage constructed a production PhoBERT TextPreprocessor without injecting the configured VnCoreNLP segmenter",
+      "files_changed": ["src/vipragsent/data/preprocessing.py", "src/vipragsent/orchestration/stage_registry.py", "tests/test_final_runtime_integration.py"],
+      "regression_tests": ["tests/test_final_runtime_integration.py::test_vncorenlp_adapter_uses_official_save_dir_and_normalizes_sentence_list", "tests/test_final_runtime_integration.py::test_production_train_preprocessor_injects_vncorenlp"],
+      "repair_attempt_count": 1,
+      "repair_status": "REPAIRED_LOCAL_PENDING_AFFECTED_RUN",
+      "protocol_impact": "NONE",
+      "resume_command": "rerun the exact job-4 preflight, then resume the same job after the train-stage wiring repair"
     }
   ],
   "invocation_order": [
