@@ -77,6 +77,7 @@ def load_pretrained_backbone(
             cache_dir=str(cache_dir) if cache_dir else None,
             local_files_only=local_files_only or local_path is not None,
             output_hidden_states=False,
+            add_pooling_layer=False,
         )
     except Exception as exc:
         raise RuntimeError(f"Unable to load pinned backbone {repo_id}@{revision}: {exc}") from exc

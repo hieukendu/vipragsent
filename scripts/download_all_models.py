@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 
 import yaml
+from dotenv import load_dotenv
 
 from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json
@@ -28,6 +30,8 @@ def main() -> int:
     parser.add_argument("--cache-dir", default="data/model_cache")
     parser.add_argument("--model-family", help="Prepare exactly one locked model family; omit only for an explicitly approved complete Phase 15 operation")
     args = parser.parse_args()
+    load_dotenv(ROOT / ".env", override=False)
+    hf_token = os.getenv("HF_TOKEN")
     models = _load_models(ROOT / args.manifest)
     selected_names = [args.model_family] if args.model_family else list(models)
     blockers: list[str] = []
@@ -62,8 +66,8 @@ def main() -> int:
                     revision=str(spec["revision"]),
                     cache_dir=str(cache_dir),
                     local_dir=str(cache_dir / family),
-                    local_dir_use_symlinks=False,
-                    allow_patterns=["*.json", "*.txt", "*.model", "*.safetensors", "*.bin", "*.py", "tokenizer.*", "vocab.*", "merges.txt"],
+                    token=hf_token or None,
+                    allow_patterns=["*.json", "*.txt", "*.model", "*.safetensors", "*.bin", "*.py", "tokenizer.*", "vocab.*", "merges.txt", "*.codes" ],
                 )
                 record = cache_record_from_snapshot(family, spec, local_path)
                 write_family_status(ROOT, family, "cache", record)
@@ -78,11 +82,28 @@ def main() -> int:
     selected_cache_status = read_family_status(ROOT, args.model_family, "cache").get("status") if args.model_family else manifest.get("global_status")
     manifest.update({"requested_model_family": args.model_family, "selected_family_status": selected_cache_status, "download_blockers": blockers})
     atomic_write_json(ROOT / "data/model_cache_manifest.json", manifest)
-    handoff_status = "PASS" if args.model_family and selected_cache_status == "PASS" and not blockers else "BLOCKED" if blockers else "PASS" if manifest.get("weights_downloaded") else "BLOCKED"
-    write_phase_handoff("15", handoff_status, inputs_read=[args.manifest, "32_RUNTIME_PREFLIGHT_CHECKLIST.md"], files_created=["data/model_cache_manifest.json", *[f"data/model_cache_status/{family}.json" for family in selected_names]], blockers=blockers, next_phase_ready=handoff_status == "PASS")
-    output = {"family_status": handoff_status, "selected_model_family": args.model_family, "selected_family_download_status": selected_cache_status, "global_weights_downloaded": manifest.get("weights_downloaded", False), "models": manifest.get("models", []), "blockers": blockers, "other_families": {name: records.get(name, {}).get("status", "PENDING_NOT_REQUESTED") for name in models if name != args.model_family}}
+    download_status = "PASS" if args.model_family and selected_cache_status == "PASS" and not blockers else "BLOCKED" if blockers else "PASS" if manifest.get("weights_downloaded") else "BLOCKED"
+    handoff = write_phase_handoff(
+        "15",
+        download_status,
+        inputs_read=[args.manifest, "32_RUNTIME_PREFLIGHT_CHECKLIST.md"],
+        files_created=["data/model_cache_manifest.json", *[f"data/model_cache_status/{family}.json" for family in selected_names]],
+        blockers=blockers,
+        next_phase_ready=False,
+        model_family=args.model_family,
+    )
+    output = {
+        "family_status": download_status,
+        "phase15_handoff_status": handoff.status,
+        "selected_model_family": args.model_family,
+        "selected_family_download_status": selected_cache_status,
+        "global_weights_downloaded": manifest.get("weights_downloaded", False),
+        "models": manifest.get("models", []),
+        "blockers": blockers,
+        "other_families": {name: records.get(name, {}).get("status", "PENDING_NOT_REQUESTED") for name in models if name != args.model_family},
+    }
     print(json.dumps(output, indent=2, ensure_ascii=False))
-    return 0 if handoff_status == "PASS" else 2
+    return 0 if download_status == "PASS" else 2
 
 
 if __name__ == "__main__":

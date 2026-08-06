@@ -1,0 +1,189 @@
+{
+  "approval_status": "PENDING_USER_APPROVAL",
+  "azure_job_id": null,
+  "code_commit": "cee77133d8c3368a349ceaae7c5f29756c37cc18",
+  "created_at": "2026-08-06T09:45:50Z",
+  "execution_kind": "component_bundle",
+  "experiment_id": "q1a_phobert_pragmatic_single_task_20260521",
+  "fixture": false,
+  "git_worktree_clean": false,
+  "next_run_allowed": "NO",
+  "run_id": "q1a_phobert_pragmatic_single_task_20260521",
+  "run_status": "FAIL",
+  "schema_version": 2,
+  "stages": {
+    "combine_component_predictions": {
+      "status": "NOT_STARTED"
+    },
+    "evaluate_dev": {
+      "status": "NOT_STARTED"
+    },
+    "evaluate_test": {
+      "status": "NOT_STARTED"
+    },
+    "execute_components": {
+      "artifacts": [],
+      "blockers": [],
+      "ended_at": "2026-08-06T09:46:23Z",
+      "error": "production component bundle failed: ValueError: Unknown locked variant ID: component_implicit_sentiment",
+      "expected_files": [],
+      "status": "FAIL",
+      "summary": {},
+      "warnings": []
+    },
+    "export_artifacts": {
+      "status": "NOT_STARTED"
+    },
+    "freeze_component_selection": {
+      "status": "NOT_STARTED"
+    },
+    "generate_review_summary": {
+      "status": "NOT_STARTED"
+    },
+    "preflight": {
+      "artifacts": [],
+      "blockers": [],
+      "ended_at": "2026-08-06T09:45:51Z",
+      "error": null,
+      "expected_files": [
+        "preflight.json"
+      ],
+      "status": "PASS",
+      "summary": {
+        "blockers": [],
+        "checks": {
+          "dataset_fingerprint_exact": {
+            "detail": "inventory has no per-entry override; frozen dataset manifest is authoritative",
+            "passed": true,
+            "required": true
+          },
+          "dataset_manifest_and_processed_data": {
+            "detail": "/root/vipragsent/data/manifests/dataset_manifest.json",
+            "passed": true,
+            "required": true
+          },
+          "exact_entry_exists_once": {
+            "detail": "matched_entries=1",
+            "passed": true,
+            "required": true
+          },
+          "exact_system_execution_registry": {
+            "detail": "executor=single_task_bundle; variant=phobert_pragmatic_single_task",
+            "passed": true,
+            "required": true
+          },
+          "execution_kind_exact": {
+            "detail": "execution_kind=component_bundle",
+            "passed": true,
+            "required": true
+          },
+          "git_commit_recorded": {
+            "detail": "cee77133d8c3368a349ceaae7c5f29756c37cc18",
+            "passed": true,
+            "required": true
+          },
+          "git_worktree_recorded": {
+            "detail": "dirty changes recorded; no files are discarded",
+            "passed": true,
+            "required": false
+          },
+          "inventory_entry_schema": {
+            "detail": "all required entry fields are present",
+            "passed": true,
+            "required": true
+          },
+          "model_family_exact": {
+            "detail": "model_family=phobert_base",
+            "passed": true,
+            "required": true
+          },
+          "model_revision_exact": {
+            "detail": "expected=01daacda68afe13d83023d16ec647239e344a1e6; locked=01daacda68afe13d83023d16ec647239e344a1e6",
+            "passed": true,
+            "required": true
+          },
+          "model_revisions_pinned": {
+            "detail": "revision=01daacda68afe13d83023d16ec647239e344a1e6; tokenizer_revision=01daacda68afe13d83023d16ec647239e344a1e6",
+            "passed": true,
+            "required": true
+          },
+          "no_different_completed_run_overwrite": {
+            "detail": "/root/vipragsent/results/runs/q1a_phobert_pragmatic_single_task_20260521",
+            "passed": true,
+            "required": true
+          },
+          "offline_smoke_report_pass": {
+            "detail": "family=phobert_base; status=PASS",
+            "passed": true,
+            "required": true
+          },
+          "output_path_writable": {
+            "detail": "/root/vipragsent/results/runs/q1a_phobert_pragmatic_single_task_20260521",
+            "passed": true,
+            "required": true
+          },
+          "phase15_family_cache_pass": {
+            "detail": "family=phobert_base; status=PASS",
+            "passed": true,
+            "required": true
+          },
+          "physical_batch_frozen": {
+            "detail": "family=phobert_base; status=PASS; batch=32",
+            "passed": true,
+            "required": true
+          },
+          "protocol_conflicts_empty": {
+            "detail": "no scientific protocol conflicts",
+            "passed": true,
+            "required": true
+          },
+          "q3_mask_present_and_exact": {
+            "detail": "not applicable",
+            "passed": true,
+            "required": false
+          },
+          "rationale_dependency": {
+            "detail": "not applicable",
+            "passed": true,
+            "required": false
+          },
+          "required_gpu_and_precision": {
+            "detail": "{\"accepted_runtime\": {\"gpu_name_pattern\": \"A100\", \"max_gpu_memory_gb\": 20, \"precision\": \"bf16\"}, \"blockers\": [], \"checks\": {\"a100_or_approved_mig\": true, \"bf16_supported\": true, \"cuda_available\": true, \"cuda_torch_runtime\": true, \"memory_profile\": true, \"one_gpu_policy\": true, \"selected_device\": true}, \"devices\": [{\"compute_capability\": [9, 0], \"index\": 0, \"name\": \"NVIDIA H100 80GB HBM3 MIG 2g.20gb\", \"total_memory_gb\": 19.625}], \"selected_device\": {\"compute_capability\": [9, 0], \"index\": 0, \"name\": \"NVIDIA H100 80GB HBM3 MIG 2g.20gb\", \"total_memory_gb\": 19.625}, \"selected_device_index\": 0, \"status\": \"PASS\"}",
+            "passed": true,
+            "required": true
+          },
+          "required_python_packages": {
+            "detail": "all required packages are installed",
+            "passed": true,
+            "required": true
+          },
+          "sufficient_disk_space": {
+            "detail": "{\"available_free_bytes\": 6715030069248, \"checkpoint_estimate_bytes\": 644245094, \"minimum_free_bytes\": 6871947673, \"model_family\": \"phobert_base\", \"optimizer_state_estimate_bytes\": 322122547, \"passed\": true, \"prediction_artifact_estimate_bytes\": 536870912, \"safety_margin_bytes\": 2147483648, \"snapshot_estimate_bytes\": 3221225472}",
+            "passed": true,
+            "required": true
+          },
+          "tokenizer_revision_exact": {
+            "detail": "expected=01daacda68afe13d83023d16ec647239e344a1e6; locked=01daacda68afe13d83023d16ec647239e344a1e6",
+            "passed": true,
+            "required": true
+          }
+        },
+        "code_commit": "cee77133d8c3368a349ceaae7c5f29756c37cc18",
+        "execution_kind": "component_bundle",
+        "kind": "experiment",
+        "passed": true,
+        "preflight_hash": "BE00404A2336614EAF129516AA520E663DEA011329CD1E2FA75F76092EC4CCDD",
+        "run_id": "q1a_phobert_pragmatic_single_task_20260521",
+        "run_path": "results/runs/q1a_phobert_pragmatic_single_task_20260521",
+        "schema_version": 2,
+        "scientific_protocol_conflicts": [],
+        "warnings": []
+      },
+      "warnings": []
+    },
+    "validate_artifacts": {
+      "status": "NOT_STARTED"
+    }
+  },
+  "updated_at": "2026-08-06T09:46:23Z"
+}

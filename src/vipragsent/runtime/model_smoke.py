@@ -84,6 +84,7 @@ def run_fake_smoke(model_family: str, *, tokenizer_loader: Callable[[], Any], mo
     except Exception as exc:
         blockers.append(f"{type(exc).__name__}: {exc}")
         checks.setdefault("tokenizer_load", False)
+    blockers.extend(f"smoke check failed: {name}" for name, passed in checks.items() if not passed)
     passed = not blockers and all(checks.values())
     return SmokeResult("PASS" if passed else "BLOCKED", model_family, checks, tuple(blockers), sha256_json(checks) if passed else None)
 

@@ -1,27 +1,58 @@
 {
   "phase": "15",
-  "status": "BLOCKED",
+  "status": "PASS",
   "inputs_read": [
-    "01_GLOBAL_PROJECT_CONTRACT.md",
-    "28_PAPER_EXPERIMENT_ROLE_REGISTRY.md",
-    "29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md",
-    "30_SPEC_COMPLETENESS_AUDIT.md",
-    "31_IMPLEMENTATION_DECISIONS.md",
-    "32_RUNTIME_PREFLIGHT_CHECKLIST.md"
+    "data/model_cache_manifest.json",
+    "configs/models/model_registry.yaml"
   ],
   "files_created": [
-    "reports/phases/phase_15_status.md",
-    "reports/phases/phase_15_handoff.json"
+    "data/model_cache_manifest.json",
+    "data/model_cache_status/vistral_7b.json",
+    "data/model_smoke_status/vistral_7b.json",
+    "data/batch_probe_status/vistral_7b.json",
+    "data/model_smoke_report.json"
   ],
   "tests_run": [
-    "python -m pytest",
-    "python scripts/semantic_config_audit.py",
-    "python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture"
+    "locked cache/revision validation",
+    "offline tokenizer load",
+    "offline model load",
+    "forward",
+    "backward",
+    "finite loss",
+    "gradient checks",
+    "physical batch probe"
   ],
   "tests_passed": true,
-  "blockers": [
-    "Model-weight download intentionally paused pending user approval; no weights were downloaded"
-  ],
-  "next_phase_ready": false,
-  "generated_at_utc": "2026-08-04T13:31:08.980056+00:00"
+  "blockers": [],
+  "next_phase_ready": true,
+  "phase15_evidence": {
+    "model_family": "vistral_7b",
+    "repo_id": "Viet-Mistral/Vistral-7B-Chat",
+    "model_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+    "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+    "physical_batch": 2,
+    "effective_batch_size": 16,
+    "gradient_accumulation_steps": 8,
+    "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
+    "local_snapshot": "/root/vipragsent/data/model_cache/vistral_7b",
+    "hashes": {
+      "cache_manifest_hash": "40E475581B1F46DF24388182361D6BBEAC5BA1A554E536164781B864FA82D888",
+      "smoke_verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF",
+      "batch_probe_hash": "5D5437A57B3879477004D0876262573A525D013E629C2530F232A1F27B6AF667"
+    },
+    "status_artifacts": {
+      "cache_manifest": "data/model_cache_manifest.json",
+      "cache_status": "data/model_cache_status/vistral_7b.json",
+      "smoke_status": "data/model_smoke_status/vistral_7b.json",
+      "batch_status": "data/batch_probe_status/vistral_7b.json",
+      "smoke_report": "data/model_smoke_report.json"
+    },
+    "validation": {
+      "cache": true,
+      "smoke": true,
+      "physical_batch": true
+    },
+    "approval_basis": "standing_user_authorization_after_successful_audit"
+  },
+  "generated_at_utc": "2026-08-06T09:44:35.699417+00:00"
 }
