@@ -60,6 +60,25 @@
       "resume_command": "rerun the same run's stage all command after preflight"
     },
     {
+      "defect_id": "RUN-RESUME-STALE-PREFLIGHT",
+      "first_seen_at": "2026-08-06T00:00:00Z",
+      "triggering_job": "local recovery dry-run for q1a_phobert_pragmatic_single_task_20260521",
+      "triggering_stage": "resume preflight selection",
+      "exact_failing_command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_single_task_20260521 --stage all --resume",
+      "commit_sha": "eb6ac1f0326c8f345a34240338504e6b05a80169",
+      "tree_sha": "current repair tree before resume guard",
+      "failure_signature": "a prior PASS preflight at an older code revision would have been skipped during resume",
+      "stack_trace_or_log_path": "src/vipragsent/orchestration/single_run.py:93-98",
+      "defect_class": "C_REPAIRABLE_STALE_STATE_OR_GENERATED_ARTIFACT_DEFECT",
+      "root_cause": "RunStore resume reused a PASS preflight without comparing the recorded code identity with the current commit and tree",
+      "files_changed": ["src/vipragsent/orchestration/run_store.py", "tests/test_runtime_repairs.py"],
+      "regression_tests": ["tests/test_runtime_repairs.py::test_resume_invalidates_preflight_after_code_revision_change"],
+      "repair_attempt_count": 1,
+      "repair_status": "REPAIRED_LOCAL_PENDING_REMOTE_CI",
+      "protocol_impact": "NONE",
+      "resume_command": "rerun the same failed run with --stage all --resume after the repaired preflight"
+    },
+    {
       "defect_id": "COMPONENT-INVALID-VARIANT-ID",
       "first_seen_at": "2026-08-06T00:00:00Z",
       "triggering_job": "local production component audit",

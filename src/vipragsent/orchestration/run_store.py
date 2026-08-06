@@ -32,6 +32,14 @@ def git_commit(root: Path) -> str:
     return result.stdout.strip()
 
 
+def git_tree(root: Path) -> str:
+    try:
+        result = subprocess.run(["git", "rev-parse", "HEAD^{tree}"], cwd=root, capture_output=True, text=True, check=True)
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+    return result.stdout.strip()
+
+
 def git_worktree_clean(root: Path) -> bool:
     try:
         result = subprocess.run(["git", "status", "--porcelain"], cwd=root, capture_output=True, text=True, check=True)
@@ -60,6 +68,7 @@ class RunStore:
         if self.state_path.exists() and resume:
             state = self.load()
             self.recover_stale(state)
+            self.invalidate_stale_preflight(state)
             self.save(state)
             return state
         if self.state_path.exists() and not resume:
@@ -81,6 +90,7 @@ class RunStore:
             "created_at": utc_now(),
             "updated_at": utc_now(),
             "code_commit": git_commit(self.context.root),
+            "code_tree": git_tree(self.context.root),
             "git_worktree_clean": git_worktree_clean(self.context.root),
             "fixture": self.context.fixture,
             "approval_status": "PENDING_USER_APPROVAL",
@@ -90,6 +100,40 @@ class RunStore:
         self._write_baseline_files()
         self.append_event("run_initialized", {"run_status": state["run_status"], "fixture": self.context.fixture})
         return state
+
+    def invalidate_stale_preflight(self, state: dict[str, Any]) -> None:
+        """Force a fresh preflight when a resumable run crossed a code revision."""
+        if state.get("run_status") in {
+            RunStatus.COMPLETED_PENDING_APPROVAL.value,
+            RunStatus.APPROVED.value,
+            RunStatus.REJECTED.value,
+        }:
+            return
+        preflight = state.get("stages", {}).get("preflight", {})
+        if preflight.get("status") != StageStatus.PASS.value:
+            return
+        current_commit = git_commit(self.context.root)
+        current_tree = git_tree(self.context.root)
+        if state.get("code_commit") == current_commit and state.get("code_tree") == current_tree:
+            return
+        state["stages"]["preflight"] = {
+            "status": StageStatus.NOT_STARTED.value,
+            "invalidation_reason": "code commit or tree changed since the recorded preflight",
+            "recorded_code_commit": state.get("code_commit"),
+            "current_code_commit": current_commit,
+            "recorded_code_tree": state.get("code_tree"),
+            "current_code_tree": current_tree,
+        }
+        self.append_event(
+            "preflight_invalidated",
+            {
+                "reason": "code commit or tree changed",
+                "recorded_code_commit": state.get("code_commit"),
+                "current_code_commit": current_commit,
+                "recorded_code_tree": state.get("code_tree"),
+                "current_code_tree": current_tree,
+            },
+        )
 
     def _write_baseline_files(self) -> None:
         entry = self.context.entry

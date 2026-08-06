@@ -14,8 +14,9 @@ from vipragsent.models import factory
 from vipragsent.models.backbones import DummyBackbone
 from vipragsent.models.variants import VARIANT_IDS
 from vipragsent.orchestration import single_run
-from vipragsent.orchestration.contracts import RunEntry, StageOutcome
+from vipragsent.orchestration.contracts import RunContext, RunEntry, StageOutcome
 from vipragsent.orchestration.inventory import build_expected_runs
+from vipragsent.orchestration.run_store import RunStore
 from vipragsent.phase import PHASE15_SMOKE_TESTS, write_phase_handoff
 from vipragsent.runtime.model_assets import (
     cache_record_from_snapshot,
@@ -151,6 +152,36 @@ def test_preflight_then_all_resumes_the_authoritative_state_file(monkeypatch, tm
         injected_handlers={stage: passed for stage in entry.stages},
     )
     assert second_code == 0
+
+
+def test_resume_invalidates_preflight_after_code_revision_change(monkeypatch, tmp_path: Path) -> None:
+    entry = RunEntry.from_mapping(
+        {
+            "experiment_id": "fixture_resume_revision",
+            "research_question": "Q1a",
+            "system_id": "phobert_pragmatic_finetune",
+            "display_name": "fixture",
+            "variant": "fixture",
+            "backbone": "phobert_base",
+            "execution_kind": "trainable",
+            "stages": ["preflight", "train"],
+        },
+        run_id="fixture_resume_revision",
+    )
+    monkeypatch.setattr("vipragsent.orchestration.run_store.git_commit", lambda _root: "current-commit")
+    monkeypatch.setattr("vipragsent.orchestration.run_store.git_tree", lambda _root: "current-tree")
+    store = RunStore(RunContext(tmp_path, entry))
+    state = store.initialize()
+    state["code_commit"] = "old-commit"
+    state["code_tree"] = "old-tree"
+    state["run_status"] = "FAIL"
+    state["stages"]["preflight"] = {"status": "PASS"}
+    store.save(state)
+
+    resumed = store.initialize(resume=True)
+
+    assert resumed["stages"]["preflight"]["status"] == "NOT_STARTED"
+    assert resumed["stages"]["preflight"]["invalidation_reason"]
 
 
 def test_phase15_state_refresh_preserves_verified_runtime_evidence(tmp_path: Path) -> None:
