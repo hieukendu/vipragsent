@@ -1,0 +1,130 @@
+{
+  "blockers": [
+    "Phase 15 family cache is not PASS for phobert_base",
+    "offline smoke report is not PASS for phobert_base",
+    "physical batch probe is not frozen for phobert_base",
+    "required GPU/precision runtime is unavailable"
+  ],
+  "checks": {
+    "dataset_fingerprint_exact": {
+      "detail": "inventory has no per-entry override; frozen dataset manifest is authoritative",
+      "passed": true,
+      "required": true
+    },
+    "dataset_manifest_and_processed_data": {
+      "detail": "D:\\vipragsent\\data\\manifests\\dataset_manifest.json",
+      "passed": true,
+      "required": true
+    },
+    "exact_entry_exists_once": {
+      "detail": "matched_entries=1",
+      "passed": true,
+      "required": true
+    },
+    "execution_kind_exact": {
+      "detail": "execution_kind=trainable",
+      "passed": true,
+      "required": true
+    },
+    "git_commit_recorded": {
+      "detail": "ea75ddac98c42f66af338c0e330e6f583d33ac19",
+      "passed": true,
+      "required": true
+    },
+    "git_worktree_recorded": {
+      "detail": "dirty changes recorded; no files are discarded",
+      "passed": true,
+      "required": false
+    },
+    "inventory_entry_schema": {
+      "detail": "all required entry fields are present",
+      "passed": true,
+      "required": true
+    },
+    "model_family_exact": {
+      "detail": "model_family=phobert_base",
+      "passed": true,
+      "required": true
+    },
+    "model_revision_exact": {
+      "detail": "expected=01daacda68afe13d83023d16ec647239e344a1e6; locked=01daacda68afe13d83023d16ec647239e344a1e6",
+      "passed": true,
+      "required": true
+    },
+    "model_revisions_pinned": {
+      "detail": "revision=01daacda68afe13d83023d16ec647239e344a1e6; tokenizer_revision=01daacda68afe13d83023d16ec647239e344a1e6",
+      "passed": true,
+      "required": true
+    },
+    "no_different_completed_run_overwrite": {
+      "detail": "D:\\vipragsent\\results\\runs\\q1a_phobert_pragmatic_single_task_20260522",
+      "passed": true,
+      "required": true
+    },
+    "offline_smoke_report_pass": {
+      "detail": "family=phobert_base; status=PENDING_NOT_REQUESTED",
+      "passed": false,
+      "required": true
+    },
+    "output_path_writable": {
+      "detail": "D:\\vipragsent\\results\\runs\\q1a_phobert_pragmatic_single_task_20260522",
+      "passed": true,
+      "required": true
+    },
+    "phase15_family_cache_pass": {
+      "detail": "family=phobert_base; status=PENDING_NOT_REQUESTED",
+      "passed": false,
+      "required": true
+    },
+    "physical_batch_frozen": {
+      "detail": "family=phobert_base; status=PENDING_NOT_REQUESTED; batch=None",
+      "passed": false,
+      "required": true
+    },
+    "protocol_conflicts_empty": {
+      "detail": "no scientific protocol conflicts",
+      "passed": true,
+      "required": true
+    },
+    "q3_mask_present_and_exact": {
+      "detail": "not applicable",
+      "passed": true,
+      "required": false
+    },
+    "rationale_dependency": {
+      "detail": "D:\\vipragsent\\data\\processed\\rationales\\azure_rationale_input_train.jsonl",
+      "passed": true,
+      "required": true
+    },
+    "required_gpu_and_precision": {
+      "detail": "CUDA_VISIBLE_DEVICES is configured",
+      "passed": false,
+      "required": true
+    },
+    "required_python_packages": {
+      "detail": "all required packages are installed",
+      "passed": true,
+      "required": true
+    },
+    "sufficient_disk_space": {
+      "detail": "free_bytes=96868855808",
+      "passed": true,
+      "required": true
+    },
+    "tokenizer_revision_exact": {
+      "detail": "expected=01daacda68afe13d83023d16ec647239e344a1e6; locked=01daacda68afe13d83023d16ec647239e344a1e6",
+      "passed": true,
+      "required": true
+    }
+  },
+  "code_commit": "ea75ddac98c42f66af338c0e330e6f583d33ac19",
+  "execution_kind": "trainable",
+  "kind": "experiment",
+  "passed": false,
+  "preflight_hash": "7CB2265866205CBF03F2B150B28BB748032E06511F752080687F97350A8581C4",
+  "run_id": "q1a_phobert_pragmatic_single_task_20260522",
+  "run_path": "results/runs/q1a_phobert_pragmatic_single_task_20260522",
+  "schema_version": 2,
+  "scientific_protocol_conflicts": [],
+  "warnings": []
+}
