@@ -191,6 +191,25 @@
       "repair_status": "REPAIRED_LOCAL_PENDING_REMOTE_CI",
       "protocol_impact": "NONE",
       "resume_command": "rerun security hygiene and final runtime integration audits"
+    },
+    {
+      "defect_id": "RUNTIME-COMPONENT-CPU-FALLBACK",
+      "first_seen_at": "2026-08-06T00:00:00Z",
+      "triggering_job": "q1a_phobert_pragmatic_single_task_20260521",
+      "triggering_stage": "execute_components",
+      "exact_failing_command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_single_task_20260521 --stage all --resume",
+      "commit_sha": "5df78bdef971a9a7618d5c8230fedeead0b8663c",
+      "tree_sha": "observed during interrupted recovery attempt",
+      "failure_signature": "production device_report.json recorded selected_device=cpu while preflight required a validated CUDA runtime",
+      "stack_trace_or_log_path": "results/runs/q1a_phobert_pragmatic_single_task_20260521/components/implicit_sentiment/training/device_report.json",
+      "defect_class": "B_REPAIRABLE_RUNTIME_OR_ENVIRONMENT_DEFECT",
+      "root_cause": "ProductionComponentRunner constructed component models without passing the selected device from the validated hardware report, allowing the device resolver's CPU default",
+      "files_changed": ["src/vipragsent/orchestration/executors/component_production.py", "tests/test_runtime_repairs.py"],
+      "regression_tests": ["tests/test_runtime_repairs.py::test_component_runner_uses_validated_cuda_device"],
+      "repair_attempt_count": 1,
+      "repair_status": "REPAIRED_LOCAL_PENDING_REMOTE_CI",
+      "protocol_impact": "NONE",
+      "resume_command": "resume the same interrupted run after revalidating the CUDA device handoff"
     }
   ],
   "invocation_order": [

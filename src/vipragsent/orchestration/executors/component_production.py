@@ -26,6 +26,7 @@ from ...runtime.device import (
     resolve_model_input_device,
     write_device_report,
 )
+from ...runtime.hardware import validate_hardware
 from ...runtime.model_assets import read_family_status, resolve_local_snapshot
 from ...training.class_weights import ClassWeightBundle, compute_train_only_class_weights
 from ...training.config_resolver import resolve_training_config
@@ -71,7 +72,17 @@ class ProductionComponentRunner:
         snapshot = resolve_local_snapshot(self.root, cache.get("local_path"))
         if not snapshot:
             raise RuntimeBlocked(f"Phase 15 local snapshot is unavailable for {family}")
-        model, self.spec = build_production_component_model(family, component, local_snapshot=snapshot, execution_mode="production")
+        hardware = validate_hardware(self.root)
+        if hardware.get("status") != "PASS":
+            raise RuntimeBlocked("validated CUDA runtime is unavailable for the production component job")
+        selected_device = hardware.get("selected_device_index")
+        model, self.spec = build_production_component_model(
+            family,
+            component,
+            local_snapshot=snapshot,
+            execution_mode="production",
+            selected_device=selected_device,
+        )
         from ...data.tokenizers import create_tokenizer
 
         tokenizer = create_tokenizer(family, revision=self.spec.tokenizer_revision, local_path=snapshot, execution_mode="production")

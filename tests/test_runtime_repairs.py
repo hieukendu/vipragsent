@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 from scripts._bootstrap import ROOT
 from scripts.audit_final_production_correctness import _is_local_only_path
@@ -118,6 +119,37 @@ def test_component_factory_uses_locked_variant_ids(monkeypatch, tmp_path: Path) 
         )
         assert model.config.name in VARIANT_IDS
         assert model.output_key == component
+
+
+def test_component_runner_uses_validated_cuda_device(monkeypatch, tmp_path: Path) -> None:
+    from vipragsent.data import tokenizers
+    from vipragsent.orchestration.executors import component_production
+
+    snapshot = tmp_path / "snapshot"
+    snapshot.mkdir()
+    captured: dict[str, object] = {}
+    model = DummyBackbone(hidden_size=8, vocab_size=32)
+    spec = SimpleNamespace(tokenizer_revision="tokenizer-revision", revision="model-revision")
+
+    monkeypatch.setattr(component_production, "read_family_status", lambda *_args, **_kwargs: {"status": "PASS", "local_path": "snapshot"})
+    monkeypatch.setattr(component_production, "resolve_local_snapshot", lambda *_args, **_kwargs: snapshot)
+    monkeypatch.setattr(component_production, "validate_hardware", lambda *_args, **_kwargs: {"status": "PASS", "selected_device_index": 0})
+
+    def build(*_args, **kwargs):
+        captured.update(kwargs)
+        return model, spec
+
+    monkeypatch.setattr(component_production, "build_production_component_model", build)
+    monkeypatch.setattr(tokenizers, "create_tokenizer", lambda *_args, **_kwargs: object())
+
+    runner = component_production.ProductionComponentRunner(
+        tmp_path,
+        entry=SimpleNamespace(backbone="phobert_base"),
+        bundle=SimpleNamespace(),
+    )
+    runner._load_runtime("sarcasm")
+
+    assert captured["selected_device"] == 0
 
 
 def test_preflight_then_all_resumes_the_authoritative_state_file(monkeypatch, tmp_path: Path) -> None:
