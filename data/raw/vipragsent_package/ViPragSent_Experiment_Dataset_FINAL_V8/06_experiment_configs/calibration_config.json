@@ -1,0 +1,18 @@
+{
+  "head": "three-way intended-polarity head",
+  "metric": "top-label expected calibration error",
+  "bins": 10,
+  "binning": "equal-width",
+  "confidence": "maximum softmax probability",
+  "temperature_scaling": false,
+  "trainable_models": {
+    "aggregation": "mean over three training seeds",
+    "confidence_interval": "paired hierarchical bootstrap over seed runs and test examples",
+    "resamples": 1000
+  },
+  "gpt_4o_mini": {
+    "decoding": "deterministic",
+    "confidence_interval": "bootstrap over test examples only",
+    "resamples": 1000
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "approval_status": "PENDING_USER_APPROVAL",
+  "azure_job_id": null,
+  "code_commit": "ea75ddac98c42f66af338c0e330e6f583d33ac19",
+  "created_at": "2026-08-05T04:13:25Z",
+  "execution_kind": "trainable",
+  "experiment_id": "q1a_phobert_pragmatic_single_task_20260522",
+  "fixture": false,
+  "git_worktree_clean": false,
+  "next_run_allowed": "NO",
+  "run_id": "q1a_phobert_pragmatic_single_task_20260522",
+  "run_status": "BLOCKED",
+  "schema_version": 2,
+  "stages": {
+    "evaluate_dev": {
+      "status": "NOT_STARTED"
+    },
+    "evaluate_test": {
+      "status": "NOT_STARTED"
+    },
+    "export_artifacts": {
+      "status": "NOT_STARTED"
+    },
+    "freeze_selection": {
+      "status": "NOT_STARTED"
+    },
+    "generate_review_summary": {
+      "status": "NOT_STARTED"
+    },
+    "preflight": {
+      "artifacts": [],
+      "blockers": [
+        "Phase 15 family cache is not PASS for phobert_base",
+        "offline smoke report is not PASS for phobert_base",
+        "physical batch probe is not frozen for phobert_base",
+        "required GPU/precision runtime is unavailable"
+      ],
+      "ended_at": "2026-08-05T04:13:26Z",
+      "error": "Phase 15 family cache is not PASS for phobert_base",
+      "expected_files": [],
+      "status": "BLOCKED",
+      "summary": {},
+      "warnings": []
+    },
+    "train_or_reuse": {
+      "status": "NOT_STARTED"
+    },
+    "validate_artifacts": {
+      "status": "NOT_STARTED"
+    }
+  },
+  "updated_at": "2026-08-05T04:13:26Z"
+}

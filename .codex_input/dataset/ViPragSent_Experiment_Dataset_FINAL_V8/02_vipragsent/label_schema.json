@@ -1,0 +1,30 @@
+{
+  "pragmatic_binary_fields": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking"
+  ],
+  "polarity": [
+    "negative",
+    "neutral",
+    "positive"
+  ],
+  "emotion": [
+    "anger",
+    "disgust",
+    "enjoyment",
+    "fear",
+    "other",
+    "sadness",
+    "surprise"
+  ],
+  "task_type": {
+    "pragmatic": "six independent binary labels",
+    "polarity": "three-way intended polarity",
+    "emotion": "seven-way emotion"
+  },
+  "sarcasm_rubric_version": "V7 contextual rubric"
+}
