@@ -305,6 +305,25 @@
       "repair_status": "REPAIRED_LOCAL_PENDING_AFFECTED_RUN",
       "protocol_impact": "NONE",
       "resume_command": "recover the interrupted run through the official resume path, rerun preflight, then retry the same job only after the validated device is handed to model and engine"
+    },
+    {
+      "defect_id": "AUDIT-LOCAL-RUNTIME-WEIGHTS",
+      "first_seen_at": "2026-08-06T17:39:16Z",
+      "triggering_job": "q1a_phobert_pragmatic_finetune_20260521 post-run audit",
+      "triggering_stage": "final production correctness hygiene",
+      "exact_failing_command": "./.venv/bin/python scripts/audit_protocol_changes.py",
+      "commit_sha": "1dcf77407608bba182f461ba2e58d9fb008f057f",
+      "tree_sha": "36ff6ac81c3c932a7f1f1fa032de3099668c6195",
+      "failure_signature": "hygiene audit classified untracked local checkpoint weights and the preserved hs_err_pid log as repository changes",
+      "stack_trace_or_log_path": "scripts/audit_final_production_correctness.py::_changed_paths; scripts/audit_final_production_correctness.py::_hygiene_evidence",
+      "defect_class": "A_REPAIRABLE_IMPLEMENTATION_DEFECT",
+      "root_cause": "the audit did not distinguish untracked execution-host artifacts from tracked repository files before applying its weight-file policy",
+      "files_changed": [".gitignore", "scripts/audit_final_production_correctness.py", "tests/test_runtime_repairs.py"],
+      "regression_tests": ["tests/test_runtime_repairs.py::test_final_audit_excludes_untracked_local_weights_but_detects_tracked_weights", "./.venv/bin/python scripts/audit_protocol_changes.py"],
+      "repair_attempt_count": 1,
+      "repair_status": "REPAIRED_LOCAL_PENDING_REMOTE_CI",
+      "protocol_impact": "NONE",
+      "resume_command": "rerun the official protocol audit, then approve the already completed PhoBERT run"
     }
   ],
   "invocation_order": [
