@@ -14,7 +14,7 @@ from ..atomic import atomic_write_json, atomic_write_text
 from ..constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS
 from ..data.collation import BatchCollator
 from ..data.loaders import DatasetExample, load_vipragsent
-from ..data.preprocessing import PreprocessingSpec, TextPreprocessor
+from ..data.preprocessing import PreprocessingSpec, TextPreprocessor, VnCoreNLPSegmenter
 from ..evaluation.metrics import binary_macro_f1
 from ..evaluation.reasoning_judge import (
     ReasoningJudge,
@@ -107,6 +107,28 @@ def _entry_variant(entry: RunEntry, root: Path | None = None) -> str:
 def _active_tasks(entry: RunEntry, root: Path | None = None) -> set[str]:
     heads = set(resolve_execution_spec(root or Path("."), entry.system_id).active_heads)
     return {task for task, labels in (("pragmatic", set(PRAGMATIC_LABELS)), ("polarity", {"polarity"}), ("emotion", {"emotion"})) if heads & labels}
+
+
+def _build_production_preprocessor(
+    family: str,
+    *,
+    preprocessing_name: str,
+    preprocessing_version: str,
+    tokenizer_revision: str,
+    model_revision: str,
+) -> TextPreprocessor:
+    segmenter = VnCoreNLPSegmenter.from_env() if family == "phobert_base" else None
+    return TextPreprocessor(
+        PreprocessingSpec(
+            family,
+            preprocessing_name,
+            preprocessing_version,
+            tokenizer_revision=tokenizer_revision,
+            model_revision=model_revision,
+            execution_mode="production",
+        ),
+        segmenter=segmenter,
+    )
 
 
 def _metric_name(entry: RunEntry) -> str:
@@ -438,7 +460,13 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
         q3_path = root / "data/processed/q3_low_resource_sarcasm"
         q3_masks, q3_report = load_validated_q3_masks(q3_path, {item.sample_id: item for item in bundle.train}, strict_frozen=True)
         q3_mask_hash = q3_report["mask_hashes"][str(entry.budget)]
-    preprocessor = TextPreprocessor(PreprocessingSpec(family, entry.preprocessing_name or "vncorenlp_rdrsegmenter", entry.preprocessing_version or "locked-v1", tokenizer_revision=spec.tokenizer_revision, model_revision=spec.revision, execution_mode="production"))
+    preprocessor = _build_production_preprocessor(
+        family,
+        preprocessing_name=entry.preprocessing_name or "vncorenlp_rdrsegmenter",
+        preprocessing_version=entry.preprocessing_version or "locked-v1",
+        tokenizer_revision=spec.tokenizer_revision,
+        model_revision=spec.revision,
+    )
     collator = BatchCollator(tokenizer, preprocessor, q3_masks=q3_masks, budget=str(entry.budget) if entry.research_question == "Q3" else None, mask_hash=q3_mask_hash, class_weights=weights.as_dict(), rationale_records=rationale_records, rationale_target_max_length=resolved.rationale_target_max_length)
     evaluation_collator = BatchCollator(tokenizer, preprocessor, class_weights=weights.as_dict(), rationale_records=rationale_records, rationale_target_max_length=resolved.rationale_target_max_length)
     batch_size = resolved.physical_batch_size
