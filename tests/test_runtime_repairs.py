@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 from scripts._bootstrap import ROOT
 from scripts.audit_final_production_correctness import _is_local_only_path
 from scripts.audit_production_implementation import _runtime_command
@@ -216,6 +217,65 @@ def test_resume_invalidates_preflight_after_code_revision_change(monkeypatch, tm
     assert resumed["stages"]["preflight"]["invalidation_reason"]
     assert resumed["code_commit"] == "current-commit"
     assert resumed["code_tree"] == "current-tree"
+
+
+def test_resume_reconciles_legacy_identity_and_stage_plan_before_execution(monkeypatch, tmp_path: Path) -> None:
+    row = next(item for item in build_expected_runs(ROOT)["rows"] if item["run_id"] == "q1a_phobert_pragmatic_single_task_20260522")
+    entry = RunEntry.from_mapping(row, run_id=row["run_id"])
+    monkeypatch.setattr("vipragsent.orchestration.run_store.git_commit", lambda _root: "current-commit")
+    monkeypatch.setattr("vipragsent.orchestration.run_store.git_tree", lambda _root: "current-tree")
+    store = RunStore(RunContext(tmp_path, entry))
+    state = store.initialize()
+    state["execution_kind"] = "trainable"
+    state["code_commit"] = "legacy-commit"
+    state["code_tree"] = None
+    state["stages"] = {
+        "preflight": {"status": "BLOCKED"},
+        "train_or_reuse": {"status": "NOT_STARTED"},
+        "evaluate_dev": {"status": "NOT_STARTED"},
+        "freeze_selection": {"status": "NOT_STARTED"},
+        "evaluate_test": {"status": "NOT_STARTED"},
+        "export_artifacts": {"status": "NOT_STARTED"},
+        "validate_artifacts": {"status": "NOT_STARTED"},
+        "generate_review_summary": {"status": "NOT_STARTED"},
+    }
+    store.save(state)
+
+    resumed = store.initialize(resume=True)
+    manifest = json.loads((tmp_path / "results/runs" / entry.run_id / "run_manifest.json").read_text(encoding="utf-8"))
+    events = (tmp_path / "results/runs" / entry.run_id / "stage_events.jsonl").read_text(encoding="utf-8")
+
+    assert resumed["execution_kind"] == "component_bundle"
+    assert set(resumed["stages"]) == set(entry.stages)
+    assert resumed["stages"]["preflight"]["status"] == "BLOCKED"
+    assert manifest["execution_kind"] == "component_bundle"
+    assert "run_identity_reconciled" in events
+
+
+def test_resume_refuses_identity_rewrite_after_execution_started(monkeypatch, tmp_path: Path) -> None:
+    entry = RunEntry.from_mapping(
+        {
+            "experiment_id": "fixture_identity_conflict",
+            "research_question": "Q1a",
+            "system_id": "phobert_pragmatic_single_task",
+            "display_name": "fixture",
+            "variant": "fixture",
+            "backbone": "phobert_base",
+            "execution_kind": "component_bundle",
+            "stages": ["preflight", "execute_components"],
+        },
+        run_id="fixture_identity_conflict",
+    )
+    monkeypatch.setattr("vipragsent.orchestration.run_store.git_commit", lambda _root: "current-commit")
+    monkeypatch.setattr("vipragsent.orchestration.run_store.git_tree", lambda _root: "current-tree")
+    store = RunStore(RunContext(tmp_path, entry))
+    state = store.initialize()
+    state["execution_kind"] = "trainable"
+    state["stages"]["execute_components"] = {"status": "PASS"}
+    store.save(state)
+
+    with pytest.raises(RuntimeError, match="refusing silent metadata rewrite"):
+        store.initialize(resume=True)
 
 
 def test_phase15_state_refresh_preserves_verified_runtime_evidence(tmp_path: Path) -> None:

@@ -67,6 +67,7 @@ class RunStore:
     def initialize(self, *, resume: bool = False) -> dict[str, Any]:
         if self.state_path.exists() and resume:
             state = self.load()
+            self.reconcile_resume_identity(state)
             self.recover_stale(state)
             self.invalidate_stale_preflight(state)
             state["code_commit"] = git_commit(self.context.root)
@@ -102,6 +103,54 @@ class RunStore:
         self._write_baseline_files()
         self.append_event("run_initialized", {"run_status": state["run_status"], "fixture": self.context.fixture})
         return state
+
+    def reconcile_resume_identity(self, state: dict[str, Any]) -> None:
+        """Repair legacy pre-execution metadata without rewriting real run evidence."""
+        expected = {
+            "run_id": self.context.run_id,
+            "experiment_id": self.context.entry.run_id if not self.context.entry.is_azure else None,
+            "azure_job_id": self.context.entry.run_id if self.context.entry.is_azure else None,
+            "execution_kind": self.context.entry.execution_kind,
+        }
+        identity_mismatches = {
+            key: {"recorded": state.get(key), "expected": value}
+            for key, value in expected.items()
+            if state.get(key) != value
+        }
+        recorded_stages = state.get("stages", {})
+        expected_stages = set(self.required_stages)
+        stage_plan_mismatch = set(recorded_stages) != expected_stages
+        if not identity_mismatches and not stage_plan_mismatch:
+            return
+
+        non_preflight_started = {
+            name: details.get("status")
+            for name, details in recorded_stages.items()
+            if name != "preflight" and details.get("status") != StageStatus.NOT_STARTED.value
+        }
+        if non_preflight_started:
+            raise RuntimeError(
+                "resume identity or stage-plan conflict after execution began; "
+                "preserving evidence and refusing silent metadata rewrite: "
+                + json.dumps({"identity": identity_mismatches, "stages": non_preflight_started}, sort_keys=True)
+            )
+
+        previous_stages = dict(recorded_stages)
+        state.update(expected)
+        state["stages"] = {
+            stage: dict(previous_stages.get(stage, {"status": StageStatus.NOT_STARTED.value}))
+            for stage in self.required_stages
+        }
+        self._write_baseline_files()
+        self.append_event(
+            "run_identity_reconciled",
+            {
+                "identity_mismatches": identity_mismatches,
+                "recorded_stage_names": sorted(previous_stages),
+                "current_stage_names": sorted(expected_stages),
+                "reason": "legacy pre-execution metadata reconciled from the current immutable inventory entry",
+            },
+        )
 
     def invalidate_stale_preflight(self, state: dict[str, Any]) -> None:
         """Force a fresh preflight when a resumable run crossed a code revision."""
