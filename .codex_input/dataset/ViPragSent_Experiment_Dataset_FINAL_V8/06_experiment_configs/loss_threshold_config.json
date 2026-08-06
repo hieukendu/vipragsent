@@ -1,0 +1,26 @@
+{
+  "pragmatic_heads": {
+    "loss": "BCEWithLogitsLoss",
+    "pos_weight_formula": "N_negative_k / N_positive_k",
+    "weight_source": "ViPragSent train split only"
+  },
+  "polarity_and_emotion": {
+    "loss": "class-weighted cross-entropy",
+    "class_weight_formula": "N / (C * N_c)",
+    "weight_source": "ViPragSent train split only"
+  },
+  "thresholds": {
+    "selection": "one threshold per pragmatic label",
+    "selection_split": "dev",
+    "selection_per_training_seed": true,
+    "search_grid": {
+      "start": 0.05,
+      "stop": 0.95,
+      "step": 0.01
+    },
+    "objective": "binary macro-F1 for the corresponding label",
+    "tie_break_1": "closest threshold to 0.5",
+    "tie_break_2": "lower numerical threshold",
+    "locked_before_test": true
+  }
+}

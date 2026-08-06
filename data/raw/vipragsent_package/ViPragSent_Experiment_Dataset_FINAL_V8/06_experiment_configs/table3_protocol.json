@@ -1,0 +1,36 @@
+{
+  "name": "cross-domain ordinary sentiment and emotion retention/generalisation",
+  "training_data": "ViPragSent train only",
+  "additional_finetuning_on_external_benchmarks": false,
+  "systems": {
+    "PhoBERT ordinary single-task": {
+      "polarity_checkpoint": "PhoBERT-pol-single",
+      "emotion_checkpoint": "PhoBERT-emo-single"
+    },
+    "PhoBERT multi-task": {
+      "polarity_checkpoint": "shared checkpoint polarity head",
+      "emotion_checkpoint": "same shared checkpoint emotion head"
+    },
+    "XLM-R multi-task": {
+      "polarity_checkpoint": "polarity head",
+      "emotion_checkpoint": "emotion head"
+    },
+    "Sailor/Vistral multi-task": {
+      "polarity_checkpoint": "polarity head",
+      "emotion_checkpoint": "emotion head"
+    },
+    "ViPragSent": {
+      "polarity_checkpoint": "polarity head",
+      "emotion_checkpoint": "emotion head"
+    },
+    "GPT-4o-mini": {
+      "polarity_checkpoint": "separate polarity prompt",
+      "emotion_checkpoint": "separate emotion prompt"
+    }
+  },
+  "evaluation": {
+    "UIT-VSFC": "polarity head / polarity prompt",
+    "AIVIVN-human-derived-3way": "polarity head / polarity prompt",
+    "UIT-VSMEC": "emotion head / emotion prompt"
+  }
+}

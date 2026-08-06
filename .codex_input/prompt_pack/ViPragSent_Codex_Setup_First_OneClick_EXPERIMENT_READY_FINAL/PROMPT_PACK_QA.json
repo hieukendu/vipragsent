@@ -1,0 +1,27 @@
+{
+  "ready": true,
+  "required_checks": {
+    "33_markdown_files": true,
+    "full_model_decoder_off": true,
+    "cot_only_generation": true,
+    "no_distinct_explanation_inference": true,
+    "phobert_segmentation": true,
+    "java_preflight": true,
+    "canonical_keys": true,
+    "model_ids": true,
+    "separate_decoder_embedding": true,
+    "eight_uncertainty": true,
+    "azure_pragmatic_demo": true,
+    "azure_polarity_demo": true,
+    "azure_emotion_demo": true,
+    "table1_schema": true,
+    "q3_protocol": true,
+    "paper_roles": true,
+    "figure5_removed": true,
+    "runtime_preflight": true
+  },
+  "missing": [],
+  "contradictions": [],
+  "markdown_file_count": 33,
+  "manual_analysis_note": "Core experiments are automatic; final human error/qualitative analysis remains manual by design."
+}
