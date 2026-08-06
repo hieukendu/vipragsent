@@ -229,6 +229,25 @@
       "repair_status": "REPAIRED_LOCAL_PENDING_REMOTE_CI",
       "protocol_impact": "NONE",
       "resume_command": "after the active run completes or stops, invoke the official resume path once to persist current provenance"
+    },
+    {
+      "defect_id": "RUN-RESUME-LEGACY-IDENTITY-STAGE-PLAN",
+      "first_seen_at": "2026-08-06T14:28:38Z",
+      "triggering_job": "q1a_phobert_pragmatic_single_task_20260522",
+      "triggering_stage": "resume preflight metadata audit",
+      "exact_failing_command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_single_task_20260522 --stage preflight --resume",
+      "commit_sha": "0a46e892b66e8eb548c6db90ae908be618afaf49",
+      "tree_sha": "318334b4c6c4d418f8405284e7181d6ec4c9fda6",
+      "failure_signature": "legacy state and run manifest recorded execution_kind=trainable and the old train_or_reuse stage plan while the immutable inventory resolved component_bundle",
+      "stack_trace_or_log_path": "results/runs/q1a_phobert_pragmatic_single_task_20260522/state.json; src/vipragsent/orchestration/run_store.py",
+      "defect_class": "C_REPAIRABLE_STALE_STATE_OR_GENERATED_ARTIFACT_DEFECT",
+      "root_cause": "resume refreshed code identity but did not reconcile legacy pre-execution identity and stage-plan metadata from the current inventory entry",
+      "files_changed": ["src/vipragsent/orchestration/run_store.py", "tests/test_runtime_repairs.py"],
+      "regression_tests": ["tests/test_runtime_repairs.py::test_resume_reconciles_legacy_identity_and_stage_plan_before_execution", "tests/test_runtime_repairs.py::test_resume_refuses_identity_rewrite_after_execution_started"],
+      "repair_attempt_count": 1,
+      "repair_status": "REPAIRED_LOCAL_PENDING_REMOTE_CI",
+      "protocol_impact": "NONE",
+      "resume_command": "rerun the exact job preflight and then the same job with --stage all --resume after identity reconciliation"
     }
   ],
   "invocation_order": [
