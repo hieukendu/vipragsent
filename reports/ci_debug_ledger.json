@@ -286,6 +286,25 @@
       "repair_status": "REPAIRED_LOCAL_PENDING_AFFECTED_RUN",
       "protocol_impact": "NONE",
       "resume_command": "rerun the exact job-4 preflight, then resume the same job after the train-stage wiring repair"
+    },
+    {
+      "defect_id": "RUN4-TRAIN-CPU-FALLBACK",
+      "first_seen_at": "2026-08-06T17:06:00Z",
+      "triggering_job": "q1a_phobert_pragmatic_finetune_20260521",
+      "triggering_stage": "train first-step device audit",
+      "exact_failing_command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_finetune_20260521 --stage all --resume",
+      "commit_sha": "9a8e4a6395b54c2a4b9113c2a1172ab944800b14",
+      "tree_sha": "507e3804c02da073ab7f61bc13ce5097b1d8ab19",
+      "failure_signature": "training/device_report.json recorded selected_device=cpu while preflight required the validated H100 MIG device",
+      "stack_trace_or_log_path": "results/runs/q1a_phobert_pragmatic_finetune_20260521/training/device_report.json; src/vipragsent/orchestration/stage_registry.py:_real_train",
+      "defect_class": "B_REPAIRABLE_RUNTIME_OR_ENVIRONMENT_DEFECT",
+      "root_cause": "the trainable execution path omitted the validated device when constructing both the production model and TrainingEngine, allowing their CPU defaults",
+      "files_changed": ["src/vipragsent/orchestration/stage_registry.py", "tests/test_final_runtime_integration.py"],
+      "regression_tests": ["tests/test_final_runtime_integration.py::test_production_train_resolves_only_the_validated_gpu"],
+      "repair_attempt_count": 1,
+      "repair_status": "REPAIRED_LOCAL_PENDING_AFFECTED_RUN",
+      "protocol_impact": "NONE",
+      "resume_command": "recover the interrupted run through the official resume path, rerun preflight, then retry the same job only after the validated device is handed to model and engine"
     }
   ],
   "invocation_order": [
