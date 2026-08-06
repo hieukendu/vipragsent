@@ -248,6 +248,25 @@
       "repair_status": "REPAIRED_LOCAL_PENDING_REMOTE_CI",
       "protocol_impact": "NONE",
       "resume_command": "rerun the exact job preflight and then the same job with --stage all --resume after identity reconciliation"
+    },
+    {
+      "defect_id": "RUN4-VNCORENLP-PREFLIGHT-ADAPTER",
+      "first_seen_at": "2026-08-06T16:23:27Z",
+      "triggering_job": "q1a_phobert_pragmatic_finetune_20260521",
+      "triggering_stage": "train preprocessing initialization",
+      "exact_failing_command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_finetune_20260521 --stage all --resume",
+      "commit_sha": "fe43695c7df2761513c88e86b504ac47dee7abd8",
+      "tree_sha": "9775ccac6773bb419d4a28c551227f857bbd6478",
+      "failure_signature": "RuntimeBlocked: A VnCoreNLPSegmenter is required for production PhoBERT preprocessing",
+      "stack_trace_or_log_path": "results/runs/q1a_phobert_pragmatic_finetune_20260521/state.json; src/vipragsent/data/preprocessing.py",
+      "defect_class": "A_REPAIRABLE_IMPLEMENTATION_DEFECT",
+      "root_cause": "the production adapter targeted the legacy vncorenlp API while the supported py-vncorenlp adapter requires the official resource directory, and the per-job preflight did not gate Java, resources, or the adapter before training",
+      "files_changed": ["src/vipragsent/data/preprocessing.py", "src/vipragsent/orchestration/preflight_single.py", "pyproject.toml", ".env.example", "tests/test_final_runtime_integration.py", "tests/test_runtime_repairs.py"],
+      "regression_tests": ["tests/test_final_runtime_integration.py::test_vncorenlp_adapter_uses_official_save_dir_and_normalizes_sentence_list", "tests/test_runtime_repairs.py::test_single_preflight_detects_missing_phobert_vncorenlp_runtime"],
+      "repair_attempt_count": 1,
+      "repair_status": "REPAIRED_LOCAL_PENDING_AFFECTED_RUN",
+      "protocol_impact": "NONE",
+      "resume_command": "rerun the exact job-4 preflight, then resume the same job only after the repaired runtime gate passes"
     }
   ],
   "invocation_order": [
