@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 
 from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json
+from vipragsent.constants import RUNTIME_PREFLIGHT_CHECKLIST
 from vipragsent.phase import write_phase_handoff
 from vipragsent.runtime.model_assets import (
     cache_record_from_snapshot,
@@ -69,7 +70,7 @@ def main() -> int:
                     token=hf_token or None,
                     allow_patterns=["*.json", "*.txt", "*.model", "*.safetensors", "*.bin", "*.py", "tokenizer.*", "vocab.*", "merges.txt", "*.codes" ],
                 )
-                record = cache_record_from_snapshot(family, spec, local_path)
+                record = cache_record_from_snapshot(family, spec, local_path, root=ROOT)
                 write_family_status(ROOT, family, "cache", record)
                 records[family] = {"name": family, **spec, **record, "family_request_status": "PASS"}
             except Exception as exc:
@@ -86,7 +87,7 @@ def main() -> int:
     handoff = write_phase_handoff(
         "15",
         download_status,
-        inputs_read=[args.manifest, "32_RUNTIME_PREFLIGHT_CHECKLIST.md"],
+        inputs_read=[args.manifest, RUNTIME_PREFLIGHT_CHECKLIST],
         files_created=["data/model_cache_manifest.json", *[f"data/model_cache_status/{family}.json" for family in selected_names]],
         blockers=blockers,
         next_phase_ready=False,

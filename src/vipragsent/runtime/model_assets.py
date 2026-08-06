@@ -15,6 +15,31 @@ MODEL_FAMILY_STATES = {
 }
 
 
+def resolve_local_snapshot(root: str | Path, local_path: str | Path | None) -> Path | None:
+    """Resolve a stored repository-relative snapshot without trusting a host path."""
+    if not local_path:
+        return None
+    value = Path(local_path)
+    if not value.is_absolute():
+        return Path(root) / value
+    if value.exists():
+        return value
+    marker = "/data/model_cache/"
+    normalized = value.as_posix()
+    if marker in normalized:
+        return Path(root) / "data/model_cache" / normalized.split(marker, 1)[1]
+    return value
+
+
+def _portable_path(root: str | Path, local_path: str | Path) -> str:
+    path = Path(local_path)
+    root_path = Path(root).resolve()
+    try:
+        return path.resolve().relative_to(root_path).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def family_status_path(root: str | Path, family: str, category: str) -> Path:
     if category not in MODEL_FAMILY_STATES:
         raise ValueError(f"Unknown model-family status category: {category}")
@@ -35,6 +60,8 @@ def read_family_status(root: str | Path, family: str, category: str) -> dict[str
 def write_family_status(root: str | Path, family: str, category: str, payload: Mapping[str, Any]) -> Path:
     path = family_status_path(root, family, category)
     value = {"model_family": family, "category": category, **dict(payload)}
+    if category == "cache" and value.get("local_path"):
+        value["local_path"] = _portable_path(root, str(value["local_path"]))
     atomic_write_json(path, value)
     return path
 
@@ -88,7 +115,7 @@ def merge_family_manifest(root: str | Path, registry: Mapping[str, Mapping[str, 
     }
 
 
-def cache_record_from_snapshot(family: str, spec: Mapping[str, Any], local_path: str | Path, *, status: str = "PASS", error: str | None = None) -> dict[str, Any]:
+def cache_record_from_snapshot(family: str, spec: Mapping[str, Any], local_path: str | Path, *, status: str = "PASS", error: str | None = None, root: str | Path | None = None) -> dict[str, Any]:
     path = Path(local_path)
     record: dict[str, Any] = {
         "model_family": family,
@@ -96,7 +123,7 @@ def cache_record_from_snapshot(family: str, spec: Mapping[str, Any], local_path:
         "repo_id": spec.get("repo_id"),
         "revision": spec.get("revision"),
         "tokenizer_revision": spec.get("tokenizer_revision"),
-        "local_path": str(path),
+        "local_path": _portable_path(root, path) if root is not None else str(path),
         "snapshot_files": sorted(item.relative_to(path).as_posix() for item in path.rglob("*") if item.is_file()) if path.exists() else [],
     }
     if error:

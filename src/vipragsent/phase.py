@@ -338,7 +338,7 @@ def _phase15_handoff_values(
         "effective_batch_size": batch.get("effective_batch_size"),
         "gradient_accumulation_steps": batch.get("gradient_accumulation_steps"),
         "hardware_identity": batch.get("hardware_identity"),
-        "local_snapshot": cache.get("local_path"),
+        "local_snapshot": _path_string(Path(cache.get("local_path")), root) if cache.get("local_path") else None,
         "hashes": {
             "cache_manifest_hash": cache.get("manifest_hash"),
             "smoke_verification_hash": smoke.get("verification_hash"),
@@ -427,3 +427,75 @@ def write_phase_handoff(
     )
     handoff.write(report_root)
     return handoff
+
+
+def inspect_phase15_handoff(root: str | Path, model_family: str | None = None) -> dict[str, Any]:
+    """Reconcile Phase 15 evidence without rewriting the authoritative handoff.
+
+    Status writers may be invoked independently, so a Phase 15 state reader must
+    validate the per-family cache, smoke, and physical-batch artifacts together.
+    A prior FAIL/BLOCKED handoff is retained until an explicit status writer
+    finalizes a new PASS; a downloader or setup refresh cannot promote it.
+    """
+    project_root = Path(root).resolve()
+    report_root = project_root / "reports/phases"
+    handoff_exists, previous = _read_json(report_root / "phase_15_handoff.json")
+    family = _phase15_family(project_root, report_root, model_family)
+    if not family:
+        return {
+            "status": "BLOCKED",
+            "tests_passed": False,
+            "blockers": ["Phase 15 model family is not selected"],
+            "next_phase_ready": False,
+            "phase15_evidence": {},
+            "handoff_exists": handoff_exists,
+            "previous_status": previous.get("status"),
+        }
+
+    resolved = _phase15_handoff_values(
+        project_root,
+        report_root,
+        family=family,
+        incoming_status=str(previous.get("status", "BLOCKED")),
+        incoming_blockers=previous.get("blockers", []),
+        incoming_files=previous.get("files_created", []),
+        incoming_inputs=previous.get("inputs_read", []),
+        explicit_family=False,
+        approval_basis=None,
+    )
+    blockers = _dedupe(resolved["blockers"])
+    previous_evidence = previous.get("phase15_evidence")
+    previous_family = previous_evidence.get("model_family") if isinstance(previous_evidence, dict) else None
+    if not handoff_exists:
+        blockers.append("Phase 15 authoritative handoff is missing")
+    if previous_family and previous_family != family:
+        blockers.append("Phase 15 handoff family does not match the selected model family")
+
+    previous_status = previous.get("status")
+    if previous_status in {"FAIL", "BLOCKED"}:
+        blockers.extend(str(item) for item in previous.get("blockers", []) if item)
+        if resolved["status"] == "PASS":
+            blockers.append("Phase 15 terminal status requires explicit finalization after the failed attempt")
+        status = "FAIL" if previous_status == "FAIL" or resolved["status"] == "FAIL" else "BLOCKED"
+    elif previous_status == "PASS":
+        if previous.get("tests_passed") is not True or previous.get("next_phase_ready") is not True:
+            blockers.append("Phase 15 PASS handoff metadata is incomplete")
+        if previous.get("blockers"):
+            blockers.extend(str(item) for item in previous["blockers"] if item)
+        status = resolved["status"]
+    else:
+        status = "BLOCKED"
+        blockers.append("Phase 15 handoff has not been finalized")
+
+    blockers = _dedupe(blockers)
+    if status != "PASS" or blockers:
+        status = "FAIL" if status == "FAIL" else "BLOCKED"
+    return {
+        "status": status,
+        "tests_passed": status == "PASS" and not blockers,
+        "blockers": blockers,
+        "next_phase_ready": status == "PASS" and not blockers,
+        "phase15_evidence": resolved.get("phase15_evidence", {}),
+        "handoff_exists": handoff_exists,
+        "previous_status": previous_status,
+    }

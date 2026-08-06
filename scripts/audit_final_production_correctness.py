@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import json
 import re
+import shutil
 import subprocess
+import sys
 import tempfile
 from pathlib import Path
 from typing import Any
@@ -10,7 +12,10 @@ from typing import Any
 import torch
 import yaml
 
-from _bootstrap import ROOT
+try:
+    from _bootstrap import ROOT
+except ModuleNotFoundError:  # pragma: no cover - supports importing the script in tests
+    from scripts._bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json, atomic_write_text
 from vipragsent.constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS, TRAINING_SEEDS
 from vipragsent.data.loaders import DatasetExample, load_vipragsent
@@ -29,6 +34,7 @@ from vipragsent.orchestration.system_registry import (
     load_execution_registry,
     validate_execution_registry,
 )
+from vipragsent.phase import inspect_phase15_handoff
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
 try:
@@ -64,12 +70,35 @@ REQUIRED_REPORTS = (
     "reports/local_production_correctness_closure.json",
     "reports/luna_max_review_cycles.json",
 )
+LOCAL_ONLY_PATH_PREFIXES = (
+    ".venv/",
+    ".vscode/",
+    ".pytest_cache/",
+    ".ruff_cache/",
+    ".mypy_cache/",
+    ".codex_input/",
+    "data/model_cache/",
+)
+
+
+def _is_local_only_path(path: str) -> bool:
+    normalized = path.replace("\\", "/").strip('"').lstrip("/")
+    if normalized.startswith("./"):
+        normalized = normalized[2:]
+    return normalized.startswith(LOCAL_ONLY_PATH_PREFIXES) or "/__pycache__/" in f"/{normalized}/" or normalized.endswith(".pyc")
 
 
 def _run(command: list[str], *, timeout: int = 300) -> dict[str, Any]:
-    result = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=timeout, check=False)
+    resolved = list(command)
+    if resolved and resolved[0] == "python":
+        resolved[0] = sys.executable
+    elif resolved and resolved[0] == "ruff" and not shutil.which("ruff"):
+        local_ruff = Path(sys.executable).with_name("ruff")
+        if local_ruff.exists():
+            resolved[0] = str(local_ruff)
+    result = subprocess.run(resolved, cwd=ROOT, capture_output=True, text=True, timeout=timeout, check=False)
     return {
-        "command": " ".join(command),
+        "command": " ".join(resolved),
         "returncode": result.returncode,
         "status": "PASS" if result.returncode == 0 else "FAIL",
         "stdout_tail": result.stdout[-3000:],
@@ -246,7 +275,8 @@ def _phase15_evidence() -> dict[str, Any]:
     hardware = (ROOT / "src/vipragsent/runtime/hardware.py").read_text(encoding="utf-8")
     required = ("nf4", "bnb_4bit_use_double_quant", "prepare_model_for_kbit_training", "gradient_checkpointing_enable", "q_proj", "k_proj", "v_proj", "o_proj")
     passed = all(item in source for item in required) and "build_production_model" in smoke and "probe_physical_batch" in probe and "torch_module.cuda" in hardware and "get_device_properties" in hardware
-    return {"status": _status(passed), "contract_checks": {item: item in source for item in required}, "smoke_uses_production_factory": "build_production_model" in smoke, "batch_probe_cli": "probe_physical_batch" in probe, "hardware_checks_real": "torch_module.cuda" in hardware and "get_device_properties" in hardware, "weights_downloaded": False, "smoke_executed": False}
+    handoff = inspect_phase15_handoff(ROOT)
+    return {"status": _status(passed), "contract_checks": {item: item in source for item in required}, "smoke_uses_production_factory": "build_production_model" in smoke, "batch_probe_cli": "probe_physical_batch" in probe, "hardware_checks_real": "torch_module.cuda" in hardware and "get_device_properties" in hardware, "weights_downloaded": handoff["status"] == "PASS", "smoke_executed": handoff["status"] == "PASS", "handoff_status": handoff["status"], "handoff_blockers": handoff["blockers"]}
 
 
 def _changed_paths() -> list[str]:
@@ -257,8 +287,10 @@ def _changed_paths() -> list[str]:
         value = line[3:] if len(line) >= 4 else line
         if " -> " in value:
             value = value.rsplit(" -> ", 1)[-1]
-        paths.add(value.replace("\\", "/"))
-    return sorted(paths)
+        normalized = value.replace("\\", "/").strip('"')
+        if not _is_local_only_path(normalized):
+            paths.add(normalized)
+    return sorted(path for path in paths if not _is_local_only_path(path))
 
 
 def _hygiene_evidence(paths: list[str]) -> dict[str, Any]:
@@ -411,16 +443,19 @@ def audit() -> dict[str, Any]:
         "reports/generated_sequential_prompts_manifest.json": prompt_manifest,
     }.items():
         _write(path, report)
-    readiness = {"status": _status(local_pass), "SETUP_CODE_READY": local_pass, "PHASE15_READY": local_pass, "REAL_EXPERIMENT_READY": False, "FINAL_AGGREGATION_READY": False, "CI_STATUS": ci_status, "weights_downloaded": bool(state.get("weights_downloaded")), "phase15_executed": bool(state.get("weights_downloaded")), "azure_request_made": False, "real_experiment_ran": bool(state.get("full_run_started")), "approved_run_count": int(state.get("approved_run_count", 0)), "blockers": ["Phase 15 has not been executed on the target server", "Model-family runtime assets are not prepared", "GPU and Azure live integration have not been validated", "No real approved production run exists"], "evidence": {"commands": commands, "reports": REQUIRED_REPORTS, "self_review": self_review, "hygiene": hygiene, "static": static}}
+    phase15_state = inspect_phase15_handoff(ROOT)
+    phase15_ready = state.get("phase15_runtime_ready") is True and phase15_state["status"] == "PASS"
+    runtime_blockers = list(state.get("runtime_blockers", [])) if not phase15_ready else []
+    readiness = {"status": _status(local_pass), "SETUP_CODE_READY": local_pass, "PHASE15_READY": phase15_ready, "REAL_EXPERIMENT_READY": False, "FINAL_AGGREGATION_READY": False, "CI_STATUS": ci_status, "weights_downloaded": bool(state.get("weights_downloaded")), "phase15_executed": phase15_ready, "azure_request_made": False, "real_experiment_ran": bool(state.get("full_run_started")), "approved_run_count": int(state.get("approved_run_count", 0)), "blockers": runtime_blockers, "phase15_handoff": phase15_state, "evidence": {"commands": commands, "reports": REQUIRED_REPORTS, "self_review": self_review, "hygiene": hygiene, "static": static}}
     _write("reports/sequential_production_readiness_audit.json", readiness)
-    final = {"schema_version": 2, "status": _status(local_pass), "baseline_commit": BASELINE_COMMIT, "scientific_changes": scientific["scientific_config_changed"], "engineering_changes": engineering_paths, "frozen_data_changed": not frozen["unchanged"], "scientific_change_guard": scientific_change_guard, "protocol_conflicts": protocol["scientific_protocol_conflicts"], "execution_safety": {"phase15_executed": False, "model_downloaded": False, "azure_request_made": False, "gpu_training_executed": False, "real_test_predictions_generated": False, "real_experiment_ran": False, "approval_recorded": False, "full_dag_executed": False}, "commands": commands, "evidence": evidence, "self_review": self_review, "hygiene": hygiene, "static_search": static, "readiness": readiness, "ci_status": ci_status, "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review."}
+    final = {"schema_version": 2, "status": _status(local_pass), "baseline_commit": BASELINE_COMMIT, "scientific_changes": scientific["scientific_config_changed"], "engineering_changes": engineering_paths, "frozen_data_changed": not frozen["unchanged"], "scientific_change_guard": scientific_change_guard, "protocol_conflicts": protocol["scientific_protocol_conflicts"], "execution_safety": {"phase15_executed": phase15_ready, "model_downloaded": bool(state.get("weights_downloaded")), "azure_request_made": False, "gpu_training_executed": False, "real_test_predictions_generated": False, "real_experiment_ran": False, "approval_recorded": False, "full_dag_executed": False}, "commands": commands, "evidence": evidence, "self_review": self_review, "hygiene": hygiene, "static_search": static, "readiness": readiness, "ci_status": ci_status, "runtime_blockers": runtime_blockers, "next_action": state.get("next_action", "Select the first incomplete eligible scientific job after the approved Phase 15 model-preparation handoff.")}
     snapshot = read_json(ROOT / "reports/final_readiness_snapshot.json")
     if snapshot:
-        final = merge_snapshot_into_report(final, snapshot)
+        final = merge_snapshot_into_report(final, snapshot, root=ROOT)
     _write("reports/final_production_correctness_repair.json", final)
     engineering_lines = [f"- `{path}`" for path in engineering_paths] or ["- none"]
     review_summary = final.get("review_summary", {})
-    markdown = ["# Final production correctness repair", "", f"- Status: `{final['status']}`", f"- Local code readiness: `{final.get('LOCAL_CODE_READINESS', final['status'])}`", f"- Server runtime readiness: `{final.get('SERVER_RUNTIME_READINESS', 'NOT_RUN')}`", f"- Scientific changes: `{len(final['scientific_changes'])}`", f"- Frozen data changed: `{str(final['frozen_data_changed']).lower()}`", f"- CI status/conclusion: `{final.get('ci_status', ci_status)}/{final.get('ci_conclusion', ci_status)}`", f"- Audited code commit: `{final.get('audited_code_commit', 'UNVERIFIED_EXTERNAL')}`", f"- Self-review: `{review_summary.get('rounds_per_cycle', 0)} rounds x {review_summary.get('cycles', 0)} cycles`; consecutive clean cycles: `{review_summary.get('consecutive_clean_cycles', 0)}`", "", "## Execution boundary", "", "- Phase 15, model download, Azure requests, GPU training, real predictions, approval, and final aggregation were not executed.", "", "## Runtime blockers", "", *[f"- {item}" for item in final.get("runtime_blockers", ["Phase 15 has not been executed on the target server", "Model-family runtime assets are not prepared", "GPU and Azure live integration have not been validated", "No real approved production run exists"])], "", "## Evidence", "", *[f"- {key}: `{value.get('status', 'RECORDED')}`" for key, value in evidence.items()], "", "## Engineering changes", "", *engineering_lines, ""]
+    markdown = ["# Final production correctness repair", "", f"- Status: `{final['status']}`", f"- Local code readiness: `{final.get('LOCAL_CODE_READINESS', final['status'])}`", f"- Server runtime readiness: `{final.get('SERVER_RUNTIME_READINESS', 'NOT_RUN')}`", f"- Scientific changes: `{len(final['scientific_changes'])}`", f"- Frozen data changed: `{str(final['frozen_data_changed']).lower()}`", f"- CI status/conclusion: `{final.get('ci_status', ci_status)}/{final.get('ci_conclusion', ci_status)}`", f"- Audited code commit: `{final.get('audited_code_commit', 'UNVERIFIED_EXTERNAL')}`", f"- Self-review: `{review_summary.get('rounds_per_cycle', 0)} rounds x {review_summary.get('cycles', 0)}`; consecutive clean cycles: `{review_summary.get('consecutive_clean_cycles', 0)}`", "", "## Execution boundary", "", f"- Phase 15 preparation evidence: `{str(final.get('execution_safety', {}).get('phase15_executed', False)).lower()}`.", "- No Azure request, real training, real predictions, experiment approval, or final aggregation was executed.", "", "## Runtime blockers", "", *([f"- {item}" for item in final.get("runtime_blockers", [])] or ["- None"]), "", "## Evidence", "", *[f"- {key}: `{value.get('status', 'RECORDED')}`" for key, value in evidence.items()], "", "## Engineering changes", "", *engineering_lines, ""]
     markdown.extend([
         f"- Review source: `{review_summary.get('source')}`",
         f"- Execution mode: `{review_summary.get('execution_mode')}`",

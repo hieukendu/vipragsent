@@ -175,8 +175,18 @@ def build_production_component_model(
         base = build_qlora_backbone(spec.repo_id, revision=spec.revision, local_path=str(local_snapshot), selected_device=selected, transformers_module=transformers_module, peft_module=peft_module, task_type="FEATURE_EXTRACTION")
     else:
         base = load_pretrained_backbone(spec.repo_id, revision=spec.revision, family=family, trust_remote_code=spec.trust_remote_code, local_path=local_snapshot, local_files_only=True, transformers_module=transformers_module)
+    pragmatic_variant = {
+        "phobert_base": "phobert_pragmatic_finetune",
+        "xlmr_large": "xlmr_pragmatic_finetune",
+        "sailor_7b": "sailor_pragmatic_sft",
+        "vistral_7b": "vistral_pragmatic_sft",
+    }[backbone]
+    component_variant = {
+        "polarity": "phobert_pol_single",
+        "emotion": "phobert_emo_single",
+    }.get(component, pragmatic_variant)
     config = VariantConfig(
-        name=f"component_{component}",
+        name=component_variant,
         backbone_family=family,
         hidden_size=int(getattr(base.config, "hidden_size", 0)),
         vocab_size=int(getattr(base.config, "vocab_size", 0)),

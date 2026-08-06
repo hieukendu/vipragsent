@@ -11,24 +11,21 @@
   "implementation_blockers": [],
   "manual_paper_analysis_pending": true,
   "maximum_concurrent_gpu_jobs": 1,
-  "next_action": "Checkout the exact final repair SHA on the target server, run Phase 15 for exactly one lightweight model family, print the complete smoke report, and stop for user review.",
+  "next_action": "Select the first incomplete eligible scientific job after the approved Phase 15 model-preparation handoff.",
+  "phase15_approval_basis": "standing_user_authorization_after_successful_audit",
   "phase15_code_ready": true,
-  "phase15_runtime_ready": false,
+  "phase15_model_family": "phobert_base",
+  "phase15_runtime_ready": true,
   "phase_handoff_directory": "reports/phases",
   "project": "ViPragSent",
   "real_experiment_ready": false,
   "real_run_count": 0,
-  "runtime_blockers": [
-    "Phase 15 has not been executed on the target server",
-    "Model-family runtime assets are not prepared",
-    "GPU and Azure live integration have not been validated",
-    "No real approved production run exists"
-  ],
-  "runtime_environment_ready": false,
+  "runtime_blockers": [],
+  "runtime_environment_ready": true,
   "scientific_protocol_conflicts": [],
   "sequential_runtime_code_ready": true,
   "setup_frozen": true,
   "setup_implementation_ready": true,
   "target_python": "3.11",
-  "weights_downloaded": false
+  "weights_downloaded": true
 }

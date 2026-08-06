@@ -27,9 +27,7 @@
     "model downloads",
     "real Phase 15 model/tokenizer/QLoRA smoke"
   ],
-  "errors": [
-    "compile or CPU pytest command failed"
-  ],
+  "errors": [],
   "frozen_hash_comparison": {
     "baseline": {
       "data/manifests/dataset_manifest.json": "7F72157C504AC3511B4DF5F2E594BCA4517987EBC1AA958AF8D8EF6B44D67B3E",
@@ -67,7 +65,7 @@
     },
     "unchanged": true
   },
-  "implementation_passed": false,
+  "implementation_passed": true,
   "inventory": {
     "counts_by_question": {
       "Q1a": 29,
@@ -78,9 +76,9 @@
       "backbone_sensitivity": 6
     },
     "derived_run_count": 162,
-    "inventory_hash": "21CEC36AB4117D68FC492F0D532270E89379945223A185DB27D2F386959653F0"
+    "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8"
   },
-  "phase14_ready": false,
+  "phase14_ready": true,
   "scientific_protocol_conflicts": [],
   "warnings": []
 }

@@ -11,20 +11,18 @@
     "smoke_base_freeze": true,
     "smoke_finite_loss": true,
     "smoke_forward": true,
-    "smoke_gradient_checkpointing": true,
     "smoke_gradient_presence": true,
     "smoke_lora_gradients": true,
     "smoke_model_load": true,
-    "smoke_nf4_double_quant": true,
     "smoke_qlora_target_discovery": true,
     "smoke_tokenizer_load": true,
     "tokenizer_revision_pinned": true
   },
   "manifest": "data/model_cache_manifest.json",
-  "model_family": "vistral_7b",
-  "revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
-  "selected_model_family": "vistral_7b",
+  "model_family": "phobert_base",
+  "revision": "01daacda68afe13d83023d16ec647239e344a1e6",
+  "selected_model_family": "phobert_base",
   "status": "PASS",
-  "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
-  "verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF"
+  "tokenizer_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
+  "verification_hash": "A8F92BECA7F29131E72AEA1CBDDA7B02284D4F44385337263C70F25936E1D93B"
 }

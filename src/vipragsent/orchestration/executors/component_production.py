@@ -26,7 +26,7 @@ from ...runtime.device import (
     resolve_model_input_device,
     write_device_report,
 )
-from ...runtime.model_assets import read_family_status
+from ...runtime.model_assets import read_family_status, resolve_local_snapshot
 from ...training.class_weights import ClassWeightBundle, compute_train_only_class_weights
 from ...training.config_resolver import resolve_training_config
 from ...training.optimizers import build_optimizer
@@ -68,7 +68,7 @@ class ProductionComponentRunner:
     def _load_runtime(self, component: str) -> torch.nn.Module:
         family = str(self.entry.backbone or "phobert_base")
         cache = read_family_status(self.root, family, "cache")
-        snapshot = cache.get("local_path")
+        snapshot = resolve_local_snapshot(self.root, cache.get("local_path"))
         if not snapshot:
             raise RuntimeBlocked(f"Phase 15 local snapshot is unavailable for {family}")
         model, self.spec = build_production_component_model(family, component, local_snapshot=snapshot, execution_mode="production")

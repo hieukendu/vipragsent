@@ -28,7 +28,7 @@ from ..runtime.device import (
     resolve_model_input_device,
     write_device_report,
 )
-from ..runtime.model_assets import read_family_status
+from ..runtime.model_assets import read_family_status, resolve_local_snapshot
 from ..training.checkpoints import infer_required_head_prefixes, load_checkpoint
 from ..training.class_weights import (
     compute_train_only_class_weights,
@@ -276,7 +276,8 @@ def _execute_components(context: RunContext, entry: RunEntry) -> StageOutcome:
     spec = _execution_spec(context.root, entry)
     family = spec.model_family
     cache = read_family_status(context.root, family, "cache")
-    if cache.get("status") != "PASS" or not cache.get("local_path"):
+    snapshot = resolve_local_snapshot(context.root, cache.get("local_path"))
+    if cache.get("status") != "PASS" or not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for component family {family}")
     try:
         bundle = load_vipragsent(context.root / "data/processed/vipragsent")
@@ -404,7 +405,7 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     spec_entry = _execution_spec(root, entry)
     family = spec_entry.model_family
     cache = read_family_status(root, family, "cache")
-    snapshot = cache.get("local_path")
+    snapshot = resolve_local_snapshot(root, cache.get("local_path"))
     if not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {family}")
     model, spec = build_production_model(family, spec_entry.variant_id, local_snapshot=snapshot, execution_mode="production")
@@ -709,7 +710,7 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
     spec = _execution_spec(context.root, entry)
     family = spec.model_family
     cache = read_family_status(context.root, family, "cache")
-    snapshot = cache.get("local_path")
+    snapshot = resolve_local_snapshot(context.root, cache.get("local_path"))
     if not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {family}")
     from ..data.tokenizers import create_tokenizer
@@ -870,7 +871,7 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
         return StageOutcome.passed(summary=report, expected_files=("source/source_provenance.json",)) if report["status"] == "PASS" else StageOutcome.blocked(*report["errors"])
     spec = _execution_spec(context.root, entry)
     cache = read_family_status(context.root, spec.model_family, "cache")
-    snapshot = cache.get("local_path")
+    snapshot = resolve_local_snapshot(context.root, cache.get("local_path"))
     if not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {spec.model_family}")
     from ..data.tokenizers import create_tokenizer
