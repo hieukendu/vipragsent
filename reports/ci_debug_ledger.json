@@ -210,6 +210,25 @@
       "repair_status": "REPAIRED_LOCAL_PENDING_REMOTE_CI",
       "protocol_impact": "NONE",
       "resume_command": "resume the same interrupted run after revalidating the CUDA device handoff"
+    },
+    {
+      "defect_id": "RUN-RESUME-PROVENANCE-IDENTITY",
+      "first_seen_at": "2026-08-06T00:00:00Z",
+      "triggering_job": "local recovery audit for q1a_phobert_pragmatic_single_task_20260521",
+      "triggering_stage": "resumed run state persistence",
+      "exact_failing_command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_single_task_20260521 --stage all --resume",
+      "commit_sha": "6b765013ac7d6f373264b86ca5e815a62f52ff02",
+      "tree_sha": "observed during resumed execution",
+      "failure_signature": "the resumed state retained the previous attempt's code_commit and no code_tree after revalidated preflight",
+      "stack_trace_or_log_path": "results/runs/q1a_phobert_pragmatic_single_task_20260521/state.json",
+      "defect_class": "C_REPAIRABLE_STALE_STATE_OR_GENERATED_ARTIFACT_DEFECT",
+      "root_cause": "resume invalidated stale preflight but did not persist the current code identity for the continuing run",
+      "files_changed": ["src/vipragsent/orchestration/run_store.py", "tests/test_runtime_repairs.py"],
+      "regression_tests": ["tests/test_runtime_repairs.py::test_resume_invalidates_preflight_after_code_revision_change"],
+      "repair_attempt_count": 1,
+      "repair_status": "REPAIRED_LOCAL_PENDING_REMOTE_CI",
+      "protocol_impact": "NONE",
+      "resume_command": "after the active run completes or stops, invoke the official resume path once to persist current provenance"
     }
   ],
   "invocation_order": [

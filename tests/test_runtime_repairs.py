@@ -214,6 +214,8 @@ def test_resume_invalidates_preflight_after_code_revision_change(monkeypatch, tm
 
     assert resumed["stages"]["preflight"]["status"] == "NOT_STARTED"
     assert resumed["stages"]["preflight"]["invalidation_reason"]
+    assert resumed["code_commit"] == "current-commit"
+    assert resumed["code_tree"] == "current-tree"
 
 
 def test_phase15_state_refresh_preserves_verified_runtime_evidence(tmp_path: Path) -> None:
