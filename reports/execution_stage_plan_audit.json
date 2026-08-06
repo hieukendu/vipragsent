@@ -1,0 +1,148 @@
+{
+  "errors": [],
+  "plan_count": 8,
+  "plans": {
+    "azure": {
+      "evaluation_strategy": null,
+      "execution_kind": "azure",
+      "executor_kind": "azure",
+      "plan_id": "azure",
+      "research_question": null,
+      "stages": [
+        "preflight",
+        "execute_api_job",
+        "validate_responses",
+        "export_artifacts",
+        "validate_artifacts",
+        "generate_review_summary"
+      ]
+    },
+    "checkpoint_reuse": {
+      "evaluation_strategy": null,
+      "execution_kind": "checkpoint_reuse",
+      "executor_kind": "checkpoint_reuse",
+      "plan_id": "checkpoint_reuse",
+      "research_question": null,
+      "stages": [
+        "preflight",
+        "resolve_approved_source",
+        "evaluate_reused_test",
+        "export_artifacts",
+        "validate_artifacts",
+        "generate_review_summary"
+      ]
+    },
+    "component_bundle": {
+      "evaluation_strategy": null,
+      "execution_kind": "component_bundle",
+      "executor_kind": "component_bundle",
+      "plan_id": "component_bundle",
+      "research_question": null,
+      "stages": [
+        "preflight",
+        "execute_components",
+        "combine_component_predictions",
+        "evaluate_dev",
+        "freeze_component_selection",
+        "evaluate_test",
+        "export_artifacts",
+        "validate_artifacts",
+        "generate_review_summary"
+      ]
+    },
+    "cot_only_vistral_generation": {
+      "evaluation_strategy": "reasoning_generation_shared_judge",
+      "execution_kind": "generation",
+      "executor_kind": "generation_trainable",
+      "plan_id": "cot_only_vistral_generation",
+      "research_question": null,
+      "stages": [
+        "preflight",
+        "train_generation",
+        "generate_dev_reasoning",
+        "judge_dev_reasoning",
+        "compute_dev_reasoning_metrics",
+        "freeze_selection",
+        "generate_test_reasoning",
+        "judge_test_reasoning",
+        "compute_test_reasoning_metrics",
+        "export_artifacts",
+        "validate_artifacts",
+        "generate_review_summary"
+      ]
+    },
+    "explanation_only_vistral_reuse": {
+      "evaluation_strategy": "rationale_only_shared_judge",
+      "execution_kind": "checkpoint_reuse",
+      "executor_kind": "rationale_checkpoint_reuse",
+      "plan_id": "explanation_only_vistral_reuse",
+      "research_question": null,
+      "stages": [
+        "preflight",
+        "resolve_approved_full_vistral_source",
+        "validate_source_checkpoint",
+        "generate_dev_reasoning_from_rationale_decoder",
+        "judge_dev_reasoning",
+        "compute_dev_reasoning_metrics",
+        "generate_test_reasoning_from_rationale_decoder",
+        "judge_test_reasoning",
+        "compute_test_reasoning_metrics",
+        "export_artifacts",
+        "validate_artifacts",
+        "generate_review_summary"
+      ]
+    },
+    "q1b_evaluation_only": {
+      "evaluation_strategy": "q1b_external_retention",
+      "execution_kind": "evaluation_only",
+      "executor_kind": "evaluation_only",
+      "plan_id": "q1b_evaluation_only",
+      "research_question": "Q1b",
+      "stages": [
+        "preflight",
+        "resolve_approved_source",
+        "evaluate_external_tests",
+        "export_artifacts",
+        "validate_artifacts",
+        "generate_review_summary"
+      ]
+    },
+    "q4_source_extraction": {
+      "evaluation_strategy": null,
+      "execution_kind": "artifact_extraction",
+      "executor_kind": "artifact_extraction",
+      "plan_id": "q4_source_extraction",
+      "research_question": "Q4",
+      "stages": [
+        "preflight",
+        "resolve_approved_source",
+        "validate_source_predictions",
+        "extract_pragmatic_calibration",
+        "extract_learning_history",
+        "export_artifacts",
+        "validate_artifacts",
+        "generate_review_summary"
+      ]
+    },
+    "trainable_classifier": {
+      "evaluation_strategy": null,
+      "execution_kind": "trainable",
+      "executor_kind": "single_model_trainable",
+      "plan_id": "trainable_classifier",
+      "research_question": null,
+      "stages": [
+        "preflight",
+        "train",
+        "evaluate_dev",
+        "freeze_selection",
+        "evaluate_test",
+        "export_artifacts",
+        "validate_artifacts",
+        "generate_review_summary"
+      ]
+    }
+  },
+  "registry_hash": "FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F",
+  "registry_sha256": "93C97500AC34C14E109D9F48D3B6D21CC28FAD454B4C44C3529A14FB2AC3ED41",
+  "status": "PASS"
+}

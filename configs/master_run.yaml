@@ -1,5 +1,5 @@
 project: vipragsent
-contract_version: setup-first-one-click-final
+contract_version: setup-first-sequential-review-gated-v1
 data_root: data
 output_root: experiment_artifacts
 result_root: results
@@ -26,3 +26,8 @@ matrix: configs/experiments/master_matrix.yaml
 external_datasets_manifest: data/manifests/external_datasets.json
 azure_settings: configs/azure/settings.yaml
 manual_analysis_pending: true
+execution_policy: sequential_review_gated
+global_full_dag_enabled: false
+maximum_concurrent_gpu_jobs: 1
+automatic_next_run: false
+require_user_approval_after_each_run: true

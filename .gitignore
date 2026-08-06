@@ -29,6 +29,7 @@ data/model_cache/
 data/input/
 data/processed/external/uit_vsfc/
 data/processed/external/uit_vsmec/
+data/processed/tokenized_text/
 checkpoints/
 predictions/
 runs/
@@ -39,6 +40,7 @@ experiment_artifacts/
 SETUP_CHECKSUMS.sha256
 FINAL_RESULT_CHECKSUMS.sha256
 FINAL_CHECKSUMS.sha256
+FINAL_EXPERIMENT_MANIFEST.json
 *.pt
 *.pth
 *.safetensors

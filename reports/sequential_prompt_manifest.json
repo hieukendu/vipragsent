@@ -1,0 +1,4177 @@
+{
+  "aggregation_count": 5,
+  "approval_contract": {
+    "next_run_allowed": "NO",
+    "status": "PENDING_USER_APPROVAL"
+  },
+  "azure_job_count": 11,
+  "execution_policy": {
+    "automatic_next_run": false,
+    "execution_policy": "sequential_review_gated",
+    "global_full_dag_enabled": false,
+    "maximum_concurrent_gpu_jobs": 1,
+    "require_user_approval_after_each_run": true
+  },
+  "experiment_count": 162,
+  "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8",
+  "phase15_model_count": 4,
+  "prompt_count": 183,
+  "prompts": [
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_single_task_20260521 --stage all",
+      "id": "q1a_phobert_pragmatic_single_task_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_phobert_pragmatic_single_task_20260521.md",
+      "sha256": "219D31974F089697461A6669289EB7A74B748CE9D63FC6F5E3433628C84CDA58",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "component_bundle",
+        "executor_kind": "component_bundle",
+        "plan_id": "component_bundle",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_components",
+          "combine_component_predictions",
+          "evaluate_dev",
+          "freeze_component_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_single_task_20260522 --stage all",
+      "id": "q1a_phobert_pragmatic_single_task_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_phobert_pragmatic_single_task_20260522.md",
+      "sha256": "F69185A1D666ECADEB2A52C0B35023819E4EDEE4AD51ABD61FFCEE0BC503E36B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "component_bundle",
+        "executor_kind": "component_bundle",
+        "plan_id": "component_bundle",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_components",
+          "combine_component_predictions",
+          "evaluate_dev",
+          "freeze_component_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_single_task_20260523 --stage all",
+      "id": "q1a_phobert_pragmatic_single_task_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_phobert_pragmatic_single_task_20260523.md",
+      "sha256": "0F47A2FF3EA019CED6A252F00890C28D72FE388CB84268352C31F0D687C0F961",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "component_bundle",
+        "executor_kind": "component_bundle",
+        "plan_id": "component_bundle",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_components",
+          "combine_component_predictions",
+          "evaluate_dev",
+          "freeze_component_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_finetune_20260521 --stage all",
+      "id": "q1a_phobert_pragmatic_finetune_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_phobert_pragmatic_finetune_20260521.md",
+      "sha256": "8BC287E9FFEBB34939A0421F7BC93CC03C9D15A385FEEB6A766CCB1215813D0E",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_finetune_20260522 --stage all",
+      "id": "q1a_phobert_pragmatic_finetune_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_phobert_pragmatic_finetune_20260522.md",
+      "sha256": "371DD59AD71CA539C342383D8B8C3654BDF393EB2C7F5DA795081D08B4FF541F",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_phobert_pragmatic_finetune_20260523 --stage all",
+      "id": "q1a_phobert_pragmatic_finetune_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_phobert_pragmatic_finetune_20260523.md",
+      "sha256": "463D89C0C0E8667EB36961C3164DD6C5CB1CCEBBE658A3BC6E9111EE8C0B1761",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_xlmr_pragmatic_finetune_20260521 --stage all",
+      "id": "q1a_xlmr_pragmatic_finetune_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_xlmr_pragmatic_finetune_20260521.md",
+      "sha256": "A21CFFE7A1FF1E6617D108F6FC18D863546DDD564CE0717AA9CBB6A17F71871A",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_xlmr_pragmatic_finetune_20260522 --stage all",
+      "id": "q1a_xlmr_pragmatic_finetune_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_xlmr_pragmatic_finetune_20260522.md",
+      "sha256": "97EA7E113DE377A4BC7B2A3E9BAE0DBDCCC08ABCBF35654D4595DD409BDA18D8",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_xlmr_pragmatic_finetune_20260523 --stage all",
+      "id": "q1a_xlmr_pragmatic_finetune_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_xlmr_pragmatic_finetune_20260523.md",
+      "sha256": "D5DC15E6F9D37CF3E9E22BA15580A70E243A0E9FE97A7A42D42F1D870B7FAB02",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_sailor_pragmatic_sft_20260521 --stage all",
+      "id": "q1a_sailor_pragmatic_sft_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_sailor_pragmatic_sft_20260521.md",
+      "sha256": "F447307815175C7D0F2C9583CE8840DF6FB699F75CF736F501A906FF1B1C0119",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_sailor_pragmatic_sft_20260522 --stage all",
+      "id": "q1a_sailor_pragmatic_sft_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_sailor_pragmatic_sft_20260522.md",
+      "sha256": "F784964D5D30534D4059CA92FEFA4AFB5EC33EF169F801EF0062B4B21EBC20D5",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_sailor_pragmatic_sft_20260523 --stage all",
+      "id": "q1a_sailor_pragmatic_sft_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_sailor_pragmatic_sft_20260523.md",
+      "sha256": "2B2C8A040BE1EDD1C94675BF1500A3D0FA6A540E27E7D3F946F313C93439B158",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_vistral_pragmatic_sft_20260521 --stage all",
+      "id": "q1a_vistral_pragmatic_sft_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_vistral_pragmatic_sft_20260521.md",
+      "sha256": "A0EF0E50444B44027AA653F36AD37795CE94A1A5D86F448866FEDA51A636CDDC",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_vistral_pragmatic_sft_20260522 --stage all",
+      "id": "q1a_vistral_pragmatic_sft_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_vistral_pragmatic_sft_20260522.md",
+      "sha256": "34A405B29022B7F66C76F0D65A5633141A08DA671913CBB27745297C0388DEE9",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_vistral_pragmatic_sft_20260523 --stage all",
+      "id": "q1a_vistral_pragmatic_sft_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_vistral_pragmatic_sft_20260523.md",
+      "sha256": "6C638CF11EAE09813C939A9177B994AC7FD32FE68048821103A093303720D82F",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_vipragsent_no_auxiliary_vistral_20260521 --stage all",
+      "id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_vipragsent_no_auxiliary_vistral_20260521.md",
+      "sha256": "2BB75571D69879BB80443F517B3AA05F8E0BF179154EA2E2472C1E35A3962038",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_vipragsent_no_auxiliary_vistral_20260522 --stage all",
+      "id": "q1a_vipragsent_no_auxiliary_vistral_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_vipragsent_no_auxiliary_vistral_20260522.md",
+      "sha256": "E5AA461C522D83E420B3D64853E649ACFABBBF8A70414CBA64B7E2E418F5BCAB",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_vipragsent_no_auxiliary_vistral_20260523 --stage all",
+      "id": "q1a_vipragsent_no_auxiliary_vistral_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_vipragsent_no_auxiliary_vistral_20260523.md",
+      "sha256": "B0E6CC3BB43EE4614D67978D99FA46EFF6B8A36F7800AEBDE612EBC2BD782A7B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_cot_only_vistral_20260521 --stage all",
+      "id": "q1a_cot_only_vistral_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_cot_only_vistral_20260521.md",
+      "sha256": "22597C8A344C9142D82E4EBAB60CAD2612CDC5D8CA967D25FA23673A2D078BCC",
+      "stage_plan": {
+        "evaluation_strategy": "reasoning_generation_shared_judge",
+        "execution_kind": "generation",
+        "executor_kind": "generation_trainable",
+        "plan_id": "cot_only_vistral_generation",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train_generation",
+          "generate_dev_reasoning",
+          "judge_dev_reasoning",
+          "compute_dev_reasoning_metrics",
+          "freeze_selection",
+          "generate_test_reasoning",
+          "judge_test_reasoning",
+          "compute_test_reasoning_metrics",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_cot_only_vistral_20260522 --stage all",
+      "id": "q1a_cot_only_vistral_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_cot_only_vistral_20260522.md",
+      "sha256": "F04292A9B1A138C08BEBBA341C872AF36AFC7F838CB641AC68E5661666DAC8EC",
+      "stage_plan": {
+        "evaluation_strategy": "reasoning_generation_shared_judge",
+        "execution_kind": "generation",
+        "executor_kind": "generation_trainable",
+        "plan_id": "cot_only_vistral_generation",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train_generation",
+          "generate_dev_reasoning",
+          "judge_dev_reasoning",
+          "compute_dev_reasoning_metrics",
+          "freeze_selection",
+          "generate_test_reasoning",
+          "judge_test_reasoning",
+          "compute_test_reasoning_metrics",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_cot_only_vistral_20260523 --stage all",
+      "id": "q1a_cot_only_vistral_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_cot_only_vistral_20260523.md",
+      "sha256": "BAA87155AC4CD3C85481968E4E5418B3B5DBE9E8DB9D06C85B9AF1601E903F0E",
+      "stage_plan": {
+        "evaluation_strategy": "reasoning_generation_shared_judge",
+        "execution_kind": "generation",
+        "executor_kind": "generation_trainable",
+        "plan_id": "cot_only_vistral_generation",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train_generation",
+          "generate_dev_reasoning",
+          "judge_dev_reasoning",
+          "compute_dev_reasoning_metrics",
+          "freeze_selection",
+          "generate_test_reasoning",
+          "judge_test_reasoning",
+          "compute_test_reasoning_metrics",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_explanation_only_vistral_20260521 --stage all",
+      "id": "q1a_explanation_only_vistral_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_explanation_only_vistral_20260521.md",
+      "sha256": "437F845B0F3FA2736FFB8BE82551FF719477052D6914107C83F77D43E9459045",
+      "stage_plan": {
+        "evaluation_strategy": "rationale_only_shared_judge",
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "rationale_checkpoint_reuse",
+        "plan_id": "explanation_only_vistral_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_full_vistral_source",
+          "validate_source_checkpoint",
+          "generate_dev_reasoning_from_rationale_decoder",
+          "judge_dev_reasoning",
+          "compute_dev_reasoning_metrics",
+          "generate_test_reasoning_from_rationale_decoder",
+          "judge_test_reasoning",
+          "compute_test_reasoning_metrics",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_explanation_only_vistral_20260522 --stage all",
+      "id": "q1a_explanation_only_vistral_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_explanation_only_vistral_20260522.md",
+      "sha256": "0C84935814F5E02EC58ABC25C4FDAF87C4CADEAA50DA15C1D0A2592F85995ACE",
+      "stage_plan": {
+        "evaluation_strategy": "rationale_only_shared_judge",
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "rationale_checkpoint_reuse",
+        "plan_id": "explanation_only_vistral_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_full_vistral_source",
+          "validate_source_checkpoint",
+          "generate_dev_reasoning_from_rationale_decoder",
+          "judge_dev_reasoning",
+          "compute_dev_reasoning_metrics",
+          "generate_test_reasoning_from_rationale_decoder",
+          "judge_test_reasoning",
+          "compute_test_reasoning_metrics",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_explanation_only_vistral_20260523 --stage all",
+      "id": "q1a_explanation_only_vistral_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_explanation_only_vistral_20260523.md",
+      "sha256": "920D231F5B8B9A0389217726FAA462A8AA0C9D544EF7E48785AFCC7D3FDD6DFE",
+      "stage_plan": {
+        "evaluation_strategy": "rationale_only_shared_judge",
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "rationale_checkpoint_reuse",
+        "plan_id": "explanation_only_vistral_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_full_vistral_source",
+          "validate_source_checkpoint",
+          "generate_dev_reasoning_from_rationale_decoder",
+          "judge_dev_reasoning",
+          "compute_dev_reasoning_metrics",
+          "generate_test_reasoning_from_rationale_decoder",
+          "judge_test_reasoning",
+          "compute_test_reasoning_metrics",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_vipragsent_full_vistral_20260521 --stage all",
+      "id": "q1a_vipragsent_full_vistral_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_vipragsent_full_vistral_20260521.md",
+      "sha256": "F7A24CB5657544C3345A0C656A2FC44C429B619C6C443FBD32E61D03CC60E427",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_vipragsent_full_vistral_20260522 --stage all",
+      "id": "q1a_vipragsent_full_vistral_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_vipragsent_full_vistral_20260522.md",
+      "sha256": "AC3D50B8E341650BD25D371688FEF44517BA0506DFB6FD1B888297CC02B03106",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_vipragsent_full_vistral_20260523 --stage all",
+      "id": "q1a_vipragsent_full_vistral_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_vipragsent_full_vistral_20260523.md",
+      "sha256": "52507E81828EE642DB8DC2740E7D84938955FF61B338C7EF1BA23ABB6D9C475D",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_azure_gpt41_mini_zeroshot --stage all",
+      "id": "q1a_azure_gpt41_mini_zeroshot",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_azure_gpt41_mini_zeroshot.md",
+      "sha256": "F69C135319380E53F2995F121AE8AFAF235A10B739E163CC9A5E19068135586B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1a_azure_gpt41_mini_8shot --stage all",
+      "id": "q1a_azure_gpt41_mini_8shot",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1a_azure_gpt41_mini_8shot.md",
+      "sha256": "A34106DCEC1B4694D018A14D6D639C9953EA04B3D8228947F3F00A4C9284CE2D",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_phobert_pol_single_20260521 --stage all",
+      "id": "q1b_phobert_pol_single_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_phobert_pol_single_20260521.md",
+      "sha256": "CBE8788FEBED4B1DAB237800CEC8DEFE9A6ABEB1BFD89AF23966983562FBFE28",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_phobert_pol_single_20260522 --stage all",
+      "id": "q1b_phobert_pol_single_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_phobert_pol_single_20260522.md",
+      "sha256": "39C8E6F277B72D6DE3B9BA2263D5049E4A5B53BDC75F6C0B82079A4BA9D9A9C0",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_phobert_pol_single_20260523 --stage all",
+      "id": "q1b_phobert_pol_single_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_phobert_pol_single_20260523.md",
+      "sha256": "688AF560939714A634A7FDE4644AB41B02F5F54192805B5C9F7E065BCE6480E4",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_phobert_emo_single_20260521 --stage all",
+      "id": "q1b_phobert_emo_single_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_phobert_emo_single_20260521.md",
+      "sha256": "8A5C80E0C73C94330B6CF7ADAE04DC70F543C312057AFF2B0D5BD7775316458B",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_phobert_emo_single_20260522 --stage all",
+      "id": "q1b_phobert_emo_single_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_phobert_emo_single_20260522.md",
+      "sha256": "5C2F99E68061F7496F8CD52D8C235265ABC41D017255B9CBCE548E61BB79BADC",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_phobert_emo_single_20260523 --stage all",
+      "id": "q1b_phobert_emo_single_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_phobert_emo_single_20260523.md",
+      "sha256": "81CCCDCBD5E1262DE6EDF1FA753F2262E9AA535F68F2C31B645E885B2EF8900F",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_phobert_multitask_8head_20260521 --stage all",
+      "id": "q1b_phobert_multitask_8head_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_phobert_multitask_8head_20260521.md",
+      "sha256": "7E55B820FCAEF8555CA21428DC9EE2006E501AB7A9EEF9E5359C9C80BAD2A6C7",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_phobert_multitask_8head_20260522 --stage all",
+      "id": "q1b_phobert_multitask_8head_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_phobert_multitask_8head_20260522.md",
+      "sha256": "5D0F4CAD6EBDA7CF193E79B38EFD3C26709D7474227DB5FF3147A227A18907E4",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_phobert_multitask_8head_20260523 --stage all",
+      "id": "q1b_phobert_multitask_8head_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_phobert_multitask_8head_20260523.md",
+      "sha256": "3FE60A52DA7A622AA0DE3DBAEF299F2DD5743755C71C42048A2685E50045FC42",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_xlmr_multitask_8head_20260521 --stage all",
+      "id": "q1b_xlmr_multitask_8head_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_xlmr_multitask_8head_20260521.md",
+      "sha256": "540395823FA9C1661FBD81C30E9EA5F0235BD757A0E43D6BAE91752AC9FA7CDB",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_xlmr_multitask_8head_20260522 --stage all",
+      "id": "q1b_xlmr_multitask_8head_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_xlmr_multitask_8head_20260522.md",
+      "sha256": "16A38D25844B058E7E915B864CE2265F94E933E2AE1E72F8D9E2B8226459466C",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_xlmr_multitask_8head_20260523 --stage all",
+      "id": "q1b_xlmr_multitask_8head_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_xlmr_multitask_8head_20260523.md",
+      "sha256": "8458B2C47B018A0DD9D3CA40F67260629696D3D2A33767C581245EB0B3CCB786",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_sailor_multitask_8head_20260521 --stage all",
+      "id": "q1b_sailor_multitask_8head_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_sailor_multitask_8head_20260521.md",
+      "sha256": "2BCDB5AB71F8099551BF7CB09B3B1750B2E5596F58F3A88E23311D2A1ABCA063",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_sailor_multitask_8head_20260522 --stage all",
+      "id": "q1b_sailor_multitask_8head_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_sailor_multitask_8head_20260522.md",
+      "sha256": "274A7116E5AA533FCD625610E9196763F5DE898738AB73967F2667588D87AC04",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_sailor_multitask_8head_20260523 --stage all",
+      "id": "q1b_sailor_multitask_8head_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_sailor_multitask_8head_20260523.md",
+      "sha256": "B3757F46FEF05C3272B966B43F1222673FA4D9E36699F0BD977BE43A164B0238",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_vistral_multitask_8head_20260521 --stage all",
+      "id": "q1b_vistral_multitask_8head_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_vistral_multitask_8head_20260521.md",
+      "sha256": "241A91FE1ED3E896B0921D422412D330B986B17B2CA69C975330897608EFB62E",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_vistral_multitask_8head_20260522 --stage all",
+      "id": "q1b_vistral_multitask_8head_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_vistral_multitask_8head_20260522.md",
+      "sha256": "F112A1AD7209CA0464834DEF7193503EA1739B2DF0FFCBC267A8BE549A5BB3DB",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_vistral_multitask_8head_20260523 --stage all",
+      "id": "q1b_vistral_multitask_8head_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_vistral_multitask_8head_20260523.md",
+      "sha256": "50F9DBBA1923CF3EFCFF4138CA9C13551C73597782223D16F854599D6C340740",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_vipragsent_full_phobert_20260521 --stage all",
+      "id": "q1b_vipragsent_full_phobert_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_vipragsent_full_phobert_20260521.md",
+      "sha256": "E3F303EF2B63E92344AFFFD21B0A772ACD7F415D9D1227B1229A0409C85E8C13",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_vipragsent_full_phobert_20260522 --stage all",
+      "id": "q1b_vipragsent_full_phobert_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_vipragsent_full_phobert_20260522.md",
+      "sha256": "41F047CC0835EC2D3BA403D46D27A8C83A45811EDA6C65E4EA697B4D6BA01D96",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_vipragsent_full_phobert_20260523 --stage all",
+      "id": "q1b_vipragsent_full_phobert_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_vipragsent_full_phobert_20260523.md",
+      "sha256": "6B572092627C16B9F18CCC394E0F66EDA231318CC18B1F78433EDF47097E19D7",
+      "stage_plan": {
+        "evaluation_strategy": "q1b_external_retention",
+        "execution_kind": "evaluation_only",
+        "executor_kind": "evaluation_only",
+        "plan_id": "q1b_evaluation_only",
+        "research_question": "Q1b",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_external_tests",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q1b_azure_gpt41_mini --stage all",
+      "id": "q1b_azure_gpt41_mini",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q1b_azure_gpt41_mini.md",
+      "sha256": "B1F2CD6C6547C763E7962E56729E6D3F126CC20FF0DD84B557464589E650044D",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_full_20260521 --stage all",
+      "id": "q2_full_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_full_20260521.md",
+      "sha256": "AD9DCCBFB4CE6AEB6CE355613F1B8786EC0529141D4D45CBACD16347B64F80C8",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_full_20260522 --stage all",
+      "id": "q2_full_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_full_20260522.md",
+      "sha256": "CF52F929E8F5D7477B13DDD280DBF64749CD243A1EB78F1582AF9F955A345884",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_full_20260523 --stage all",
+      "id": "q2_full_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_full_20260523.md",
+      "sha256": "2B06A7D40E77205B767BEE6E67377D8C87CC981046C678DBEA43A5095523759E",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_emotion_auxiliary_20260521 --stage all",
+      "id": "q2_no_emotion_auxiliary_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_emotion_auxiliary_20260521.md",
+      "sha256": "587DC747BC598AE4914D158BDAFBD7760C5EDE79ADFC4779C3A09560C4ABF16F",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_emotion_auxiliary_20260522 --stage all",
+      "id": "q2_no_emotion_auxiliary_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_emotion_auxiliary_20260522.md",
+      "sha256": "6FDCE432DCC70E1C23C7F466D6FBC509DCBFEEB52FA161A5C9D86227BE84B3A1",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_emotion_auxiliary_20260523 --stage all",
+      "id": "q2_no_emotion_auxiliary_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_emotion_auxiliary_20260523.md",
+      "sha256": "0037746D4CD9BB5E9E7EDB82FD8B2EE7ACE5524B4F23266BB876E9AA62578E6F",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_polarity_auxiliary_20260521 --stage all",
+      "id": "q2_no_polarity_auxiliary_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_polarity_auxiliary_20260521.md",
+      "sha256": "A233E691F79C90ADE2DE0AE67F5E1F7892947662BB1F21B2F6C3E258E76A32A7",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_polarity_auxiliary_20260522 --stage all",
+      "id": "q2_no_polarity_auxiliary_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_polarity_auxiliary_20260522.md",
+      "sha256": "FF9C64483AF99A94AED58E1B0790EDAF6D45BD651E00452892413E186628475E",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_polarity_auxiliary_20260523 --stage all",
+      "id": "q2_no_polarity_auxiliary_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_polarity_auxiliary_20260523.md",
+      "sha256": "144E141D60F73344D5AB32EDC2DAB180653FC0AD3A220D943EB20DF371262E8A",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_rationale_20260521 --stage all",
+      "id": "q2_no_rationale_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_rationale_20260521.md",
+      "sha256": "3DD17E64035801D864C54447D7A9C54C82C812D120A8A9E73F11E17F9AD6893B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_rationale_20260522 --stage all",
+      "id": "q2_no_rationale_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_rationale_20260522.md",
+      "sha256": "54B1982B2D790175906792B386C579C42816EAB0739A6018E1621AFD059FE208",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_rationale_20260523 --stage all",
+      "id": "q2_no_rationale_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_rationale_20260523.md",
+      "sha256": "3275B4078D82B047CC638A7AA9C8902A2A0C88FE2726592B7DA841BAE0FF8C34",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_uncertainty_weighting_20260521 --stage all",
+      "id": "q2_no_uncertainty_weighting_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_uncertainty_weighting_20260521.md",
+      "sha256": "8BA4BB7792052F4287EAF702C85F841C86386FE5D734BA7E1DA157E1803C301E",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_uncertainty_weighting_20260522 --stage all",
+      "id": "q2_no_uncertainty_weighting_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_uncertainty_weighting_20260522.md",
+      "sha256": "87A220622368E02166C46893E1C3A59DF7479BD4CD5AE3EC51FD7A7A37098726",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_uncertainty_weighting_20260523 --stage all",
+      "id": "q2_no_uncertainty_weighting_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_uncertainty_weighting_20260523.md",
+      "sha256": "6262E682AA41A44B1E886CFD615A6A5DFDCA09E5D600B7157E0A7A4FE7AE34B6",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_multitask_bundle_20260521 --stage all",
+      "id": "q2_no_multitask_bundle_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_multitask_bundle_20260521.md",
+      "sha256": "912D93BA62FE658AF0FB2CA245C6D0B4C98B97C2C9F2C72FCDC1311B2DAC52F6",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "component_bundle",
+        "executor_kind": "component_bundle",
+        "plan_id": "component_bundle",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_components",
+          "combine_component_predictions",
+          "evaluate_dev",
+          "freeze_component_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_multitask_bundle_20260522 --stage all",
+      "id": "q2_no_multitask_bundle_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_multitask_bundle_20260522.md",
+      "sha256": "CC8EDE1CC3CDAA2896202B5B44E8163D99AA465B7F95CD34117265F7FE0D3F9C",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "component_bundle",
+        "executor_kind": "component_bundle",
+        "plan_id": "component_bundle",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_components",
+          "combine_component_predictions",
+          "evaluate_dev",
+          "freeze_component_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q2_no_multitask_bundle_20260523 --stage all",
+      "id": "q2_no_multitask_bundle_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q2_no_multitask_bundle_20260523.md",
+      "sha256": "42F28AA1DA82FF7CE105154CF711FD736E03AF52E3AA96EF684D755DD8988934",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "component_bundle",
+        "executor_kind": "component_bundle",
+        "plan_id": "component_bundle",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_components",
+          "combine_component_predictions",
+          "evaluate_dev",
+          "freeze_component_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_32_20260521 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_32_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_32_20260521.md",
+      "sha256": "E903919D822EA10BFD93257B7399A4EB1DD86DEDBD5E39FF4B58BF8F751000C3",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_32_20260522 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_32_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_32_20260522.md",
+      "sha256": "3DEEBA78AA57C80B515B8324AB12DF0CAE6AF599E722403A679703868DE5C824",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_32_20260523 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_32_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_32_20260523.md",
+      "sha256": "06E0C085C998AEBC279B8275B6B9CE6C123B8536FFDB77DE6933A20BE86C6419",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_64_20260521 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_64_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_64_20260521.md",
+      "sha256": "7E6EEDD2B152A82AD71ED5FF08B2CCD584BD24171A28C91650E1D2BC913275A8",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_64_20260522 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_64_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_64_20260522.md",
+      "sha256": "F0D25534C0CB4DEC7E75C9A18DA7402152D33942E4C5A41D0ED7A81C9D1ADBD5",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_64_20260523 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_64_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_64_20260523.md",
+      "sha256": "C911CEF62303A7E79D4222F9019B0F930E200906C487A358C2E0F606A1C3AE07",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_128_20260521 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_128_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_128_20260521.md",
+      "sha256": "0213E9C7F7E531A74071B9CE16130D86F3E2699127F177EA9B4F15BABF161F80",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_128_20260522 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_128_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_128_20260522.md",
+      "sha256": "10389BA72F5149982321E79CF203B4CC84F20EB5165DB79537E6883C950C7E4F",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_128_20260523 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_128_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_128_20260523.md",
+      "sha256": "6D713A6C738E1267BB5D000B02A9F826CDDBDAC77C64BF996E1E3C3644F1F30E",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_256_20260521 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_256_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_256_20260521.md",
+      "sha256": "12F438245DE47760DEBB358A525F5EA34F4EAA7C9669D8CE5958758CDA25C7A5",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_256_20260522 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_256_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_256_20260522.md",
+      "sha256": "90A382B373DCBF222B2C1483792D99F9E92055CB4D16DDBC940717BB7C7BA66E",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_256_20260523 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_256_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_256_20260523.md",
+      "sha256": "1B253D63E18713E0600E0E157856CEA077D34964BBE67BD7231E081246134942",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_512_20260521 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_512_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_512_20260521.md",
+      "sha256": "0E05B12E2B9FBAB5D090A5F62FCBB0362097D63D9E1B8A372AC8E9BC56E06F99",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_512_20260522 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_512_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_512_20260522.md",
+      "sha256": "75A86505B9D9A43156513A0C13A097B6EB5CB37F7F7435AAC1C91A98E2AB3D81",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_512_20260523 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_512_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_512_20260523.md",
+      "sha256": "01C85664106E8A502038914E427AFEEC23FD1FB5360EAFE4B47C88A0BE7950E3",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_full_20260521 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_full_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_full_20260521.md",
+      "sha256": "AC5C17AD2AB9A881B45AD7C819AFCD77EAF71FA9943DEFA97B7628BDBB97B1C7",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_full_20260522 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_full_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_full_20260522.md",
+      "sha256": "FC171B2415315BC83D39F0525FD0D848C9C47DB41E36ADAD13560C2302A6B4DE",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_phobert_pragmatic_finetune_full_20260523 --stage all",
+      "id": "q3_phobert_pragmatic_finetune_full_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_phobert_pragmatic_finetune_full_20260523.md",
+      "sha256": "AAF253239D53A5B8AD816C82D3DAA1BECB1BCCF79DA59D4CC5450F7858CED099",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_32_20260521 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_32_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_32_20260521.md",
+      "sha256": "8C3658C7A004E3EFE5B7B246E49281563477AFDEC9894408F9CBE9B7130D9BB1",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_32_20260522 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_32_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_32_20260522.md",
+      "sha256": "3ABC8A7149973EAC1E63E6F72B80475267E0BD8535DC2BDE85FF70FE6738822B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_32_20260523 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_32_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_32_20260523.md",
+      "sha256": "F62A6913A1CC7DDE6D8FD35FAE2EBBF8B7206C93935A9DD44C2DF56A0914B0CA",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_64_20260521 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_64_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_64_20260521.md",
+      "sha256": "C27801624FE8355A4D2B25465D2DFE2DFE0EEF521C418F239EBFF41A8AD92581",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_64_20260522 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_64_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_64_20260522.md",
+      "sha256": "DEC50BAADB2FFF34AA0158246B2C7C198CB5DCC1D296E09724AE22942CEA9654",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_64_20260523 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_64_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_64_20260523.md",
+      "sha256": "761AC62208D0FB15D2BC8B8A7A719B7123DDCDF1A5DE4489F0366BCCB80A8BC0",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_128_20260521 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_128_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_128_20260521.md",
+      "sha256": "9E405E875C45563B276BCEFF8F47E457F8FB53909E5516C00EDB8913FF73AA1B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_128_20260522 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_128_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_128_20260522.md",
+      "sha256": "516F4C4136652328317790FF846F1D6315C447AFC806F0ADA24E664CAC830CC0",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_128_20260523 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_128_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_128_20260523.md",
+      "sha256": "99642AA439DC56F3E116EBC0B4F9EE486CC58E493F3E15A17CF3BE1FDA341DBE",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_256_20260521 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_256_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_256_20260521.md",
+      "sha256": "16B8A7E66A6CA624F57C437D473EBDDA14CF75A6DDEF0E92A1DFC9D2CEFA92E2",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_256_20260522 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_256_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_256_20260522.md",
+      "sha256": "54918A64ECD3ADC9A53A979E9013311EAB6BE8E9EB11E00585706C933DE7F146",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_256_20260523 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_256_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_256_20260523.md",
+      "sha256": "FC677D1DE6DF8AB294CA317FAE1EC53D878ED16259AEB4868E8590308B8B1F7B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_512_20260521 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_512_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_512_20260521.md",
+      "sha256": "C4E14CAACCC2B0B16265E0F6186F89F7DD0A1984031C18CE7B93D551557ECF12",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_512_20260522 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_512_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_512_20260522.md",
+      "sha256": "F540AA66C96791D72CFBCE0ECCB4EC9A166B3DF8DD78D10120161B73F6DA595B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_512_20260523 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_512_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_512_20260523.md",
+      "sha256": "4D2C247803FB050173519E416ADC71ED413D5290AE2FFAD58F9B42608C46EEE9",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_full_20260521 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_full_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_full_20260521.md",
+      "sha256": "9CB5508DA77D22C0327A03FA8A71CF045245B35A752F7962512225F33F7967E0",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_full_20260522 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_full_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_full_20260522.md",
+      "sha256": "32CF1D518D0D774D609976EF9D4A50038BCBAFDA4E37D645BE554BBEF799DA40",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_xlmr_pragmatic_finetune_full_20260523 --stage all",
+      "id": "q3_xlmr_pragmatic_finetune_full_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_xlmr_pragmatic_finetune_full_20260523.md",
+      "sha256": "C88F264EA3D390E363EA4109E37BC9440DED7AABA6A6DB6FE5E61E12006BBBA1",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_32_20260521 --stage all",
+      "id": "q3_vistral_pragmatic_sft_32_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_32_20260521.md",
+      "sha256": "F72BE902B97043F642C8D8ED553340FBEAB34333038D73DB4F8F749700168570",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_32_20260522 --stage all",
+      "id": "q3_vistral_pragmatic_sft_32_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_32_20260522.md",
+      "sha256": "68F4F20A931B8490F68A0A88CD81CD20BB2E372270203531EAEFDD79C69654B4",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_32_20260523 --stage all",
+      "id": "q3_vistral_pragmatic_sft_32_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_32_20260523.md",
+      "sha256": "CF39272160B08A09F377B7D9EE8C7037998498B261AE833DB11659F78A177746",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_64_20260521 --stage all",
+      "id": "q3_vistral_pragmatic_sft_64_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_64_20260521.md",
+      "sha256": "8F01FE8D74285C11AEABC33F83A970A489E72C405869A89CF0C1A7A70E674C34",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_64_20260522 --stage all",
+      "id": "q3_vistral_pragmatic_sft_64_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_64_20260522.md",
+      "sha256": "A884630A779BF814B2F6C77B1F1D0D85DC81CAFFD7BA64117FC36DEF5A5818B3",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_64_20260523 --stage all",
+      "id": "q3_vistral_pragmatic_sft_64_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_64_20260523.md",
+      "sha256": "9D354B9D3EF44EC649F3853763C9AC75CF06A2142890589EB8F620780FBB9467",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_128_20260521 --stage all",
+      "id": "q3_vistral_pragmatic_sft_128_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_128_20260521.md",
+      "sha256": "C8A943933C3829F1A1BE22B7DFF3E83AC1B831465C6C2A9BABBBD366E474A252",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_128_20260522 --stage all",
+      "id": "q3_vistral_pragmatic_sft_128_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_128_20260522.md",
+      "sha256": "AED038EE3E0972471EEE1DC59B7034FF79B1F636BA47DE63516DEAB3DCCAF850",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_128_20260523 --stage all",
+      "id": "q3_vistral_pragmatic_sft_128_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_128_20260523.md",
+      "sha256": "5522E0D60F7C66B3579F881B5B553FE74B491AC8657000A07AFC5DC7EE49570A",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_256_20260521 --stage all",
+      "id": "q3_vistral_pragmatic_sft_256_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_256_20260521.md",
+      "sha256": "0654A447FA439B6E06D746E61FF655DEC5E144CC3D23213309941FA2281A8DD2",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_256_20260522 --stage all",
+      "id": "q3_vistral_pragmatic_sft_256_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_256_20260522.md",
+      "sha256": "AF9775F144530B6D76002515039A1581C946FE45A8E8FC9F33C4672F4078D9AA",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_256_20260523 --stage all",
+      "id": "q3_vistral_pragmatic_sft_256_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_256_20260523.md",
+      "sha256": "09372B64C51F8599341AB25AAF9F459E2D80E926AA6906939672AD03242AA65B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_512_20260521 --stage all",
+      "id": "q3_vistral_pragmatic_sft_512_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_512_20260521.md",
+      "sha256": "5AF5BF53CF622E8940C1DEA2EAFB44B18706AE09A408FED04984BEFADDCE526C",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_512_20260522 --stage all",
+      "id": "q3_vistral_pragmatic_sft_512_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_512_20260522.md",
+      "sha256": "94EB3FE8D66193B26982F20CDE6EB4BE25F6E988DDE50380138624883E5B9157",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_512_20260523 --stage all",
+      "id": "q3_vistral_pragmatic_sft_512_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_512_20260523.md",
+      "sha256": "EAA37E1E0710BCFC03B1B7E7887928FA861C7868F789475C45D9A616E8D3DB1A",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_full_20260521 --stage all",
+      "id": "q3_vistral_pragmatic_sft_full_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_full_20260521.md",
+      "sha256": "55E1E8C57F3A34AF4E067541A00222FE0D2AAA2FC1DFB82DD6BC41066253A51B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_full_20260522 --stage all",
+      "id": "q3_vistral_pragmatic_sft_full_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_full_20260522.md",
+      "sha256": "CB579FC6D00965970787D8BE94B2EE05560E391585AD9B4743BD79635CDCA333",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vistral_pragmatic_sft_full_20260523 --stage all",
+      "id": "q3_vistral_pragmatic_sft_full_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vistral_pragmatic_sft_full_20260523.md",
+      "sha256": "B555AC3271724C16F547346E615F2A8A841540BF7F14F07C12D367D8241DFDAD",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_32_20260521 --stage all",
+      "id": "q3_vipragsent_full_vistral_32_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_32_20260521.md",
+      "sha256": "48C301BF087AE236BA1F47CA745B325E9AD06D4A87EB4E0B4A8B43CD52C2025C",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_32_20260522 --stage all",
+      "id": "q3_vipragsent_full_vistral_32_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_32_20260522.md",
+      "sha256": "F60BABC35942F5D734599B26FD4C5470E19B492D65D525BBD3A0489F88A917F0",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_32_20260523 --stage all",
+      "id": "q3_vipragsent_full_vistral_32_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_32_20260523.md",
+      "sha256": "640BE730EC3E11608D5650F7D9B4FBF9E2B38A510CB4B2E178FD4D62AD9AD5E0",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_64_20260521 --stage all",
+      "id": "q3_vipragsent_full_vistral_64_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_64_20260521.md",
+      "sha256": "1029E907595AE63E3953719783861786E1DF857FB09874A9E0FE4566D79EB883",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_64_20260522 --stage all",
+      "id": "q3_vipragsent_full_vistral_64_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_64_20260522.md",
+      "sha256": "C087C16C459F5A7AE8B8C4A132F7FAF165F4C312A459D90784E1CB171B34D14D",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_64_20260523 --stage all",
+      "id": "q3_vipragsent_full_vistral_64_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_64_20260523.md",
+      "sha256": "771984D1B64A554AA993351217F86620C58432E4A94206C10A9DC41E110A2301",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_128_20260521 --stage all",
+      "id": "q3_vipragsent_full_vistral_128_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_128_20260521.md",
+      "sha256": "AECEA44FCAD6DF50FC739A1BCEA4CCB439B28983599AB3FB10FE6BC67EB18D9D",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_128_20260522 --stage all",
+      "id": "q3_vipragsent_full_vistral_128_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_128_20260522.md",
+      "sha256": "39C46BBF079F9358ADBECAE4F6142C846D47E51BE15F565873E6CB688639926F",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_128_20260523 --stage all",
+      "id": "q3_vipragsent_full_vistral_128_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_128_20260523.md",
+      "sha256": "4F3A69DB4F6C192398C40597C8192EFB40C4811175AFA715F1BDA0AE2A60889E",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_256_20260521 --stage all",
+      "id": "q3_vipragsent_full_vistral_256_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_256_20260521.md",
+      "sha256": "C1B44512B9AAB6848657D333C1D227EC64E36B18BBC4D53E6D37796291304720",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_256_20260522 --stage all",
+      "id": "q3_vipragsent_full_vistral_256_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_256_20260522.md",
+      "sha256": "2534BBE9BD51B8AF6BEA3A95F1E0B525CC55F89B401289BA4D537467A2FE3246",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_256_20260523 --stage all",
+      "id": "q3_vipragsent_full_vistral_256_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_256_20260523.md",
+      "sha256": "675A35E492A6E854E83057DDBDE6D5076BEC9C907DF564EC0830C8BEF5910755",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_512_20260521 --stage all",
+      "id": "q3_vipragsent_full_vistral_512_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_512_20260521.md",
+      "sha256": "D4CEEB103D43E08B5E54B0171C78634D57B416E7DC95FC0B5ED3A150BB22411D",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_512_20260522 --stage all",
+      "id": "q3_vipragsent_full_vistral_512_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_512_20260522.md",
+      "sha256": "19C3C741F75A7DD19E506B2F058E6AF276C4201445A6B6285A60213092DCC877",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_512_20260523 --stage all",
+      "id": "q3_vipragsent_full_vistral_512_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_512_20260523.md",
+      "sha256": "753331C8576FF2061A7B880DD0214DD09ADD89160E1CC39DCE1C85AAEF1528D5",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_full_20260521 --stage all",
+      "id": "q3_vipragsent_full_vistral_full_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_full_20260521.md",
+      "sha256": "81BBF8180E171619CEFD10517B53E0DCB1DF4A3E23989A56B6EFE353E2847CD5",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_full_20260522 --stage all",
+      "id": "q3_vipragsent_full_vistral_full_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_full_20260522.md",
+      "sha256": "3C0F52E1D1425BC15044B39D7D5E42CA54033809DBF80AAFD47FAE09995FC174",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_vipragsent_full_vistral_full_20260523 --stage all",
+      "id": "q3_vipragsent_full_vistral_full_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_vipragsent_full_vistral_full_20260523.md",
+      "sha256": "E1D080D587640A6BD1039D57247E86639868F471280E03685574E516911F12E6",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "trainable",
+        "executor_kind": "single_model_trainable",
+        "plan_id": "trainable_classifier",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "train",
+          "evaluate_dev",
+          "freeze_selection",
+          "evaluate_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_azure_gpt41_mini_8shot_32 --stage all",
+      "id": "q3_azure_gpt41_mini_8shot_32",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_32.md",
+      "sha256": "1D2215759D04E6A2DDE71DA4D76D379C5EDE41F71E6A0F6857333B924914757B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_azure_gpt41_mini_8shot_64 --stage all",
+      "id": "q3_azure_gpt41_mini_8shot_64",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_64.md",
+      "sha256": "04B95C26B9DCD0A01FA9D07B8F72B227415E7E1533F6D82EE7BFBF2929D828A7",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_azure_gpt41_mini_8shot_128 --stage all",
+      "id": "q3_azure_gpt41_mini_8shot_128",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_128.md",
+      "sha256": "7EC390CF3ACA23803B38792BB97B5F5970B0B0713D738B4BDBEC53EEEFC8B3AB",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_azure_gpt41_mini_8shot_256 --stage all",
+      "id": "q3_azure_gpt41_mini_8shot_256",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_256.md",
+      "sha256": "BC26856EAF9B4E5B3A8E9F9ECFD93F7D80457A42CFDC78381CB7398419968FEB",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_azure_gpt41_mini_8shot_512 --stage all",
+      "id": "q3_azure_gpt41_mini_8shot_512",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_512.md",
+      "sha256": "6F3F18CB5F14B98C4B5BB3831F32F92E1780F4D0666F723DA97E4FEF9BB685F9",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q3_azure_gpt41_mini_8shot_full --stage all",
+      "id": "q3_azure_gpt41_mini_8shot_full",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q3_azure_gpt41_mini_8shot_full.md",
+      "sha256": "4E892DE5C2E323E9DF09BDA453342D35382AC25AB7C157CE18F4280537431873",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "azure",
+        "executor_kind": "azure",
+        "plan_id": "azure",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "execute_api_job",
+          "validate_responses",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q4_phobert_pragmatic_finetune_20260521 --stage all",
+      "id": "q4_phobert_pragmatic_finetune_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q4_phobert_pragmatic_finetune_20260521.md",
+      "sha256": "A235B5AC3BD96EC6C391DE8CBDA806F75ADFB184783568802D829A0287E87FB2",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q4_phobert_pragmatic_finetune_20260522 --stage all",
+      "id": "q4_phobert_pragmatic_finetune_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q4_phobert_pragmatic_finetune_20260522.md",
+      "sha256": "AD99CA6F857187BCB66770E7D6F8A95679BA513608E2FDBF0D6933E9B41F75E1",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q4_phobert_pragmatic_finetune_20260523 --stage all",
+      "id": "q4_phobert_pragmatic_finetune_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q4_phobert_pragmatic_finetune_20260523.md",
+      "sha256": "93588553EDB677EECCD419EDA91EF46F87890E0768115B1E0E4B507B8CAA5DCF",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q4_vistral_pragmatic_sft_20260521 --stage all",
+      "id": "q4_vistral_pragmatic_sft_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260521.md",
+      "sha256": "8F7050759D8F5972679A3E7FB96AECF012A16053BCF33C28290FCBE48ADF346E",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q4_vistral_pragmatic_sft_20260522 --stage all",
+      "id": "q4_vistral_pragmatic_sft_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260522.md",
+      "sha256": "E8BCE32CB6DA0466D5340403D243541E1B42493282882FB73653A4A46AA41D5C",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q4_vistral_pragmatic_sft_20260523 --stage all",
+      "id": "q4_vistral_pragmatic_sft_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q4_vistral_pragmatic_sft_20260523.md",
+      "sha256": "A5A9CCA2E6B86832C471FA99E32AA84828E0F5A5DBA4CB664EA269D7FC0652B3",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q4_vipragsent_full_vistral_20260521 --stage all",
+      "id": "q4_vipragsent_full_vistral_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q4_vipragsent_full_vistral_20260521.md",
+      "sha256": "6DC27C05D1621B15BAEC985C9B225A7909A7D6FC3F627C512824D49438C03731",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q4_vipragsent_full_vistral_20260522 --stage all",
+      "id": "q4_vipragsent_full_vistral_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q4_vipragsent_full_vistral_20260522.md",
+      "sha256": "D863755B26799EF1BBD4BC743A9CB14446004F23FD522F891D3DFB1B721B168E",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id q4_vipragsent_full_vistral_20260523 --stage all",
+      "id": "q4_vipragsent_full_vistral_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/q4_vipragsent_full_vistral_20260523.md",
+      "sha256": "B12F8FC2F58AE229CBE30EA1C7E99283A61BEBB556FA6FAA2EB924005AEFDEEA",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "artifact_extraction",
+        "executor_kind": "artifact_extraction",
+        "plan_id": "q4_source_extraction",
+        "research_question": "Q4",
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "validate_source_predictions",
+          "extract_pragmatic_calibration",
+          "extract_learning_history",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id backbone_sensitivity_vipragsent_full_phobert_20260521 --stage all",
+      "id": "backbone_sensitivity_vipragsent_full_phobert_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260521.md",
+      "sha256": "CB61664105370F0B49A89B1C848D2632011EC548365735B73803A77B47AB6B11",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "checkpoint_reuse",
+        "plan_id": "checkpoint_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_reused_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id backbone_sensitivity_vipragsent_full_phobert_20260522 --stage all",
+      "id": "backbone_sensitivity_vipragsent_full_phobert_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260522.md",
+      "sha256": "99903B623088B729D5D1E535AD738ADB39552BE902DC2686FCFBF87DB77F7C26",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "checkpoint_reuse",
+        "plan_id": "checkpoint_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_reused_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id backbone_sensitivity_vipragsent_full_phobert_20260523 --stage all",
+      "id": "backbone_sensitivity_vipragsent_full_phobert_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_phobert_20260523.md",
+      "sha256": "B543662EE39460616D73961D41AD14D6E74B2BFE7248A4A68D9FF252C798DFF0",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "checkpoint_reuse",
+        "plan_id": "checkpoint_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_reused_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id backbone_sensitivity_vipragsent_full_vistral_20260521 --stage all",
+      "id": "backbone_sensitivity_vipragsent_full_vistral_20260521",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_vistral_20260521.md",
+      "sha256": "6D9F69221839AB91C960E423341DEAB453AD9C7FF2F7F446BAB4936F7BE9BAD1",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "checkpoint_reuse",
+        "plan_id": "checkpoint_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_reused_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id backbone_sensitivity_vipragsent_full_vistral_20260522 --stage all",
+      "id": "backbone_sensitivity_vipragsent_full_vistral_20260522",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_vistral_20260522.md",
+      "sha256": "C703DE9C374466E303D8E38441D6F04AFE657D32F2891A518D54E77871854160",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "checkpoint_reuse",
+        "plan_id": "checkpoint_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_reused_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "cli_kind": "experiment",
+      "command": "python scripts/run_single_experiment.py --experiment-id backbone_sensitivity_vipragsent_full_vistral_20260523 --stage all",
+      "id": "backbone_sensitivity_vipragsent_full_vistral_20260523",
+      "kind": "experiment",
+      "path": "prompts/sequential/experiments/backbone_sensitivity_vipragsent_full_vistral_20260523.md",
+      "sha256": "0FCA5F1BC70EEC0D44A49830C0FD3EFBE5AEE42C2E551C0DE54E4099E602AF8B",
+      "stage_plan": {
+        "evaluation_strategy": null,
+        "execution_kind": "checkpoint_reuse",
+        "executor_kind": "checkpoint_reuse",
+        "plan_id": "checkpoint_reuse",
+        "research_question": null,
+        "stages": [
+          "preflight",
+          "resolve_approved_source",
+          "evaluate_reused_test",
+          "export_artifacts",
+          "validate_artifacts",
+          "generate_review_summary"
+        ]
+      }
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_rationale_generation --stage all",
+      "id": "azure_rationale_generation",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_rationale_generation.md",
+      "sha256": "045A792A625C117F932AC1282F711F6C67174AC2C85FC4CF9620D178DAABBA17"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_pragmatic_zero_shot --stage all",
+      "id": "azure_pragmatic_zero_shot",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_pragmatic_zero_shot.md",
+      "sha256": "810513AB54841CA5DF3DD182C2614A79F9A902AA3CC0A4E8EC0CFB68563F65E2"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_gpt41_mini_8shot --stage all",
+      "id": "azure_gpt41_mini_8shot",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_gpt41_mini_8shot.md",
+      "sha256": "11CFAA6A99CF021624BF1FED6E4BB52B8AF39A6C40007AD668BEAD202A18F305"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_polarity_dedicated --stage all",
+      "id": "azure_polarity_dedicated",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_polarity_dedicated.md",
+      "sha256": "3AF357D8E08F19EBD415867046784DE014D571314C333B782ECDACE3E796B289"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_emotion_dedicated --stage all",
+      "id": "azure_emotion_dedicated",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_emotion_dedicated.md",
+      "sha256": "1D617A2664BFAC620FE7BA1D458F92B7C04FD0E8BB67F81ECED3750EF8199245"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_32 --stage all",
+      "id": "azure_q3_pragmatic_8_shot_32",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_32.md",
+      "sha256": "485AFD1D3FDC9933D442E7B6037ABDCCA85A02F69AB4631B79E4782E58397CF0"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_64 --stage all",
+      "id": "azure_q3_pragmatic_8_shot_64",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_64.md",
+      "sha256": "A899400F294384D3C3F2F2E69094B842E17D94EE64CF65B0FAF0BEA89C904604"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_128 --stage all",
+      "id": "azure_q3_pragmatic_8_shot_128",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_128.md",
+      "sha256": "62DF217E19AF6708151F99D8872DF7FF1AD4C0915ABA2001296920C0EC9A4BB0"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_256 --stage all",
+      "id": "azure_q3_pragmatic_8_shot_256",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_256.md",
+      "sha256": "0B2F43CACBA6FF9108D0C191DDFDD435DC4C39984A0489EB1B16A147C5CF6888"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_512 --stage all",
+      "id": "azure_q3_pragmatic_8_shot_512",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_512.md",
+      "sha256": "43F9EECBC58C398FD1E0F1561845AD9B7D8DF2560D7A5177FF65477EABB43BAF"
+    },
+    {
+      "command": "python scripts/run_single_azure_job.py --job-id azure_q3_pragmatic_8_shot_full --stage all",
+      "id": "azure_q3_pragmatic_8_shot_full",
+      "kind": "azure_job",
+      "path": "prompts/sequential/azure/azure_q3_pragmatic_8_shot_full.md",
+      "sha256": "95AFAFF2D0F155FE6B1829B15FCDEA6CA5683685FDDA4DA7A811DFBE698A67CA"
+    },
+    {
+      "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family phobert_base",
+      "id": "phobert_base",
+      "kind": "phase15",
+      "path": "prompts/sequential/phase15/phobert_base.md",
+      "sha256": "096D21A647EDC6EEB09DC78E24A3C090E8052E570FB8FA3EB77909B9405BB2AA"
+    },
+    {
+      "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family xlmr_large",
+      "id": "xlmr_large",
+      "kind": "phase15",
+      "path": "prompts/sequential/phase15/xlmr_large.md",
+      "sha256": "36DAA7A0D6062EF0D516B0456196F7B3E36C559A8B636008E754F11A824CDE8E"
+    },
+    {
+      "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family sailor_7b",
+      "id": "sailor_7b",
+      "kind": "phase15",
+      "path": "prompts/sequential/phase15/sailor_7b.md",
+      "sha256": "5DC5B5926608DC3B48F247A6DBA6F2F4E22F5D271FC9229A0692ADCF27FBBD3B"
+    },
+    {
+      "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family vistral_7b",
+      "id": "vistral_7b",
+      "kind": "phase15",
+      "path": "prompts/sequential/phase15/vistral_7b.md",
+      "sha256": "9D422DF3B3AC7F0A1585F47EBF41BBB1893C2895BB3E620601F1A26B098D0401"
+    },
+    {
+      "command": "python scripts/aggregate_approved_runs.py --research-question Q1a",
+      "id": "Q1a",
+      "kind": "aggregation",
+      "path": "prompts/sequential/aggregation/q1a.md",
+      "sha256": "F3050A0B9AC10372A83FDAE0BEA737F406912C24B50C4A16BE76162FD17F99DF"
+    },
+    {
+      "command": "python scripts/aggregate_approved_runs.py --research-question Q1b",
+      "id": "Q1b",
+      "kind": "aggregation",
+      "path": "prompts/sequential/aggregation/q1b.md",
+      "sha256": "76FB083A4DF48237DD82F1DB400067D553E15C11F19E7E3970BBAB4D532A41B0"
+    },
+    {
+      "command": "python scripts/aggregate_approved_runs.py --research-question Q2",
+      "id": "Q2",
+      "kind": "aggregation",
+      "path": "prompts/sequential/aggregation/q2.md",
+      "sha256": "7BF782BDCA59B9CD4E8F9D58754114E3F4FDB3A49C1B78D5555B4B00CEA671C2"
+    },
+    {
+      "command": "python scripts/aggregate_approved_runs.py --research-question Q3",
+      "id": "Q3",
+      "kind": "aggregation",
+      "path": "prompts/sequential/aggregation/q3.md",
+      "sha256": "1E18B1D28199847CCF38C488DF3471231273B6AD9AE03D327046ACA205C2E662"
+    },
+    {
+      "command": "python scripts/aggregate_approved_runs.py --research-question Q4",
+      "id": "Q4",
+      "kind": "aggregation",
+      "path": "prompts/sequential/aggregation/q4.md",
+      "sha256": "E1FCDEBDCF980C72D52F1BDC17A36A55F6F53AFDEE1F760E50AB1BF662F49530"
+    },
+    {
+      "command": "python scripts/aggregate_approved_runs.py --research-question all",
+      "id": "all",
+      "kind": "final_aggregation",
+      "path": "prompts/sequential/aggregation/final_aggregation.md",
+      "sha256": "DC7C86A35B2D091B365CCF3BD2CE5F288A75C02617AE3B0066E3D3A704F96000"
+    }
+  ],
+  "schema_version": 3
+}

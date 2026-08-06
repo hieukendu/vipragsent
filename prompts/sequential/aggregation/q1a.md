@@ -1,0 +1,17 @@
+# ViPragSent approved-run aggregation: Q1a
+
+This runbook aggregates only completed, explicitly approved sequential runs for `Q1a`. It does not train, download models, call Azure, approve runs, or start another run.
+
+## Required command
+
+Run:
+
+`python scripts/aggregate_approved_runs.py --research-question Q1a`
+
+The command must reject any missing run, non-PASS run, missing prediction/metric artifact, unresolved protocol, or approval status other than `APPROVED` with a named approver and timestamp. Paste the complete aggregation report into the Codex chat.
+
+Do not fabricate approval, alter the locked protocol, or begin a subsequent research question automatically. Stop after reporting the result and wait for explicit user direction. The approval gate remains `PENDING_USER_APPROVAL` until the user changes it.
+
+AGGREGATION_STATUS: PASS | BLOCKED
+USER_REVIEW_STATUS: PENDING
+NEXT_RUN_ALLOWED: NO

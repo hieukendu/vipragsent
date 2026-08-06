@@ -16,8 +16,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-ml = [
+core = [
   "torch>=2.2",
+]
+ml = [
   "transformers>=4.45",
   "accelerate>=0.34",
   "peft>=0.13",
@@ -31,6 +33,9 @@ data = [
   "openpyxl>=3.1",
   "kaggle>=1.6",
   "huggingface-hub>=0.25",
+]
+viz = [
+  "matplotlib>=3.8",
 ]
 dev = [
   "pytest>=8.0",
@@ -48,6 +53,13 @@ where = ["src"]
 testpaths = ["tests"]
 pythonpath = ["src"]
 addopts = "-q"
+markers = [
+  "server: requires Java/VnCoreNLP, Azure, or other server-only dependencies",
+  "gpu: requires CUDA or model weights",
+  "azure_live: makes live Azure requests",
+  "model_download: downloads model/tokenizer weights",
+  "integration_slow: deterministic integration coverage that may take longer",
+]
 
 [tool.ruff]
 line-length = 100
@@ -56,6 +68,7 @@ src = ["src", "scripts", "tests"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP"]
+ignore = ["E501"]
 
 [tool.mypy]
 python_version = "3.11"

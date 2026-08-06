@@ -1,0 +1,30 @@
+{
+  "missing_values_block": true,
+  "q4_ddof": 1,
+  "q4_summary_rows": 18,
+  "status": "PASS",
+  "table4": [
+    {
+      "backbone": "phobert_base",
+      "changed_components": "{\"optimizer\": \"same\"}",
+      "configuration": "full",
+      "gpu_hours": 2.0,
+      "ord_external_f1": 0.5,
+      "polarity_dev_ece": 0.2,
+      "prag_dev_f1": 0.7,
+      "relative_cost_to_full_phobert": 1.0,
+      "seed_count": 1
+    },
+    {
+      "backbone": "phobert_base",
+      "changed_components": "{\"optimizer\": \"same\"}",
+      "configuration": "variant",
+      "gpu_hours": 1.0,
+      "ord_external_f1": 0.8,
+      "polarity_dev_ece": 0.2,
+      "prag_dev_f1": 0.7,
+      "relative_cost_to_full_phobert": 0.5,
+      "seed_count": 1
+    }
+  ]
+}

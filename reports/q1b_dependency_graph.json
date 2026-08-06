@@ -1,0 +1,1780 @@
+{
+  "checkpoint_matrix_sha256": "D6498EC5BA02454F48A4D80DC03123F6F5D6E40E9C012D8777028536D1C52EEE",
+  "coverage": [
+    {
+      "inventory_id": "backbone_sensitivity_vipragsent_full_phobert_20260521",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_vipragsent_full_phobert:20260521"
+    },
+    {
+      "inventory_id": "backbone_sensitivity_vipragsent_full_phobert_20260522",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_vipragsent_full_phobert:20260522"
+    },
+    {
+      "inventory_id": "backbone_sensitivity_vipragsent_full_phobert_20260523",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_vipragsent_full_phobert:20260523"
+    },
+    {
+      "inventory_id": "backbone_sensitivity_vipragsent_full_vistral_20260521",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260521"
+    },
+    {
+      "inventory_id": "backbone_sensitivity_vipragsent_full_vistral_20260522",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260522"
+    },
+    {
+      "inventory_id": "backbone_sensitivity_vipragsent_full_vistral_20260523",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260523"
+    },
+    {
+      "inventory_id": "q1a_azure_gpt41_mini_8shot",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_azure_gpt41_mini_8shot"
+    },
+    {
+      "inventory_id": "q1a_azure_gpt41_mini_zeroshot",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_azure_gpt41_mini_zeroshot"
+    },
+    {
+      "inventory_id": "q1a_cot_only_vistral_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_cot_only_vistral_20260521"
+    },
+    {
+      "inventory_id": "q1a_cot_only_vistral_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_cot_only_vistral_20260522"
+    },
+    {
+      "inventory_id": "q1a_cot_only_vistral_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_cot_only_vistral_20260523"
+    },
+    {
+      "inventory_id": "q1a_explanation_only_vistral_20260521",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260521"
+    },
+    {
+      "inventory_id": "q1a_explanation_only_vistral_20260522",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260522"
+    },
+    {
+      "inventory_id": "q1a_explanation_only_vistral_20260523",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260523"
+    },
+    {
+      "inventory_id": "q1a_phobert_pragmatic_finetune_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_phobert_pragmatic_finetune_20260521"
+    },
+    {
+      "inventory_id": "q1a_phobert_pragmatic_finetune_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_phobert_pragmatic_finetune_20260522"
+    },
+    {
+      "inventory_id": "q1a_phobert_pragmatic_finetune_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_phobert_pragmatic_finetune_20260523"
+    },
+    {
+      "inventory_id": "q1a_phobert_pragmatic_single_task_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_phobert_pragmatic_single_task_20260521"
+    },
+    {
+      "inventory_id": "q1a_phobert_pragmatic_single_task_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_phobert_pragmatic_single_task_20260522"
+    },
+    {
+      "inventory_id": "q1a_phobert_pragmatic_single_task_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_phobert_pragmatic_single_task_20260523"
+    },
+    {
+      "inventory_id": "q1a_sailor_pragmatic_sft_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_sailor_pragmatic_sft_20260521"
+    },
+    {
+      "inventory_id": "q1a_sailor_pragmatic_sft_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_sailor_pragmatic_sft_20260522"
+    },
+    {
+      "inventory_id": "q1a_sailor_pragmatic_sft_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_sailor_pragmatic_sft_20260523"
+    },
+    {
+      "inventory_id": "q1a_vipragsent_full_vistral_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260521"
+    },
+    {
+      "inventory_id": "q1a_vipragsent_full_vistral_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260522"
+    },
+    {
+      "inventory_id": "q1a_vipragsent_full_vistral_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260523"
+    },
+    {
+      "inventory_id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_vipragsent_no_auxiliary_vistral_20260521"
+    },
+    {
+      "inventory_id": "q1a_vipragsent_no_auxiliary_vistral_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_vipragsent_no_auxiliary_vistral_20260522"
+    },
+    {
+      "inventory_id": "q1a_vipragsent_no_auxiliary_vistral_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_vipragsent_no_auxiliary_vistral_20260523"
+    },
+    {
+      "inventory_id": "q1a_vistral_pragmatic_sft_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_vistral_pragmatic_sft_20260521"
+    },
+    {
+      "inventory_id": "q1a_vistral_pragmatic_sft_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_vistral_pragmatic_sft_20260522"
+    },
+    {
+      "inventory_id": "q1a_vistral_pragmatic_sft_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_vistral_pragmatic_sft_20260523"
+    },
+    {
+      "inventory_id": "q1a_xlmr_pragmatic_finetune_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_xlmr_pragmatic_finetune_20260521"
+    },
+    {
+      "inventory_id": "q1a_xlmr_pragmatic_finetune_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_xlmr_pragmatic_finetune_20260522"
+    },
+    {
+      "inventory_id": "q1a_xlmr_pragmatic_finetune_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1a_xlmr_pragmatic_finetune_20260523"
+    },
+    {
+      "inventory_id": "q1b_azure_gpt41_mini",
+      "producer_kind": "self",
+      "producer_node": "inventory:q1b_azure_gpt41_mini"
+    },
+    {
+      "inventory_id": "q1b_phobert_emo_single_20260521",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_phobert_emo_single:20260521"
+    },
+    {
+      "inventory_id": "q1b_phobert_emo_single_20260522",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_phobert_emo_single:20260522"
+    },
+    {
+      "inventory_id": "q1b_phobert_emo_single_20260523",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_phobert_emo_single:20260523"
+    },
+    {
+      "inventory_id": "q1b_phobert_multitask_8head_20260521",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_phobert_multitask_8head:20260521"
+    },
+    {
+      "inventory_id": "q1b_phobert_multitask_8head_20260522",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_phobert_multitask_8head:20260522"
+    },
+    {
+      "inventory_id": "q1b_phobert_multitask_8head_20260523",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_phobert_multitask_8head:20260523"
+    },
+    {
+      "inventory_id": "q1b_phobert_pol_single_20260521",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_phobert_pol_single:20260521"
+    },
+    {
+      "inventory_id": "q1b_phobert_pol_single_20260522",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_phobert_pol_single:20260522"
+    },
+    {
+      "inventory_id": "q1b_phobert_pol_single_20260523",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_phobert_pol_single:20260523"
+    },
+    {
+      "inventory_id": "q1b_sailor_multitask_8head_20260521",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_sailor_multitask_8head:20260521"
+    },
+    {
+      "inventory_id": "q1b_sailor_multitask_8head_20260522",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_sailor_multitask_8head:20260522"
+    },
+    {
+      "inventory_id": "q1b_sailor_multitask_8head_20260523",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_sailor_multitask_8head:20260523"
+    },
+    {
+      "inventory_id": "q1b_vipragsent_full_phobert_20260521",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_vipragsent_full_phobert:20260521"
+    },
+    {
+      "inventory_id": "q1b_vipragsent_full_phobert_20260522",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_vipragsent_full_phobert:20260522"
+    },
+    {
+      "inventory_id": "q1b_vipragsent_full_phobert_20260523",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_vipragsent_full_phobert:20260523"
+    },
+    {
+      "inventory_id": "q1b_vistral_multitask_8head_20260521",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_vistral_multitask_8head:20260521"
+    },
+    {
+      "inventory_id": "q1b_vistral_multitask_8head_20260522",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_vistral_multitask_8head:20260522"
+    },
+    {
+      "inventory_id": "q1b_vistral_multitask_8head_20260523",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_vistral_multitask_8head:20260523"
+    },
+    {
+      "inventory_id": "q1b_xlmr_multitask_8head_20260521",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_xlmr_multitask_8head:20260521"
+    },
+    {
+      "inventory_id": "q1b_xlmr_multitask_8head_20260522",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_xlmr_multitask_8head:20260522"
+    },
+    {
+      "inventory_id": "q1b_xlmr_multitask_8head_20260523",
+      "producer_kind": "trainable_checkpoint",
+      "producer_node": "producer:q1b_train_xlmr_multitask_8head:20260523"
+    },
+    {
+      "inventory_id": "q2_full_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_full_20260521"
+    },
+    {
+      "inventory_id": "q2_full_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_full_20260522"
+    },
+    {
+      "inventory_id": "q2_full_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_full_20260523"
+    },
+    {
+      "inventory_id": "q2_no_emotion_auxiliary_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_emotion_auxiliary_20260521"
+    },
+    {
+      "inventory_id": "q2_no_emotion_auxiliary_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_emotion_auxiliary_20260522"
+    },
+    {
+      "inventory_id": "q2_no_emotion_auxiliary_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_emotion_auxiliary_20260523"
+    },
+    {
+      "inventory_id": "q2_no_multitask_bundle_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_multitask_bundle_20260521"
+    },
+    {
+      "inventory_id": "q2_no_multitask_bundle_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_multitask_bundle_20260522"
+    },
+    {
+      "inventory_id": "q2_no_multitask_bundle_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_multitask_bundle_20260523"
+    },
+    {
+      "inventory_id": "q2_no_polarity_auxiliary_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_polarity_auxiliary_20260521"
+    },
+    {
+      "inventory_id": "q2_no_polarity_auxiliary_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_polarity_auxiliary_20260522"
+    },
+    {
+      "inventory_id": "q2_no_polarity_auxiliary_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_polarity_auxiliary_20260523"
+    },
+    {
+      "inventory_id": "q2_no_rationale_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_rationale_20260521"
+    },
+    {
+      "inventory_id": "q2_no_rationale_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_rationale_20260522"
+    },
+    {
+      "inventory_id": "q2_no_rationale_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_rationale_20260523"
+    },
+    {
+      "inventory_id": "q2_no_uncertainty_weighting_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_uncertainty_weighting_20260521"
+    },
+    {
+      "inventory_id": "q2_no_uncertainty_weighting_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_uncertainty_weighting_20260522"
+    },
+    {
+      "inventory_id": "q2_no_uncertainty_weighting_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q2_no_uncertainty_weighting_20260523"
+    },
+    {
+      "inventory_id": "q3_azure_gpt41_mini_8shot_128",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_azure_gpt41_mini_8shot_128"
+    },
+    {
+      "inventory_id": "q3_azure_gpt41_mini_8shot_256",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_azure_gpt41_mini_8shot_256"
+    },
+    {
+      "inventory_id": "q3_azure_gpt41_mini_8shot_32",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_azure_gpt41_mini_8shot_32"
+    },
+    {
+      "inventory_id": "q3_azure_gpt41_mini_8shot_512",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_azure_gpt41_mini_8shot_512"
+    },
+    {
+      "inventory_id": "q3_azure_gpt41_mini_8shot_64",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_azure_gpt41_mini_8shot_64"
+    },
+    {
+      "inventory_id": "q3_azure_gpt41_mini_8shot_full",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_azure_gpt41_mini_8shot_full"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_128_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_128_20260521"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_128_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_128_20260522"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_128_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_128_20260523"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_256_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_256_20260521"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_256_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_256_20260522"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_256_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_256_20260523"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_32_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_32_20260521"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_32_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_32_20260522"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_32_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_32_20260523"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_512_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_512_20260521"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_512_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_512_20260522"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_512_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_512_20260523"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_64_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_64_20260521"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_64_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_64_20260522"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_64_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_64_20260523"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_full_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_full_20260521"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_full_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_full_20260522"
+    },
+    {
+      "inventory_id": "q3_phobert_pragmatic_finetune_full_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_phobert_pragmatic_finetune_full_20260523"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_128_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_128_20260521"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_128_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_128_20260522"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_128_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_128_20260523"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_256_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_256_20260521"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_256_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_256_20260522"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_256_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_256_20260523"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_32_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_32_20260521"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_32_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_32_20260522"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_32_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_32_20260523"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_512_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_512_20260521"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_512_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_512_20260522"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_512_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_512_20260523"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_64_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_64_20260521"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_64_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_64_20260522"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_64_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_64_20260523"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_full_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_full_20260521"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_full_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_full_20260522"
+    },
+    {
+      "inventory_id": "q3_vipragsent_full_vistral_full_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vipragsent_full_vistral_full_20260523"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_128_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_128_20260521"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_128_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_128_20260522"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_128_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_128_20260523"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_256_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_256_20260521"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_256_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_256_20260522"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_256_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_256_20260523"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_32_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_32_20260521"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_32_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_32_20260522"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_32_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_32_20260523"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_512_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_512_20260521"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_512_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_512_20260522"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_512_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_512_20260523"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_64_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_64_20260521"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_64_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_64_20260522"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_64_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_64_20260523"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_full_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_full_20260521"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_full_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_full_20260522"
+    },
+    {
+      "inventory_id": "q3_vistral_pragmatic_sft_full_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_vistral_pragmatic_sft_full_20260523"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_128_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_128_20260521"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_128_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_128_20260522"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_128_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_128_20260523"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_256_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_256_20260521"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_256_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_256_20260522"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_256_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_256_20260523"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_32_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_32_20260521"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_32_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_32_20260522"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_32_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_32_20260523"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_512_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_512_20260521"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_512_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_512_20260522"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_512_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_512_20260523"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_64_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_64_20260521"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_64_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_64_20260522"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_64_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_64_20260523"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_full_20260521",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_full_20260521"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_full_20260522",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_full_20260522"
+    },
+    {
+      "inventory_id": "q3_xlmr_pragmatic_finetune_full_20260523",
+      "producer_kind": "self",
+      "producer_node": "inventory:q3_xlmr_pragmatic_finetune_full_20260523"
+    },
+    {
+      "inventory_id": "q4_phobert_pragmatic_finetune_20260521",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_phobert_pragmatic_finetune_20260521"
+    },
+    {
+      "inventory_id": "q4_phobert_pragmatic_finetune_20260522",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_phobert_pragmatic_finetune_20260522"
+    },
+    {
+      "inventory_id": "q4_phobert_pragmatic_finetune_20260523",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_phobert_pragmatic_finetune_20260523"
+    },
+    {
+      "inventory_id": "q4_vipragsent_full_vistral_20260521",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260521"
+    },
+    {
+      "inventory_id": "q4_vipragsent_full_vistral_20260522",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260522"
+    },
+    {
+      "inventory_id": "q4_vipragsent_full_vistral_20260523",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vipragsent_full_vistral_20260523"
+    },
+    {
+      "inventory_id": "q4_vistral_pragmatic_sft_20260521",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vistral_pragmatic_sft_20260521"
+    },
+    {
+      "inventory_id": "q4_vistral_pragmatic_sft_20260522",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vistral_pragmatic_sft_20260522"
+    },
+    {
+      "inventory_id": "q4_vistral_pragmatic_sft_20260523",
+      "producer_kind": "inventory_trainable",
+      "producer_node": "inventory:q1a_vistral_pragmatic_sft_20260523"
+    }
+  ],
+  "edges": [
+    {
+      "consumer_id": "backbone_sensitivity_vipragsent_full_phobert_20260521",
+      "expected_checkpoint_key": "vipragsent_full_phobert:20260521",
+      "from": "producer:q1b_train_vipragsent_full_phobert:20260521",
+      "produced_checkpoint_key": "vipragsent_full_phobert:20260521",
+      "producer_id": "q1b_train_vipragsent_full_phobert",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_vipragsent_full_phobert:20260521",
+      "seed": 20260521,
+      "to": "inventory:backbone_sensitivity_vipragsent_full_phobert_20260521"
+    },
+    {
+      "consumer_id": "backbone_sensitivity_vipragsent_full_phobert_20260522",
+      "expected_checkpoint_key": "vipragsent_full_phobert:20260522",
+      "from": "producer:q1b_train_vipragsent_full_phobert:20260522",
+      "produced_checkpoint_key": "vipragsent_full_phobert:20260522",
+      "producer_id": "q1b_train_vipragsent_full_phobert",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_vipragsent_full_phobert:20260522",
+      "seed": 20260522,
+      "to": "inventory:backbone_sensitivity_vipragsent_full_phobert_20260522"
+    },
+    {
+      "consumer_id": "backbone_sensitivity_vipragsent_full_phobert_20260523",
+      "expected_checkpoint_key": "vipragsent_full_phobert:20260523",
+      "from": "producer:q1b_train_vipragsent_full_phobert:20260523",
+      "produced_checkpoint_key": "vipragsent_full_phobert:20260523",
+      "producer_id": "q1b_train_vipragsent_full_phobert",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_vipragsent_full_phobert:20260523",
+      "seed": 20260523,
+      "to": "inventory:backbone_sensitivity_vipragsent_full_phobert_20260523"
+    },
+    {
+      "consumer_id": "backbone_sensitivity_vipragsent_full_vistral_20260521",
+      "expected_checkpoint_key": "vipragsent_full_vistral:20260521",
+      "from": "inventory:q1a_vipragsent_full_vistral_20260521",
+      "produced_checkpoint_key": "vipragsent_full_vistral:20260521",
+      "producer_id": "vipragsent_full_vistral",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vipragsent_full_vistral_20260521",
+      "seed": 20260521,
+      "to": "inventory:backbone_sensitivity_vipragsent_full_vistral_20260521"
+    },
+    {
+      "consumer_id": "backbone_sensitivity_vipragsent_full_vistral_20260522",
+      "expected_checkpoint_key": "vipragsent_full_vistral:20260522",
+      "from": "inventory:q1a_vipragsent_full_vistral_20260522",
+      "produced_checkpoint_key": "vipragsent_full_vistral:20260522",
+      "producer_id": "vipragsent_full_vistral",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vipragsent_full_vistral_20260522",
+      "seed": 20260522,
+      "to": "inventory:backbone_sensitivity_vipragsent_full_vistral_20260522"
+    },
+    {
+      "consumer_id": "backbone_sensitivity_vipragsent_full_vistral_20260523",
+      "expected_checkpoint_key": "vipragsent_full_vistral:20260523",
+      "from": "inventory:q1a_vipragsent_full_vistral_20260523",
+      "produced_checkpoint_key": "vipragsent_full_vistral:20260523",
+      "producer_id": "vipragsent_full_vistral",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vipragsent_full_vistral_20260523",
+      "seed": 20260523,
+      "to": "inventory:backbone_sensitivity_vipragsent_full_vistral_20260523"
+    },
+    {
+      "consumer_id": "q1a_explanation_only_vistral_20260521",
+      "expected_checkpoint_key": "explanation_only_vistral:20260521",
+      "from": "inventory:q1a_vipragsent_full_vistral_20260521",
+      "produced_checkpoint_key": "vipragsent_full_vistral:20260521",
+      "producer_id": "vipragsent_full_vistral",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vipragsent_full_vistral_20260521",
+      "seed": 20260521,
+      "to": "inventory:q1a_explanation_only_vistral_20260521"
+    },
+    {
+      "consumer_id": "q1a_explanation_only_vistral_20260522",
+      "expected_checkpoint_key": "explanation_only_vistral:20260522",
+      "from": "inventory:q1a_vipragsent_full_vistral_20260522",
+      "produced_checkpoint_key": "vipragsent_full_vistral:20260522",
+      "producer_id": "vipragsent_full_vistral",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vipragsent_full_vistral_20260522",
+      "seed": 20260522,
+      "to": "inventory:q1a_explanation_only_vistral_20260522"
+    },
+    {
+      "consumer_id": "q1a_explanation_only_vistral_20260523",
+      "expected_checkpoint_key": "explanation_only_vistral:20260523",
+      "from": "inventory:q1a_vipragsent_full_vistral_20260523",
+      "produced_checkpoint_key": "vipragsent_full_vistral:20260523",
+      "producer_id": "vipragsent_full_vistral",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vipragsent_full_vistral_20260523",
+      "seed": 20260523,
+      "to": "inventory:q1a_explanation_only_vistral_20260523"
+    },
+    {
+      "consumer_id": "q1b_phobert_emo_single_20260521",
+      "expected_checkpoint_key": "phobert_emo_single:20260521",
+      "from": "producer:q1b_train_phobert_emo_single:20260521",
+      "matrix_key": "phobert_ordinary_single_task",
+      "produced_checkpoint_key": "phobert_emo_single:20260521",
+      "producer_id": "q1b_train_phobert_emo_single",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_phobert_emo_single:20260521",
+      "seed": 20260521,
+      "to": "inventory:q1b_phobert_emo_single_20260521"
+    },
+    {
+      "consumer_id": "q1b_phobert_emo_single_20260522",
+      "expected_checkpoint_key": "phobert_emo_single:20260522",
+      "from": "producer:q1b_train_phobert_emo_single:20260522",
+      "matrix_key": "phobert_ordinary_single_task",
+      "produced_checkpoint_key": "phobert_emo_single:20260522",
+      "producer_id": "q1b_train_phobert_emo_single",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_phobert_emo_single:20260522",
+      "seed": 20260522,
+      "to": "inventory:q1b_phobert_emo_single_20260522"
+    },
+    {
+      "consumer_id": "q1b_phobert_emo_single_20260523",
+      "expected_checkpoint_key": "phobert_emo_single:20260523",
+      "from": "producer:q1b_train_phobert_emo_single:20260523",
+      "matrix_key": "phobert_ordinary_single_task",
+      "produced_checkpoint_key": "phobert_emo_single:20260523",
+      "producer_id": "q1b_train_phobert_emo_single",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_phobert_emo_single:20260523",
+      "seed": 20260523,
+      "to": "inventory:q1b_phobert_emo_single_20260523"
+    },
+    {
+      "consumer_id": "q1b_phobert_multitask_8head_20260521",
+      "expected_checkpoint_key": "phobert_multitask_8head:20260521",
+      "from": "producer:q1b_train_phobert_multitask_8head:20260521",
+      "matrix_key": "phobert_multitask",
+      "produced_checkpoint_key": "phobert_multitask_8head:20260521",
+      "producer_id": "q1b_train_phobert_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_phobert_multitask_8head:20260521",
+      "seed": 20260521,
+      "to": "inventory:q1b_phobert_multitask_8head_20260521"
+    },
+    {
+      "consumer_id": "q1b_phobert_multitask_8head_20260522",
+      "expected_checkpoint_key": "phobert_multitask_8head:20260522",
+      "from": "producer:q1b_train_phobert_multitask_8head:20260522",
+      "matrix_key": "phobert_multitask",
+      "produced_checkpoint_key": "phobert_multitask_8head:20260522",
+      "producer_id": "q1b_train_phobert_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_phobert_multitask_8head:20260522",
+      "seed": 20260522,
+      "to": "inventory:q1b_phobert_multitask_8head_20260522"
+    },
+    {
+      "consumer_id": "q1b_phobert_multitask_8head_20260523",
+      "expected_checkpoint_key": "phobert_multitask_8head:20260523",
+      "from": "producer:q1b_train_phobert_multitask_8head:20260523",
+      "matrix_key": "phobert_multitask",
+      "produced_checkpoint_key": "phobert_multitask_8head:20260523",
+      "producer_id": "q1b_train_phobert_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_phobert_multitask_8head:20260523",
+      "seed": 20260523,
+      "to": "inventory:q1b_phobert_multitask_8head_20260523"
+    },
+    {
+      "consumer_id": "q1b_phobert_pol_single_20260521",
+      "expected_checkpoint_key": "phobert_pol_single:20260521",
+      "from": "producer:q1b_train_phobert_pol_single:20260521",
+      "matrix_key": "phobert_ordinary_single_task",
+      "produced_checkpoint_key": "phobert_pol_single:20260521",
+      "producer_id": "q1b_train_phobert_pol_single",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_phobert_pol_single:20260521",
+      "seed": 20260521,
+      "to": "inventory:q1b_phobert_pol_single_20260521"
+    },
+    {
+      "consumer_id": "q1b_phobert_pol_single_20260522",
+      "expected_checkpoint_key": "phobert_pol_single:20260522",
+      "from": "producer:q1b_train_phobert_pol_single:20260522",
+      "matrix_key": "phobert_ordinary_single_task",
+      "produced_checkpoint_key": "phobert_pol_single:20260522",
+      "producer_id": "q1b_train_phobert_pol_single",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_phobert_pol_single:20260522",
+      "seed": 20260522,
+      "to": "inventory:q1b_phobert_pol_single_20260522"
+    },
+    {
+      "consumer_id": "q1b_phobert_pol_single_20260523",
+      "expected_checkpoint_key": "phobert_pol_single:20260523",
+      "from": "producer:q1b_train_phobert_pol_single:20260523",
+      "matrix_key": "phobert_ordinary_single_task",
+      "produced_checkpoint_key": "phobert_pol_single:20260523",
+      "producer_id": "q1b_train_phobert_pol_single",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_phobert_pol_single:20260523",
+      "seed": 20260523,
+      "to": "inventory:q1b_phobert_pol_single_20260523"
+    },
+    {
+      "consumer_id": "q1b_sailor_multitask_8head_20260521",
+      "expected_checkpoint_key": "sailor_multitask_8head:20260521",
+      "from": "producer:q1b_train_sailor_multitask_8head:20260521",
+      "matrix_key": "sailor_multitask",
+      "produced_checkpoint_key": "sailor_multitask_8head:20260521",
+      "producer_id": "q1b_train_sailor_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_sailor_multitask_8head:20260521",
+      "seed": 20260521,
+      "to": "inventory:q1b_sailor_multitask_8head_20260521"
+    },
+    {
+      "consumer_id": "q1b_sailor_multitask_8head_20260522",
+      "expected_checkpoint_key": "sailor_multitask_8head:20260522",
+      "from": "producer:q1b_train_sailor_multitask_8head:20260522",
+      "matrix_key": "sailor_multitask",
+      "produced_checkpoint_key": "sailor_multitask_8head:20260522",
+      "producer_id": "q1b_train_sailor_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_sailor_multitask_8head:20260522",
+      "seed": 20260522,
+      "to": "inventory:q1b_sailor_multitask_8head_20260522"
+    },
+    {
+      "consumer_id": "q1b_sailor_multitask_8head_20260523",
+      "expected_checkpoint_key": "sailor_multitask_8head:20260523",
+      "from": "producer:q1b_train_sailor_multitask_8head:20260523",
+      "matrix_key": "sailor_multitask",
+      "produced_checkpoint_key": "sailor_multitask_8head:20260523",
+      "producer_id": "q1b_train_sailor_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_sailor_multitask_8head:20260523",
+      "seed": 20260523,
+      "to": "inventory:q1b_sailor_multitask_8head_20260523"
+    },
+    {
+      "consumer_id": "q1b_vipragsent_full_phobert_20260521",
+      "expected_checkpoint_key": "vipragsent_full_phobert:20260521",
+      "from": "producer:q1b_train_vipragsent_full_phobert:20260521",
+      "matrix_key": "vipragsent",
+      "produced_checkpoint_key": "vipragsent_full_phobert:20260521",
+      "producer_id": "q1b_train_vipragsent_full_phobert",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_vipragsent_full_phobert:20260521",
+      "seed": 20260521,
+      "to": "inventory:q1b_vipragsent_full_phobert_20260521"
+    },
+    {
+      "consumer_id": "q1b_vipragsent_full_phobert_20260522",
+      "expected_checkpoint_key": "vipragsent_full_phobert:20260522",
+      "from": "producer:q1b_train_vipragsent_full_phobert:20260522",
+      "matrix_key": "vipragsent",
+      "produced_checkpoint_key": "vipragsent_full_phobert:20260522",
+      "producer_id": "q1b_train_vipragsent_full_phobert",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_vipragsent_full_phobert:20260522",
+      "seed": 20260522,
+      "to": "inventory:q1b_vipragsent_full_phobert_20260522"
+    },
+    {
+      "consumer_id": "q1b_vipragsent_full_phobert_20260523",
+      "expected_checkpoint_key": "vipragsent_full_phobert:20260523",
+      "from": "producer:q1b_train_vipragsent_full_phobert:20260523",
+      "matrix_key": "vipragsent",
+      "produced_checkpoint_key": "vipragsent_full_phobert:20260523",
+      "producer_id": "q1b_train_vipragsent_full_phobert",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_vipragsent_full_phobert:20260523",
+      "seed": 20260523,
+      "to": "inventory:q1b_vipragsent_full_phobert_20260523"
+    },
+    {
+      "consumer_id": "q1b_vistral_multitask_8head_20260521",
+      "expected_checkpoint_key": "vistral_multitask_8head:20260521",
+      "from": "producer:q1b_train_vistral_multitask_8head:20260521",
+      "matrix_key": "vistral_multitask",
+      "produced_checkpoint_key": "vistral_multitask_8head:20260521",
+      "producer_id": "q1b_train_vistral_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_vistral_multitask_8head:20260521",
+      "seed": 20260521,
+      "to": "inventory:q1b_vistral_multitask_8head_20260521"
+    },
+    {
+      "consumer_id": "q1b_vistral_multitask_8head_20260522",
+      "expected_checkpoint_key": "vistral_multitask_8head:20260522",
+      "from": "producer:q1b_train_vistral_multitask_8head:20260522",
+      "matrix_key": "vistral_multitask",
+      "produced_checkpoint_key": "vistral_multitask_8head:20260522",
+      "producer_id": "q1b_train_vistral_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_vistral_multitask_8head:20260522",
+      "seed": 20260522,
+      "to": "inventory:q1b_vistral_multitask_8head_20260522"
+    },
+    {
+      "consumer_id": "q1b_vistral_multitask_8head_20260523",
+      "expected_checkpoint_key": "vistral_multitask_8head:20260523",
+      "from": "producer:q1b_train_vistral_multitask_8head:20260523",
+      "matrix_key": "vistral_multitask",
+      "produced_checkpoint_key": "vistral_multitask_8head:20260523",
+      "producer_id": "q1b_train_vistral_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_vistral_multitask_8head:20260523",
+      "seed": 20260523,
+      "to": "inventory:q1b_vistral_multitask_8head_20260523"
+    },
+    {
+      "consumer_id": "q1b_xlmr_multitask_8head_20260521",
+      "expected_checkpoint_key": "xlmr_multitask_8head:20260521",
+      "from": "producer:q1b_train_xlmr_multitask_8head:20260521",
+      "matrix_key": "xlmr_multitask",
+      "produced_checkpoint_key": "xlmr_multitask_8head:20260521",
+      "producer_id": "q1b_train_xlmr_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_xlmr_multitask_8head:20260521",
+      "seed": 20260521,
+      "to": "inventory:q1b_xlmr_multitask_8head_20260521"
+    },
+    {
+      "consumer_id": "q1b_xlmr_multitask_8head_20260522",
+      "expected_checkpoint_key": "xlmr_multitask_8head:20260522",
+      "from": "producer:q1b_train_xlmr_multitask_8head:20260522",
+      "matrix_key": "xlmr_multitask",
+      "produced_checkpoint_key": "xlmr_multitask_8head:20260522",
+      "producer_id": "q1b_train_xlmr_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_xlmr_multitask_8head:20260522",
+      "seed": 20260522,
+      "to": "inventory:q1b_xlmr_multitask_8head_20260522"
+    },
+    {
+      "consumer_id": "q1b_xlmr_multitask_8head_20260523",
+      "expected_checkpoint_key": "xlmr_multitask_8head:20260523",
+      "from": "producer:q1b_train_xlmr_multitask_8head:20260523",
+      "matrix_key": "xlmr_multitask",
+      "produced_checkpoint_key": "xlmr_multitask_8head:20260523",
+      "producer_id": "q1b_train_xlmr_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "producer_run_id": "q1b_train_xlmr_multitask_8head:20260523",
+      "seed": 20260523,
+      "to": "inventory:q1b_xlmr_multitask_8head_20260523"
+    },
+    {
+      "consumer_id": "q4_phobert_pragmatic_finetune_20260521",
+      "expected_checkpoint_key": "phobert_pragmatic_finetune:20260521",
+      "from": "inventory:q1a_phobert_pragmatic_finetune_20260521",
+      "produced_checkpoint_key": "phobert_pragmatic_finetune:20260521",
+      "producer_id": "phobert_pragmatic_finetune",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_phobert_pragmatic_finetune_20260521",
+      "seed": 20260521,
+      "to": "inventory:q4_phobert_pragmatic_finetune_20260521"
+    },
+    {
+      "consumer_id": "q4_phobert_pragmatic_finetune_20260522",
+      "expected_checkpoint_key": "phobert_pragmatic_finetune:20260522",
+      "from": "inventory:q1a_phobert_pragmatic_finetune_20260522",
+      "produced_checkpoint_key": "phobert_pragmatic_finetune:20260522",
+      "producer_id": "phobert_pragmatic_finetune",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_phobert_pragmatic_finetune_20260522",
+      "seed": 20260522,
+      "to": "inventory:q4_phobert_pragmatic_finetune_20260522"
+    },
+    {
+      "consumer_id": "q4_phobert_pragmatic_finetune_20260523",
+      "expected_checkpoint_key": "phobert_pragmatic_finetune:20260523",
+      "from": "inventory:q1a_phobert_pragmatic_finetune_20260523",
+      "produced_checkpoint_key": "phobert_pragmatic_finetune:20260523",
+      "producer_id": "phobert_pragmatic_finetune",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_phobert_pragmatic_finetune_20260523",
+      "seed": 20260523,
+      "to": "inventory:q4_phobert_pragmatic_finetune_20260523"
+    },
+    {
+      "consumer_id": "q4_vipragsent_full_vistral_20260521",
+      "expected_checkpoint_key": "vipragsent_full_vistral:20260521",
+      "from": "inventory:q1a_vipragsent_full_vistral_20260521",
+      "produced_checkpoint_key": "vipragsent_full_vistral:20260521",
+      "producer_id": "vipragsent_full_vistral",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vipragsent_full_vistral_20260521",
+      "seed": 20260521,
+      "to": "inventory:q4_vipragsent_full_vistral_20260521"
+    },
+    {
+      "consumer_id": "q4_vipragsent_full_vistral_20260522",
+      "expected_checkpoint_key": "vipragsent_full_vistral:20260522",
+      "from": "inventory:q1a_vipragsent_full_vistral_20260522",
+      "produced_checkpoint_key": "vipragsent_full_vistral:20260522",
+      "producer_id": "vipragsent_full_vistral",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vipragsent_full_vistral_20260522",
+      "seed": 20260522,
+      "to": "inventory:q4_vipragsent_full_vistral_20260522"
+    },
+    {
+      "consumer_id": "q4_vipragsent_full_vistral_20260523",
+      "expected_checkpoint_key": "vipragsent_full_vistral:20260523",
+      "from": "inventory:q1a_vipragsent_full_vistral_20260523",
+      "produced_checkpoint_key": "vipragsent_full_vistral:20260523",
+      "producer_id": "vipragsent_full_vistral",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vipragsent_full_vistral_20260523",
+      "seed": 20260523,
+      "to": "inventory:q4_vipragsent_full_vistral_20260523"
+    },
+    {
+      "consumer_id": "q4_vistral_pragmatic_sft_20260521",
+      "expected_checkpoint_key": "vistral_pragmatic_sft:20260521",
+      "from": "inventory:q1a_vistral_pragmatic_sft_20260521",
+      "produced_checkpoint_key": "vistral_pragmatic_sft:20260521",
+      "producer_id": "vistral_pragmatic_sft",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vistral_pragmatic_sft_20260521",
+      "seed": 20260521,
+      "to": "inventory:q4_vistral_pragmatic_sft_20260521"
+    },
+    {
+      "consumer_id": "q4_vistral_pragmatic_sft_20260522",
+      "expected_checkpoint_key": "vistral_pragmatic_sft:20260522",
+      "from": "inventory:q1a_vistral_pragmatic_sft_20260522",
+      "produced_checkpoint_key": "vistral_pragmatic_sft:20260522",
+      "producer_id": "vistral_pragmatic_sft",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vistral_pragmatic_sft_20260522",
+      "seed": 20260522,
+      "to": "inventory:q4_vistral_pragmatic_sft_20260522"
+    },
+    {
+      "consumer_id": "q4_vistral_pragmatic_sft_20260523",
+      "expected_checkpoint_key": "vistral_pragmatic_sft:20260523",
+      "from": "inventory:q1a_vistral_pragmatic_sft_20260523",
+      "produced_checkpoint_key": "vistral_pragmatic_sft:20260523",
+      "producer_id": "vistral_pragmatic_sft",
+      "producer_kind": "inventory_trainable",
+      "producer_run_id": "q1a_vistral_pragmatic_sft_20260523",
+      "seed": 20260523,
+      "to": "inventory:q4_vistral_pragmatic_sft_20260523"
+    }
+  ],
+  "errors": [],
+  "inventory_hash": "3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8",
+  "inventory_rows_with_producer": 162,
+  "inventory_rows_without_producer": [],
+  "nodes": [
+    "inventory:backbone_sensitivity_vipragsent_full_phobert_20260521",
+    "inventory:backbone_sensitivity_vipragsent_full_phobert_20260522",
+    "inventory:backbone_sensitivity_vipragsent_full_phobert_20260523",
+    "inventory:backbone_sensitivity_vipragsent_full_vistral_20260521",
+    "inventory:backbone_sensitivity_vipragsent_full_vistral_20260522",
+    "inventory:backbone_sensitivity_vipragsent_full_vistral_20260523",
+    "inventory:q1a_azure_gpt41_mini_8shot",
+    "inventory:q1a_azure_gpt41_mini_zeroshot",
+    "inventory:q1a_cot_only_vistral_20260521",
+    "inventory:q1a_cot_only_vistral_20260522",
+    "inventory:q1a_cot_only_vistral_20260523",
+    "inventory:q1a_explanation_only_vistral_20260521",
+    "inventory:q1a_explanation_only_vistral_20260522",
+    "inventory:q1a_explanation_only_vistral_20260523",
+    "inventory:q1a_phobert_pragmatic_finetune_20260521",
+    "inventory:q1a_phobert_pragmatic_finetune_20260522",
+    "inventory:q1a_phobert_pragmatic_finetune_20260523",
+    "inventory:q1a_phobert_pragmatic_single_task_20260521",
+    "inventory:q1a_phobert_pragmatic_single_task_20260522",
+    "inventory:q1a_phobert_pragmatic_single_task_20260523",
+    "inventory:q1a_sailor_pragmatic_sft_20260521",
+    "inventory:q1a_sailor_pragmatic_sft_20260522",
+    "inventory:q1a_sailor_pragmatic_sft_20260523",
+    "inventory:q1a_vipragsent_full_vistral_20260521",
+    "inventory:q1a_vipragsent_full_vistral_20260522",
+    "inventory:q1a_vipragsent_full_vistral_20260523",
+    "inventory:q1a_vipragsent_no_auxiliary_vistral_20260521",
+    "inventory:q1a_vipragsent_no_auxiliary_vistral_20260522",
+    "inventory:q1a_vipragsent_no_auxiliary_vistral_20260523",
+    "inventory:q1a_vistral_pragmatic_sft_20260521",
+    "inventory:q1a_vistral_pragmatic_sft_20260522",
+    "inventory:q1a_vistral_pragmatic_sft_20260523",
+    "inventory:q1a_xlmr_pragmatic_finetune_20260521",
+    "inventory:q1a_xlmr_pragmatic_finetune_20260522",
+    "inventory:q1a_xlmr_pragmatic_finetune_20260523",
+    "inventory:q1b_azure_gpt41_mini",
+    "inventory:q1b_phobert_emo_single_20260521",
+    "inventory:q1b_phobert_emo_single_20260522",
+    "inventory:q1b_phobert_emo_single_20260523",
+    "inventory:q1b_phobert_multitask_8head_20260521",
+    "inventory:q1b_phobert_multitask_8head_20260522",
+    "inventory:q1b_phobert_multitask_8head_20260523",
+    "inventory:q1b_phobert_pol_single_20260521",
+    "inventory:q1b_phobert_pol_single_20260522",
+    "inventory:q1b_phobert_pol_single_20260523",
+    "inventory:q1b_sailor_multitask_8head_20260521",
+    "inventory:q1b_sailor_multitask_8head_20260522",
+    "inventory:q1b_sailor_multitask_8head_20260523",
+    "inventory:q1b_vipragsent_full_phobert_20260521",
+    "inventory:q1b_vipragsent_full_phobert_20260522",
+    "inventory:q1b_vipragsent_full_phobert_20260523",
+    "inventory:q1b_vistral_multitask_8head_20260521",
+    "inventory:q1b_vistral_multitask_8head_20260522",
+    "inventory:q1b_vistral_multitask_8head_20260523",
+    "inventory:q1b_xlmr_multitask_8head_20260521",
+    "inventory:q1b_xlmr_multitask_8head_20260522",
+    "inventory:q1b_xlmr_multitask_8head_20260523",
+    "inventory:q2_full_20260521",
+    "inventory:q2_full_20260522",
+    "inventory:q2_full_20260523",
+    "inventory:q2_no_emotion_auxiliary_20260521",
+    "inventory:q2_no_emotion_auxiliary_20260522",
+    "inventory:q2_no_emotion_auxiliary_20260523",
+    "inventory:q2_no_multitask_bundle_20260521",
+    "inventory:q2_no_multitask_bundle_20260522",
+    "inventory:q2_no_multitask_bundle_20260523",
+    "inventory:q2_no_polarity_auxiliary_20260521",
+    "inventory:q2_no_polarity_auxiliary_20260522",
+    "inventory:q2_no_polarity_auxiliary_20260523",
+    "inventory:q2_no_rationale_20260521",
+    "inventory:q2_no_rationale_20260522",
+    "inventory:q2_no_rationale_20260523",
+    "inventory:q2_no_uncertainty_weighting_20260521",
+    "inventory:q2_no_uncertainty_weighting_20260522",
+    "inventory:q2_no_uncertainty_weighting_20260523",
+    "inventory:q3_azure_gpt41_mini_8shot_128",
+    "inventory:q3_azure_gpt41_mini_8shot_256",
+    "inventory:q3_azure_gpt41_mini_8shot_32",
+    "inventory:q3_azure_gpt41_mini_8shot_512",
+    "inventory:q3_azure_gpt41_mini_8shot_64",
+    "inventory:q3_azure_gpt41_mini_8shot_full",
+    "inventory:q3_phobert_pragmatic_finetune_128_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_128_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_128_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_256_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_256_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_256_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_32_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_32_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_32_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_512_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_512_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_512_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_64_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_64_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_64_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_full_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_full_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_full_20260523",
+    "inventory:q3_vipragsent_full_vistral_128_20260521",
+    "inventory:q3_vipragsent_full_vistral_128_20260522",
+    "inventory:q3_vipragsent_full_vistral_128_20260523",
+    "inventory:q3_vipragsent_full_vistral_256_20260521",
+    "inventory:q3_vipragsent_full_vistral_256_20260522",
+    "inventory:q3_vipragsent_full_vistral_256_20260523",
+    "inventory:q3_vipragsent_full_vistral_32_20260521",
+    "inventory:q3_vipragsent_full_vistral_32_20260522",
+    "inventory:q3_vipragsent_full_vistral_32_20260523",
+    "inventory:q3_vipragsent_full_vistral_512_20260521",
+    "inventory:q3_vipragsent_full_vistral_512_20260522",
+    "inventory:q3_vipragsent_full_vistral_512_20260523",
+    "inventory:q3_vipragsent_full_vistral_64_20260521",
+    "inventory:q3_vipragsent_full_vistral_64_20260522",
+    "inventory:q3_vipragsent_full_vistral_64_20260523",
+    "inventory:q3_vipragsent_full_vistral_full_20260521",
+    "inventory:q3_vipragsent_full_vistral_full_20260522",
+    "inventory:q3_vipragsent_full_vistral_full_20260523",
+    "inventory:q3_vistral_pragmatic_sft_128_20260521",
+    "inventory:q3_vistral_pragmatic_sft_128_20260522",
+    "inventory:q3_vistral_pragmatic_sft_128_20260523",
+    "inventory:q3_vistral_pragmatic_sft_256_20260521",
+    "inventory:q3_vistral_pragmatic_sft_256_20260522",
+    "inventory:q3_vistral_pragmatic_sft_256_20260523",
+    "inventory:q3_vistral_pragmatic_sft_32_20260521",
+    "inventory:q3_vistral_pragmatic_sft_32_20260522",
+    "inventory:q3_vistral_pragmatic_sft_32_20260523",
+    "inventory:q3_vistral_pragmatic_sft_512_20260521",
+    "inventory:q3_vistral_pragmatic_sft_512_20260522",
+    "inventory:q3_vistral_pragmatic_sft_512_20260523",
+    "inventory:q3_vistral_pragmatic_sft_64_20260521",
+    "inventory:q3_vistral_pragmatic_sft_64_20260522",
+    "inventory:q3_vistral_pragmatic_sft_64_20260523",
+    "inventory:q3_vistral_pragmatic_sft_full_20260521",
+    "inventory:q3_vistral_pragmatic_sft_full_20260522",
+    "inventory:q3_vistral_pragmatic_sft_full_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_128_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_128_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_128_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_256_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_256_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_256_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_32_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_32_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_32_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_512_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_512_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_512_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_64_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_64_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_64_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_full_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_full_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_full_20260523",
+    "inventory:q4_phobert_pragmatic_finetune_20260521",
+    "inventory:q4_phobert_pragmatic_finetune_20260522",
+    "inventory:q4_phobert_pragmatic_finetune_20260523",
+    "inventory:q4_vipragsent_full_vistral_20260521",
+    "inventory:q4_vipragsent_full_vistral_20260522",
+    "inventory:q4_vipragsent_full_vistral_20260523",
+    "inventory:q4_vistral_pragmatic_sft_20260521",
+    "inventory:q4_vistral_pragmatic_sft_20260522",
+    "inventory:q4_vistral_pragmatic_sft_20260523",
+    "producer:q1b_train_phobert_emo_single:20260521",
+    "producer:q1b_train_phobert_emo_single:20260522",
+    "producer:q1b_train_phobert_emo_single:20260523",
+    "producer:q1b_train_phobert_multitask_8head:20260521",
+    "producer:q1b_train_phobert_multitask_8head:20260522",
+    "producer:q1b_train_phobert_multitask_8head:20260523",
+    "producer:q1b_train_phobert_pol_single:20260521",
+    "producer:q1b_train_phobert_pol_single:20260522",
+    "producer:q1b_train_phobert_pol_single:20260523",
+    "producer:q1b_train_sailor_multitask_8head:20260521",
+    "producer:q1b_train_sailor_multitask_8head:20260522",
+    "producer:q1b_train_sailor_multitask_8head:20260523",
+    "producer:q1b_train_vipragsent_full_phobert:20260521",
+    "producer:q1b_train_vipragsent_full_phobert:20260522",
+    "producer:q1b_train_vipragsent_full_phobert:20260523",
+    "producer:q1b_train_vistral_multitask_8head:20260521",
+    "producer:q1b_train_vistral_multitask_8head:20260522",
+    "producer:q1b_train_vistral_multitask_8head:20260523",
+    "producer:q1b_train_xlmr_multitask_8head:20260521",
+    "producer:q1b_train_xlmr_multitask_8head:20260522",
+    "producer:q1b_train_xlmr_multitask_8head:20260523"
+  ],
+  "paper_inventory_changed": false,
+  "paper_inventory_count": 162,
+  "paper_inventory_count_after": 162,
+  "paper_inventory_count_before": 162,
+  "producer_registry_sha256": "B3B12A88A0B54E3F036CDAE9A537EA06EB03A17B733653D61A7DBBEFCFF9811E",
+  "producers": [
+    {
+      "checkpoint_role": "azure_gpt41_mini",
+      "dependencies": [
+        "approved_azure_output"
+      ],
+      "executor_kind": "azure",
+      "model_family": "azure_gpt41_mini",
+      "paper_facing": false,
+      "producer_id": "azure_gpt41_mini_dedicated_prompts",
+      "producer_kind": "approved_azure_output",
+      "reusable_checkpoint_key_pattern": "azure_gpt41_mini:dedicated_prompts",
+      "system_id": "azure_gpt41_mini",
+      "training_applicability": "NOT_APPLICABLE",
+      "variant_id": "dedicated_prompts"
+    },
+    {
+      "checkpoint_role": "phobert_emo_single",
+      "dependencies": [
+        "preflight_validation",
+        "vipragsent_train"
+      ],
+      "executor_kind": "single_model_trainable",
+      "model_family": "phobert_base",
+      "paper_facing": false,
+      "producer_id": "q1b_train_phobert_emo_single",
+      "producer_kind": "trainable_checkpoint",
+      "reusable_checkpoint_key_pattern": "phobert_emo_single:{seed}",
+      "system_id": "phobert_emo_single",
+      "training_applicability": "APPLICABLE",
+      "variant_id": "phobert_emo_single"
+    },
+    {
+      "checkpoint_role": "phobert_multitask_8head",
+      "dependencies": [
+        "preflight_validation",
+        "vipragsent_train"
+      ],
+      "executor_kind": "single_model_trainable",
+      "model_family": "phobert_base",
+      "paper_facing": false,
+      "producer_id": "q1b_train_phobert_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "reusable_checkpoint_key_pattern": "phobert_multitask_8head:{seed}",
+      "system_id": "phobert_multitask_8head",
+      "training_applicability": "APPLICABLE",
+      "variant_id": "vipragsent_full_phobert"
+    },
+    {
+      "checkpoint_role": "phobert_pol_single",
+      "dependencies": [
+        "preflight_validation",
+        "vipragsent_train"
+      ],
+      "executor_kind": "single_model_trainable",
+      "model_family": "phobert_base",
+      "paper_facing": false,
+      "producer_id": "q1b_train_phobert_pol_single",
+      "producer_kind": "trainable_checkpoint",
+      "reusable_checkpoint_key_pattern": "phobert_pol_single:{seed}",
+      "system_id": "phobert_pol_single",
+      "training_applicability": "APPLICABLE",
+      "variant_id": "phobert_pol_single"
+    },
+    {
+      "checkpoint_role": "sailor_multitask_8head",
+      "dependencies": [
+        "preflight_validation",
+        "vipragsent_train"
+      ],
+      "executor_kind": "single_model_trainable",
+      "model_family": "sailor_7b",
+      "paper_facing": false,
+      "producer_id": "q1b_train_sailor_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "reusable_checkpoint_key_pattern": "sailor_multitask_8head:{seed}",
+      "system_id": "sailor_multitask_8head",
+      "training_applicability": "APPLICABLE",
+      "variant_id": "vipragsent_full"
+    },
+    {
+      "checkpoint_role": "vipragsent_full_phobert",
+      "dependencies": [
+        "preflight_validation",
+        "vipragsent_train"
+      ],
+      "executor_kind": "single_model_trainable",
+      "model_family": "phobert_base",
+      "paper_facing": false,
+      "producer_id": "q1b_train_vipragsent_full_phobert",
+      "producer_kind": "trainable_checkpoint",
+      "reusable_checkpoint_key_pattern": "vipragsent_full_phobert:{seed}",
+      "system_id": "vipragsent_full_phobert",
+      "training_applicability": "APPLICABLE",
+      "variant_id": "vipragsent_full_phobert"
+    },
+    {
+      "checkpoint_role": "vistral_multitask_8head",
+      "dependencies": [
+        "preflight_validation",
+        "vipragsent_train"
+      ],
+      "executor_kind": "single_model_trainable",
+      "model_family": "vistral_7b",
+      "paper_facing": false,
+      "producer_id": "q1b_train_vistral_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "reusable_checkpoint_key_pattern": "vistral_multitask_8head:{seed}",
+      "system_id": "vistral_multitask_8head",
+      "training_applicability": "APPLICABLE",
+      "variant_id": "vipragsent_full_vistral"
+    },
+    {
+      "checkpoint_role": "xlmr_multitask_8head",
+      "dependencies": [
+        "preflight_validation",
+        "vipragsent_train"
+      ],
+      "executor_kind": "single_model_trainable",
+      "model_family": "xlmr_large",
+      "paper_facing": false,
+      "producer_id": "q1b_train_xlmr_multitask_8head",
+      "producer_kind": "trainable_checkpoint",
+      "reusable_checkpoint_key_pattern": "xlmr_multitask_8head:{seed}",
+      "system_id": "xlmr_multitask_8head",
+      "training_applicability": "APPLICABLE",
+      "variant_id": "vipragsent_full_phobert"
+    }
+  ],
+  "q1b_consumer_count": 22,
+  "q1b_producer_definition_count": 8,
+  "q1b_producer_edge_count": 21,
+  "schema_version": 1,
+  "status": "PASS",
+  "topological_order": [
+    "inventory:q1a_azure_gpt41_mini_8shot",
+    "inventory:q1a_azure_gpt41_mini_zeroshot",
+    "inventory:q1a_cot_only_vistral_20260521",
+    "inventory:q1a_cot_only_vistral_20260522",
+    "inventory:q1a_cot_only_vistral_20260523",
+    "inventory:q1a_phobert_pragmatic_finetune_20260521",
+    "inventory:q1a_phobert_pragmatic_finetune_20260522",
+    "inventory:q1a_phobert_pragmatic_finetune_20260523",
+    "inventory:q1a_phobert_pragmatic_single_task_20260521",
+    "inventory:q1a_phobert_pragmatic_single_task_20260522",
+    "inventory:q1a_phobert_pragmatic_single_task_20260523",
+    "inventory:q1a_sailor_pragmatic_sft_20260521",
+    "inventory:q1a_sailor_pragmatic_sft_20260522",
+    "inventory:q1a_sailor_pragmatic_sft_20260523",
+    "inventory:q1a_vipragsent_full_vistral_20260521",
+    "inventory:backbone_sensitivity_vipragsent_full_vistral_20260521",
+    "inventory:q1a_explanation_only_vistral_20260521",
+    "inventory:q1a_vipragsent_full_vistral_20260522",
+    "inventory:backbone_sensitivity_vipragsent_full_vistral_20260522",
+    "inventory:q1a_explanation_only_vistral_20260522",
+    "inventory:q1a_vipragsent_full_vistral_20260523",
+    "inventory:backbone_sensitivity_vipragsent_full_vistral_20260523",
+    "inventory:q1a_explanation_only_vistral_20260523",
+    "inventory:q1a_vipragsent_no_auxiliary_vistral_20260521",
+    "inventory:q1a_vipragsent_no_auxiliary_vistral_20260522",
+    "inventory:q1a_vipragsent_no_auxiliary_vistral_20260523",
+    "inventory:q1a_vistral_pragmatic_sft_20260521",
+    "inventory:q1a_vistral_pragmatic_sft_20260522",
+    "inventory:q1a_vistral_pragmatic_sft_20260523",
+    "inventory:q1a_xlmr_pragmatic_finetune_20260521",
+    "inventory:q1a_xlmr_pragmatic_finetune_20260522",
+    "inventory:q1a_xlmr_pragmatic_finetune_20260523",
+    "inventory:q1b_azure_gpt41_mini",
+    "inventory:q2_full_20260521",
+    "inventory:q2_full_20260522",
+    "inventory:q2_full_20260523",
+    "inventory:q2_no_emotion_auxiliary_20260521",
+    "inventory:q2_no_emotion_auxiliary_20260522",
+    "inventory:q2_no_emotion_auxiliary_20260523",
+    "inventory:q2_no_multitask_bundle_20260521",
+    "inventory:q2_no_multitask_bundle_20260522",
+    "inventory:q2_no_multitask_bundle_20260523",
+    "inventory:q2_no_polarity_auxiliary_20260521",
+    "inventory:q2_no_polarity_auxiliary_20260522",
+    "inventory:q2_no_polarity_auxiliary_20260523",
+    "inventory:q2_no_rationale_20260521",
+    "inventory:q2_no_rationale_20260522",
+    "inventory:q2_no_rationale_20260523",
+    "inventory:q2_no_uncertainty_weighting_20260521",
+    "inventory:q2_no_uncertainty_weighting_20260522",
+    "inventory:q2_no_uncertainty_weighting_20260523",
+    "inventory:q3_azure_gpt41_mini_8shot_128",
+    "inventory:q3_azure_gpt41_mini_8shot_256",
+    "inventory:q3_azure_gpt41_mini_8shot_32",
+    "inventory:q3_azure_gpt41_mini_8shot_512",
+    "inventory:q3_azure_gpt41_mini_8shot_64",
+    "inventory:q3_azure_gpt41_mini_8shot_full",
+    "inventory:q3_phobert_pragmatic_finetune_128_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_128_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_128_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_256_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_256_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_256_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_32_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_32_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_32_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_512_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_512_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_512_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_64_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_64_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_64_20260523",
+    "inventory:q3_phobert_pragmatic_finetune_full_20260521",
+    "inventory:q3_phobert_pragmatic_finetune_full_20260522",
+    "inventory:q3_phobert_pragmatic_finetune_full_20260523",
+    "inventory:q3_vipragsent_full_vistral_128_20260521",
+    "inventory:q3_vipragsent_full_vistral_128_20260522",
+    "inventory:q3_vipragsent_full_vistral_128_20260523",
+    "inventory:q3_vipragsent_full_vistral_256_20260521",
+    "inventory:q3_vipragsent_full_vistral_256_20260522",
+    "inventory:q3_vipragsent_full_vistral_256_20260523",
+    "inventory:q3_vipragsent_full_vistral_32_20260521",
+    "inventory:q3_vipragsent_full_vistral_32_20260522",
+    "inventory:q3_vipragsent_full_vistral_32_20260523",
+    "inventory:q3_vipragsent_full_vistral_512_20260521",
+    "inventory:q3_vipragsent_full_vistral_512_20260522",
+    "inventory:q3_vipragsent_full_vistral_512_20260523",
+    "inventory:q3_vipragsent_full_vistral_64_20260521",
+    "inventory:q3_vipragsent_full_vistral_64_20260522",
+    "inventory:q3_vipragsent_full_vistral_64_20260523",
+    "inventory:q3_vipragsent_full_vistral_full_20260521",
+    "inventory:q3_vipragsent_full_vistral_full_20260522",
+    "inventory:q3_vipragsent_full_vistral_full_20260523",
+    "inventory:q3_vistral_pragmatic_sft_128_20260521",
+    "inventory:q3_vistral_pragmatic_sft_128_20260522",
+    "inventory:q3_vistral_pragmatic_sft_128_20260523",
+    "inventory:q3_vistral_pragmatic_sft_256_20260521",
+    "inventory:q3_vistral_pragmatic_sft_256_20260522",
+    "inventory:q3_vistral_pragmatic_sft_256_20260523",
+    "inventory:q3_vistral_pragmatic_sft_32_20260521",
+    "inventory:q3_vistral_pragmatic_sft_32_20260522",
+    "inventory:q3_vistral_pragmatic_sft_32_20260523",
+    "inventory:q3_vistral_pragmatic_sft_512_20260521",
+    "inventory:q3_vistral_pragmatic_sft_512_20260522",
+    "inventory:q3_vistral_pragmatic_sft_512_20260523",
+    "inventory:q3_vistral_pragmatic_sft_64_20260521",
+    "inventory:q3_vistral_pragmatic_sft_64_20260522",
+    "inventory:q3_vistral_pragmatic_sft_64_20260523",
+    "inventory:q3_vistral_pragmatic_sft_full_20260521",
+    "inventory:q3_vistral_pragmatic_sft_full_20260522",
+    "inventory:q3_vistral_pragmatic_sft_full_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_128_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_128_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_128_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_256_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_256_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_256_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_32_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_32_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_32_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_512_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_512_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_512_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_64_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_64_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_64_20260523",
+    "inventory:q3_xlmr_pragmatic_finetune_full_20260521",
+    "inventory:q3_xlmr_pragmatic_finetune_full_20260522",
+    "inventory:q3_xlmr_pragmatic_finetune_full_20260523",
+    "inventory:q4_phobert_pragmatic_finetune_20260521",
+    "inventory:q4_phobert_pragmatic_finetune_20260522",
+    "inventory:q4_phobert_pragmatic_finetune_20260523",
+    "inventory:q4_vipragsent_full_vistral_20260521",
+    "inventory:q4_vipragsent_full_vistral_20260522",
+    "inventory:q4_vipragsent_full_vistral_20260523",
+    "inventory:q4_vistral_pragmatic_sft_20260521",
+    "inventory:q4_vistral_pragmatic_sft_20260522",
+    "inventory:q4_vistral_pragmatic_sft_20260523",
+    "producer:q1b_train_phobert_emo_single:20260521",
+    "inventory:q1b_phobert_emo_single_20260521",
+    "producer:q1b_train_phobert_emo_single:20260522",
+    "inventory:q1b_phobert_emo_single_20260522",
+    "producer:q1b_train_phobert_emo_single:20260523",
+    "inventory:q1b_phobert_emo_single_20260523",
+    "producer:q1b_train_phobert_multitask_8head:20260521",
+    "inventory:q1b_phobert_multitask_8head_20260521",
+    "producer:q1b_train_phobert_multitask_8head:20260522",
+    "inventory:q1b_phobert_multitask_8head_20260522",
+    "producer:q1b_train_phobert_multitask_8head:20260523",
+    "inventory:q1b_phobert_multitask_8head_20260523",
+    "producer:q1b_train_phobert_pol_single:20260521",
+    "inventory:q1b_phobert_pol_single_20260521",
+    "producer:q1b_train_phobert_pol_single:20260522",
+    "inventory:q1b_phobert_pol_single_20260522",
+    "producer:q1b_train_phobert_pol_single:20260523",
+    "inventory:q1b_phobert_pol_single_20260523",
+    "producer:q1b_train_sailor_multitask_8head:20260521",
+    "inventory:q1b_sailor_multitask_8head_20260521",
+    "producer:q1b_train_sailor_multitask_8head:20260522",
+    "inventory:q1b_sailor_multitask_8head_20260522",
+    "producer:q1b_train_sailor_multitask_8head:20260523",
+    "inventory:q1b_sailor_multitask_8head_20260523",
+    "producer:q1b_train_vipragsent_full_phobert:20260521",
+    "inventory:backbone_sensitivity_vipragsent_full_phobert_20260521",
+    "inventory:q1b_vipragsent_full_phobert_20260521",
+    "producer:q1b_train_vipragsent_full_phobert:20260522",
+    "inventory:backbone_sensitivity_vipragsent_full_phobert_20260522",
+    "inventory:q1b_vipragsent_full_phobert_20260522",
+    "producer:q1b_train_vipragsent_full_phobert:20260523",
+    "inventory:backbone_sensitivity_vipragsent_full_phobert_20260523",
+    "inventory:q1b_vipragsent_full_phobert_20260523",
+    "producer:q1b_train_vistral_multitask_8head:20260521",
+    "inventory:q1b_vistral_multitask_8head_20260521",
+    "producer:q1b_train_vistral_multitask_8head:20260522",
+    "inventory:q1b_vistral_multitask_8head_20260522",
+    "producer:q1b_train_vistral_multitask_8head:20260523",
+    "inventory:q1b_vistral_multitask_8head_20260523",
+    "producer:q1b_train_xlmr_multitask_8head:20260521",
+    "inventory:q1b_xlmr_multitask_8head_20260521",
+    "producer:q1b_train_xlmr_multitask_8head:20260522",
+    "inventory:q1b_xlmr_multitask_8head_20260522",
+    "producer:q1b_train_xlmr_multitask_8head:20260523",
+    "inventory:q1b_xlmr_multitask_8head_20260523"
+  ]
+}

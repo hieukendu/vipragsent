@@ -1,0 +1,15 @@
+{
+  "canonical_artifact_present": false,
+  "canonical_path": "data/processed/rationales/approved_generated_rationales_train.jsonl",
+  "checks": {
+    "approval_gate": true,
+    "atomic_promotion": true,
+    "canonical_fields_declared": true,
+    "promotion_module_present": true,
+    "raw_target_mapping_only_in_promotion": true,
+    "training_consumes_canonical_artifact": true
+  },
+  "manifest_path": "data/manifests/approved_generated_rationales_train.json",
+  "runtime_status": "BLOCKED_UNTIL_APPROVED_AZURE_RATIONALE_RUN",
+  "status": "PASS"
+}

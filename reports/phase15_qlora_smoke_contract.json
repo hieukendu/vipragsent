@@ -1,0 +1,18 @@
+{
+  "batch_probe_cli": true,
+  "contract_checks": {
+    "bnb_4bit_use_double_quant": true,
+    "gradient_checkpointing_enable": true,
+    "k_proj": true,
+    "nf4": true,
+    "o_proj": true,
+    "prepare_model_for_kbit_training": true,
+    "q_proj": true,
+    "v_proj": true
+  },
+  "hardware_checks_real": true,
+  "smoke_executed": false,
+  "smoke_uses_production_factory": true,
+  "status": "PASS",
+  "weights_downloaded": false
+}

@@ -25,3 +25,8 @@ systems:
   azure_gpt41_mini:
     polarity_output: dedicated_polarity_prompt
     emotion_output: dedicated_emotion_prompt
+    polarity_prompt_id: polarity_v1
+    emotion_prompt_id: emotion_v1
+    seed: null
+    training_data: none
+    external_finetuning: false

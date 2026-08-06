@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import csv
 from collections import Counter
+from collections.abc import Iterable, Sequence
 from pathlib import Path
-from typing import Iterable, Sequence
 
 
 def raw_agreement(first: Sequence[object], second: Sequence[object]) -> float:

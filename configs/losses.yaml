@@ -8,4 +8,16 @@ emotion:
 full_model:
   type: homoscedastic_uncertainty
   independent_uncertainty_parameters: 8
-rationale_beta: 0.3
+  rationale_beta: 0.3
+vistral_pragmatic_sft:
+  type: equal_weight
+  independent_uncertainty_parameters: 0
+  rationale: absent
+vipragsent_no_auxiliary_vistral:
+  type: homoscedastic_uncertainty
+  independent_uncertainty_parameters: 6
+  uncertainty_parameter_tasks: [implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking]
+  uncertainty_initialization: 0.0
+  uncertainty_clamp: [-5.0, 5.0]
+  uncertainty_weight_decay: 0.0
+  rationale: absent

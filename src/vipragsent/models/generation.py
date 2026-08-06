@@ -15,6 +15,17 @@ class ParsedGeneration:
     repaired_punctuation: bool = False
 
 
+def parse_cot_generation_record(text: str) -> dict[str, Any]:
+    record: dict[str, Any] = {"raw_generation": text, "parser_status": "INVALID", "invalid_reason": None, "repaired_text": None}
+    try:
+        parsed = parse_cot_generation(text)
+    except Exception as exc:
+        record["invalid_reason"] = str(exc)
+        return record
+    record.update({"parser_status": "PASS", "repaired_text": text, "rationale": parsed.rationale, "labels": parsed.labels, "repaired_punctuation": parsed.repaired_punctuation})
+    return record
+
+
 def repair_json_punctuation(value: str) -> str:
     repaired = re.sub(r",\s*([}\]])", r"\1", value)
     repaired = repaired.replace("\u201c", '"').replace("\u201d", '"').replace("\u2018", "'").replace("\u2019", "'")

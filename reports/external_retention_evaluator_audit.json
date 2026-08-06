@@ -1,0 +1,23 @@
+{
+  "metrics": {
+    "aivivn_macro_f1": 1.0,
+    "external_finetuning": false,
+    "external_manifest_hash": "audit",
+    "external_preprocessing": "locked_normalized_test_only",
+    "optimizer_steps": 0,
+    "ord_f1": 0.8095238095238096,
+    "source_checkpoint_id": "audit",
+    "source_seed": 20260521,
+    "train_loader_created": false,
+    "vsfc_macro_f1": 1.0,
+    "vsmec_macro_f1": 0.42857142857142855
+  },
+  "no_external_finetuning": true,
+  "output_files": [
+    "external_retention_metrics.json",
+    "uit_vsfc_test_predictions.jsonl",
+    "uit_vsmec_test_predictions.jsonl",
+    "aivivn_test_predictions.jsonl"
+  ],
+  "status": "PASS"
+}

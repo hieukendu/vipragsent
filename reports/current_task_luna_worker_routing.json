@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "task": "final-review-metadata-closure",
+  "manager_requested_model": "gpt-5.6-luna",
+  "manager_requested_reasoning_effort": "maximum available",
+  "manager_resolved_model": null,
+  "manager_resolved_reasoning_effort": null,
+  "manager_profile_verification": "NOT_VERIFIED",
+  "manager_profile_verification_source": "The runtime session exposed no verifiable model-profile metadata.",
+  "worker_model_allowlist": [
+    "gpt-5.6-luna"
+  ],
+  "workers_spawned": 0,
+  "manager_workers_spawned": 0,
+  "worker_attempts": [],
+  "accepted_worker_patches": [],
+  "rejected_worker_patches": [],
+  "status": "MANAGER_ONLY",
+  "decision_reason": "This is a narrow one-function metadata-precedence defect with direct regression coverage. No independent worker was needed, and no verified Luna-Max worker route was exposed.",
+  "worker_self_reports_used": false,
+  "phase_15_started": false,
+  "real_experiment_started": false
+}

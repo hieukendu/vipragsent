@@ -1,0 +1,137 @@
+{
+  "bundle_executors": {
+    "no_multitask": "independent_checkpoint_bundle",
+    "phobert_pragmatic_single_task": "single_task_bundle"
+  },
+  "generation_baselines": {
+    "cot_only_vistral": "generation_trainable",
+    "explanation_only_vistral": "rationale_checkpoint_reuse"
+  },
+  "generation_protocol": {
+    "checks": {
+      "exact_metrics": true,
+      "generation_file_exists": true,
+      "generation_hash_matches": true,
+      "judge_file_exists": true,
+      "judge_hash_matches": true,
+      "judge_receives_reasoning_only": true,
+      "retry_contract": true,
+      "schema_file_exists": true,
+      "schema_hash_matches": true,
+      "semantic_repair_disabled": true,
+      "single_judge_protocol": true,
+      "strict_schema": true,
+      "system_semantics": true
+    },
+    "errors": [],
+    "protocol": {
+      "cache": {
+        "include_gold_labels": false,
+        "key": "sha256(judge_protocol_id+expected_model_version+temperature+judge_prompt_template_hash+judge_schema_hash+normalized_reasoning)",
+        "normalization": "unicode_nfc_line_endings_lf_outer_whitespace_only",
+        "reuse_identical_normalized_reasoning": true
+      },
+      "decoding": {
+        "do_sample": false,
+        "max_new_tokens": 160,
+        "num_beams": 1,
+        "num_return_sequences": 1,
+        "repetition_penalty": 1.0,
+        "stop": "eos_or_maximum_length",
+        "temperature": "NOT_APPLICABLE",
+        "top_k": "NOT_APPLICABLE",
+        "top_p": "NOT_APPLICABLE"
+      },
+      "generation_prompt_hash": "E3E586054B17377B641F33384E1E7487922D91C1FEB74320F660BFC42C2FADEC",
+      "generation_prompt_path": "prompts/protocols/cot_only_reasoning_vi_v1.txt",
+      "invalid_policy": {
+        "invalid_stages": [
+          "generation",
+          "judge_request",
+          "judge_response"
+        ],
+        "non_empty_truncated_reasoning_is_invalid": false,
+        "preserve_raw_status": true,
+        "primary_invalid_effective_prediction": "all_zero"
+      },
+      "judge_deployment": "gpt-4.1-mini",
+      "judge_input": "generated_reasoning_only",
+      "judge_max_output_tokens": 128,
+      "judge_model": "GPT-4.1-mini",
+      "judge_model_version": "2025-04-14",
+      "judge_prompt_hash": "7A24FC5168BEEE0B6EA472C7F2D2CEDE95DF49C4631C8028EBBCB57238B17B19",
+      "judge_prompt_path": "prompts/protocols/reasoning_judge_gpt41mini_zeroshot_v1.txt",
+      "judge_protocol_id": "reasoning_judge_gpt41mini_zeroshot_v1",
+      "judge_schema_hash": "FF7F4EE3DC82805942118D2E97A5AAE55C9AB1396C7A6412A296AA6880D376E3",
+      "judge_schema_path": "schemas/reasoning_judge_output.schema.json",
+      "judge_temperature": 0,
+      "metrics": {
+        "diagnostics": [
+          "requested_count",
+          "valid_count",
+          "invalid_count",
+          "coverage_rate",
+          "invalid_generation_rate",
+          "invalid_judge_output_rate",
+          "missing_prediction_rate",
+          "truncation_rate",
+          "judge_cache_hits",
+          "judge_cache_misses",
+          "judge_retry_count",
+          "judge_input_tokens",
+          "judge_output_tokens",
+          "judge_request_count"
+        ],
+        "primary": "full_split_macro_pragmatic_f1_all_zero_fallback",
+        "secondary": "valid_only_macro_pragmatic_f1",
+        "significance_prediction_source": "effective_full_split_all_zero_fallback"
+      },
+      "original_sentence_visible": false,
+      "protocol_version": "reasoning_generation_shared_judge_v1",
+      "retry": {
+        "fallback_delays_seconds": [
+          2,
+          4,
+          8,
+          16
+        ],
+        "honor_retry_after": true,
+        "maximum_total_attempts": 5,
+        "retryable_status_codes": [
+          408,
+          429,
+          500,
+          502,
+          503,
+          504
+        ],
+        "retryable_transport_errors": [
+          "network_timeout",
+          "connection_reset"
+        ],
+        "semantic_retry": false
+      },
+      "schema_version": 1,
+      "semantic_repair": false,
+      "systems": {
+        "cot_only_vistral": {
+          "checkpoint_semantics": "own_generation_checkpoint",
+          "rationale_source": "data/processed/rationales/approved_generated_rationales_train.jsonl",
+          "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev",
+          "training": "generation_only_causal_cross_entropy"
+        },
+        "explanation_only_vistral": {
+          "checkpoint_semantics": "reuse_approved_full_vistral_same_seed",
+          "inference_source": "judge_of_rationale_decoder_output",
+          "selection_metric": "inherited_from_source_checkpoint",
+          "source_checkpoint_key_pattern": "vipragsent_full_vistral:{seed}",
+          "source_system_id": "vipragsent_full_vistral",
+          "training": "no_additional_training"
+        }
+      }
+    },
+    "status": "PASS"
+  },
+  "registry_entry_count": 25,
+  "status": "PASS"
+}

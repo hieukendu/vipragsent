@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-
 REQUIRED_DIRS = [
     "data/input",
     "data/raw",
@@ -23,6 +22,11 @@ REQUIRED_DIRS = [
     "predictions",
     "results",
     "reports/phases",
+    "prompts/sequential/phase15",
+    "prompts/sequential/experiments",
+    "prompts/sequential/azure",
+    "prompts/sequential/aggregation",
+    "schemas",
     "experiment_artifacts",
 ]
 REQUIRED_FILES = [
@@ -32,8 +36,19 @@ REQUIRED_FILES = [
     ".env.example",
     "PROJECT_STATE.json",
     "configs/master_run.yaml",
+    "configs/execution_policy.yaml",
     "configs/paper_roles.yaml",
+    "configs/experiments/master_matrix.yaml",
+    "configs/experiments/master_inventory.yaml",
+    "configs/experiments/q4/pragmatic_calibration.yaml",
     "configs/models/model_registry.yaml",
+    "scripts/run_single_experiment.py",
+    "scripts/run_single_azure_job.py",
+    "scripts/print_run_review_summary.py",
+    "scripts/aggregate_approved_runs.py",
+    "schemas/run_review_summary.schema.json",
+    "schemas/run_approval_status.schema.json",
+    "schemas/q4_pragmatic_calibration.schema.json",
 ]
 
 

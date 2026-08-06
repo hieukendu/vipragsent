@@ -5,8 +5,37 @@
   "required": ["sample_id", "labels", "inference_output_source", "rationale_decoder_enabled_at_inference"],
   "properties": {
     "sample_id": {"type": "string", "minLength": 1},
+    "system_id": {"type": "string"},
     "labels": {"$ref": "label_output.schema.json"},
-    "inference_output_source": {"enum": ["classification_heads", "parsed_generated_labels"]},
-    "rationale_decoder_enabled_at_inference": {"type": "boolean"}
-  }
+    "inference_output_source": {"enum": ["classification_heads", "judge_of_generated_reasoning", "judge_of_rationale_decoder_output", "parsed_generated_labels"]},
+    "rationale_decoder_enabled_at_inference": {"type": "boolean"},
+    "native_causal_lm_generation_used": {"type": "boolean"},
+    "direct_classification_outputs_used": {"type": "boolean"}
+  },
+  "allOf": [
+    {
+      "if": {"required": ["system_id"], "properties": {"system_id": {"const": "explanation_only_vistral"}}},
+      "then": {
+        "required": ["native_causal_lm_generation_used", "direct_classification_outputs_used"],
+        "properties": {
+          "inference_output_source": {"const": "judge_of_rationale_decoder_output"},
+          "rationale_decoder_enabled_at_inference": {"const": true},
+          "native_causal_lm_generation_used": {"const": false},
+          "direct_classification_outputs_used": {"const": false}
+        }
+      }
+    },
+    {
+      "if": {"required": ["system_id"], "properties": {"system_id": {"const": "cot_only_vistral"}}},
+      "then": {
+        "required": ["native_causal_lm_generation_used", "direct_classification_outputs_used"],
+        "properties": {
+          "inference_output_source": {"const": "judge_of_generated_reasoning"},
+          "rationale_decoder_enabled_at_inference": {"const": false},
+          "native_causal_lm_generation_used": {"const": true},
+          "direct_classification_outputs_used": {"const": false}
+        }
+      }
+    }
+  ]
 }

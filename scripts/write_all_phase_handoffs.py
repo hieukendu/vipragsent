@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from _bootstrap import ROOT
 from vipragsent.phase import write_phase_handoff
 
 

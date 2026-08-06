@@ -1,0 +1,18 @@
+{
+  "canonical_root": "results/runs/<run_id>/",
+  "common_files": [
+    "state.json",
+    "stage_events.jsonl",
+    "preflight.json",
+    "run_manifest.json",
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "review_summary.json",
+    "review_summary.md",
+    "approval_status.json",
+    "checksums.sha256",
+    "logs/"
+  ],
+  "fixture_root": "runs/fixture/"
+}

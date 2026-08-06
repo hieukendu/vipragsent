@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["paper_label", "resolved_system_id", "checkpoint_family", "active_heads_and_losses", "inference_output_source", "approval_source", "resolution_status"],
+  "properties": {
+    "paper_label": {"type": "string"},
+    "resolved_system_id": {"type": "string"},
+    "checkpoint_family": {"type": "string"},
+    "active_heads_and_losses": {"type": "array", "items": {"type": "string"}},
+    "inference_output_source": {"type": "string"},
+    "approval_source": {"type": "string"},
+    "resolution_status": {"enum": ["RESOLVED", "CONFLICT"]}
+  },
+  "additionalProperties": false
+}
