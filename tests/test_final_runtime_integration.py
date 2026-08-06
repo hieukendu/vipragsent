@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -12,7 +13,12 @@ from torch import nn
 from vipragsent.constants import PRAGMATIC_LABELS
 from vipragsent.data.collation import BatchCollator
 from vipragsent.data.loaders import DatasetExample
-from vipragsent.data.preprocessing import DummyTokenizer, PreprocessingSpec, TextPreprocessor
+from vipragsent.data.preprocessing import (
+    DummyTokenizer,
+    PreprocessingSpec,
+    TextPreprocessor,
+    VnCoreNLPSegmenter,
+)
 from vipragsent.evaluation.confidence_intervals import evaluate_q1a_confidence_intervals
 from vipragsent.hashing import sha256_file
 from vipragsent.models.qlora import build_qlora_backbone
@@ -38,6 +44,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _labels(index: int = 0) -> dict[str, int | str]:
     return {label: (index + offset) % 2 for offset, label in enumerate(PRAGMATIC_LABELS)} | {"polarity": "positive", "emotion": "enjoyment"}
+
+
+def test_vncorenlp_adapter_uses_official_save_dir_and_normalizes_sentence_list(monkeypatch, tmp_path: Path) -> None:
+    resource_dir = tmp_path / "vncorenlp"
+    resource_dir.mkdir()
+    calls: dict[str, object] = {}
+
+    class FakeClient:
+        def __init__(self, **kwargs: object) -> None:
+            calls.update(kwargs)
+
+        def word_segment(self, _: str) -> list[str]:
+            return ["Ông Nguyễn_Khắc_Chúc .", "Bà Lan ."]
+
+    monkeypatch.setitem(sys.modules, "py_vncorenlp", SimpleNamespace(VnCoreNLP=FakeClient))
+    segmenter = object.__new__(VnCoreNLPSegmenter)
+    segmenter.resource_dir = resource_dir
+    segmenter.client = segmenter._build_client()
+
+    assert calls == {"annotators": ["wseg"], "save_dir": str(resource_dir)}
+    assert segmenter.segment("unused") == "Ông Nguyễn_Khắc_Chúc . Bà Lan ."
 
 
 def test_device_contract_moves_nested_batches_and_rejects_mismatch() -> None:

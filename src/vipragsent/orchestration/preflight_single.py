@@ -3,7 +3,9 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 import shutil
+import subprocess
 from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
@@ -30,6 +32,62 @@ def _registry(root: Path) -> dict[str, dict[str, Any]]:
 
 def _check(checks: dict[str, dict[str, Any]], name: str, passed: bool, *, detail: str, required: bool = True) -> None:
     checks[name] = {"passed": bool(passed), "required": required, "detail": detail}
+
+
+def _java_major_version() -> str | None:
+    try:
+        result = subprocess.run(["java", "-version"], capture_output=True, text=True, timeout=10, check=False)
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    match = re.search(r'version "(\d+)', result.stderr + result.stdout)
+    return match.group(1) if match else None
+
+
+def _vncorenlp_runtime_status(root: Path) -> dict[str, Any]:
+    """Return static production checks for the PhoBERT preprocessing runtime."""
+    config_path = root / "configs/runtime/vncorenlp.yaml"
+    if not config_path.exists():
+        return {
+            "required": False,
+            "java_major": None,
+            "java_17": True,
+            "resource_dir": None,
+            "resources": True,
+            "adapter": True,
+            "detail": "VnCoreNLP runtime configuration is not present",
+        }
+    try:
+        config = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError) as exc:
+        return {
+            "required": True,
+            "java_major": None,
+            "java_17": False,
+            "resource_dir": None,
+            "resources": False,
+            "adapter": False,
+            "detail": f"VnCoreNLP runtime configuration is invalid: {exc}",
+        }
+    configured = os.getenv("VNCORENLP_HOME") or str(config.get("resource_path") or "data/model_cache/vncorenlp")
+    resource_dir = Path(configured).expanduser()
+    if not resource_dir.is_absolute():
+        resource_dir = root / resource_dir
+    java_major = _java_major_version()
+    resource_ok = (
+        resource_dir.is_dir()
+        and (resource_dir / "VnCoreNLP-1.2.jar").is_file()
+        and any(path.is_file() for path in (resource_dir / "models").rglob("*"))
+    )
+    adapter_ok = importlib.util.find_spec("py_vncorenlp") is not None
+    return {
+        "required": True,
+        "java_major": java_major,
+        "java_17": java_major == "17",
+        "resource_dir": str(resource_dir),
+        "resources": resource_ok,
+        "adapter": adapter_ok,
+        "detail": f"resource_dir={resource_dir}; java={java_major}; adapter={'installed' if adapter_ok else 'missing'}",
+    }
 
 
 def _mask_hash(root: Path, budget: str | int | None) -> tuple[Path | None, str | None]:
@@ -196,6 +254,19 @@ def run_single_preflight(
             _check(checks, "required_python_packages", package_ok, detail="missing: " + ", ".join(package_failures) if package_failures else "all required packages are installed", required=not fixture)
             if package_failures and not fixture:
                 blockers.append("required Python packages are unavailable: " + ", ".join(package_failures))
+
+            if model_family == "phobert_base":
+                vncorenlp = _vncorenlp_runtime_status(root)
+                for check_name, key, message in (
+                    ("java_17", "java_17", "Java 17 LTS is required for VnCoreNLP"),
+                    ("vncorenlp_resources", "resources", "Pinned VnCoreNLP RDRSegmenter resources are missing or incomplete"),
+                    ("vncorenlp_adapter", "adapter", "py-vncorenlp is not installed for production PhoBERT preprocessing"),
+                ):
+                    passed = fixture or (not vncorenlp["required"] or bool(vncorenlp[key]))
+                    detail = vncorenlp["detail"]
+                    _check(checks, check_name, passed, detail=detail, required=not fixture)
+                    if not passed:
+                        blockers.append(message)
 
             hardware = validate_hardware(root) if not fixture else {"status": "PASS", "checks": {"fixture_cpu_path": True}, "blockers": []}
             gpu_ok = fixture or hardware.get("status") == "PASS"

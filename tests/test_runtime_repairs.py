@@ -15,7 +15,7 @@ from vipragsent.constants import RUNTIME_PREFLIGHT_CHECKLIST
 from vipragsent.models import factory
 from vipragsent.models.backbones import DummyBackbone
 from vipragsent.models.variants import VARIANT_IDS
-from vipragsent.orchestration import single_run
+from vipragsent.orchestration import preflight_single, single_run
 from vipragsent.orchestration.contracts import RunContext, RunEntry, StageOutcome
 from vipragsent.orchestration.inventory import build_expected_runs
 from vipragsent.orchestration.run_store import RunStore
@@ -65,6 +65,22 @@ def test_gitkeep_only_artifact_tree_is_not_treated_as_material(tmp_path: Path) -
 
 def test_audits_use_the_active_python_interpreter() -> None:
     assert _runtime_command(["python", "-m", "pytest"])[0].endswith("/python")
+
+
+def test_single_preflight_detects_missing_phobert_vncorenlp_runtime(monkeypatch, tmp_path: Path) -> None:
+    config_path = tmp_path / "configs/runtime/vncorenlp.yaml"
+    config_path.parent.mkdir(parents=True)
+    config_path.write_text("resource_path: data/model_cache/vncorenlp\n", encoding="utf-8")
+    monkeypatch.delenv("VNCORENLP_HOME", raising=False)
+    monkeypatch.setattr(preflight_single, "_java_major_version", lambda: None)
+    monkeypatch.setattr(preflight_single.importlib.util, "find_spec", lambda name: None if name == "py_vncorenlp" else object())
+
+    status = preflight_single._vncorenlp_runtime_status(tmp_path)
+
+    assert status["required"] is True
+    assert status["java_17"] is False
+    assert status["resources"] is False
+    assert status["adapter"] is False
 
 
 def test_final_audit_ignores_only_known_local_environment_roots() -> None:

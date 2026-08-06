@@ -77,13 +77,11 @@ class VnCoreNLPSegmenter:
 
     def _build_client(self) -> Any:
         try:
-            from vncorenlp import VnCoreNLP
+            from py_vncorenlp import VnCoreNLP
         except ImportError as exc:
-            raise RuntimeBlocked("vncorenlp Python adapter is not installed") from exc
+            raise RuntimeBlocked("py_vncorenlp Python adapter is not installed") from exc
         try:
-            return VnCoreNLP(str(self.resource_dir), annotators="wseg", quiet=True)
-        except TypeError:
-            return VnCoreNLP(str(self.resource_dir), annotators="wseg")
+            return VnCoreNLP(annotators=["wseg"], save_dir=str(self.resource_dir))
         except Exception as exc:
             raise RuntimeBlocked(f"VnCoreNLP failed to open configured resources: {exc}") from exc
 
@@ -96,6 +94,8 @@ class VnCoreNLPSegmenter:
             value = self.client(text)
         else:
             raise RuntimeBlocked("Configured VnCoreNLP client has no word-segmentation method")
+        if isinstance(value, (list, tuple)):
+            value = " ".join(str(sentence).strip() for sentence in value if str(sentence).strip())
         if not isinstance(value, str) or not value.strip():
             raise RuntimeBlocked("VnCoreNLP returned an empty segmentation")
         return value
