@@ -1,0 +1,113 @@
+{
+  "entry_id": "q1a_phobert_pragmatic_single_task_20260521",
+  "kind": "experiment",
+  "preflight": {
+    "blockers": [],
+    "code_commit": "493a709c2364159c8c03feb5ada18135b800b825",
+    "entry_id": "q1a_phobert_pragmatic_single_task_20260521",
+    "kind": "experiment",
+    "passed": true,
+    "policy": {
+      "automatic_next_run": false,
+      "execution_policy": "sequential_review_gated",
+      "global_full_dag_enabled": false,
+      "maximum_concurrent_gpu_jobs": 1,
+      "require_user_approval_after_each_run": true
+    },
+    "protocol_resolution": {
+      "Q1A": "RESOLVED",
+      "Q1B": "RESOLVED",
+      "Q3": "RESOLVED",
+      "Q4": "RESOLVED",
+      "SIGNIFICANCE_PVALUE": "RESOLVED"
+    },
+    "warnings": [
+      "dry-run: no model, GPU, Azure, or external runtime was accessed"
+    ]
+  },
+  "review_artifacts": {
+    "approval_status": "results/runs/q1a_phobert_pragmatic_single_task_20260521/approval_status.json",
+    "review_summary_json": "results/runs/q1a_phobert_pragmatic_single_task_20260521/review_summary.json",
+    "review_summary_md": "results/runs/q1a_phobert_pragmatic_single_task_20260521/review_summary.md"
+  },
+  "run_id": "q1a_phobert_pragmatic_single_task_20260521",
+  "stages": {
+    "evaluate_dev": {
+      "status": "PASS",
+      "summary": {
+        "path": "runs/sequential/q1a_phobert_pragmatic_single_task_20260521/evaluate_dev.json",
+        "synthetic_results": true
+      }
+    },
+    "evaluate_test": {
+      "status": "PASS",
+      "summary": {
+        "path": "runs/sequential/q1a_phobert_pragmatic_single_task_20260521/evaluate_test.json",
+        "synthetic_results": true
+      }
+    },
+    "export_artifacts": {
+      "status": "PASS",
+      "summary": {
+        "path": "runs/sequential/q1a_phobert_pragmatic_single_task_20260521/export_artifacts.json",
+        "synthetic_results": true
+      }
+    },
+    "freeze_selection": {
+      "status": "PASS",
+      "summary": {
+        "path": "runs/sequential/q1a_phobert_pragmatic_single_task_20260521/freeze_selection.json",
+        "synthetic_results": true
+      }
+    },
+    "generate_review_summary": {
+      "status": "PASS",
+      "summary": {
+        "path": "runs/sequential/q1a_phobert_pragmatic_single_task_20260521/generate_review_summary.json",
+        "synthetic_results": true
+      }
+    },
+    "preflight": {
+      "status": "PASS",
+      "summary": {
+        "blockers": [],
+        "code_commit": "493a709c2364159c8c03feb5ada18135b800b825",
+        "entry_id": "q1a_phobert_pragmatic_single_task_20260521",
+        "kind": "experiment",
+        "passed": true,
+        "policy": {
+          "automatic_next_run": false,
+          "execution_policy": "sequential_review_gated",
+          "global_full_dag_enabled": false,
+          "maximum_concurrent_gpu_jobs": 1,
+          "require_user_approval_after_each_run": true
+        },
+        "protocol_resolution": {
+          "Q1A": "RESOLVED",
+          "Q1B": "RESOLVED",
+          "Q3": "RESOLVED",
+          "Q4": "RESOLVED",
+          "SIGNIFICANCE_PVALUE": "RESOLVED"
+        },
+        "warnings": [
+          "dry-run: no model, GPU, Azure, or external runtime was accessed"
+        ]
+      }
+    },
+    "train_or_run": {
+      "status": "PASS",
+      "summary": {
+        "path": "runs/sequential/q1a_phobert_pragmatic_single_task_20260521/train_or_run.json",
+        "synthetic_results": true
+      }
+    },
+    "validate_artifacts": {
+      "status": "PASS",
+      "summary": {
+        "path": "runs/sequential/q1a_phobert_pragmatic_single_task_20260521/validate_artifacts.json",
+        "synthetic_results": true
+      }
+    }
+  },
+  "status": "PASS"
+}

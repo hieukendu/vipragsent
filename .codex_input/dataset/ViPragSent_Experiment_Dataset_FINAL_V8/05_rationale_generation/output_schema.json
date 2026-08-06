@@ -1,0 +1,53 @@
+{
+  "required_metadata": [
+    "generator_model",
+    "prompt_version",
+    "prompt_hash",
+    "temperature",
+    "max_tokens",
+    "sample_id",
+    "rationale_text"
+  ],
+  "full_vipragsent_target": "rationale_only",
+  "cot_inference_target": "rationale_plus_structured_labels",
+  "label_json_schema": {
+    "implicit": [
+      0,
+      1
+    ],
+    "sarcasm": [
+      0,
+      1
+    ],
+    "irony": [
+      0,
+      1
+    ],
+    "idiom": [
+      0,
+      1
+    ],
+    "code_switching": [
+      0,
+      1
+    ],
+    "mocking": [
+      0,
+      1
+    ],
+    "polarity": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "emotion": [
+      "anger",
+      "disgust",
+      "enjoyment",
+      "fear",
+      "other",
+      "sadness",
+      "surprise"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "vipragsent": {
+    "total": 11997,
+    "source": "SEACrowd/ViSoBERT",
+    "splits": {
+      "train": 7998,
+      "dev": 1999,
+      "test": 2000
+    },
+    "split_method": "deterministic iterative multilabel stratification",
+    "split_seed": 20260520,
+    "duplicate_policy": {
+      "emoji_or_punctuation_variants": "retain as separate samples",
+      "near_duplicates_within_vipragsent": "retain",
+      "near_overlap_with_external_benchmarks": "retain",
+      "deduplication_performed": false
+    }
+  },
+  "aivivn": {
+    "name": "AIVIVN-human-derived-3way",
+    "splits_preserved_as_uploaded": true,
+    "annotation_method": "human"
+  },
+  "uit_vsfc_and_vsmec": {
+    "bundled": false,
+    "reason": "not supplied in this turn and may be subject to research-only distribution terms"
+  }
+}

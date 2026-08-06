@@ -1,0 +1,46 @@
+{
+  "NEXT_RUN_ALLOWED": "NO",
+  "RUN_STATUS": "BLOCKED",
+  "USER_REVIEW_STATUS": "PENDING",
+  "artifact_paths": [
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "preflight.json",
+    "run_manifest.json"
+  ],
+  "artifact_sha256": {
+    "config_snapshot.yaml": "5E5A8CF44BBF02674954B1FF13A3532DDF3F3409A677E3622E2D6DEDEA1B27FE",
+    "environment.json": "977B63ABA5C8B4EE5E395A5E5D27CF0989094913FB5FB549AA11C1CD3FC6810A",
+    "metrics.json": "40F149413FC1D0910951126138D3B58522E7E91AFCDABD8B5D8FBAE1B122FF1E",
+    "preflight.json": "FDAD7F489F62AB75FF3B189070710E4948CA00F848EF686D78222E1F1827D802",
+    "run_manifest.json": "F746574AB3B7FA0300BC1F59F9B65A6B31D65C267CFCBA4747CBADD25314B9BC"
+  },
+  "azure_job_id": null,
+  "backbone": "phobert_base",
+  "blockers": [
+    "Phase 15 family cache is not PASS for phobert_base",
+    "offline smoke report is not PASS for phobert_base",
+    "physical batch probe is not frozen for phobert_base",
+    "required GPU/precision runtime is unavailable"
+  ],
+  "budget": "NOT_APPLICABLE",
+  "completion_reason": "STAGE_BLOCKED",
+  "display_name": "PhoBERT pragmatic single-task bundle",
+  "execution_kind": "trainable",
+  "execution_mode": "production_sequential_review_gated",
+  "experiment_id": "q1a_phobert_pragmatic_single_task_20260522",
+  "next_run_allowed": "NO",
+  "preflight_only": false,
+  "research_question": "Q1a",
+  "run_id": "q1a_phobert_pragmatic_single_task_20260522",
+  "run_status": "BLOCKED",
+  "seed": 20260522,
+  "system_id": "phobert_pragmatic_single_task",
+  "user_review_status": "PENDING",
+  "validation_status": "BLOCKED",
+  "variant": "single_task_bundle",
+  "warnings": [
+    "execution was not completed"
+  ]
+}
