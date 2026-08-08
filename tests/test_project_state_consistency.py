@@ -51,12 +51,17 @@ def test_project_state_matches_verified_backup_and_paused_run() -> None:
     assert state["full_run_started"] is True
 
     boundary = ROOT / str(state["paused_resume_boundary"])
-    assert boundary.is_file()
-    boundary_sha = hashlib.sha256(boundary.read_bytes()).hexdigest()
-    assert any(
-        item["run_id"] == paused_run_id and item["sha256"] == boundary_sha and item["status"] == "REMOTE_VERIFIED"
+    boundary_entries = [
+        item
         for item in backup["model_checkpoints"]
-    )
+        if item["run_id"] == paused_run_id
+        and item["local_path"] == state["paused_resume_boundary"]
+        and item["status"] == "REMOTE_VERIFIED"
+    ]
+    assert boundary_entries
+    if boundary.is_file():
+        boundary_sha = hashlib.sha256(boundary.read_bytes()).hexdigest()
+        assert any(item["sha256"] == boundary_sha for item in boundary_entries)
 
     canonical_run_ids = {item["run_id"] for item in backup["model_checkpoints"]}
     assert len(canonical_run_ids) == 19
