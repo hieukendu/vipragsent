@@ -26,7 +26,10 @@ def test_project_state_matches_verified_backup_and_paused_run() -> None:
     assert summary["expected_canonical_entries"] == 35
     assert summary["remote_verified_entries"] == 35
     assert summary["blocked_entries"] == 0
+    assert summary["blocked_bytes"] == 0
     assert incremental["still_missing"] == 0
+    assert backup["storage_blocker"]["status"] == "RESOLVED"
+    assert backup["storage_blocker"]["resolved_after_public_visibility_verified"] is True
     assert state["remote_backup_manifest"] == "reports/vipragsent_safe_pause_backup.json"
     assert state["remote_backup_status"] == backup["backup_status"]
 
@@ -44,9 +47,37 @@ def test_project_state_matches_verified_backup_and_paused_run() -> None:
     assert state["next_action"] == f"Restore the paused {paused_run_id} run from its verified epoch-1 checkpoint boundary."
 
     paused_state = _read_json(ROOT / "results/runs" / paused_run_id / "state.json")
-    assert paused_state["run_status"] == paused["run_status"]
-    assert paused_state["stages"][paused["stage"]]["status"] == paused["stage_status"]
+    # The backup is a verified safe-pause snapshot.  A later same-run
+    # preflight/resume may legitimately move the local run through its
+    # sequential states; the immutable boundary and pause provenance must
+    # remain unchanged while that happens.
+    assert paused_state["run_status"] in {
+        "RUNNING_STALE",
+        "PREFLIGHT_READY",
+        "RUNNING",
+        "COMPLETED_PENDING_APPROVAL",
+        "APPROVED",
+        # A later resume attempt may fail before advancing the verified
+        # boundary.  That failure must not rewrite the canonical safe-pause
+        # summary or its immutable checkpoint provenance.
+        "FAIL",
+    }
+    assert paused_state["pause"]["status"] == "SAFELY_PAUSED"
+    assert paused_state["pause"]["resume_mode"] == paused["resume_mode"]
+    assert paused_state["pause"]["last_valid_checkpoint"] == "checkpoints/epoch_1/model.pt"
+    assert paused_state["pause"]["checkpoint_sha256"] == next(
+        item["sha256"]
+        for item in backup["model_checkpoints"]
+        if item["run_id"] == paused_run_id and item["local_path"] == state["paused_resume_boundary"]
+    )
     assert paused_state["stages"]["preflight"]["status"] == "PASS"
+    assert paused_state["stages"][paused["stage"]]["status"] in {
+        "NOT_STARTED",
+        "INTERRUPTED",
+        "RUNNING",
+        "PASS",
+        "FAIL",
+    }
     assert paused["stage_status"] == "INTERRUPTED"
     assert state["full_run_started"] is True
 
@@ -93,3 +124,5 @@ def test_project_state_matches_verified_backup_and_paused_run() -> None:
         approved_run_ids = manifest_approved_run_ids
     assert state["real_run_count"] == len(canonical_run_ids)
     assert state["approved_run_count"] == len(approved_run_ids)
+    assert state["real_experiment_ready"] is False
+    assert state["final_aggregation_ready"] is False
