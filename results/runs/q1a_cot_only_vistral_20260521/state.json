@@ -1,8 +1,8 @@
 {
   "approval_status": "PENDING_USER_APPROVAL",
   "azure_job_id": null,
-  "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
-  "code_tree": "7877d29a55c60386ecdde17bb73b717b22d191b8",
+  "code_commit": "9ef3c6746df249baebe153eb8e804c0e84db61dd",
+  "code_tree": "a6f79fa14bcc300673c2c0ef455d60193fdb25e3",
   "created_at": "2026-08-07T11:27:00Z",
   "execution_kind": "generation",
   "experiment_id": "q1a_cot_only_vistral_20260521",
@@ -13,10 +13,10 @@
     "active_gpu_jobs": 0,
     "checkpoint_sha256": "27f81249de067555827099334acb999f009d0d5970df333e855be231f36fc7c0",
     "last_valid_checkpoint": "checkpoints/epoch_1/model.pt",
-    "paused_at": "2026-08-08T15:29:55Z",
+    "paused_at": "2026-08-08T17:19:56Z",
     "paused_by": "explicit_user_requested_pause",
     "paused_process_exit_code": 2,
-    "paused_process_pid": 340553,
+    "paused_process_pid": 379524,
     "paused_process_signal": "SIGINT",
     "remote_backup_manifest": "reports/vipragsent_safe_pause_backup.json",
     "replay_required": "epoch 2 training, epoch 2 dev generation/judging/metrics, and all downstream stages",
@@ -26,7 +26,7 @@
   "run_id": "q1a_cot_only_vistral_20260521",
   "run_status": "RUNNING_STALE",
   "schema_version": 2,
-  "source_fingerprint": "85cdbde392d4423e326691e7263b669db6f01d148b76b4cf3f017746bc60d2bf",
+  "source_fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
   "stages": {
     "compute_dev_reasoning_metrics": {
       "previous_status": "NOT_STARTED",
@@ -76,7 +76,7 @@
     "preflight": {
       "artifacts": [],
       "blockers": [],
-      "ended_at": "2026-08-08T03:56:30Z",
+      "ended_at": "2026-08-08T17:16:27Z",
       "error": null,
       "expected_files": [
         "preflight.json"
@@ -116,7 +116,7 @@
             "required": true
           },
           "git_commit_recorded": {
-            "detail": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+            "detail": "9ef3c6746df249baebe153eb8e804c0e84db61dd",
             "passed": true,
             "required": true
           },
@@ -196,7 +196,7 @@
             "required": true
           },
           "sufficient_disk_space": {
-            "detail": "{\"available_free_bytes\": 5905611718656, \"checkpoint_estimate_bytes\": 3006477107, \"minimum_free_bytes\": 16428249907, \"model_family\": \"vistral_7b\", \"optimizer_state_estimate_bytes\": 2147483648, \"passed\": true, \"prediction_artifact_estimate_bytes\": 536870912, \"safety_margin_bytes\": 2147483648, \"snapshot_estimate_bytes\": 8589934592}",
+            "detail": "{\"available_free_bytes\": 5889788186624, \"checkpoint_estimate_bytes\": 3006477107, \"minimum_free_bytes\": 16428249907, \"model_family\": \"vistral_7b\", \"optimizer_state_estimate_bytes\": 2147483648, \"passed\": true, \"prediction_artifact_estimate_bytes\": 536870912, \"safety_margin_bytes\": 2147483648, \"snapshot_estimate_bytes\": 8589934592}",
             "passed": true,
             "required": true
           },
@@ -206,11 +206,11 @@
             "required": true
           }
         },
-        "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+        "code_commit": "9ef3c6746df249baebe153eb8e804c0e84db61dd",
         "execution_kind": "generation",
         "kind": "experiment",
         "passed": true,
-        "preflight_hash": "98E1967AEDFFBDA71F532E980C35EB043964EAFF3A095CBE1324C88ACD5890E6",
+        "preflight_hash": "C9E90FA7B563C923140473786B6094AAE4609ADEDA0514CD425D4280E2FC2B0A",
         "run_id": "q1a_cot_only_vistral_20260521",
         "run_path": "results/runs/q1a_cot_only_vistral_20260521",
         "schema_version": 2,
@@ -220,7 +220,7 @@
       "warnings": []
     },
     "train_generation": {
-      "ended_at": "2026-08-08T15:29:55Z",
+      "ended_at": "2026-08-08T17:19:34Z",
       "status": "INTERRUPTED"
     },
     "validate_artifacts": {
@@ -229,5 +229,5 @@
       "status": "NOT_STARTED"
     }
   },
-  "updated_at": "2026-08-08T15:29:55Z"
+  "updated_at": "2026-08-08T17:19:56Z"
 }
