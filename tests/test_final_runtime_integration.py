@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import os
+import sys
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -9,10 +11,16 @@ import torch
 from scripts.audit_final_runtime_integration import _device_report
 from torch import nn
 
+import vipragsent.orchestration.stage_registry as stage_registry
 from vipragsent.constants import PRAGMATIC_LABELS
 from vipragsent.data.collation import BatchCollator
 from vipragsent.data.loaders import DatasetExample
-from vipragsent.data.preprocessing import DummyTokenizer, PreprocessingSpec, TextPreprocessor
+from vipragsent.data.preprocessing import (
+    DummyTokenizer,
+    PreprocessingSpec,
+    TextPreprocessor,
+    VnCoreNLPSegmenter,
+)
 from vipragsent.evaluation.confidence_intervals import evaluate_q1a_confidence_intervals
 from vipragsent.hashing import sha256_file
 from vipragsent.models.qlora import build_qlora_backbone
@@ -38,6 +46,60 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _labels(index: int = 0) -> dict[str, int | str]:
     return {label: (index + offset) % 2 for offset, label in enumerate(PRAGMATIC_LABELS)} | {"polarity": "positive", "emotion": "enjoyment"}
+
+
+def test_vncorenlp_adapter_uses_official_save_dir_and_normalizes_sentence_list(monkeypatch, tmp_path: Path) -> None:
+    resource_dir = tmp_path / "vncorenlp"
+    resource_dir.mkdir()
+    calls: dict[str, object] = {}
+
+    class FakeClient:
+        def __init__(self, **kwargs: object) -> None:
+            calls.update(kwargs)
+            os.chdir(resource_dir)
+
+        def word_segment(self, _: str) -> list[str]:
+            return ["Ông Nguyễn_Khắc_Chúc .", "Bà Lan ."]
+
+    monkeypatch.setitem(sys.modules, "py_vncorenlp", SimpleNamespace(VnCoreNLP=FakeClient))
+    original_cwd = Path.cwd()
+    segmenter = object.__new__(VnCoreNLPSegmenter)
+    segmenter.resource_dir = resource_dir
+    segmenter.client = segmenter._build_client()
+
+    assert calls == {"annotators": ["wseg"], "save_dir": str(resource_dir)}
+    assert Path.cwd() == original_cwd
+    assert segmenter.segment("unused") == "Ông Nguyễn_Khắc_Chúc . Bà Lan ."
+
+
+def test_production_train_preprocessor_injects_vncorenlp(monkeypatch) -> None:
+    segmenter = SimpleNamespace(version="locked", resource_checksum="checksum", segment=lambda text: text)
+    monkeypatch.setattr(stage_registry.VnCoreNLPSegmenter, "from_env", lambda: segmenter)
+
+    preprocessor = stage_registry._build_production_preprocessor(
+        "phobert_base",
+        preprocessing_name="vncorenlp_rdrsegmenter",
+        preprocessing_version="locked-v1",
+        tokenizer_revision="tokenizer-revision",
+        model_revision="model-revision",
+    )
+
+    assert preprocessor.spec.execution_mode == "production"
+    assert preprocessor.segmenter is segmenter
+
+
+def test_production_train_resolves_only_the_validated_gpu(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setattr(stage_registry, "validate_hardware", lambda _: {"status": "PASS", "selected_device_index": 0, "blockers": []})
+
+    selected, blocker = stage_registry._resolve_production_device(tmp_path)
+
+    assert selected == 0
+    assert blocker is None
+
+    monkeypatch.setattr(stage_registry, "validate_hardware", lambda _: {"status": "BLOCKED", "selected_device_index": None, "blockers": ["no CUDA"]})
+    selected, blocker = stage_registry._resolve_production_device(tmp_path)
+    assert selected is None
+    assert blocker == "GPU training hardware preflight failed: no CUDA"
 
 
 def test_device_contract_moves_nested_batches_and_rejects_mismatch() -> None:

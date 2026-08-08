@@ -1,0 +1,27 @@
+{
+  "actual_local_loads": true,
+  "blockers": [],
+  "category": "smoke",
+  "checks": {
+    "cache_pass": true,
+    "exact_family": true,
+    "exact_revision": true,
+    "local_snapshot": true,
+    "pinned_revision": true,
+    "smoke_backward": true,
+    "smoke_base_freeze": true,
+    "smoke_finite_loss": true,
+    "smoke_forward": true,
+    "smoke_gradient_presence": true,
+    "smoke_lora_gradients": true,
+    "smoke_model_load": true,
+    "smoke_qlora_target_discovery": true,
+    "smoke_tokenizer_load": true,
+    "tokenizer_revision_pinned": true
+  },
+  "model_family": "xlmr_large",
+  "revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "status": "PASS",
+  "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "verification_hash": "A8F92BECA7F29131E72AEA1CBDDA7B02284D4F44385337263C70F25936E1D93B"
+}

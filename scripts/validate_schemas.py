@@ -2,9 +2,17 @@ from __future__ import annotations
 
 import json
 
-from _bootstrap import ROOT
+try:
+    from _bootstrap import ROOT
+except ModuleNotFoundError:  # pragma: no cover - supports importing the script in tests
+    from scripts._bootstrap import ROOT
 from vipragsent.artifacts.schemas import validate_artifact_tree
 from vipragsent.config_validation import validate_config_tree
+
+
+def has_material_artifacts(root):
+    """Return whether an artifact tree contains files beyond directory placeholders."""
+    return any(path.is_file() and path.name != ".gitkeep" for path in root.rglob("*"))
 
 
 def main() -> int:
@@ -20,7 +28,7 @@ def main() -> int:
     config_report = validate_config_tree(ROOT)
     errors.extend(config_report["errors"])
     artifact_root = ROOT / "experiment_artifacts"
-    if artifact_root.exists() and any(path.is_file() for path in artifact_root.rglob("*")) and validate_artifact_tree(artifact_root):
+    if artifact_root.exists() and has_material_artifacts(artifact_root) and validate_artifact_tree(artifact_root):
         errors.append("artifact tree does not satisfy locked columns")
     print("schema validation passed" if not errors else "\n".join(errors))
     return 0 if not errors else 3

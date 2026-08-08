@@ -8,7 +8,7 @@ from typing import Any
 import torch
 
 from ..hashing import sha256_json
-from .model_assets import read_family_status, write_family_status
+from .model_assets import read_family_status, resolve_local_snapshot, write_family_status
 
 
 @dataclass(frozen=True)
@@ -84,6 +84,7 @@ def run_fake_smoke(model_family: str, *, tokenizer_loader: Callable[[], Any], mo
     except Exception as exc:
         blockers.append(f"{type(exc).__name__}: {exc}")
         checks.setdefault("tokenizer_load", False)
+    blockers.extend(f"smoke check failed: {name}" for name, passed in checks.items() if not passed)
     passed = not blockers and all(checks.values())
     return SmokeResult("PASS" if passed else "BLOCKED", model_family, checks, tuple(blockers), sha256_json(checks) if passed else None)
 
@@ -103,7 +104,7 @@ def verify_model_family(
         return {"model_family": model_family, "status": "BLOCKED", "blockers": ["unknown model family"]}
     spec = dict(registry[model_family])
     cache = read_family_status(root, model_family, "cache")
-    local_path = Path(cache.get("local_path", root / "data/model_cache" / model_family))
+    local_path = resolve_local_snapshot(root, cache.get("local_path")) or (Path(root) / "data/model_cache" / model_family)
     blockers: list[str] = []
     checks: dict[str, bool] = {
         "exact_family": True,

@@ -32,6 +32,24 @@ class _TwoHeadModel(nn.Module):
         return self.heads["polarity"](values)
 
 
+class _SerializedQuantMetadataModel(nn.Module):
+    def __init__(self, *, quantized: bool) -> None:
+        super().__init__()
+        self.weight = nn.Parameter(torch.ones(2, 2))
+        self._vipragsent_quantized = quantized
+
+    def _save_to_state_dict(self, destination: dict[str, torch.Tensor], prefix: str, keep_vars: bool) -> None:
+        super()._save_to_state_dict(destination, prefix, keep_vars)
+        destination[prefix + "weight.absmax"] = torch.ones(1)
+        destination[prefix + "weight.quant_state.bitsandbytes__nf4"] = torch.ones(1, dtype=torch.uint8)
+
+
+class _NestedSerializedQuantMetadataModel(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.backbone = _SerializedQuantMetadataModel(quantized=True)
+
+
 def _payload(model: nn.Module) -> dict[str, object]:
     optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
     return build_checkpoint_payload(model, optimizer, None, nn.Identity(), as_run_state())
@@ -101,6 +119,35 @@ def test_checkpoint_load_report_written(tmp_path: Path) -> None:
     report = report_path.read_text(encoding="utf-8")
     assert '"matched_key_count": 2' in report
     assert '"status": "PASS"' in report
+
+
+def test_quantized_nf4_metadata_loader_mismatch_is_explicitly_tolerated(tmp_path: Path) -> None:
+    model = _SerializedQuantMetadataModel(quantized=True)
+    path = save_checkpoint(tmp_path / "nf4.pt", _payload(model))
+    loaded = load_checkpoint(path, model, report_path=tmp_path / "nf4-load.json")
+    assert loaded.report.status == "PASS"
+    assert loaded.report.loader_tolerated_unexpected_keys == (
+        "weight.absmax",
+        "weight.quant_state.bitsandbytes__nf4",
+    )
+
+
+def test_nested_quantized_contract_tolerates_nf4_metadata(tmp_path: Path) -> None:
+    model = _NestedSerializedQuantMetadataModel()
+    path = save_checkpoint(tmp_path / "nested-nf4.pt", _payload(model))
+    loaded = load_checkpoint(path, model, report_path=tmp_path / "nested-nf4-load.json")
+    assert loaded.report.status == "PASS"
+    assert loaded.report.loader_tolerated_unexpected_keys == (
+        "backbone.weight.absmax",
+        "backbone.weight.quant_state.bitsandbytes__nf4",
+    )
+
+
+def test_quantized_nf4_metadata_tolerance_requires_quantized_contract(tmp_path: Path) -> None:
+    model = _SerializedQuantMetadataModel(quantized=False)
+    path = save_checkpoint(tmp_path / "nf4-unmarked.pt", _payload(model))
+    with pytest.raises(CheckpointContractError, match="model loader reported keys"):
+        load_checkpoint(path, model)
 
 
 def test_checkpoint_round_trip_prediction_equality(tmp_path: Path) -> None:

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "active_job_id": "q1a_cot_only_vistral_20260521",
+  "active_job_kind": "gpu_experiment",
+  "active_process_pid": null,
+  "last_process_pid": 379524,
+  "active_job_status": "SAFELY_PAUSED",
+  "current_stage": "train_generation",
+  "current_progress_value": 1,
+  "total_progress_value": 10,
+  "progress_unit": "completed_epochs",
+  "progress_basis": "Epoch 1 training and its dev reasoning, judge, prediction, metrics, and checkpoint artifacts are complete; a user-requested resume attempt was stopped by SIGINT before epoch-2 artifacts were committed. The epoch-1 checkpoint remains the last valid boundary. Resume requires epoch 2 training, epoch 2 dev generation/judging/metrics, and all downstream stages.",
+  "last_progress_timestamp": "2026-08-08T15:29:55Z",
+  "last_log_timestamp": null,
+  "last_artifact_timestamp": "2026-08-08T11:44:19Z",
+  "last_cache_timestamp": null,
+  "last_usage_timestamp": null,
+  "selected_device": "cuda:0",
+  "device_report_status": "PASS",
+  "supervisor_status": "PAUSED_AFTER_USER_REQUEST",
+  "process_started_at": "2026-08-08T03:56:56Z",
+  "supervisor_updated_at": "2026-08-08T17:19:56Z"
+}

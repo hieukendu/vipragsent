@@ -29,6 +29,9 @@ azure = [
   "openai>=1.54",
   "azure-identity>=1.17",
 ]
+server = [
+  "py-vncorenlp==0.1.4",
+]
 data = [
   "openpyxl>=3.1",
   "kaggle>=1.6",

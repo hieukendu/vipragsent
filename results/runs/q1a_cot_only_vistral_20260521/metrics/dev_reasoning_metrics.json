@@ -1,0 +1,43 @@
+{
+  "coverage_rate": 1.0,
+  "generation_protocol_id": "reasoning_generation_shared_judge_v1",
+  "invalid_count": 0,
+  "invalid_generation_rate": 0.0,
+  "invalid_judge_output_rate": 0.0,
+  "judge_cache_hits": 1998,
+  "judge_cache_misses": 1,
+  "judge_input_tokens": 512,
+  "judge_output_tokens": 38,
+  "judge_prompt_hash": "7A24FC5168BEEE0B6EA472C7F2D2CEDE95DF49C4631C8028EBBCB57238B17B19",
+  "judge_protocol_id": "reasoning_judge_gpt41mini_zeroshot_v1",
+  "judge_request_count": 1,
+  "judge_retry_count": 0,
+  "judge_schema_hash": "FF7F4EE3DC82805942118D2E97A5AAE55C9AB1396C7A6412A296AA6880D376E3",
+  "missing_prediction_rate": 0.0,
+  "primary_macro_f1": 0.42466748444549557,
+  "primary_metric_name": "full_split_macro_pragmatic_f1_all_zero_fallback",
+  "primary_per_label_f1": {
+    "code_switching": 0.4592913172842846,
+    "idiom_figurative": 0.4818558838776568,
+    "implicit_sentiment": 0.17328370554177006,
+    "irony": 0.4821243523316062,
+    "mocking": 0.46905710491367864,
+    "sarcasm": 0.4823925427239772
+  },
+  "requested_count": 1999,
+  "significance_prediction_source": "effective_full_split_all_zero_fallback",
+  "split": "dev",
+  "status": "PASS",
+  "truncation_rate": 0.0,
+  "valid_count": 1999,
+  "valid_only_macro_f1": 0.42466748444549557,
+  "valid_only_metric_name": "valid_only_macro_pragmatic_f1",
+  "valid_only_per_label_f1": {
+    "code_switching": 0.4592913172842846,
+    "idiom_figurative": 0.4818558838776568,
+    "implicit_sentiment": 0.17328370554177006,
+    "irony": 0.4821243523316062,
+    "mocking": 0.46905710491367864,
+    "sarcasm": 0.4823925427239772
+  }
+}

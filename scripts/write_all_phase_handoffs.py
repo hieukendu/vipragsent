@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from vipragsent.constants import RUNTIME_PREFLIGHT_CHECKLIST
 from vipragsent.phase import write_phase_handoff
 
 
 def main() -> int:
-    common_inputs = ["01_GLOBAL_PROJECT_CONTRACT.md", "28_PAPER_EXPERIMENT_ROLE_REGISTRY.md", "29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md", "30_SPEC_COMPLETENESS_AUDIT.md", "31_IMPLEMENTATION_DECISIONS.md", "32_RUNTIME_PREFLIGHT_CHECKLIST.md"]
+    common_inputs = ["01_GLOBAL_PROJECT_CONTRACT.md", "28_PAPER_EXPERIMENT_ROLE_REGISTRY.md", "29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md", "30_SPEC_COMPLETENESS_AUDIT.md", "31_IMPLEMENTATION_DECISIONS.md", RUNTIME_PREFLIGHT_CHECKLIST]
     entries = {
         "03": ("BLOCKED", ["Azure endpoint, deployment, and credentials are not configured"], False),
         "04": ("PASS", [], True),

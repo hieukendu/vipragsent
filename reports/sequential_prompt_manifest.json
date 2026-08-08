@@ -4107,28 +4107,28 @@
       "id": "phobert_base",
       "kind": "phase15",
       "path": "prompts/sequential/phase15/phobert_base.md",
-      "sha256": "096D21A647EDC6EEB09DC78E24A3C090E8052E570FB8FA3EB77909B9405BB2AA"
+      "sha256": "6602E3EAEB8581C0110D5D9D15E903D4491524E64976497BC68C39763C9B3BFC"
     },
     {
       "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family xlmr_large",
       "id": "xlmr_large",
       "kind": "phase15",
       "path": "prompts/sequential/phase15/xlmr_large.md",
-      "sha256": "36DAA7A0D6062EF0D516B0456196F7B3E36C559A8B636008E754F11A824CDE8E"
+      "sha256": "675D4ADC80A537A415DC56EA0A71372F8C0ED51319BF095367BA2F3F30A7BB09"
     },
     {
       "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family sailor_7b",
       "id": "sailor_7b",
       "kind": "phase15",
       "path": "prompts/sequential/phase15/sailor_7b.md",
-      "sha256": "5DC5B5926608DC3B48F247A6DBA6F2F4E22F5D271FC9229A0692ADCF27FBBD3B"
+      "sha256": "96CA0721634FA0F4F14FDCB84C7ADA73DC65483B14A745CFFD5AA30D657DEFB5"
     },
     {
       "command": "python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family vistral_7b",
       "id": "vistral_7b",
       "kind": "phase15",
       "path": "prompts/sequential/phase15/vistral_7b.md",
-      "sha256": "9D422DF3B3AC7F0A1585F47EBF41BBB1893C2895BB3E620601F1A26B098D0401"
+      "sha256": "61901F5CBB65A6F190F0DCE17F64CA48709ABF93A7C8E187947D67BD2F499AE0"
     },
     {
       "command": "python scripts/aggregate_approved_runs.py --research-question Q1a",

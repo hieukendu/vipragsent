@@ -1,5 +1,11 @@
 # Scientific protocol conflicts
 
-Active conflicts: None
+- Q1A: `RESOLVED`
+- Q1B: `RESOLVED`
+- Q3: `RESOLVED`
+- Q4: `RESOLVED`
+- SIGNIFICANCE_PVALUE: `RESOLVED`
 
-The former generation-baseline conflict is resolved in `reports/generation_baseline_protocol_resolution.json`.
+## Active conflict codes
+
+None

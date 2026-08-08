@@ -15,6 +15,7 @@ from .contracts import (
     TERMINAL_STAGE_STATUSES,
     RunContext,
     RunStatus,
+    StageName,
     StageStatus,
 )
 from .provenance import expected_inference_provenance
@@ -30,6 +31,34 @@ def git_commit(root: Path) -> str:
     except (OSError, subprocess.CalledProcessError):
         return "unknown"
     return result.stdout.strip()
+
+
+def git_tree(root: Path) -> str:
+    try:
+        result = subprocess.run(["git", "rev-parse", "HEAD^{tree}"], cwd=root, capture_output=True, text=True, check=True)
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+    return result.stdout.strip()
+
+
+def git_source_fingerprint(root: Path) -> str:
+    """Fingerprint tracked and untracked source/config changes beyond HEAD."""
+
+    try:
+        diff = subprocess.run(["git", "diff", "--no-ext-diff", "--binary", "HEAD", "--", "src", "scripts", "configs"], cwd=root, capture_output=True, check=True).stdout
+        untracked = subprocess.run(["git", "ls-files", "--others", "--exclude-standard", "--", "src", "scripts", "configs"], cwd=root, capture_output=True, text=True, check=True).stdout.splitlines()
+    except (OSError, subprocess.CalledProcessError):
+        return "unknown"
+    digest = hashlib.sha256()
+    digest.update(diff)
+    for relative in sorted(path for path in untracked if path):
+        file_path = root / relative
+        digest.update(relative.encode("utf-8"))
+        try:
+            digest.update(file_path.read_bytes())
+        except OSError:
+            return "unknown"
+    return digest.hexdigest()
 
 
 def git_worktree_clean(root: Path) -> bool:
@@ -59,7 +88,12 @@ class RunStore:
     def initialize(self, *, resume: bool = False) -> dict[str, Any]:
         if self.state_path.exists() and resume:
             state = self.load()
+            self.reconcile_resume_identity(state)
             self.recover_stale(state)
+            self.invalidate_stale_preflight(state)
+            state["code_commit"] = git_commit(self.context.root)
+            state["code_tree"] = git_tree(self.context.root)
+            state["source_fingerprint"] = git_source_fingerprint(self.context.root)
             self.save(state)
             return state
         if self.state_path.exists() and not resume:
@@ -81,6 +115,8 @@ class RunStore:
             "created_at": utc_now(),
             "updated_at": utc_now(),
             "code_commit": git_commit(self.context.root),
+            "code_tree": git_tree(self.context.root),
+            "source_fingerprint": git_source_fingerprint(self.context.root),
             "git_worktree_clean": git_worktree_clean(self.context.root),
             "fixture": self.context.fixture,
             "approval_status": "PENDING_USER_APPROVAL",
@@ -90,6 +126,93 @@ class RunStore:
         self._write_baseline_files()
         self.append_event("run_initialized", {"run_status": state["run_status"], "fixture": self.context.fixture})
         return state
+
+    def reconcile_resume_identity(self, state: dict[str, Any]) -> None:
+        """Repair legacy pre-execution metadata without rewriting real run evidence."""
+        expected = {
+            "run_id": self.context.run_id,
+            "experiment_id": self.context.entry.run_id if not self.context.entry.is_azure else None,
+            "azure_job_id": self.context.entry.run_id if self.context.entry.is_azure else None,
+            "execution_kind": self.context.entry.execution_kind,
+        }
+        identity_mismatches = {
+            key: {"recorded": state.get(key), "expected": value}
+            for key, value in expected.items()
+            if state.get(key) != value
+        }
+        recorded_stages = state.get("stages", {})
+        expected_stages = set(self.required_stages)
+        stage_plan_mismatch = set(recorded_stages) != expected_stages
+        if not identity_mismatches and not stage_plan_mismatch:
+            return
+
+        non_preflight_started = {
+            name: details.get("status")
+            for name, details in recorded_stages.items()
+            if name != "preflight" and details.get("status") != StageStatus.NOT_STARTED.value
+        }
+        if non_preflight_started:
+            raise RuntimeError(
+                "resume identity or stage-plan conflict after execution began; "
+                "preserving evidence and refusing silent metadata rewrite: "
+                + json.dumps({"identity": identity_mismatches, "stages": non_preflight_started}, sort_keys=True)
+            )
+
+        previous_stages = dict(recorded_stages)
+        state.update(expected)
+        state["stages"] = {
+            stage: dict(previous_stages.get(stage, {"status": StageStatus.NOT_STARTED.value}))
+            for stage in self.required_stages
+        }
+        self._write_baseline_files()
+        self.append_event(
+            "run_identity_reconciled",
+            {
+                "identity_mismatches": identity_mismatches,
+                "recorded_stage_names": sorted(previous_stages),
+                "current_stage_names": sorted(expected_stages),
+                "reason": "legacy pre-execution metadata reconciled from the current immutable inventory entry",
+            },
+        )
+
+    def invalidate_stale_preflight(self, state: dict[str, Any]) -> None:
+        """Force a fresh preflight when a resumable run crossed a code revision."""
+        if state.get("run_status") in {
+            RunStatus.COMPLETED_PENDING_APPROVAL.value,
+            RunStatus.APPROVED.value,
+            RunStatus.REJECTED.value,
+        }:
+            return
+        preflight = state.get("stages", {}).get("preflight", {})
+        if preflight.get("status") != StageStatus.PASS.value:
+            return
+        current_commit = git_commit(self.context.root)
+        current_tree = git_tree(self.context.root)
+        current_source = git_source_fingerprint(self.context.root)
+        if state.get("code_commit") == current_commit and state.get("code_tree") == current_tree and state.get("source_fingerprint") == current_source:
+            return
+        state["stages"]["preflight"] = {
+            "status": StageStatus.NOT_STARTED.value,
+            "invalidation_reason": "code commit or tree changed since the recorded preflight",
+            "recorded_code_commit": state.get("code_commit"),
+            "current_code_commit": current_commit,
+            "recorded_code_tree": state.get("code_tree"),
+            "current_code_tree": current_tree,
+            "recorded_source_fingerprint": state.get("source_fingerprint"),
+            "current_source_fingerprint": current_source,
+        }
+        self.append_event(
+            "preflight_invalidated",
+            {
+                "reason": "code commit or tree changed",
+                "recorded_code_commit": state.get("code_commit"),
+                "current_code_commit": current_commit,
+                "recorded_code_tree": state.get("code_tree"),
+                "current_code_tree": current_tree,
+                "recorded_source_fingerprint": state.get("source_fingerprint"),
+                "current_source_fingerprint": current_source,
+            },
+        )
 
     def _write_baseline_files(self) -> None:
         entry = self.context.entry
@@ -161,6 +284,25 @@ class RunStore:
         if changed and state.get("run_status") == RunStatus.RUNNING.value:
             state["run_status"] = RunStatus.RUNNING_STALE.value if hasattr(RunStatus, "RUNNING_STALE") else RunStatus.RUNNING.value
             self.append_event("stale_run_recovered", {"run_id": self.context.run_id})
+
+    def prepare_retry(self, state: dict[str, Any]) -> None:
+        """Reopen the failed suffix while preserving all prior artifacts and cache entries."""
+
+        ordered = list(self.required_stages)
+        failed_statuses = {StageStatus.FAIL.value, StageStatus.BLOCKED.value, StageStatus.INTERRUPTED.value, StageStatus.RUNNING_STALE.value}
+        failed_index = next((index for index, name in enumerate(ordered) if state.get("stages", {}).get(name, {}).get("status") in failed_statuses), None)
+        if failed_index is None:
+            return
+        start_index = failed_index
+        if self.context.entry.is_azure and ordered[failed_index] == StageName.VALIDATE_RESPONSES.value:
+            execute_index = ordered.index(StageName.EXECUTE_API_JOB.value)
+            start_index = min(start_index, execute_index)
+        previous = {name: state.get("stages", {}).get(name, {}).get("status") for name in ordered[start_index:]}
+        for name in ordered[start_index:]:
+            state["stages"][name] = {"status": StageStatus.NOT_STARTED.value, "retry_reason": "resuming after a failed downstream stage", "previous_status": previous[name]}
+        state["run_status"] = RunStatus.PREFLIGHT_READY.value if state.get("stages", {}).get("preflight", {}).get("status") == StageStatus.PASS.value else RunStatus.NOT_STARTED.value
+        self.save(state)
+        self.append_event("run_retry_prepared", {"start_stage": ordered[start_index], "previous_statuses": previous})
 
     def start_stage(self, state: dict[str, Any], stage: str) -> None:
         if stage not in self.required_stages:

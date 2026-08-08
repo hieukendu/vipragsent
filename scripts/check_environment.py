@@ -9,6 +9,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from _bootstrap import ROOT
+
 
 def _command_output(command: list[str]) -> str | None:
     try:
@@ -45,7 +47,7 @@ def collect_environment() -> dict[str, object]:
             "device_count": int(torch.cuda.device_count()),
             "devices": [torch.cuda.get_device_name(index) for index in range(torch.cuda.device_count())],
         }
-    disk = shutil.disk_usage(Path.cwd())
+    disk = shutil.disk_usage(ROOT)
     return {
         "python": sys.version,
         "python_version": platform.python_version(),

@@ -160,8 +160,8 @@ class _TinyCausal(nn.Module):
         self.lm_head = nn.Linear(8, 32)
         self.generate_calls = 0
 
-    def forward(self, input_ids: torch.Tensor, labels: torch.Tensor | None = None) -> dict[str, torch.Tensor]:
-        del labels
+    def forward(self, input_ids: torch.Tensor, labels: torch.Tensor | None = None, attention_mask: torch.Tensor | None = None) -> dict[str, torch.Tensor]:
+        del labels, attention_mask
         return {"logits": self.lm_head(self.embedding(input_ids))}
 
     def generate(self, *, input_ids: torch.Tensor, **_: object) -> torch.Tensor:

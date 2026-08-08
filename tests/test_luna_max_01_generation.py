@@ -26,8 +26,12 @@ class _FakeCausalModel(nn.Module):
         self.embedding = nn.Embedding(vocab_size, hidden_size)
         self.lm_head = nn.Linear(hidden_size, vocab_size)
         self.generate_calls: list[dict[str, object]] = []
+        self.forward_batch_sizes: list[int] = []
+        self.forward_attention_masks: list[torch.Tensor | None] = []
 
-    def forward(self, input_ids: torch.Tensor, labels: torch.Tensor | None = None, **_: object) -> dict[str, torch.Tensor]:
+    def forward(self, input_ids: torch.Tensor, labels: torch.Tensor | None = None, attention_mask: torch.Tensor | None = None, **_: object) -> dict[str, torch.Tensor]:
+        self.forward_batch_sizes.append(int(input_ids.size(0)))
+        self.forward_attention_masks.append(attention_mask.detach().clone() if attention_mask is not None else None)
         logits = self.lm_head(self.embedding(input_ids))
         result: dict[str, torch.Tensor] = {"logits": logits}
         if labels is not None:
@@ -233,6 +237,7 @@ def test_classifier_7b_factory_path_unchanged(tmp_path: Path) -> None:
 
 
 class _TinyTokenizer:
+    pad_token_id = 0
     eos_token_id = 2
 
     def decode(self, ids: object, **_: object) -> str:
@@ -271,6 +276,61 @@ def _rows() -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict
     dev = [{"sample_id": "dev-1", "input_ids": torch.tensor([[1, 2]]), "gold": gold}]
     test = [{"sample_id": "test-1", "input_ids": torch.tensor([[1, 2]]), "gold": gold}]
     return train, dev, test
+
+
+def test_generation_training_obeys_physical_batch_and_accumulation_contract(tmp_path: Path) -> None:
+    root = _protocol_root(tmp_path)
+    judge = ReasoningJudge(
+        root,
+        transport=lambda **_: {"labels": {label: 0 for label in ("sarcasm", "irony", "idiom_figurative", "code_switching", "mocking", "implicit_sentiment")}},
+        cache_root=root / "judge-cache",
+        sleep_fn=lambda _: None,
+    )
+    model = _FakeCausalModel()
+    executor = ReasoningGenerationExecutor(
+        root,
+        model=model,
+        tokenizer=_TinyTokenizer(),
+        judge=judge,
+        run_root=root / "run",
+        physical_batch_size=2,
+        gradient_accumulation_steps=2,
+    )
+    records = []
+    for index in range(5):
+        input_length = 2 + index % 2
+        target_length = 2 + (index + 1) % 2
+        records.append(
+            {
+                "input_ids": torch.arange(1, input_length + 1).unsqueeze(0),
+                "attention_mask": torch.ones((1, input_length), dtype=torch.long),
+                "target_ids": torch.arange(8, 8 + target_length).unsqueeze(0),
+                "target_mask": torch.ones((1, target_length), dtype=torch.bool),
+            }
+        )
+
+    class _Scheduler:
+        def __init__(self) -> None:
+            self.steps = 0
+
+        def step(self) -> None:
+            self.steps += 1
+
+    scheduler = _Scheduler()
+    history = executor.train_generation(
+        records,
+        optimizer=torch.optim.SGD(model.parameters(), lr=0.01),
+        scheduler=scheduler,
+        epochs=1,
+    )
+
+    assert model.forward_batch_sizes == [2, 2, 1]
+    assert scheduler.steps == 2
+    assert history[0]["micro_batches"] == 3
+    assert history[0]["optimizer_steps"] == 2
+    assert history[0]["physical_batch_size"] == 2
+    assert history[0]["gradient_accumulation_steps"] == 2
+    assert all(mask is not None for mask in model.forward_attention_masks)
 
 
 def test_generation_checkpoint_load_changes_weights(tmp_path: Path) -> None:
