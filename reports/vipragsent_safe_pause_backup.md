@@ -1,6 +1,6 @@
 # ViPragSent safe pause and remote backup
 
-- Backup status: **BLOCKED**
+- Backup status: **PASS**
 - Pipeline status: **SAFELY_PAUSED**
 - Paused run: `q1a_cot_only_vistral_20260521`
 - Paused stage: `train_generation`
@@ -14,7 +14,10 @@
 
 Canonical `best` checkpoints for approved runs and both epoch-1/best aliases for the paused run were selected. Upstream base weights and duplicate `latest`/epoch checkpoints were excluded; no model files were committed to GitHub or the general artifact repository.
 
-Expected canonical entries: **35**; remotely verified: **33**; blocked: **2**.
+Expected canonical entries: **35**; remotely verified: **35**; blocked: **0**.
+Incremental result: **33** existing checkpoints reused; **2** previously missing checkpoints uploaded; **0** still missing.
+Hugging Face visibility invariant: **PUBLIC → PUBLIC** for all five target repositories.
+The changed manifest is preserved at the new timestamped artifact paths `server_20260808/incremental_backup_20260808T173759/reports/vipragsent_safe_pause_backup.json` and `.md`; earlier remote report history was not overwritten.
 
 | Status | Family | Remote repository | Remote path | Bytes | SHA-256 |
 |---|---|---|---|---:|---|
@@ -37,8 +40,8 @@ Expected canonical entries: **35**; remotely verified: **33**; blocked: **2**.
 | REMOTE_VERIFIED | phobert_base | Thundergod2007/vipragsent-phobert-checkpoints | `q1a_phobert_pragmatic_single_task_20260523/components/idiom_figurative/checkpoints/best/model.pt` | 1613111701 | `94d8dbff6c98b9098fd4d4380761815e8f1fc4b61425d097d8f25d337ddb6a95` |
 | REMOTE_VERIFIED | phobert_base | Thundergod2007/vipragsent-phobert-checkpoints | `q1a_phobert_pragmatic_single_task_20260523/components/implicit_sentiment/checkpoints/best/model.pt` | 1613111701 | `cbd120a1d22963a1b06057bf36683d1bf773c4b1501934702406a2ebdba84672` |
 | REMOTE_VERIFIED | phobert_base | Thundergod2007/vipragsent-phobert-checkpoints | `q1a_phobert_pragmatic_single_task_20260523/components/irony/checkpoints/best/model.pt` | 1613111701 | `13a36a164fe6444cb019c9a4914969ee687eff784d8d989a8d93976c8c4291fa` |
-| BLOCKED_HF_PRIVATE_STORAGE_LIMIT | phobert_base | Thundergod2007/vipragsent-phobert-checkpoints | `q1a_phobert_pragmatic_single_task_20260523/components/mocking/checkpoints/best/model.pt` | 1613111701 | `ba07ca84617079a4df6a0f7d4b3ee4d6b72682da01e4a5388810ed05d68cc143` |
-| BLOCKED_HF_PRIVATE_STORAGE_LIMIT | phobert_base | Thundergod2007/vipragsent-phobert-checkpoints | `q1a_phobert_pragmatic_single_task_20260523/components/sarcasm/checkpoints/best/model.pt` | 1613111701 | `8d521d5a02a3466f7604d3befda067adebf3369ba862a5023310dac7314b9125` |
+| REMOTE_VERIFIED | phobert_base | Thundergod2007/vipragsent-phobert-checkpoints | `q1a_phobert_pragmatic_single_task_20260523/components/mocking/checkpoints/best/model.pt` | 1613111701 | `ba07ca84617079a4df6a0f7d4b3ee4d6b72682da01e4a5388810ed05d68cc143` |
+| REMOTE_VERIFIED | phobert_base | Thundergod2007/vipragsent-phobert-checkpoints | `q1a_phobert_pragmatic_single_task_20260523/components/sarcasm/checkpoints/best/model.pt` | 1613111701 | `8d521d5a02a3466f7604d3befda067adebf3369ba862a5023310dac7314b9125` |
 | REMOTE_VERIFIED | sailor_7b | Thundergod2007/vipragsent-sailor7b-checkpoints | `q1a_sailor_pragmatic_sft_20260521/checkpoints/best/model.pt` | 5934727186 | `282d13dea3883b4b483f9845e2e2e675f2c54198f011f92efdfdbcfaee45804b` |
 | REMOTE_VERIFIED | sailor_7b | Thundergod2007/vipragsent-sailor7b-checkpoints | `q1a_sailor_pragmatic_sft_20260522/checkpoints/best/model.pt` | 5934727314 | `248363853004584fbf944d60212760d61178299882c7a11c12426d920364e135` |
 | REMOTE_VERIFIED | sailor_7b | Thundergod2007/vipragsent-sailor7b-checkpoints | `q1a_sailor_pragmatic_sft_20260523/checkpoints/best/model.pt` | 5934727314 | `1c49ea2a60937d652e3136ab28b07f312b27696f71c786a1788ad7e328f5fdfd` |
@@ -56,15 +59,15 @@ Expected canonical entries: **35**; remotely verified: **33**; blocked: **2**.
 
 ## Hugging Face verification
 
-- `phobert_base`: Thundergod2007/vipragsent-phobert-checkpoints, revision `e9b9e0436f0bd6f901bf7ad27c4b3dfdd182e910`, private visibility verified, authenticated access verified, anonymous access denied.
-- `sailor_7b`: Thundergod2007/vipragsent-sailor7b-checkpoints, revision `6af58b4c754d08f9d6316aef58c239bca60397ed`, private visibility verified, authenticated access verified, anonymous access denied.
-- `vistral_7b`: Thundergod2007/vipragsent-vistral7b-checkpoints, revision `77df04ee8d69ec8e9eba89136040ec1b3e6152ce`, private visibility verified, authenticated access verified, anonymous access denied.
-- `xlmr_large`: Thundergod2007/vipragsent-xlmr-checkpoints, revision `d004da4621be813a1f3ce8ef3d171dce6102fbe2`, private visibility verified, authenticated access verified, anonymous access denied.
-- Experiment artifacts: Thundergod2007/vipragsent-experiment-artifacts, verified revision `79dda4750c72880d33c8f6dd7eabcb99a0d46dca`, private visibility verified, authenticated access verified, anonymous access denied, prefix `server_20260808/`, 8969 files / 273186815 bytes, model files: 0.
+- `phobert_base`: Thundergod2007/vipragsent-phobert-checkpoints, revision `14097061c088f3deefe8ea6d9288d77755f36b5a`, public visibility verified before and after upload, authenticated and anonymous access verified.
+- `sailor_7b`: Thundergod2007/vipragsent-sailor7b-checkpoints, revision `6af58b4c754d08f9d6316aef58c239bca60397ed`, public visibility verified before and after upload, authenticated and anonymous access verified.
+- `vistral_7b`: Thundergod2007/vipragsent-vistral7b-checkpoints, revision `77df04ee8d69ec8e9eba89136040ec1b3e6152ce`, public visibility verified before and after upload, authenticated and anonymous access verified.
+- `xlmr_large`: Thundergod2007/vipragsent-xlmr-checkpoints, revision `d004da4621be813a1f3ce8ef3d171dce6102fbe2`, public visibility verified before and after upload, authenticated and anonymous access verified.
+- Experiment artifacts: Thundergod2007/vipragsent-experiment-artifacts, verified revision `575a9d40d48cd64b5505e727715a165cc3e6d1bd`, public visibility verified before and after upload, authenticated and anonymous access verified, prefix `server_20260808/`, 8969 files / 273186815 bytes, model files: 0.
 
-## Blocker
+## Historical provider blocker and resolution
 
-Hugging Face rejected the PhoBERT commit with: `Private repository storage limit reached, please upgrade your plan to increase your private storage limit`. The affected local checkpoints remain preserved and are listed above with their hashes. They were not moved into another model-family repository and were not retried after the authoritative storage-limit response.
+An earlier attempt was rejected with: `Private repository storage limit reached, please upgrade your plan to increase your private storage limit`. After the target repository was verified PUBLIC, the two affected checkpoints were uploaded incrementally to the correct PhoBERT repository and verified by size and SHA-256. No cross-family move occurred; the historical provider error is preserved for provenance.
 
 ## GitHub/recovery provenance
 
@@ -73,6 +76,6 @@ Hugging Face rejected the PhoBERT commit with: `Private repository storage limit
 - Source HEAD before this backup refresh: `9ef3c6746df249baebe153eb8e804c0e84db61dd`
 - Source tree before this backup refresh: `a6f79fa14bcc300673c2c0ef455d60193fdb25e3`
 - Local `.env`, credentials, tokens, base-model weights, and fine-tuned model files remain out of GitHub.
-- The future recovery flow is: clone the repository, create `.env`, provide the existing Master Prompt, verify the manifest, restore the private checkpoints that are present, resolve the PhoBERT storage blocker, and resume the same paused run.
+- The future recovery flow is: clone the repository, create `.env`, provide the existing Master Prompt, verify the manifest, restore the public checkpoints, and resume the same paused run.
 
 Scientific protocol: **UNCHANGED_BY_BACKUP**.
