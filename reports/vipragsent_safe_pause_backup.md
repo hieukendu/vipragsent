@@ -17,7 +17,7 @@ Canonical `best` checkpoints for approved runs and both epoch-1/best aliases for
 Expected canonical entries: **35**; remotely verified: **35**; blocked: **0**.
 Incremental result: **33** existing checkpoints reused; **2** previously missing checkpoints uploaded; **0** still missing.
 Hugging Face visibility invariant: **PUBLIC → PUBLIC** for all five target repositories.
-The changed manifest is preserved at the new timestamped artifact paths `server_20260808/incremental_backup_20260808T173759/reports/vipragsent_safe_pause_backup.json` and `.md`; earlier remote report history was not overwritten.
+The changed manifest is preserved at the new timestamped artifact paths `server_20260808/incremental_backup_20260808T174018/reports/vipragsent_safe_pause_backup.json` and `.md`; earlier remote report history was not overwritten.
 
 | Status | Family | Remote repository | Remote path | Bytes | SHA-256 |
 |---|---|---|---|---:|---|
@@ -63,7 +63,7 @@ The changed manifest is preserved at the new timestamped artifact paths `server_
 - `sailor_7b`: Thundergod2007/vipragsent-sailor7b-checkpoints, revision `6af58b4c754d08f9d6316aef58c239bca60397ed`, public visibility verified before and after upload, authenticated and anonymous access verified.
 - `vistral_7b`: Thundergod2007/vipragsent-vistral7b-checkpoints, revision `77df04ee8d69ec8e9eba89136040ec1b3e6152ce`, public visibility verified before and after upload, authenticated and anonymous access verified.
 - `xlmr_large`: Thundergod2007/vipragsent-xlmr-checkpoints, revision `d004da4621be813a1f3ce8ef3d171dce6102fbe2`, public visibility verified before and after upload, authenticated and anonymous access verified.
-- Experiment artifacts: Thundergod2007/vipragsent-experiment-artifacts, verified revision `575a9d40d48cd64b5505e727715a165cc3e6d1bd`, public visibility verified before and after upload, authenticated and anonymous access verified, prefix `server_20260808/`, 8969 files / 273186815 bytes, model files: 0.
+- Experiment artifacts: Thundergod2007/vipragsent-experiment-artifacts, verified revision `98806b8c41aa6d95f7e32f97d39e921e920dd62e`, public visibility verified before and after upload, authenticated and anonymous access verified, prefix `server_20260808/`, 8975 files / 273265548 bytes, model files: 0.
 
 ## Historical provider blocker and resolution
 
