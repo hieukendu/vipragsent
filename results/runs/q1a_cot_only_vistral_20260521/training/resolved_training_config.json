@@ -1,0 +1,46 @@
+{
+  "active_uncertainty_tasks": [],
+  "config_hash": "3F6AF966D078AF57CC8989269380B2DD1C44D2402540AD21E9B5C419A8743642",
+  "deterministic_algorithms": "warn_only",
+  "effective_batch_size": 16,
+  "gradient_accumulation_steps": 8,
+  "gradient_checkpointing": true,
+  "gradient_clipping": 1.0,
+  "learning_rate": 0.0001,
+  "maximum_epochs": 3,
+  "minimum_delta": 0.0001,
+  "model_family": "vistral_7b",
+  "optimizer": "paged_adamw_8bit",
+  "patience": 2,
+  "physical_batch_size": 2,
+  "precision": "bf16",
+  "qlora": {
+    "lora": {
+      "alpha": 32,
+      "dropout": 0.05,
+      "rank": 16,
+      "target_modules": [
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj"
+      ]
+    },
+    "quantization": {
+      "compute_dtype": "bf16",
+      "double_quant": true,
+      "load_in_4bit": true,
+      "quant_type": "nf4"
+    }
+  },
+  "rationale_beta": 0.3,
+  "rationale_inference": true,
+  "rationale_target_max_length": 160,
+  "rationale_training": true,
+  "scheduler": "cosine",
+  "selection_metric": "dev_macro_pragmatic_f1",
+  "system_id": "cot_only_vistral",
+  "uncertainty_weighting_enabled": false,
+  "warmup_ratio": 0.05,
+  "weight_decay": 0.01
+}

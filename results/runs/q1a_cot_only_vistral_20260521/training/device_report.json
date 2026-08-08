@@ -1,0 +1,28 @@
+{
+  "backbone_devices": [
+    "cuda:0"
+  ],
+  "blockers": [],
+  "compute_capability": "9.0",
+  "device_index": 0,
+  "device_map": {},
+  "device_name": "NVIDIA H100 80GB HBM3 MIG 2g.20gb",
+  "first_batch_tensor_devices": [
+    "cuda:0"
+  ],
+  "frozen_parameter_devices": [
+    "cuda:0"
+  ],
+  "head_devices": [],
+  "input_device": "cuda:0",
+  "loss_device": null,
+  "model_family": "vistral_7b",
+  "quantized": false,
+  "rationale_device": [],
+  "selected_device": "cuda:0",
+  "status": "PASS",
+  "trainable_parameter_devices": [
+    "cuda:0"
+  ],
+  "uncertainty_device": []
+}

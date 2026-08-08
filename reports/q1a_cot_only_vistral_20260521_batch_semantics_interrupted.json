@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "status": "INTERRUPTED_FOR_REPAIR",
+  "run_id": "q1a_cot_only_vistral_20260521",
+  "exact_command": "PYTHONPATH=src ./.venv/bin/python scripts/run_single_experiment.py --experiment-id q1a_cot_only_vistral_20260521 --stage all --resume",
+  "process_pid": 331633,
+  "process_exit_code": 2,
+  "interruption_reason": "The active attempt was stopped after a reproducible generation-training batch/accumulation contract defect was identified before any epoch checkpoint or metric artifact was emitted.",
+  "preflight_contract": {
+    "model_family": "vistral_7b",
+    "physical_batch_size": 2,
+    "gradient_accumulation_steps": 8,
+    "effective_batch_size": 16,
+    "maximum_epochs": 10,
+    "precision": "bf16",
+    "preflight_status": "PASS"
+  },
+  "observed_invalid_path": {
+    "source": "src/vipragsent/orchestration/executors/generation.py:ReasoningGenerationExecutor.train_generation",
+    "behavior": "iterates one training record per forward/backward call and performs optimizer.step() for each record",
+    "physical_batch_used": 1,
+    "gradient_accumulation_used": 1,
+    "protocol_contract_satisfied": false
+  },
+  "preserved_evidence": {
+    "run_state": "results/runs/q1a_cot_only_vistral_20260521/state.json",
+    "stage_events": "results/runs/q1a_cot_only_vistral_20260521/stage_events.jsonl",
+    "device_report": "results/runs/q1a_cot_only_vistral_20260521/training/device_report.json",
+    "device_report_status": "PASS",
+    "device_report_selected_device": "cuda:0",
+    "device_report_gpu": "NVIDIA H100 80GB HBM3 MIG 2g.20gb",
+    "epoch_history_emitted": false,
+    "epoch_checkpoint_emitted": false,
+    "metric_artifact_emitted": false
+  },
+  "defect_class": "A_REPAIRABLE_IMPLEMENTATION_DEFECT",
+  "protocol_impact": "NONE",
+  "scientific_outputs_promoted": false,
+  "next_action": "Repair generation batching and accumulation, add behavioral regression coverage, rerun local validation and official q1a preflight, then resume the same run.",
+  "safe_resume_command": "PYTHONPATH=src ./.venv/bin/python scripts/run_single_experiment.py --experiment-id q1a_cot_only_vistral_20260521 --stage all --resume"
+}

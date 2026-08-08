@@ -234,7 +234,17 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
         fields.update({
             "azure_request_count": usage.get("request_count", "NOT_APPLICABLE"),
             "azure_input_tokens": usage.get("input_tokens", "NOT_APPLICABLE"),
+            "azure_cached_input_tokens": usage.get("cached_input_tokens", "NOT_APPLICABLE"),
+            "azure_non_cached_input_tokens": usage.get("non_cached_input_tokens", "NOT_APPLICABLE"),
             "azure_output_tokens": usage.get("output_tokens", "NOT_APPLICABLE"),
+            "azure_cost_usd": usage.get("total_azure_cost_usd", "NOT_APPLICABLE"),
+            "azure_non_cached_input_cost_usd": usage.get("non_cached_input_cost_usd", "NOT_APPLICABLE"),
+            "azure_cached_input_cost_usd": usage.get("cached_input_cost_usd", "NOT_APPLICABLE"),
+            "azure_output_cost_usd": usage.get("output_cost_usd", "NOT_APPLICABLE"),
+            "azure_cost_accounting_method": usage.get("cost_accounting_method", "NOT_APPLICABLE"),
+            "azure_cost_verification_status": usage.get("cost_verification_status", "NOT_APPLICABLE"),
+            "azure_usage_records_path": usage.get("usage_records_path", "NOT_APPLICABLE"),
+            "azure_cost_ledger_path": usage.get("cost_ledger_path", "NOT_APPLICABLE"),
             "azure_invalid_output_rate": usage.get("invalid_output_rate", 0.0),
             "azure_cache_hits": usage.get("cache_hits", 0),
             "azure_cache_misses": usage.get("cache_misses", 0),
@@ -242,7 +252,7 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
             "azure_retried_requests": usage.get("retried_requests", 0),
         })
     else:
-        fields.update({key: "NOT_APPLICABLE" for key in ("azure_request_count", "azure_input_tokens", "azure_output_tokens", "azure_invalid_output_rate", "azure_cache_hits", "azure_cache_misses", "azure_failed_requests", "azure_retried_requests")})
+        fields.update({key: "NOT_APPLICABLE" for key in ("azure_request_count", "azure_input_tokens", "azure_cached_input_tokens", "azure_non_cached_input_tokens", "azure_output_tokens", "azure_cost_usd", "azure_non_cached_input_cost_usd", "azure_cached_input_cost_usd", "azure_output_cost_usd", "azure_cost_accounting_method", "azure_cost_verification_status", "azure_usage_records_path", "azure_cost_ledger_path", "azure_invalid_output_rate", "azure_cache_hits", "azure_cache_misses", "azure_failed_requests", "azure_retried_requests")})
     fields.update({
         "peak_vram_gb": _load_json(run_root / "training/resource_usage.json", {}).get("peak_vram_gb", "NOT_APPLICABLE"),
         "successful_gpu_hours": _load_json(run_root / "training/resource_usage.json", {}).get("successful_gpu_hours", "NOT_APPLICABLE"),

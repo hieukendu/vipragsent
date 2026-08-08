@@ -122,6 +122,20 @@ def _write(path: str, payload: dict[str, Any]) -> None:
     atomic_write_json(ROOT / path, payload)
 
 
+def _azure_request_made(root: Path = ROOT) -> bool:
+    """Report whether the real Azure rationale job created a paid request manifest."""
+    manifest_path = root / "results/runs/azure_rationale_generation/azure/request_manifest.json"
+    if not manifest_path.exists():
+        return False
+    try:
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return False
+    return manifest.get("synthetic_results") is False and int(
+        manifest.get("requested", manifest.get("request_count", 0)) or 0
+    ) > 0
+
+
 def _status(evidence: Any) -> str:
     return "PASS" if bool(evidence) else "FAIL"
 
@@ -472,17 +486,19 @@ def audit() -> dict[str, Any]:
         _write(path, report)
     phase15_state = inspect_phase15_handoff(ROOT)
     phase15_ready = state.get("phase15_runtime_ready") is True and phase15_state["status"] == "PASS"
+    azure_request_made = _azure_request_made(ROOT)
     runtime_blockers = list(state.get("runtime_blockers", [])) if not phase15_ready else []
-    readiness = {"status": _status(local_pass), "SETUP_CODE_READY": local_pass, "PHASE15_READY": phase15_ready, "REAL_EXPERIMENT_READY": False, "FINAL_AGGREGATION_READY": False, "CI_STATUS": ci_status, "weights_downloaded": bool(state.get("weights_downloaded")), "phase15_executed": phase15_ready, "azure_request_made": False, "real_experiment_ran": bool(state.get("full_run_started")), "approved_run_count": int(state.get("approved_run_count", 0)), "blockers": runtime_blockers, "phase15_handoff": phase15_state, "evidence": {"commands": commands, "reports": REQUIRED_REPORTS, "self_review": self_review, "hygiene": hygiene, "static": static}}
+    readiness = {"status": _status(local_pass), "SETUP_CODE_READY": local_pass, "PHASE15_READY": phase15_ready, "REAL_EXPERIMENT_READY": False, "FINAL_AGGREGATION_READY": False, "CI_STATUS": ci_status, "weights_downloaded": bool(state.get("weights_downloaded")), "phase15_executed": phase15_ready, "azure_request_made": azure_request_made, "real_experiment_ran": bool(state.get("full_run_started")), "approved_run_count": int(state.get("approved_run_count", 0)), "blockers": runtime_blockers, "phase15_handoff": phase15_state, "evidence": {"commands": commands, "reports": REQUIRED_REPORTS, "self_review": self_review, "hygiene": hygiene, "static": static}}
     _write("reports/sequential_production_readiness_audit.json", readiness)
-    final = {"schema_version": 2, "status": _status(local_pass), "baseline_commit": BASELINE_COMMIT, "scientific_changes": scientific["scientific_config_changed"], "engineering_changes": engineering_paths, "frozen_data_changed": not frozen["unchanged"], "scientific_change_guard": scientific_change_guard, "protocol_conflicts": protocol["scientific_protocol_conflicts"], "execution_safety": {"phase15_executed": phase15_ready, "model_downloaded": bool(state.get("weights_downloaded")), "azure_request_made": False, "gpu_training_executed": False, "real_test_predictions_generated": False, "real_experiment_ran": False, "approval_recorded": False, "full_dag_executed": False}, "commands": commands, "evidence": evidence, "self_review": self_review, "hygiene": hygiene, "static_search": static, "readiness": readiness, "ci_status": ci_status, "runtime_blockers": runtime_blockers, "next_action": state.get("next_action", "Select the first incomplete eligible scientific job after the approved Phase 15 model-preparation handoff.")}
+    final = {"schema_version": 2, "status": _status(local_pass), "baseline_commit": BASELINE_COMMIT, "scientific_changes": scientific["scientific_config_changed"], "engineering_changes": engineering_paths, "frozen_data_changed": not frozen["unchanged"], "scientific_change_guard": scientific_change_guard, "protocol_conflicts": protocol["scientific_protocol_conflicts"], "execution_safety": {"phase15_executed": phase15_ready, "model_downloaded": bool(state.get("weights_downloaded")), "azure_request_made": azure_request_made, "gpu_training_executed": False, "real_test_predictions_generated": False, "real_experiment_ran": False, "approval_recorded": False, "full_dag_executed": False}, "commands": commands, "evidence": evidence, "self_review": self_review, "hygiene": hygiene, "static_search": static, "readiness": readiness, "ci_status": ci_status, "runtime_blockers": runtime_blockers, "next_action": state.get("next_action", "Select the first incomplete eligible scientific job after the approved Phase 15 model-preparation handoff.")}
     snapshot = read_json(ROOT / "reports/final_readiness_snapshot.json")
     if snapshot:
         final = merge_snapshot_into_report(final, snapshot, root=ROOT)
     _write("reports/final_production_correctness_repair.json", final)
     engineering_lines = [f"- `{path}`" for path in engineering_paths] or ["- none"]
     review_summary = final.get("review_summary", {})
-    markdown = ["# Final production correctness repair", "", f"- Status: `{final['status']}`", f"- Local code readiness: `{final.get('LOCAL_CODE_READINESS', final['status'])}`", f"- Server runtime readiness: `{final.get('SERVER_RUNTIME_READINESS', 'NOT_RUN')}`", f"- Scientific changes: `{len(final['scientific_changes'])}`", f"- Frozen data changed: `{str(final['frozen_data_changed']).lower()}`", f"- CI status/conclusion: `{final.get('ci_status', ci_status)}/{final.get('ci_conclusion', ci_status)}`", f"- Audited code commit: `{final.get('audited_code_commit', 'UNVERIFIED_EXTERNAL')}`", f"- Self-review: `{review_summary.get('rounds_per_cycle', 0)} rounds x {review_summary.get('cycles', 0)}`; consecutive clean cycles: `{review_summary.get('consecutive_clean_cycles', 0)}`", "", "## Execution boundary", "", f"- Phase 15 preparation evidence: `{str(final.get('execution_safety', {}).get('phase15_executed', False)).lower()}`.", "- No Azure request, real training, real predictions, experiment approval, or final aggregation was executed.", "", "## Runtime blockers", "", *([f"- {item}" for item in final.get("runtime_blockers", [])] or ["- None"]), "", "## Evidence", "", *[f"- {key}: `{value.get('status', 'RECORDED')}`" for key, value in evidence.items()], "", "## Engineering changes", "", *engineering_lines, ""]
+    azure_boundary = "An Azure request manifest was recorded; see the authoritative Azure run ledger for paid-job status." if azure_request_made else "No Azure request, real training, real predictions, experiment approval, or final aggregation was executed."
+    markdown = ["# Final production correctness repair", "", f"- Status: `{final['status']}`", f"- Local code readiness: `{final.get('LOCAL_CODE_READINESS', final['status'])}`", f"- Server runtime readiness: `{final.get('SERVER_RUNTIME_READINESS', 'NOT_RUN')}`", f"- Scientific changes: `{len(final['scientific_changes'])}`", f"- Frozen data changed: `{str(final['frozen_data_changed']).lower()}`", f"- CI status/conclusion: `{final.get('ci_status', ci_status)}/{final.get('ci_conclusion', ci_status)}`", f"- Audited code commit: `{final.get('audited_code_commit', 'UNVERIFIED_EXTERNAL')}`", f"- Self-review: `{review_summary.get('rounds_per_cycle', 0)} rounds x {review_summary.get('cycles', 0)}`; consecutive clean cycles: `{review_summary.get('consecutive_clean_cycles', 0)}`", "", "## Execution boundary", "", f"- Phase 15 preparation evidence: `{str(final.get('execution_safety', {}).get('phase15_executed', False)).lower()}`.", f"- {azure_boundary}", "", "## Runtime blockers", "", *([f"- {item}" for item in final.get("runtime_blockers", [])] or ["- None"]), "", "## Evidence", "", *[f"- {key}: `{value.get('status', 'RECORDED')}`" for key, value in evidence.items()], "", "## Engineering changes", "", *engineering_lines, ""]
     markdown.extend([
         f"- Review source: `{review_summary.get('source')}`",
         f"- Execution mode: `{review_summary.get('execution_mode')}`",

@@ -3,17 +3,17 @@
 - Status: `PASS`
 - Tests passed: `True`
 - Next phase ready: `True`
-- Approval basis: `standing_user_authorization_after_successful_audit`
 
 ## Inputs read
-- `data/model_cache_manifest.json`
 - `configs/models/model_registry.yaml`
+- `.codex_input/prompt_pack/ViPragSent_Codex_Setup_First_OneClick_EXPERIMENT_READY_FINAL/32_RUNTIME_PREFLIGHT_CHECKLIST.md`
+- `data/model_cache_manifest.json`
 
 ## Files created
+- `data/batch_probe_status/sailor_7b.json`
 - `data/model_cache_manifest.json`
-- `data/model_cache_status/phobert_base.json`
-- `data/model_smoke_status/phobert_base.json`
-- `data/batch_probe_status/phobert_base.json`
+- `data/model_cache_status/sailor_7b.json`
+- `data/model_smoke_status/sailor_7b.json`
 - `data/model_smoke_report.json`
 
 ## Tests run

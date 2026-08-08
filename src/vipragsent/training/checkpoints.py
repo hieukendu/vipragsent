@@ -52,6 +52,7 @@ class CheckpointLoadReport:
     required_head_prefixes: tuple[str, ...]
     missing_required_heads: tuple[str, ...]
     error: str | None = None
+    loader_tolerated_unexpected_keys: tuple[str, ...] = ()
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -72,6 +73,7 @@ class CheckpointLoadReport:
             "matched_ratio": self.matched_ratio,
             "required_head_prefixes": list(self.required_head_prefixes),
             "missing_required_heads": list(self.missing_required_heads),
+            "loader_tolerated_unexpected_keys": list(self.loader_tolerated_unexpected_keys),
             "error": self.error,
         }
 
@@ -213,6 +215,30 @@ def _canonical_payload(raw: Any, *, allow_legacy_fixture: bool) -> tuple[dict[st
 
 def _matches(key: str, patterns: Sequence[str]) -> bool:
     return any(key == pattern or key.startswith(f"{pattern}.") for pattern in patterns)
+
+
+def _is_serialized_nf4_metadata_key(key: str) -> bool:
+    """Return whether a key is BNB NF4 metadata emitted by ``state_dict``.
+
+    bitsandbytes' 4-bit modules serialize quantization metadata through
+    ``_save_to_state_dict`` but do not consume those metadata entries through
+    ``_load_from_state_dict``.  The actual quantized weight and trainable LoRA
+    parameters are still loaded normally; these metadata-only entries are
+    retained by the already-quantized local base model.
+    """
+    return key.endswith(
+        (
+            "weight.absmax",
+            "weight.quant_map",
+            "weight.nested_absmax",
+            "weight.nested_quant_map",
+        )
+    ) or "weight.quant_state.bitsandbytes__" in key
+
+
+def _has_quantized_contract(model: nn.Module) -> bool:
+    """Check the model tree for the production quantization contract marker."""
+    return any(bool(getattr(module, "_vipragsent_quantized", False)) for module in model.modules())
 
 
 def infer_required_head_prefixes(model: nn.Module) -> tuple[str, ...]:
@@ -370,7 +396,20 @@ def load_checkpoint(
         incompatible = model.load_state_dict(state, strict=False)
         loaded_missing = tuple(sorted(incompatible.missing_keys))
         loaded_unexpected = tuple(sorted(incompatible.unexpected_keys))
-        if set(loaded_missing) != set(missing) or set(loaded_unexpected) != set(unexpected):
+        quantized_contract = _has_quantized_contract(model)
+        tolerated_loader_unexpected = tuple(
+            sorted(
+                key
+                for key in loaded_unexpected
+                if quantized_contract
+                and key in expected_keys
+                and key in incoming_keys
+                and _is_serialized_nf4_metadata_key(key)
+            )
+        )
+        report = replace(report, loader_tolerated_unexpected_keys=tolerated_loader_unexpected)
+        effective_loaded_unexpected = set(loaded_unexpected) - set(tolerated_loader_unexpected)
+        if set(loaded_missing) != set(missing) or effective_loaded_unexpected != set(unexpected):
             raise CheckpointContractError("model loader reported keys different from preflight validation")
         if restore_training_state:
             if optimizer is not None and payload.get("optimizer_state_dict") is not None:
