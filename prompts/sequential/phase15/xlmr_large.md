@@ -14,7 +14,7 @@ The setup task that generated this file must not execute Phase 15. Execute this 
 
 ## Required sequence
 
-1. Confirm the runtime preflight and server prerequisites from `32_RUNTIME_PREFLIGHT_CHECKLIST.md`.
+1. Confirm the runtime preflight and server prerequisites from `.codex_input/prompt_pack/ViPragSent_Codex_Setup_First_OneClick_EXPERIMENT_READY_FINAL/32_RUNTIME_PREFLIGHT_CHECKLIST.md`.
 2. Download only this family with `python scripts/download_all_models.py --manifest configs/models/download_manifest.yaml --model-family xlmr_large`.
 3. Run the offline revision/tokenizer/model verification for this family with `python scripts/verify_model_smoke.py --manifest data/model_cache_manifest.json --model-family xlmr_large`.
 4. Run the locked forward/backward smoke and physical-batch probe for this family when the runtime checklist permits it. Use exactly `python scripts/probe_model_batch.py --model-family xlmr_large` for the physical-batch probe.

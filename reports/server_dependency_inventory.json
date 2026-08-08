@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-08-07T14:43:38Z",
+  "repository": "hieukendu/vipragsent",
+  "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+  "code_tree": "7877d29a55c60386ecdde17bb73b717b22d191b8",
+  "inventory_status": "PASS",
+  "scope": "server and model-runtime dependency closure; no secrets recorded",
+  "python": {
+    "executable": "/root/vipragsent/.venv/bin/python",
+    "version": "3.11.0rc1",
+    "target": ">=3.11,<3.14",
+    "status": "PASS"
+  },
+  "java": {
+    "required_major_version": 17,
+    "runtime_version": "17.0.19+10-1~22.04.2",
+    "runtime_executable": "/usr/lib/jvm/java-17-openjdk-amd64/bin/java",
+    "compiler_version": "17.0.19",
+    "compiler_executable": "/usr/lib/jvm/java-17-openjdk-amd64/bin/javac",
+    "jdk_package": "openjdk-17-jdk-headless",
+    "jdk_package_version": "17.0.19+10-1~22.04.2",
+    "status": "PASS",
+    "repair_note": "JDK headless package installed after VnCoreNLP smoke identified missing javac"
+  },
+  "vncorenlp": {
+    "adapter_distribution": "py-vncorenlp",
+    "adapter_version": "0.1.4",
+    "bridge_distribution": "pyjnius",
+    "bridge_version": "1.7.0",
+    "resource_path": "data/model_cache/vncorenlp",
+    "resource_version": "vncorenlp-resource-tree",
+    "resource_checksum": "F033BBCF96A1BF27C304F750CDD664D97EB22F1D337C31D7B51BF2DB8693121D",
+    "jar": "data/model_cache/vncorenlp/VnCoreNLP-1.2.jar",
+    "jar_sha256": "9e2811cdbc2ddfc71d04be5dc36e185c88dcd1ad4d5d69e4ff2e1369dccf7793",
+    "configured_segmenter": "RDRSegmenter",
+    "mode": "deterministic",
+    "smoke": {
+      "status": "PASS",
+      "non_empty": true,
+      "deterministic": true,
+      "segment_count": 34
+    }
+  },
+  "python_packages": {
+    "torch": "2.6.0+cu124",
+    "transformers": "5.14.1",
+    "accelerate": "1.14.0",
+    "peft": "0.20.0",
+    "bitsandbytes": "0.50.0",
+    "safetensors": "0.8.0",
+    "sentencepiece": "0.2.2",
+    "huggingface-hub": "1.26.0",
+    "openai": "2.53.0",
+    "azure-identity": "1.25.3",
+    "datasets": "5.0.1",
+    "kaggle": "2.2.4",
+    "openpyxl": "3.1.5",
+    "pandas": "3.0.5",
+    "pyarrow": "25.0.0",
+    "pytest": "9.1.1",
+    "ruff": "0.16.1",
+    "matplotlib": "3.11.1",
+    "seaborn": "0.13.2"
+  },
+  "hardware": {
+    "torch_version": "2.6.0+cu124",
+    "cuda_version": "12.4",
+    "cuda_available": true,
+    "device_count": 1,
+    "device": "NVIDIA H100 80GB HBM3 MIG 2g.20gb",
+    "nvidia_smi_status": "available; query reports insufficient permissions for some fields"
+  },
+  "credentials_presence_only": {
+    "azure_environment": true,
+    "hf_token": true,
+    "kaggle_config": false,
+    "secret_values_exposed": false
+  },
+  "validation": {
+    "environment_check": "PASS",
+    "pip_check": "PASS",
+    "import_matrix": "PASS",
+    "server_smoke": "PASS",
+    "scientific_protocol_changed": false,
+    "active_azure_job_interrupted": false
+  }
+}

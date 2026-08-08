@@ -209,9 +209,9 @@ class DiskBackedQ1BPredictor:
         variant = system_id if system_id in {"phobert_pol_single", "phobert_emo_single", "phobert_multitask_8head", "xlmr_multitask_8head", "sailor_multitask_8head", "vistral_multitask_8head"} else "vipragsent_full_phobert"
         from ..data.tokenizers import create_tokenizer
         from ..models.factory import build_production_model
-        from ..runtime.model_assets import read_family_status
+        from ..runtime.model_assets import read_family_status, resolve_local_snapshot
 
-        snapshot = read_family_status(self.root, family, "cache").get("local_path")
+        snapshot = resolve_local_snapshot(self.root, read_family_status(self.root, family, "cache").get("local_path"))
         if not snapshot:
             raise RuntimeBlocked(f"Phase 15 local snapshot is unavailable for {family}")
         self.model, runtime_spec = build_production_model(family, variant, local_snapshot=snapshot, execution_mode="production")

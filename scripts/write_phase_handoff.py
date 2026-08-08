@@ -12,6 +12,8 @@ def main() -> int:
     parser.add_argument("--tests-passed", action="store_true")
     parser.add_argument("--next-phase-ready", action="store_true")
     parser.add_argument("--blocker", action="append", default=[])
+    parser.add_argument("--model-family")
+    parser.add_argument("--approval-basis")
     args = parser.parse_args()
     write_phase_handoff(
         args.phase,
@@ -19,6 +21,8 @@ def main() -> int:
         tests_passed=args.tests_passed,
         blockers=args.blocker,
         next_phase_ready=args.next_phase_ready,
+        model_family=args.model_family,
+        approval_basis=args.approval_basis,
     )
     return 0
 

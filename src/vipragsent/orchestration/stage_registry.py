@@ -10,11 +10,11 @@ from typing import Any
 import numpy as np
 import torch
 
-from ..atomic import atomic_write_json, atomic_write_text
+from ..atomic import atomic_write_json, atomic_write_text, exclusive_lock
 from ..constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS
 from ..data.collation import BatchCollator
 from ..data.loaders import DatasetExample, load_vipragsent
-from ..data.preprocessing import PreprocessingSpec, TextPreprocessor
+from ..data.preprocessing import PreprocessingSpec, TextPreprocessor, VnCoreNLPSegmenter
 from ..evaluation.metrics import binary_macro_f1
 from ..evaluation.reasoning_judge import (
     ReasoningJudge,
@@ -23,12 +23,19 @@ from ..evaluation.reasoning_judge import (
 )
 from ..hashing import sha256_file, sha256_json
 from ..models.variants import VariantConfig, build_dummy_model
+from ..profiling import (
+    AZURE_COST_ACCOUNTING_METHOD,
+    AZURE_COST_VERIFICATION_STATUS,
+    AZURE_USER_SUPPLIED_RATES_USD_PER_1M,
+    azure_successful_usage_cost,
+)
 from ..runtime.device import (
     assert_runtime_device_contract,
     resolve_model_input_device,
     write_device_report,
 )
-from ..runtime.model_assets import read_family_status
+from ..runtime.hardware import validate_hardware
+from ..runtime.model_assets import read_family_status, resolve_local_snapshot
 from ..training.checkpoints import infer_required_head_prefixes, load_checkpoint
 from ..training.class_weights import (
     compute_train_only_class_weights,
@@ -57,6 +64,7 @@ from .executors.generation import (
     ReasoningGenerationExecutor,
     _encode_text,
     build_cot_training_records,
+    generation_optimizer_steps_per_epoch,
     generation_targets_available,
 )
 from .executors.q4 import resolve_and_extract_q4_source
@@ -107,6 +115,39 @@ def _entry_variant(entry: RunEntry, root: Path | None = None) -> str:
 def _active_tasks(entry: RunEntry, root: Path | None = None) -> set[str]:
     heads = set(resolve_execution_spec(root or Path("."), entry.system_id).active_heads)
     return {task for task, labels in (("pragmatic", set(PRAGMATIC_LABELS)), ("polarity", {"polarity"}), ("emotion", {"emotion"})) if heads & labels}
+
+
+def _build_production_preprocessor(
+    family: str,
+    *,
+    preprocessing_name: str,
+    preprocessing_version: str,
+    tokenizer_revision: str,
+    model_revision: str,
+) -> TextPreprocessor:
+    segmenter = VnCoreNLPSegmenter.from_env() if family == "phobert_base" else None
+    return TextPreprocessor(
+        PreprocessingSpec(
+            family,
+            preprocessing_name,
+            preprocessing_version,
+            tokenizer_revision=tokenizer_revision,
+            model_revision=model_revision,
+            execution_mode="production",
+        ),
+        segmenter=segmenter,
+    )
+
+
+def _resolve_production_device(root: Path) -> tuple[int | None, str | None]:
+    hardware = validate_hardware(root)
+    if hardware.get("status") != "PASS":
+        blockers = "; ".join(str(item) for item in hardware.get("blockers", [])) or "validated GPU runtime is unavailable"
+        return None, "GPU training hardware preflight failed: " + blockers
+    selected = hardware.get("selected_device_index")
+    if selected is None:
+        return None, "GPU training hardware preflight did not select a device"
+    return int(selected), None
 
 
 def _metric_name(entry: RunEntry) -> str:
@@ -276,7 +317,8 @@ def _execute_components(context: RunContext, entry: RunEntry) -> StageOutcome:
     spec = _execution_spec(context.root, entry)
     family = spec.model_family
     cache = read_family_status(context.root, family, "cache")
-    if cache.get("status") != "PASS" or not cache.get("local_path"):
+    snapshot = resolve_local_snapshot(context.root, cache.get("local_path"))
+    if cache.get("status") != "PASS" or not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for component family {family}")
     try:
         bundle = load_vipragsent(context.root / "data/processed/vipragsent")
@@ -403,11 +445,14 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     root = context.root
     spec_entry = _execution_spec(root, entry)
     family = spec_entry.model_family
+    selected_device, device_blocker = _resolve_production_device(root)
+    if device_blocker:
+        return StageOutcome.blocked(device_blocker)
     cache = read_family_status(root, family, "cache")
-    snapshot = cache.get("local_path")
+    snapshot = resolve_local_snapshot(root, cache.get("local_path"))
     if not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {family}")
-    model, spec = build_production_model(family, spec_entry.variant_id, local_snapshot=snapshot, execution_mode="production")
+    model, spec = build_production_model(family, spec_entry.variant_id, local_snapshot=snapshot, execution_mode="production", selected_device=selected_device)
     tokenizer = create_tokenizer(family, revision=spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
     bundle = load_vipragsent(root / "data/processed/vipragsent")
     runtime_status = read_family_status(root, family, "batch")
@@ -437,7 +482,13 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
         q3_path = root / "data/processed/q3_low_resource_sarcasm"
         q3_masks, q3_report = load_validated_q3_masks(q3_path, {item.sample_id: item for item in bundle.train}, strict_frozen=True)
         q3_mask_hash = q3_report["mask_hashes"][str(entry.budget)]
-    preprocessor = TextPreprocessor(PreprocessingSpec(family, entry.preprocessing_name or "vncorenlp_rdrsegmenter", entry.preprocessing_version or "locked-v1", tokenizer_revision=spec.tokenizer_revision, model_revision=spec.revision, execution_mode="production"))
+    preprocessor = _build_production_preprocessor(
+        family,
+        preprocessing_name=entry.preprocessing_name or "vncorenlp_rdrsegmenter",
+        preprocessing_version=entry.preprocessing_version or "locked-v1",
+        tokenizer_revision=spec.tokenizer_revision,
+        model_revision=spec.revision,
+    )
     collator = BatchCollator(tokenizer, preprocessor, q3_masks=q3_masks, budget=str(entry.budget) if entry.research_question == "Q3" else None, mask_hash=q3_mask_hash, class_weights=weights.as_dict(), rationale_records=rationale_records, rationale_target_max_length=resolved.rationale_target_max_length)
     evaluation_collator = BatchCollator(tokenizer, preprocessor, class_weights=weights.as_dict(), rationale_records=rationale_records, rationale_target_max_length=resolved.rationale_target_max_length)
     batch_size = resolved.physical_batch_size
@@ -447,8 +498,16 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     dev_batches = [evaluation_collator(bundle.dev[index:index + batch_size]) for index in range(0, len(bundle.dev), batch_size)]
     test_batches = [evaluation_collator(bundle.test[index:index + batch_size]) for index in range(0, len(bundle.test), batch_size)]
     config = TrainingConfig.from_resolved(resolved)
-    engine = TrainingEngine(model, config, run_id="model", checkpoint_root=Path(context.run_root) / "_engine_checkpoints", class_weights=weights, resolved_config=resolved.as_dict())
-    state = engine.train(train_batches, seed=int(entry.seed), dev_batches=dev_batches, test_batches=test_batches, output_root=Path(context.run_root) / "_engine_output", run_metadata={"mode": "full", "model_revision": spec.revision, "tokenizer_revision": spec.tokenizer_revision, "model_repository": spec.repo_id})
+    engine = TrainingEngine(model, config, run_id="model", checkpoint_root=Path(context.run_root) / "_engine_checkpoints", class_weights=weights, resolved_config=resolved.as_dict(), selected_device=selected_device)
+    state = engine.train(
+        train_batches,
+        seed=int(entry.seed),
+        dev_batches=dev_batches,
+        test_batches=test_batches,
+        resume=bool(context.metadata.get("resume", False)),
+        output_root=Path(context.run_root) / "_engine_output",
+        run_metadata={"mode": "full", "model_revision": spec.revision, "tokenizer_revision": spec.tokenizer_revision, "model_repository": spec.repo_id},
+    )
     peak_vram = max((float(row.get("peak_memory_gb", 0.0)) for row in state.history), default=0.0)
     wall_seconds = sum(float(row.get("seconds", 0.0)) for row in state.history)
     atomic_write_json(Path(context.run_root) / "training/resource_usage.json", {"fixture": False, "successful_gpu_hours": wall_seconds / 3600.0 if torch.cuda.is_available() else 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": peak_vram, "wall_seconds": wall_seconds, "measurement_source": "TrainingEngine epoch timing and CUDA peak memory"})
@@ -708,17 +767,23 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
             return result if isinstance(result, StageOutcome) else StageOutcome.passed(summary=dict(result))
     spec = _execution_spec(context.root, entry)
     family = spec.model_family
+    selected_device, device_blocker = _resolve_production_device(context.root)
+    if device_blocker:
+        return StageOutcome.blocked(device_blocker)
     cache = read_family_status(context.root, family, "cache")
-    snapshot = cache.get("local_path")
+    snapshot = resolve_local_snapshot(context.root, cache.get("local_path"))
     if not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {family}")
     from ..data.tokenizers import create_tokenizer
     from ..models.factory import build_production_model
 
-    model, runtime_spec = build_production_model(family, "cot_only_vistral", local_snapshot=snapshot, execution_mode="production")
+    model, runtime_spec = build_production_model(family, "cot_only_vistral", local_snapshot=snapshot, execution_mode="production", selected_device=selected_device)
     tokenizer = create_tokenizer(family, revision=runtime_spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
+    runtime_status = read_family_status(context.root, family, "batch")
+    resolved = resolve_training_config(entry, spec, root=context.root, runtime_status=runtime_status)
+    if stage == "train_generation":
+        persist_resolved_training_config(context.root, context.run_root, resolved)
     judge = ReasoningJudge(context.root, cache_root=Path(context.run_root) / "judge/cache", require_deployment_manifest=True)
-    config_snapshot = Path(context.run_root) / "config_snapshot.yaml"
     executor = ReasoningGenerationExecutor(
         context.root,
         model=model,
@@ -726,16 +791,19 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         judge=judge,
         run_root=context.run_root,
         seed=entry.seed,
-        config_hash=sha256_file(config_snapshot) if config_snapshot.exists() else "NOT_PROVIDED",
+        config_hash=resolved.config_hash,
         data_hash=str(context.metadata.get("data_hash", "NOT_PROVIDED")),
+        physical_batch_size=resolved.physical_batch_size,
+        gradient_accumulation_steps=resolved.gradient_accumulation_steps,
+        pad_token_id=getattr(tokenizer, "pad_token_id", None),
     )
     bundle = load_vipragsent(context.root / "data/processed/vipragsent")
     prompt = (context.root / str(executor.protocol["generation_prompt_path"])).read_text(encoding="utf-8")
     if stage == "train_generation":
         train_records, source_report = build_cot_training_records(context.root, [{"sample_id": row.sample_id, "text": row.text} for row in bundle.train], tokenizer=tokenizer)
-        resolved = resolve_training_config(entry, spec, root=context.root, runtime_status=read_family_status(context.root, family, "batch"))
         optimizer, optimizer_summary = build_optimizer(model, optimizer_name=resolved.optimizer, learning_rate=resolved.learning_rate, weight_decay=resolved.weight_decay)
-        scheduler, scheduler_summary = build_scheduler(optimizer, scheduler_name=resolved.scheduler, warmup_ratio=resolved.warmup_ratio, total_steps=max(1, len(train_records) * resolved.maximum_epochs))
+        steps_per_epoch = generation_optimizer_steps_per_epoch(len(train_records), resolved.physical_batch_size, resolved.gradient_accumulation_steps)
+        scheduler, scheduler_summary = build_scheduler(optimizer, scheduler_name=resolved.scheduler, warmup_ratio=resolved.warmup_ratio, total_steps=steps_per_epoch * resolved.maximum_epochs)
         dev_records = _production_reasoning_records(context.root, tokenizer, bundle.dev, prompt)
         best_metric = float("-inf")
         best_epoch = 0
@@ -869,14 +937,17 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
         report = validate_source_checkpoint(context.root, source)
         return StageOutcome.passed(summary=report, expected_files=("source/source_provenance.json",)) if report["status"] == "PASS" else StageOutcome.blocked(*report["errors"])
     spec = _execution_spec(context.root, entry)
+    selected_device, device_blocker = _resolve_production_device(context.root)
+    if device_blocker:
+        return StageOutcome.blocked(device_blocker)
     cache = read_family_status(context.root, spec.model_family, "cache")
-    snapshot = cache.get("local_path")
+    snapshot = resolve_local_snapshot(context.root, cache.get("local_path"))
     if not snapshot:
         return StageOutcome.blocked(f"Phase 15 local snapshot is unavailable for {spec.model_family}")
     from ..data.tokenizers import create_tokenizer
     from ..models.factory import build_production_model
 
-    model, runtime_spec = build_production_model(spec.model_family, "explanation_only_vistral", local_snapshot=snapshot, execution_mode="production")
+    model, runtime_spec = build_production_model(spec.model_family, "explanation_only_vistral", local_snapshot=snapshot, execution_mode="production", selected_device=selected_device)
     load_checkpoint(
         source.checkpoint_path,
         model,
@@ -1202,7 +1273,7 @@ def _review_summary(context: RunContext, entry: RunEntry, state: Mapping[str, An
 
 
 def _azure_required_files(entry: RunEntry) -> tuple[str, ...]:
-    files = ["azure/request_manifest.json", "azure/response_manifest.json", "azure/usage.json", "azure/invalid_outputs.jsonl", "azure/cache_manifest.json"]
+    files = ["azure/request_manifest.json", "azure/response_manifest.json", "azure/usage.json", "azure/usage_records.jsonl", "azure/cost_ledger.json", "azure/invalid_outputs.jsonl", "azure/cache_manifest.json"]
     if entry.variant == "rationale_generation":
         files.extend(("azure/rationale.jsonl", "azure/rationale_failures.json"))
     else:
@@ -1255,6 +1326,121 @@ def _render_azure_prompt(task: str, text: str, demonstrations: list[Mapping[str,
     return f"{prefix}\n\n{chr(10).join(blocks)}\n\nINPUT:\n{text}\n\nOUTPUT_SCHEMA:\n{json.dumps(schema['schema'], ensure_ascii=False, sort_keys=True)}"
 
 
+def _load_azure_usage_records(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    records: list[dict[str, Any]] = []
+    for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), start=1):
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        if not isinstance(payload, Mapping):
+            raise ValueError(f"Azure usage record {path}:{line_number} is not an object")
+        records.append(dict(payload))
+    return records
+
+
+def _build_azure_cost_ledger(records: list[Mapping[str, Any]], *, synthetic: bool) -> dict[str, Any]:
+    uncached = [record for record in records if not bool(record.get("cache_hit"))]
+    priced = [record for record in uncached if bool(record.get("cost_counted")) and record.get("request_cost_usd") is not None]
+    usage_unavailable = [record for record in uncached if record.get("cost_status") == "USAGE_UNAVAILABLE"]
+    total_cost = sum(float(record["request_cost_usd"]) for record in priced)
+    non_cached_input_cost = sum(float(record.get("non_cached_input_cost_usd", 0.0) or 0.0) for record in priced)
+    cached_input_cost = sum(float(record.get("cached_input_cost_usd", 0.0) or 0.0) for record in priced)
+    output_cost = sum(float(record.get("output_cost_usd", 0.0) or 0.0) for record in priced)
+    return {
+        "schema_version": 1,
+        "currency": "USD",
+        "unit": "per_1_million_tokens",
+        "input_usd_per_1m": AZURE_USER_SUPPLIED_RATES_USD_PER_1M["input"],
+        "cached_input_usd_per_1m": AZURE_USER_SUPPLIED_RATES_USD_PER_1M["cached_input"],
+        "output_usd_per_1m": AZURE_USER_SUPPLIED_RATES_USD_PER_1M["output"],
+        "cost_accounting_method": AZURE_COST_ACCOUNTING_METHOD,
+        "cost_verification_status": AZURE_COST_VERIFICATION_STATUS,
+        "successful_response_records": len(records),
+        "successful_uncached_logical_requests": len(uncached),
+        "successful_uncached_priced_requests": len(priced),
+        "cached_reuses": sum(1 for record in records if bool(record.get("cache_hit"))),
+        "usage_unavailable_successes": len(usage_unavailable),
+        "input_tokens": sum(int(record.get("input_tokens", 0) or 0) for record in priced),
+        "cached_input_tokens": sum(int(record.get("cached_input_tokens", 0) or 0) for record in priced),
+        "non_cached_input_tokens": sum(int(record.get("non_cached_input_tokens", 0) or 0) for record in priced),
+        "output_tokens": sum(int(record.get("output_tokens", 0) or 0) for record in priced),
+        "non_cached_input_cost_usd": round(non_cached_input_cost, 12),
+        "cached_input_cost_usd": round(cached_input_cost, 12),
+        "output_cost_usd": round(output_cost, 12),
+        "total_azure_cost_usd": round(total_cost, 12),
+        "failed_attempts_cost_usd": 0.0,
+        "retry_attempts_are_not_costed_separately": True,
+        "synthetic_results": synthetic,
+        "status": "NOT_APPLICABLE_FIXTURE" if synthetic else ("NO_SUCCESSFUL_RESPONSES" if not records else ("INCOMPLETE_USAGE" if usage_unavailable else "PASS")),
+    }
+
+
+def _persist_azure_usage_record(run_root: Path, *, sample_id: str, result: Mapping[str, Any]) -> dict[str, Any]:
+    """Persist one successful response and its local cost exactly once."""
+
+    usage_path = run_root / "azure/usage_records.jsonl"
+    ledger_path = run_root / "azure/cost_ledger.json"
+    cache_hit = bool(result.get("cache_hit"))
+    logical_key = str(result.get("cache_key") or f"sample_id:{sample_id}")
+    usage_cost = azure_successful_usage_cost(result.get("usage") if isinstance(result.get("usage"), Mapping) else None)
+    record = {
+        "sample_id": str(sample_id),
+        "logical_key": logical_key,
+        "request_id": result.get("request_id"),
+        "response_id": result.get("response_id"),
+        "model": result.get("observed_model") or result.get("expected_model_family"),
+        "model_version": result.get("observed_model_version") or result.get("expected_model_version"),
+        "deployment": result.get("deployment"),
+        "input_tokens": usage_cost["input_tokens"],
+        "cached_input_tokens": usage_cost["cached_input_tokens"],
+        "non_cached_input_tokens": usage_cost["non_cached_input_tokens"],
+        "output_tokens": usage_cost["output_tokens"],
+        "non_cached_input_cost_usd": usage_cost.get("non_cached_input_cost_usd"),
+        "cached_input_cost_usd": usage_cost.get("cached_input_cost_usd"),
+        "output_cost_usd": usage_cost.get("output_cost_usd"),
+        "retry_count": int(result.get("retry_count", 0) or 0),
+        "cache_hit": cache_hit,
+        "response_status": "CACHE_REUSED_SUCCESSFUL_RESPONSE" if cache_hit else "SUCCESSFUL_AND_VALIDATED_RESPONSE",
+        "cost_status": "CACHE_REUSE_NO_NEW_COST" if cache_hit else usage_cost["cost_status"],
+        "cost_counted": not cache_hit and usage_cost["cost_status"] == "USAGE_AVAILABLE",
+        "request_cost_usd": 0.0 if cache_hit else usage_cost["request_cost_usd"],
+        "cost_accounting_method": AZURE_COST_ACCOUNTING_METHOD,
+        "cost_verification_status": AZURE_COST_VERIFICATION_STATUS,
+        "request_timestamp": result.get("request_timestamp"),
+    }
+    with exclusive_lock(usage_path.with_suffix(".lock")):
+        records = _load_azure_usage_records(usage_path)
+        existing_index = {str(item.get("logical_key")): index for index, item in enumerate(records) if item.get("logical_key")}
+        existing = records[existing_index[logical_key]] if logical_key in existing_index else None
+        if existing is None or (not existing.get("cost_counted") and record["cost_counted"]):
+            if existing is None:
+                records.append(record)
+            else:
+                records[existing_index[logical_key]] = record
+            atomic_write_text(usage_path, "".join(json.dumps(item, ensure_ascii=False, sort_keys=True) + "\n" for item in records))
+            prior_ledger = _load_mapping(ledger_path)
+            ledger = _build_azure_cost_ledger(records, synthetic=False)
+            ledger["generated_at"] = prior_ledger.get("generated_at") or utc_now()
+            atomic_write_json(ledger_path, ledger)
+            return record
+        return existing
+
+
+def _ensure_azure_cost_artifacts(run_root: Path, *, synthetic: bool, usage_records: list[Mapping[str, Any]] | None = None) -> dict[str, Any]:
+    usage_path = run_root / "azure/usage_records.jsonl"
+    records = _load_azure_usage_records(usage_path) if usage_path.exists() else [dict(item) for item in (usage_records or [])]
+    if not usage_path.exists():
+        atomic_write_text(usage_path, "".join(json.dumps(item, ensure_ascii=False, sort_keys=True) + "\n" for item in records))
+    ledger_path = run_root / "azure/cost_ledger.json"
+    prior_ledger = _load_mapping(ledger_path)
+    ledger = _build_azure_cost_ledger(records, synthetic=synthetic)
+    ledger["generated_at"] = prior_ledger.get("generated_at") or utc_now()
+    atomic_write_json(ledger_path, ledger)
+    return ledger
+
+
 def _write_azure_manifests(
     run_root: Path,
     entry: RunEntry,
@@ -1268,13 +1454,15 @@ def _write_azure_manifests(
     failures: list[Mapping[str, Any]] | None = None,
 ) -> None:
     failures = failures or []
-    retry_count = sum(int(record.get("retry_count", 0) or 0) for record in usage_records)
-    input_tokens = sum(int(record.get("input_tokens", 0) or 0) for record in usage_records)
-    output_tokens = sum(int(record.get("output_tokens", 0) or 0) for record in usage_records)
-    cache_hits = sum(1 for record in usage_records if record.get("cache_hit") is True)
+    ledger = _ensure_azure_cost_artifacts(run_root, synthetic=synthetic, usage_records=usage_records)
+    persisted_usage = _load_azure_usage_records(run_root / "azure/usage_records.jsonl")
+    retry_count = sum(int(record.get("retry_count", 0) or 0) for record in persisted_usage)
+    input_tokens = sum(int(record.get("input_tokens", 0) or 0) for record in persisted_usage)
+    output_tokens = sum(int(record.get("output_tokens", 0) or 0) for record in persisted_usage)
+    cache_hits = sum(1 for record in persisted_usage if record.get("cache_hit") is True)
     atomic_write_json(run_root / "azure/request_manifest.json", {"job_id": entry.run_id, "job_type": entry.variant, "deployment": settings.deployment, "batch_deployment": settings.batch_deployment, "temperature": 0, "strict_schema": True, "requested": requested, "synthetic_results": synthetic})
     atomic_write_json(run_root / "azure/response_manifest.json", {"requested": requested, "successful": successful, "invalid": invalid, "missing": 0, "failed": len(failures) - invalid, "filtered": 0, "retried": retry_count, "synthetic_results": synthetic})
-    atomic_write_json(run_root / "azure/usage.json", {"request_count": requested, "input_tokens": input_tokens, "output_tokens": output_tokens, "cache_hits": cache_hits, "cache_misses": max(0, successful - cache_hits), "failed_requests": len(failures) - invalid, "retried_requests": retry_count, "invalid_output_rate": invalid / requested if requested else 0.0, "synthetic_results": synthetic})
+    atomic_write_json(run_root / "azure/usage.json", {"request_count": requested, "input_tokens": input_tokens, "output_tokens": output_tokens, "cached_input_tokens": ledger["cached_input_tokens"], "non_cached_input_tokens": ledger["non_cached_input_tokens"], "cache_hits": cache_hits, "cache_misses": max(0, successful - cache_hits), "failed_requests": len(failures) - invalid, "retried_requests": retry_count, "invalid_output_rate": invalid / requested if requested else 0.0, "non_cached_input_cost_usd": ledger["non_cached_input_cost_usd"], "cached_input_cost_usd": ledger["cached_input_cost_usd"], "output_cost_usd": ledger["output_cost_usd"], "total_azure_cost_usd": ledger["total_azure_cost_usd"], "cost_accounting_method": AZURE_COST_ACCOUNTING_METHOD, "cost_verification_status": AZURE_COST_VERIFICATION_STATUS, "usage_records_path": "azure/usage_records.jsonl", "cost_ledger_path": "azure/cost_ledger.json", "synthetic_results": synthetic})
     atomic_write_text(run_root / "azure/invalid_outputs.jsonl", "".join(json.dumps(item, ensure_ascii=False, sort_keys=True) + "\n" for item in failures))
     cache_files = sorted(path.name for path in (run_root / "azure/cache").glob("*.json")) if (run_root / "azure/cache").exists() else []
     atomic_write_json(run_root / "azure/cache_manifest.json", {"cache_entries": len(cache_files), "entries": cache_files, "synthetic_results": synthetic})
@@ -1287,6 +1475,7 @@ def _azure_execute(context: RunContext, entry: RunEntry) -> StageOutcome:
         atomic_write_json(run_root / "azure/request_manifest.json", request)
         atomic_write_json(run_root / "azure/response_manifest.json", {"requested": 4, "successful": 4, "invalid": 0, "missing": 0, "failed": 0, "filtered": 0, "retried": 0, "synthetic_results": True})
         atomic_write_json(run_root / "azure/usage.json", {"request_count": 4, "input_tokens": 0, "output_tokens": 0, "cache_hits": 0, "cache_misses": 4, "failed_requests": 0, "retried_requests": 0, "synthetic_results": True})
+        _ensure_azure_cost_artifacts(run_root, synthetic=True, usage_records=[])
         atomic_write_text(run_root / "azure/invalid_outputs.jsonl", "")
         atomic_write_json(run_root / "azure/cache_manifest.json", {"cache_entries": 4, "request_hashes": [sha256_json({"job_id": entry.run_id, "index": i}) for i in range(4)], "synthetic_results": True})
         if entry.variant == "rationale_generation":
@@ -1319,6 +1508,7 @@ def _azure_execute(context: RunContext, entry: RunEntry) -> StageOutcome:
         for item in inputs:
             try:
                 result = client.create_structured(prompt=f"Generate a rationale for this Vietnamese comment:\n{item['comment']}", task="rationale", schema=schema, max_output_tokens=256, sample_id=str(item["sample_id"]), input_payload=item)
+                _persist_azure_usage_record(run_root, sample_id=str(item["sample_id"]), result=result)
                 records.append({"sample_id": item["sample_id"], "rationale_target": result["labels"]["rationale"], **{key: result.get(key) for key in ("prompt_hash", "schema_hash", "response_id", "deployment", "observed_model", "observed_model_version", "usage")}})
                 usage.append({**dict(result.get("usage", {})), "retry_count": result.get("retry_count", 0), "cache_hit": result.get("cache_hit", False)})
             except Exception as exc:
@@ -1341,6 +1531,7 @@ def _azure_execute(context: RunContext, entry: RunEntry) -> StageOutcome:
         prompt = _render_azure_prompt(prompt_task, str(row.get("text", "")), demonstrations, schema)
         try:
             result = client.create_structured(prompt=prompt, task=prompt_task, schema=schema, max_output_tokens=128 if prompt_task == "pragmatic" else 32, sample_id=str(row["sample_id"]), input_payload=row)
+            _persist_azure_usage_record(run_root, sample_id=str(row["sample_id"]), result=result)
             labels = result["labels"]
             records.append({"sample_id": row["sample_id"], "split": "test", "system_id": entry.system_id, "seed": entry.seed, "gold": {key: row[key] for key in labels if key in row}, "predictions": labels, "probabilities": {}, "invalid_status": False, "failure_reason": None})
             usage.append({**dict(result.get("usage", {})), "retry_count": result.get("retry_count", 0), "cache_hit": result.get("cache_hit", False)})
@@ -1360,6 +1551,14 @@ def _azure_validate(context: RunContext, entry: RunEntry) -> StageOutcome:
     response = json.loads((run_root / "azure/response_manifest.json").read_text(encoding="utf-8"))
     if int(response.get("requested", 0)) != int(response.get("successful", 0)) + int(response.get("invalid", 0)) + int(response.get("missing", 0)) + int(response.get("failed", 0)):
         return StageOutcome.failed("Azure response accounting does not close over requested requests")
+    if not context.fixture:
+        ledger = _load_mapping(run_root / "azure/cost_ledger.json")
+        if ledger.get("cost_accounting_method") != AZURE_COST_ACCOUNTING_METHOD or ledger.get("cost_verification_status") != AZURE_COST_VERIFICATION_STATUS:
+            return StageOutcome.failed("Azure cost ledger does not use the authoritative local-usage accounting policy")
+        if ledger.get("status") != "PASS":
+            return StageOutcome.failed(f"Azure cost ledger is not complete: {ledger.get('status', 'UNKNOWN')}")
+        if int(response.get("invalid", 0) or 0) or int(response.get("missing", 0) or 0) or int(response.get("failed", 0) or 0):
+            return StageOutcome.failed("Azure response validation found invalid, missing, or failed responses")
     return StageOutcome.passed(summary=response, expected_files=tuple(str(path.relative_to(run_root)) for path in required))
 
 

@@ -3,7 +3,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +18,7 @@ from vipragsent.evaluation.reasoning_judge import validate_reasoning_protocol_fi
 from vipragsent.orchestration.inventory import build_expected_runs
 from vipragsent.orchestration.stage_plans import validate_stage_plan_registry
 from vipragsent.orchestration.system_registry import validate_execution_registry
+from vipragsent.phase import inspect_phase15_handoff
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
 try:
@@ -36,8 +39,15 @@ NEXT_ACTION = "Checkout the exact final repair SHA on the target server, run Pha
 
 def _run(root: Path, command: list[str], *, timeout: int = 600) -> dict[str, Any]:
     try:
-        result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
-        return {"command": command, "returncode": result.returncode, "stdout_tail": result.stdout[-2000:], "stderr_tail": result.stderr[-2000:]}
+        resolved = list(command)
+        if resolved and resolved[0] == "python":
+            resolved[0] = sys.executable
+        elif resolved and resolved[0] == "ruff" and not shutil.which("ruff"):
+            local_ruff = Path(sys.executable).with_name("ruff")
+            if local_ruff.exists():
+                resolved[0] = str(local_ruff)
+        result = subprocess.run(resolved, cwd=root, capture_output=True, text=True, timeout=timeout, check=False)
+        return {"command": resolved, "returncode": result.returncode, "stdout_tail": result.stdout[-2000:], "stderr_tail": result.stderr[-2000:]}
     except (OSError, subprocess.TimeoutExpired) as exc:
         return {"command": command, "returncode": 1, "stdout_tail": "", "stderr_tail": str(exc)}
 
@@ -161,10 +171,11 @@ def _security_report(root: Path) -> dict[str, Any]:
             continue
         if secret_pattern.search(path.read_text(encoding="utf-8", errors="ignore")):
             secret_files.append(relative.replace("\\", "/"))
-    runtime_weights = [path.relative_to(root).as_posix() for base in (root / "data/model_cache", root / "checkpoints", root / "results") if base.exists() for path in base.rglob("*") if path.is_file() and path.suffix.casefold() in {".bin", ".pt", ".pth", ".safetensors", ".ckpt"}]
+    tracked_runtime_weights = [path for path in tracked if path.startswith(("data/model_cache/", "checkpoints/", "results/")) and Path(path).suffix.casefold() in {".bin", ".pt", ".pth", ".safetensors", ".ckpt"}]
     config_text = "\n".join(path.read_text(encoding="utf-8", errors="ignore") for path in (root / "configs").rglob("*.yaml"))
-    checks = {"no_tracked_env": ".env" not in tracked, "no_secret_matches": not secret_files, "no_model_weights_in_runtime_dirs": not runtime_weights, "no_direct_openai_endpoint_in_config": "api.openai.com" not in config_text, "no_tracked_bytecode": not any(path.endswith(".pyc") or "__pycache__" in path for path in tracked)}
-    return {"status": "PASS" if all(checks.values()) else "FAIL", "checks": checks, "secret_files": secret_files, "runtime_weight_files": runtime_weights}
+    tracked_bytecode = [path for path in tracked if path.endswith(".pyc") or "__pycache__" in path]
+    checks = {"no_tracked_env": ".env" not in tracked, "no_secret_matches": not secret_files, "no_model_weights_in_runtime_dirs": not tracked_runtime_weights, "no_direct_openai_endpoint_in_config": "api.openai.com" not in config_text, "no_tracked_bytecode": not tracked_bytecode}
+    return {"status": "PASS" if all(checks.values()) else "FAIL", "checks": checks, "secret_files": secret_files, "runtime_weight_files": tracked_runtime_weights, "tracked_bytecode_files": tracked_bytecode}
 
 
 def _artifact_review_report(root: Path) -> dict[str, Any]:
@@ -210,6 +221,7 @@ def _write_contract_reports(root: Path) -> dict[str, Any]:
 
 def _readiness(root: Path, *, checks: dict[str, Any], safe_commands: list[dict[str, Any]], self_review: dict[str, Any]) -> dict[str, Any]:
     state = json.loads((root / "PROJECT_STATE.json").read_text(encoding="utf-8"))
+    phase15 = inspect_phase15_handoff(root)
     protocol = validate_protocol_resolution(root)
     frozen = compare_frozen_hashes(root)
     inventory = build_expected_runs(root)
@@ -218,22 +230,24 @@ def _readiness(root: Path, *, checks: dict[str, Any], safe_commands: list[dict[s
     implementation_checks = [report.get("status") == "PASS" for report in checks.values()]
     implementation_passed = not protocol["scientific_protocol_conflicts"] and frozen["unchanged"] and registry["status"] == "PASS" and stage_plans["status"] == "PASS" and all(implementation_checks) and all(command["returncode"] == 0 for command in safe_commands) and self_review["status"] == "PASS"
     weights_downloaded = bool(state.get("weights_downloaded"))
-    runtime_blockers = RUNTIME_BLOCKERS
+    phase15_ready = state.get("phase15_runtime_ready") is True and phase15["status"] == "PASS"
+    runtime_blockers = list(state.get("runtime_blockers", [])) if not phase15_ready else []
     return {
         "status": "PASS" if implementation_passed else "FAIL",
         "SETUP_CODE_READY": implementation_passed,
         "PHASE15_CODE_READY": True,
         "SEQUENTIAL_RUNTIME_CODE_READY": stage_plans["status"] == "PASS" and checks["q1b"]["status"] == "PASS",
-        "PHASE15_RUNTIME_READY": False,
+        "PHASE15_RUNTIME_READY": phase15_ready,
         "REAL_EXPERIMENT_READY": False,
         "FINAL_AGGREGATION_READY": False,
         "weights_downloaded": weights_downloaded,
-        "phase15_executed": bool(state.get("full_run_started")),
+        "phase15_executed": phase15_ready,
         "azure_request_made": False,
         "real_test_predictions_generated": False,
         "approval_recorded": int(state.get("approved_run_count", 0)) > 0,
-        "runtime_status": "BLOCKED",
+        "runtime_status": "PASS" if phase15_ready else "BLOCKED",
         "runtime_blockers": runtime_blockers,
+        "phase15_handoff": phase15,
         "expected_run_count": len(inventory["rows"]),
         "inventory_hash": inventory["inventory_hash"],
         "baseline_commit": BASELINE_COMMIT,
@@ -279,8 +293,8 @@ def main() -> int:
         "frozen_data_changed": not readiness["frozen_hashes_unchanged"],
         "protocol_conflicts": readiness["scientific_protocol_conflicts"],
         "execution_safety": {
-            "phase15_executed": False,
-            "model_downloaded": False,
+            "phase15_executed": readiness["PHASE15_RUNTIME_READY"],
+            "model_downloaded": readiness["weights_downloaded"],
             "azure_request_made": False,
             "real_training_executed": False,
             "real_test_predictions_generated": False,
@@ -296,7 +310,7 @@ def main() -> int:
     }
     snapshot = read_json(root / "reports/final_readiness_snapshot.json")
     if snapshot:
-        final = merge_snapshot_into_report(final, snapshot)
+        final = merge_snapshot_into_report(final, snapshot, root=root)
     atomic_write_json(root / "reports/final_runtime_integration_audit.json", final)
     review_summary = final.get("review_summary", {})
     ci_display = f"{final.get('ci_status', ci_status)}/{final.get('ci_conclusion', ci_status)}"
@@ -320,7 +334,7 @@ def main() -> int:
         "",
         "## Execution boundary",
         "",
-        "Phase 15, model downloads, Azure requests, real training, real test predictions, approvals, and full DAG execution were not performed.",
+        "Phase 15 preparation is represented only by reconciled handoff evidence; no Azure request, real training, real test prediction, experiment approval, or full DAG execution was performed.",
         "",
         "## Runtime blockers",
         "",

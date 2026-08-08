@@ -2,12 +2,86 @@ from __future__ import annotations
 
 import statistics
 import time
-from collections.abc import Callable, Iterable
+from collections.abc import Callable, Iterable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
 from .atomic import atomic_write_json
+
+AZURE_COST_ACCOUNTING_METHOD = "USER_SUPPLIED_RATES_ACTUAL_SUCCESSFUL_USAGE"
+AZURE_COST_VERIFICATION_STATUS = "LOCAL_USAGE_ACCOUNTING"
+AZURE_USER_SUPPLIED_RATES_USD_PER_1M = {
+    "input": 0.40,
+    "cached_input": 0.10,
+    "output": 1.60,
+}
+
+
+def _nonnegative_usage_int(value: Any) -> int | None:
+    if isinstance(value, bool) or value is None:
+        return None
+    try:
+        numeric = int(value)
+    except (TypeError, ValueError, OverflowError):
+        return None
+    return numeric if numeric >= 0 else None
+
+
+def _usage_value(usage: Mapping[str, Any], *keys: str) -> int | None:
+    for key in keys:
+        value = _nonnegative_usage_int(usage.get(key))
+        if value is not None:
+            return value
+    return None
+
+
+def _nested_usage_value(usage: Mapping[str, Any], *keys: str) -> int | None:
+    for parent in ("input_tokens_details", "prompt_tokens_details", "input_token_details", "prompt_token_details"):
+        details = usage.get(parent)
+        if isinstance(details, Mapping):
+            value = _usage_value(details, *keys)
+            if value is not None:
+                return value
+    return None
+
+
+def azure_successful_usage_cost(usage: Mapping[str, Any] | None) -> dict[str, Any]:
+    """Calculate one successful Azure response's local cost from reported usage.
+
+    This intentionally does not estimate usage, multiply by retry attempts, or
+    infer cost from request count.  Missing token usage remains unpriced.
+    """
+
+    payload = dict(usage) if isinstance(usage, Mapping) else {}
+    input_tokens = _usage_value(payload, "input_tokens", "prompt_tokens")
+    output_tokens = _usage_value(payload, "output_tokens", "completion_tokens")
+    cached_input_tokens = _usage_value(payload, "cached_input_tokens", "cached_tokens")
+    if cached_input_tokens is None:
+        cached_input_tokens = _nested_usage_value(payload, "cached_input_tokens", "cached_tokens")
+    cached_input_tokens = cached_input_tokens or 0
+    result: dict[str, Any] = {
+        "input_tokens": input_tokens,
+        "cached_input_tokens": cached_input_tokens,
+        "non_cached_input_tokens": max((input_tokens or 0) - cached_input_tokens, 0),
+        "output_tokens": output_tokens,
+        "cost_accounting_method": AZURE_COST_ACCOUNTING_METHOD,
+        "cost_verification_status": AZURE_COST_VERIFICATION_STATUS,
+    }
+    if input_tokens is None or output_tokens is None:
+        result.update({"cost_status": "USAGE_UNAVAILABLE", "request_cost_usd": None})
+        return result
+    input_cost = result["non_cached_input_tokens"] / 1_000_000 * AZURE_USER_SUPPLIED_RATES_USD_PER_1M["input"]
+    cached_input_cost = cached_input_tokens / 1_000_000 * AZURE_USER_SUPPLIED_RATES_USD_PER_1M["cached_input"]
+    output_cost = output_tokens / 1_000_000 * AZURE_USER_SUPPLIED_RATES_USD_PER_1M["output"]
+    result.update({
+        "cost_status": "USAGE_AVAILABLE",
+        "non_cached_input_cost_usd": round(input_cost, 12),
+        "cached_input_cost_usd": round(cached_input_cost, 12),
+        "output_cost_usd": round(output_cost, 12),
+        "request_cost_usd": round(input_cost + cached_input_cost + output_cost, 12),
+    })
+    return result
 
 
 @dataclass(frozen=True)

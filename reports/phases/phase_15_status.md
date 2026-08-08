@@ -1,25 +1,30 @@
 # Phase 15 status
 
-- Status: `BLOCKED`
+- Status: `PASS`
 - Tests passed: `True`
-- Next phase ready: `False`
+- Next phase ready: `True`
 
 ## Inputs read
-- `01_GLOBAL_PROJECT_CONTRACT.md`
-- `28_PAPER_EXPERIMENT_ROLE_REGISTRY.md`
-- `29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md`
-- `30_SPEC_COMPLETENESS_AUDIT.md`
-- `31_IMPLEMENTATION_DECISIONS.md`
-- `32_RUNTIME_PREFLIGHT_CHECKLIST.md`
+- `configs/models/model_registry.yaml`
+- `.codex_input/prompt_pack/ViPragSent_Codex_Setup_First_OneClick_EXPERIMENT_READY_FINAL/32_RUNTIME_PREFLIGHT_CHECKLIST.md`
+- `data/model_cache_manifest.json`
 
 ## Files created
-- `reports/phases/phase_15_status.md`
-- `reports/phases/phase_15_handoff.json`
+- `data/batch_probe_status/sailor_7b.json`
+- `data/model_cache_manifest.json`
+- `data/model_cache_status/sailor_7b.json`
+- `data/model_smoke_status/sailor_7b.json`
+- `data/model_smoke_report.json`
 
 ## Tests run
-- `python -m pytest`
-- `python scripts/semantic_config_audit.py`
-- `python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture`
+- `locked cache/revision validation`
+- `offline tokenizer load`
+- `offline model load`
+- `forward`
+- `backward`
+- `finite loss`
+- `gradient checks`
+- `physical batch probe`
 
 ## Blockers
-- Model-weight download intentionally paused pending user approval; no weights were downloaded
+- None

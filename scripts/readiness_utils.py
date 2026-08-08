@@ -396,9 +396,35 @@ def snapshot_report_fields(snapshot: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def merge_snapshot_into_report(report: dict[str, Any], snapshot: dict[str, Any]) -> dict[str, Any]:
+def snapshot_is_compatible(root: Path, snapshot: dict[str, Any]) -> bool:
+    """Accept a readiness snapshot only for this code or a report-only descendant."""
+    audited = str(snapshot.get("audited_code_commit", ""))
+    if not audited:
+        return False
+    current = git_sha(root)
+    if current == audited:
+        return True
+    if snapshot.get("report_only_commit_expected") is not True or not git_is_ancestor(root, audited, current):
+        return False
+    result = subprocess.run(
+        ["git", "diff", "--name-only", f"{audited}..{current}"],
+        cwd=root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    changed = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+    return bool(changed) and all(path.startswith("reports/") for path in changed)
+
+
+def merge_snapshot_into_report(report: dict[str, Any], snapshot: dict[str, Any], *, root: Path | None = None) -> dict[str, Any]:
+    if root is not None and not snapshot_is_compatible(root, snapshot):
+        report["snapshot_merge_status"] = "SKIPPED_STALE"
+        report["snapshot_merge_reason"] = "readiness snapshot is not bound to the current code or a report-only descendant"
+        return report
     fields = snapshot_report_fields(snapshot)
     report.update(fields)
+    report["snapshot_merge_status"] = "APPLIED"
     report["code_commit_at_audit"] = snapshot["audited_code_commit"]
     report["github_ci_status_at_report_generation"] = snapshot["ci"].get("conclusion")
     report["next_action"] = snapshot["next_action"]

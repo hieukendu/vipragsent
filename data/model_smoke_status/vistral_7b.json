@@ -1,0 +1,29 @@
+{
+  "actual_local_loads": true,
+  "blockers": [],
+  "category": "smoke",
+  "checks": {
+    "cache_pass": true,
+    "exact_family": true,
+    "exact_revision": true,
+    "local_snapshot": true,
+    "pinned_revision": true,
+    "smoke_backward": true,
+    "smoke_base_freeze": true,
+    "smoke_finite_loss": true,
+    "smoke_forward": true,
+    "smoke_gradient_checkpointing": true,
+    "smoke_gradient_presence": true,
+    "smoke_lora_gradients": true,
+    "smoke_model_load": true,
+    "smoke_nf4_double_quant": true,
+    "smoke_qlora_target_discovery": true,
+    "smoke_tokenizer_load": true,
+    "tokenizer_revision_pinned": true
+  },
+  "model_family": "vistral_7b",
+  "revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+  "status": "PASS",
+  "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+  "verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF"
+}

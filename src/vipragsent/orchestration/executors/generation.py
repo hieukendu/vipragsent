@@ -37,16 +37,40 @@ class GenerationCheckpointError(RuntimeError):
 GENERATION_CHECKPOINT_SCHEMA_VERSION = 2
 
 
-def teacher_forced_generation_loss(model: torch.nn.Module, input_ids: torch.Tensor, target_ids: torch.Tensor, *, target_mask: torch.Tensor | None = None) -> torch.Tensor:
+def generation_optimizer_steps_per_epoch(record_count: int, physical_batch_size: int, gradient_accumulation_steps: int) -> int:
+    if record_count < 1 or physical_batch_size < 1 or gradient_accumulation_steps < 1:
+        raise ValueError("generation record count, physical batch, and accumulation must be positive")
+    micro_batches = (record_count + physical_batch_size - 1) // physical_batch_size
+    return (micro_batches + gradient_accumulation_steps - 1) // gradient_accumulation_steps
+
+
+def teacher_forced_generation_loss(
+    model: torch.nn.Module,
+    input_ids: torch.Tensor,
+    target_ids: torch.Tensor,
+    *,
+    target_mask: torch.Tensor | None = None,
+    attention_mask: torch.Tensor | None = None,
+) -> torch.Tensor:
     """Compute causal token CE from model logits without a classifier fallback."""
     if input_ids.ndim != 2 or target_ids.ndim != 2:
         raise ValueError("generation inputs and targets must be rank-two token tensors")
+    if input_ids.size(0) != target_ids.size(0):
+        raise ValueError("generation inputs and targets must have the same batch dimension")
     combined = torch.cat((input_ids, target_ids), dim=1)
     labels = torch.full_like(combined, -100)
     labels[:, input_ids.size(1):] = target_ids
     if target_mask is not None:
+        if target_mask.shape != target_ids.shape:
+            raise ValueError("generation target mask must match target token shape")
         labels[:, input_ids.size(1):] = target_ids.masked_fill(~target_mask.to(dtype=torch.bool), -100)
-    output = model(input_ids=combined, labels=labels)
+    model_kwargs: dict[str, Any] = {"input_ids": combined, "labels": labels}
+    if attention_mask is not None:
+        if attention_mask.shape != input_ids.shape:
+            raise ValueError("generation input attention mask must match input token shape")
+        target_attention = target_mask.to(dtype=torch.bool) if target_mask is not None else torch.ones_like(target_ids, dtype=torch.bool)
+        model_kwargs["attention_mask"] = torch.cat((attention_mask.to(dtype=torch.bool), target_attention), dim=1)
+    output = model(**model_kwargs)
     logits = output["logits"] if isinstance(output, Mapping) else getattr(output, "logits", None)
     if logits is None:
         raise ValueError("causal generation model did not return token logits")
@@ -256,6 +280,9 @@ class ReasoningGenerationExecutor:
         seed: int | str | None = None,
         config_hash: str = "NOT_PROVIDED",
         data_hash: str = "NOT_PROVIDED",
+        physical_batch_size: int = 1,
+        gradient_accumulation_steps: int = 1,
+        pad_token_id: int | None = None,
     ) -> None:
         self.root = Path(root)
         self.run_root = Path(run_root) if run_root is not None else self.root
@@ -265,6 +292,13 @@ class ReasoningGenerationExecutor:
         self.seed = seed
         self.config_hash = config_hash
         self.data_hash = data_hash
+        if physical_batch_size < 1 or gradient_accumulation_steps < 1:
+            raise ValueError("generation physical batch and gradient accumulation must be positive")
+        self.physical_batch_size = int(physical_batch_size)
+        self.gradient_accumulation_steps = int(gradient_accumulation_steps)
+        tokenizer_pad_token_id = getattr(tokenizer, "pad_token_id", None)
+        tokenizer_eos_token_id = getattr(tokenizer, "eos_token_id", None)
+        self.pad_token_id = int(pad_token_id if pad_token_id is not None else tokenizer_pad_token_id if tokenizer_pad_token_id is not None else tokenizer_eos_token_id if tokenizer_eos_token_id is not None else 0)
         self.device = resolve_model_input_device(model)
         self._device_report_written = False
         self.protocol = load_reasoning_protocol(self.root)
@@ -373,6 +407,46 @@ class ReasoningGenerationExecutor:
         atomic_write_json(self.run_root / f"metrics/{split}_reasoning_metrics.json", metrics)
         return metrics
 
+    @staticmethod
+    def _sequence(value: Any, *, dtype: torch.dtype) -> torch.Tensor:
+        tensor = value if isinstance(value, torch.Tensor) else torch.tensor(value, dtype=dtype)
+        tensor = tensor.to(dtype=dtype)
+        if tensor.ndim == 2 and tensor.size(0) == 1:
+            tensor = tensor.squeeze(0)
+        if tensor.ndim != 1:
+            raise ValueError("generation training records must contain one-dimensional token rows")
+        return tensor
+
+    def _collate_training_records(self, records: list[Mapping[str, Any]]) -> dict[str, torch.Tensor]:
+        if not records:
+            raise ValueError("cannot collate an empty generation training batch")
+        input_rows = [self._sequence(record["input_ids"], dtype=torch.long) for record in records]
+        input_masks = [
+            self._sequence(record["attention_mask"], dtype=torch.long) if "attention_mask" in record else torch.ones_like(input_row, dtype=torch.long)
+            for record, input_row in zip(records, input_rows, strict=True)
+        ]
+        target_rows = [self._sequence(record["target_ids"], dtype=torch.long) for record in records]
+        target_masks = [
+            self._sequence(record["target_mask"], dtype=torch.bool) if "target_mask" in record else torch.ones_like(target_row, dtype=torch.bool)
+            for record, target_row in zip(records, target_rows, strict=True)
+        ]
+        max_input = max(row.numel() for row in input_rows)
+        max_target = max(row.numel() for row in target_rows)
+        input_ids = torch.full((len(records), max_input), self.pad_token_id, dtype=torch.long)
+        attention_mask = torch.zeros((len(records), max_input), dtype=torch.long)
+        target_ids = torch.full((len(records), max_target), self.pad_token_id, dtype=torch.long)
+        target_mask = torch.zeros((len(records), max_target), dtype=torch.bool)
+        for index, (input_row, input_mask, target_row, target_row_mask) in enumerate(zip(input_rows, input_masks, target_rows, target_masks, strict=True)):
+            input_length = input_row.numel()
+            target_length = target_row.numel()
+            if input_mask.numel() != input_length or target_row_mask.numel() != target_length:
+                raise ValueError("generation token and mask lengths must match")
+            input_ids[index, :input_length] = input_row
+            attention_mask[index, :input_length] = input_mask
+            target_ids[index, :target_length] = target_row
+            target_mask[index, :target_length] = target_row_mask
+        return {"input_ids": input_ids, "attention_mask": attention_mask, "target_ids": target_ids, "target_mask": target_mask}
+
     def train_generation(
         self,
         records: Iterable[Mapping[str, Any]],
@@ -386,33 +460,48 @@ class ReasoningGenerationExecutor:
         usable = [dict(record) for record in records if record.get("input_ids") is not None and record.get("target_ids") is not None]
         if not usable:
             raise ValueError("generation training requires approved non-empty rationale records")
+        batches = [
+            self._collate_training_records(usable[start:start + self.physical_batch_size])
+            for start in range(0, len(usable), self.physical_batch_size)
+        ]
         history: list[dict[str, float]] = []
         for epoch in range(epoch_start, epoch_start + epochs):
             self.model.train()
             losses: list[float] = []
-            for record in usable:
-                batch = self._prepare_device_batch(
-                    {
-                        "input_ids": record["input_ids"],
-                        "target_ids": record["target_ids"],
-                        "target_mask": record.get("target_mask"),
-                    }
-                )
-                loss = teacher_forced_generation_loss(
-                    self.model,
-                    batch["input_ids"],
-                    batch["target_ids"],
-                    target_mask=batch.get("target_mask"),
-                )
-                loss.backward()
+            optimizer.zero_grad(set_to_none=True)
+            optimizer_steps = 0
+            for start in range(0, len(batches), self.gradient_accumulation_steps):
+                window = batches[start:start + self.gradient_accumulation_steps]
+                window_loss = 0.0
+                for raw_batch in window:
+                    batch = self._prepare_device_batch(raw_batch)
+                    loss = teacher_forced_generation_loss(
+                        self.model,
+                        batch["input_ids"],
+                        batch["target_ids"],
+                        target_mask=batch["target_mask"],
+                        attention_mask=batch["attention_mask"],
+                    )
+                    (loss / len(window)).backward()
+                    window_loss += float(loss.detach().cpu())
                 if gradient_clipping is not None:
                     torch.nn.utils.clip_grad_norm_(self.model.parameters(), float(gradient_clipping))
                 optimizer.step()
                 if scheduler is not None:
                     scheduler.step()
                 optimizer.zero_grad(set_to_none=True)
-                losses.append(float(loss.detach().cpu()))
-            history.append({"epoch": float(epoch), "train_loss": float(sum(losses) / len(losses)), "optimizer_steps": float(len(losses))})
+                optimizer_steps += 1
+                losses.append(window_loss / len(window))
+            history.append(
+                {
+                    "epoch": float(epoch),
+                    "train_loss": float(sum(losses) / len(losses)),
+                    "optimizer_steps": float(optimizer_steps),
+                    "micro_batches": float(len(batches)),
+                    "physical_batch_size": float(self.physical_batch_size),
+                    "gradient_accumulation_steps": float(self.gradient_accumulation_steps),
+                }
+            )
         atomic_write_json(self.run_root / "training/history.json", history)
         atomic_write_text(self.run_root / "training/history.csv", "epoch,train_loss,optimizer_steps\n" + "\n".join(f"{row['epoch']},{row['train_loss']},{row['optimizer_steps']}" for row in history) + "\n")
         return history
