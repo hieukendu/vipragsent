@@ -21,3 +21,9 @@
 {"event": "preflight_ready", "timestamp": "2026-08-08T03:56:30Z"}
 {"event": "stage_started", "stage": "train_generation", "timestamp": "2026-08-08T03:56:56Z"}
 {"event": "stage_interrupted", "stage": "train_generation", "timestamp": "2026-08-08T15:29:55Z"}
+{"current_code_commit": "9ef3c6746df249baebe153eb8e804c0e84db61dd", "current_code_tree": "a6f79fa14bcc300673c2c0ef455d60193fdb25e3", "current_source_fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "event": "preflight_invalidated", "reason": "code commit or tree changed", "recorded_code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5", "recorded_code_tree": "7877d29a55c60386ecdde17bb73b717b22d191b8", "recorded_source_fingerprint": "85cdbde392d4423e326691e7263b669db6f01d148b76b4cf3f017746bc60d2bf", "timestamp": "2026-08-08T17:16:16Z"}
+{"event": "run_retry_prepared", "previous_statuses": {"compute_dev_reasoning_metrics": "NOT_STARTED", "compute_test_reasoning_metrics": "NOT_STARTED", "export_artifacts": "NOT_STARTED", "freeze_selection": "NOT_STARTED", "generate_dev_reasoning": "NOT_STARTED", "generate_review_summary": "NOT_STARTED", "generate_test_reasoning": "NOT_STARTED", "judge_dev_reasoning": "NOT_STARTED", "judge_test_reasoning": "NOT_STARTED", "train_generation": "INTERRUPTED", "validate_artifacts": "NOT_STARTED"}, "start_stage": "train_generation", "timestamp": "2026-08-08T17:16:16Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-08-08T17:16:16Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-08-08T17:16:27Z"}
+{"event": "stage_started", "stage": "train_generation", "timestamp": "2026-08-08T17:16:27Z"}
+{"event": "stage_interrupted", "stage": "train_generation", "timestamp": "2026-08-08T17:19:34Z"}

@@ -5,6 +5,7 @@
 - Paused run: `q1a_cot_only_vistral_20260521`
 - Paused stage: `train_generation`
 - Active GPU jobs: **0**
+- The latest resume attempt passed preflight and began epoch 2 training, then was gracefully interrupted before any epoch-2 checkpoint or metrics were committed.
 - Resume boundary: `results/runs/q1a_cot_only_vistral_20260521/checkpoints/epoch_1/model.pt`
 - Resume mode: `checkpoint_boundary`
 - Replay required: epoch 2 training, epoch 2 dev generation/judging/metrics, and all downstream stages
@@ -59,7 +60,7 @@ Expected canonical entries: **35**; remotely verified: **33**; blocked: **2**.
 - `sailor_7b`: Thundergod2007/vipragsent-sailor7b-checkpoints, revision `6af58b4c754d08f9d6316aef58c239bca60397ed`, access verified.
 - `vistral_7b`: Thundergod2007/vipragsent-vistral7b-checkpoints, revision `77df04ee8d69ec8e9eba89136040ec1b3e6152ce`, access verified.
 - `xlmr_large`: Thundergod2007/vipragsent-xlmr-checkpoints, revision `d004da4621be813a1f3ce8ef3d171dce6102fbe2`, access verified.
-- Experiment artifacts: Thundergod2007/vipragsent-experiment-artifacts, verified revision `18f04b44b29e7a66f01b3b0ce2f2a8a5bba1bba0`, prefix `server_20260808/`, 8969 files / 273186815 bytes, model files: 0.
+- Experiment artifacts: Thundergod2007/vipragsent-experiment-artifacts, verified revision `f9b4aab665dd8b8f6faf8760dabdbdd9d4a03f06`, prefix `server_20260808/`, 8969 files / 273186815 bytes, model files: 0.
 
 ## Blocker
 
@@ -69,8 +70,8 @@ Hugging Face rejected the PhoBERT commit with: `Private repository storage limit
 
 - Remote: https://github.com/hieukendu/vipragsent.git
 - Branch: `agent/phase15-handoff-persistence`
-- Source HEAD before backup commit: `a765b2bca625ff66cf97dc608eacb3a3c63553b5`
-- Source tree before backup commit: `7877d29a55c60386ecdde17bb73b717b22d191b8`
+- Source HEAD before this backup refresh: `9ef3c6746df249baebe153eb8e804c0e84db61dd`
+- Source tree before this backup refresh: `a6f79fa14bcc300673c2c0ef455d60193fdb25e3`
 - Local `.env`, credentials, tokens, base-model weights, and fine-tuned model files remain out of GitHub.
 - The future recovery flow is: clone the repository, create `.env`, provide the existing Master Prompt, verify the manifest, restore the private checkpoints that are present, resolve the PhoBERT storage blocker, and resume the same paused run.
 

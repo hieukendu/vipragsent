@@ -1,6 +1,6 @@
 {
   "backup_status": "BLOCKED",
-  "backup_timestamp": "2026-08-08T16:49:19Z",
+  "backup_timestamp": "2026-08-08T17:19:56Z",
   "checkpoint_summary": {
     "blocked_bytes": 3226223402,
     "blocked_entries": 2,
@@ -14,7 +14,7 @@
     "file_count": 8969,
     "model_file_count": 0,
     "repo_id": "Thundergod2007/vipragsent-experiment-artifacts",
-    "revision": "18f04b44b29e7a66f01b3b0ce2f2a8a5bba1bba0",
+    "revision": "f9b4aab665dd8b8f6faf8760dabdbdd9d4a03f06",
     "uploaded_prefix": "server_20260808/"
   },
   "hf_repositories": {
@@ -428,9 +428,9 @@
   ],
   "paused_job": {
     "active_gpu_jobs": 0,
-    "epoch_or_progress": "epoch 2 training completed; epoch 2 dev generation interrupted before checkpoint/metrics",
+    "epoch_or_progress": "resume attempt passed preflight and began epoch 2 training; it was interrupted before any epoch 2 checkpoint or metrics were committed",
     "process_exit_code": 2,
-    "process_pid": 340553,
+    "process_pid": 379524,
     "replay_required": "epoch 2 training, epoch 2 dev generation/judging/metrics, and all downstream stages",
     "resume_boundary": "results/runs/q1a_cot_only_vistral_20260521/checkpoints/epoch_1/model.pt",
     "resume_mode": "checkpoint_boundary",
@@ -459,9 +459,9 @@
   },
   "source_repository": {
     "branch": "agent/phase15-handoff-persistence",
-    "head_before_backup": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+    "head_before_backup": "9ef3c6746df249baebe153eb8e804c0e84db61dd",
     "remote": "https://github.com/hieukendu/vipragsent.git",
-    "tree_before_backup": "7877d29a55c60386ecdde17bb73b717b22d191b8",
+    "tree_before_backup": "a6f79fa14bcc300673c2c0ef455d60193fdb25e3",
     "worktree_dirty_intentionally": true
   },
   "storage_blocker": {
