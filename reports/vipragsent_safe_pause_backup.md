@@ -56,11 +56,11 @@ Expected canonical entries: **35**; remotely verified: **33**; blocked: **2**.
 
 ## Hugging Face verification
 
-- `phobert_base`: Thundergod2007/vipragsent-phobert-checkpoints, revision `e9b9e0436f0bd6f901bf7ad27c4b3dfdd182e910`, access verified.
-- `sailor_7b`: Thundergod2007/vipragsent-sailor7b-checkpoints, revision `6af58b4c754d08f9d6316aef58c239bca60397ed`, access verified.
-- `vistral_7b`: Thundergod2007/vipragsent-vistral7b-checkpoints, revision `77df04ee8d69ec8e9eba89136040ec1b3e6152ce`, access verified.
-- `xlmr_large`: Thundergod2007/vipragsent-xlmr-checkpoints, revision `d004da4621be813a1f3ce8ef3d171dce6102fbe2`, access verified.
-- Experiment artifacts: Thundergod2007/vipragsent-experiment-artifacts, verified revision `f9b4aab665dd8b8f6faf8760dabdbdd9d4a03f06`, prefix `server_20260808/`, 8969 files / 273186815 bytes, model files: 0.
+- `phobert_base`: Thundergod2007/vipragsent-phobert-checkpoints, revision `e9b9e0436f0bd6f901bf7ad27c4b3dfdd182e910`, private visibility verified, authenticated access verified, anonymous access denied.
+- `sailor_7b`: Thundergod2007/vipragsent-sailor7b-checkpoints, revision `6af58b4c754d08f9d6316aef58c239bca60397ed`, private visibility verified, authenticated access verified, anonymous access denied.
+- `vistral_7b`: Thundergod2007/vipragsent-vistral7b-checkpoints, revision `77df04ee8d69ec8e9eba89136040ec1b3e6152ce`, private visibility verified, authenticated access verified, anonymous access denied.
+- `xlmr_large`: Thundergod2007/vipragsent-xlmr-checkpoints, revision `d004da4621be813a1f3ce8ef3d171dce6102fbe2`, private visibility verified, authenticated access verified, anonymous access denied.
+- Experiment artifacts: Thundergod2007/vipragsent-experiment-artifacts, verified revision `79dda4750c72880d33c8f6dd7eabcb99a0d46dca`, private visibility verified, authenticated access verified, anonymous access denied, prefix `server_20260808/`, 8969 files / 273186815 bytes, model files: 0.
 
 ## Blocker
 
