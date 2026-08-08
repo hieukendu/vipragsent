@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 import json
 from pathlib import Path
 from types import SimpleNamespace
@@ -7,6 +8,7 @@ from types import SimpleNamespace
 import pytest
 from scripts._bootstrap import ROOT
 from scripts.audit_final_production_correctness import (
+    _azure_request_made,
     _hygiene_evidence,
     _is_local_only_path,
     _is_untracked_local_artifact,
@@ -19,7 +21,7 @@ from vipragsent.constants import RUNTIME_PREFLIGHT_CHECKLIST
 from vipragsent.models import factory
 from vipragsent.models.backbones import DummyBackbone
 from vipragsent.models.variants import VARIANT_IDS
-from vipragsent.orchestration import preflight_single, single_run
+from vipragsent.orchestration import preflight_single, single_run, stage_registry
 from vipragsent.orchestration.contracts import RunContext, RunEntry, StageOutcome
 from vipragsent.orchestration.inventory import build_expected_runs
 from vipragsent.orchestration.run_store import RunStore
@@ -69,6 +71,16 @@ def test_gitkeep_only_artifact_tree_is_not_treated_as_material(tmp_path: Path) -
 
 def test_audits_use_the_active_python_interpreter() -> None:
     assert _runtime_command(["python", "-m", "pytest"])[0].endswith("/python")
+
+
+def test_audit_reports_real_azure_request_but_not_fixture_request(tmp_path: Path) -> None:
+    request_manifest = tmp_path / "results/runs/azure_rationale_generation/azure/request_manifest.json"
+    request_manifest.parent.mkdir(parents=True)
+    request_manifest.write_text(json.dumps({"requested": 2, "synthetic_results": False}), encoding="utf-8")
+    assert _azure_request_made(tmp_path) is True
+
+    request_manifest.write_text(json.dumps({"requested": 2, "synthetic_results": True}), encoding="utf-8")
+    assert _azure_request_made(tmp_path) is False
 
 
 def test_single_preflight_detects_missing_phobert_vncorenlp_runtime(monkeypatch, tmp_path: Path) -> None:
@@ -179,6 +191,13 @@ def test_component_runner_uses_validated_cuda_device(monkeypatch, tmp_path: Path
     runner._load_runtime("sarcasm")
 
     assert captured["selected_device"] == 0
+
+
+def test_reasoning_production_paths_propagate_validated_device() -> None:
+    for function_name in ("_production_generation_stage", "_production_explanation_stage"):
+        source = inspect.getsource(getattr(stage_registry, function_name))
+        assert "_resolve_production_device(context.root)" in source
+        assert "selected_device=selected_device" in source
 
 
 def test_preflight_then_all_resumes_the_authoritative_state_file(monkeypatch, tmp_path: Path) -> None:

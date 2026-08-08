@@ -1,0 +1,45 @@
+{
+  "NEXT_RUN_ALLOWED": "NO",
+  "RUN_STATUS": "BLOCKED",
+  "USER_REVIEW_STATUS": "PENDING",
+  "artifact_paths": [
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "preflight.json",
+    "run_manifest.json",
+    "training/device_report.json"
+  ],
+  "artifact_sha256": {
+    "config_snapshot.yaml": "E3703D345B8AE1E51E91D18CB364A29F39D02A1D4D915084D2421BFB2D622A63",
+    "environment.json": "D067A685EDCF53E59CFF79454592E07D20A44EE17FCC1995922CDE4F27229E90",
+    "metrics.json": "F962DA72197FB79AB6EE7D1D28BBDF16C11CB6FA9BB07C4DD5C4EE62F1D570E3",
+    "preflight.json": "C5359D9884A82A9A00714F700F8519A58DE6CD23A96B99E50BF9315798EABEEB",
+    "run_manifest.json": "611FACBEA938558B76CB0309F491501056E9626E9D185FEB5E716F767BD4B5E9",
+    "training/device_report.json": "7C5D71FBD2A87CD4674D5FF57923256941E7DB17E51BC51C4C9EF01C10B3E070"
+  },
+  "azure_job_id": null,
+  "backbone": "vistral_7b",
+  "blockers": [
+    "Execution stages have not been run; explicit later execution is required"
+  ],
+  "budget": "NOT_APPLICABLE",
+  "completion_reason": "PREFLIGHT_ONLY_COMPLETE",
+  "display_name": "Vistral CoT-only",
+  "execution_kind": "generation",
+  "execution_mode": "production_sequential_review_gated",
+  "experiment_id": "q1a_cot_only_vistral_20260521",
+  "next_run_allowed": "NO",
+  "preflight_only": true,
+  "research_question": "Q1a",
+  "run_id": "q1a_cot_only_vistral_20260521",
+  "run_status": "PREFLIGHT_READY",
+  "seed": 20260521,
+  "system_id": "cot_only_vistral",
+  "user_review_status": "PENDING",
+  "validation_status": "BLOCKED",
+  "variant": "cot_only",
+  "warnings": [
+    "execution was not completed"
+  ]
+}

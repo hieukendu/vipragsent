@@ -36,8 +36,11 @@ REVIEW_FIELDS = (
     "best_dev_loss", "checkpoint_path", "checkpoint_sha256", "frozen_thresholds", "per_label_dev_metrics", "per_label_test_metrics",
     "macro_pragmatic_f1", "per_label_pragmatic_ece", "macro_pragmatic_ece", "temperature_scaling", "bin_count",
     "probability_aggregation", "source_checkpoint_id", "source_prediction_hash", "azure_request_count", "azure_input_tokens",
-    "azure_output_tokens", "azure_invalid_output_rate", "azure_cache_hits", "azure_cache_misses", "azure_failed_requests",
-    "azure_retried_requests", "peak_vram_gb", "successful_gpu_hours", "failed_or_retried_gpu_hours", "RUN_STATUS",
+    "azure_cached_input_tokens", "azure_non_cached_input_tokens", "azure_output_tokens", "azure_cost_usd",
+    "azure_non_cached_input_cost_usd", "azure_cached_input_cost_usd", "azure_output_cost_usd", "azure_cost_accounting_method",
+    "azure_cost_verification_status", "azure_usage_records_path", "azure_cost_ledger_path", "azure_invalid_output_rate",
+    "azure_cache_hits", "azure_cache_misses", "azure_failed_requests", "azure_retried_requests", "peak_vram_gb",
+    "successful_gpu_hours", "failed_or_retried_gpu_hours", "RUN_STATUS",
     "USER_REVIEW_STATUS", "NEXT_RUN_ALLOWED",
 )
 

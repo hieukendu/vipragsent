@@ -1,7 +1,5 @@
 {
-  "blockers": [
-    "compile or CPU pytest command failed"
-  ],
+  "blockers": [],
   "deferred_server_requirements": [
     "Java 17 and VnCoreNLP resources",
     "PEFT",
@@ -86,7 +84,9 @@
     "src/vipragsent/orchestration/preflight.py",
     "src/vipragsent/orchestration/preflight_single.py",
     "src/vipragsent/orchestration/production.py",
+    "src/vipragsent/orchestration/provenance.py",
     "src/vipragsent/orchestration/q1b_composition.py",
+    "src/vipragsent/orchestration/q1b_dependencies.py",
     "src/vipragsent/orchestration/q1b_predictor.py",
     "src/vipragsent/orchestration/rationale_promotion.py",
     "src/vipragsent/orchestration/review.py",
@@ -112,6 +112,7 @@
     "src/vipragsent/statistics/bootstrap.py",
     "src/vipragsent/statistics/significance.py",
     "src/vipragsent/training/__init__.py",
+    "src/vipragsent/training/checkpoints.py",
     "src/vipragsent/training/class_weights.py",
     "src/vipragsent/training/config_resolver.py",
     "src/vipragsent/training/engine.py",
@@ -124,18 +125,18 @@
     "29_MANUAL_ERROR_AND_QUALITATIVE_ANALYSIS.md",
     "30_SPEC_COMPLETENESS_AUDIT.md",
     "31_IMPLEMENTATION_DECISIONS.md",
-    "32_RUNTIME_PREFLIGHT_CHECKLIST.md"
+    ".codex_input/prompt_pack/ViPragSent_Codex_Setup_First_OneClick_EXPERIMENT_READY_FINAL/32_RUNTIME_PREFLIGHT_CHECKLIST.md"
   ],
-  "next_phase": null,
-  "next_phase_ready": false,
+  "next_phase": "15",
+  "next_phase_ready": true,
   "phase": "14.5",
-  "production_implementation_audit_passed": false,
+  "production_implementation_audit_passed": true,
   "scientific_protocol_conflicts": [],
-  "status": "FAIL",
-  "tests_passed": false,
+  "status": "PASS",
+  "tests_passed": true,
   "tests_run": [
-    "python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
-    "python -m compileall -q src scripts tests",
-    "python -m pytest -q -m not server and not gpu and not azure_live and not model_download"
+    "/root/vipragsent/.venv/bin/python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
+    "/root/vipragsent/.venv/bin/python -m compileall -q src scripts tests",
+    "/root/vipragsent/.venv/bin/python -m pytest -q -m not server and not gpu and not azure_live and not model_download"
   ]
 }

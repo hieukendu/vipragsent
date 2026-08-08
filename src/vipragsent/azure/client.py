@@ -16,6 +16,7 @@ from ..hashing import sha256_json
 from .schemas import validate_rationale_output, validate_structured_output
 
 RETRYABLE_STATUS_CODES = frozenset({408, 429, 500, 502, 503, 504})
+AZURE_TRANSPORT_TIMEOUT_SECONDS = 300.0
 _MISSING = object()
 
 
@@ -117,9 +118,9 @@ def _extract_structured_candidate(value: Any) -> Any:
             return value["parsed"]
         if "labels" in value:
             return value["labels"]
-        if "output_text" in value:
+        if "output_text" in value and isinstance(value["output_text"], (str, bytes, bytearray)) and value["output_text"].strip():
             return value["output_text"]
-        if "text" in value:
+        if "text" in value and isinstance(value["text"], (str, bytes, bytearray)):
             return value["text"]
         for key in ("output", "response", "content"):
             if key in value:
@@ -278,18 +279,18 @@ class AzureResponsesClient:
 
     def _default_transport(self, **kwargs: Any) -> Mapping[str, Any]:
         try:
-            from openai import AzureOpenAI
+            from openai import OpenAI
         except ImportError as exc:
             raise RuntimeError("Install the azure optional dependencies to call Azure") from exc
         if self.settings.auth_mode == "api_key":
-            client = AzureOpenAI(api_key=self.settings.api_key, base_url=self.settings.base_url)
+            client = OpenAI(api_key=self.settings.api_key, base_url=self.settings.base_url, max_retries=0, timeout=AZURE_TRANSPORT_TIMEOUT_SECONDS)
         else:
             try:
                 from azure.identity import DefaultAzureCredential, get_bearer_token_provider
             except ImportError as exc:
                 raise RuntimeError("Install azure-identity for Entra ID authentication") from exc
             token_provider = get_bearer_token_provider(DefaultAzureCredential(), "https://cognitiveservices.azure.com/.default")
-            client = AzureOpenAI(azure_ad_token_provider=token_provider, base_url=self.settings.base_url)
+            client = OpenAI(api_key=token_provider, base_url=self.settings.base_url, max_retries=0, timeout=AZURE_TRANSPORT_TIMEOUT_SECONDS)
         response = client.responses.create(model=self.settings.deployment, **kwargs)
         return _response_mapping(response)
 

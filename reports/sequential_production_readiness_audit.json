@@ -5,59 +5,54 @@
   "REAL_EXPERIMENT_READY": false,
   "SETUP_CODE_READY": true,
   "approved_run_count": 0,
-  "azure_request_made": false,
-  "blockers": [
-    "Phase 15 has not been executed on the target server",
-    "Model-family runtime assets are not prepared",
-    "GPU and Azure live integration have not been validated",
-    "No real approved production run exists"
-  ],
+  "azure_request_made": true,
+  "blockers": [],
   "evidence": {
     "commands": [
       {
-        "command": "python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
+        "command": "/root/vipragsent/.venv/bin/python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
-        "stdout_tail": "\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"CAF1D1482AE05F1FEEBC1ABA74145B34D51CE460D035DB173A8AB322899F6404\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
+        "stdout_tail": "\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\",\n        \"fixture_validation_manifest\": \"/root/vipragsent/runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\",\n        \"fixture_validation_manifest\": \"/root/vipragsent/runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
       },
       {
-        "command": "python -m compileall -q src scripts tests",
+        "command": "/root/vipragsent/.venv/bin/python -m compileall -q src scripts tests",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
         "stdout_tail": ""
       },
       {
-        "command": "ruff check .",
+        "command": "/root/vipragsent/.venv/bin/ruff check .",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
         "stdout_tail": "All checks passed!\n"
       },
       {
-        "command": "python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+        "command": "/root/vipragsent/.venv/bin/python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
-        "stdout_tail": "........................................................................ [ 42%]\n........................................................................ [ 84%]\n..........................                                               [100%]\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:287: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n"
+        "stdout_tail": "........................................................................ [ 33%]\n........................................................................ [ 67%]\n.....................................................................    [100%]\n"
       },
       {
-        "command": "python scripts/validate_schemas.py",
+        "command": "/root/vipragsent/.venv/bin/python scripts/validate_schemas.py",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
         "stdout_tail": "schema validation passed\n"
       },
       {
-        "command": "python scripts/generate_sequential_prompts.py",
+        "command": "/root/vipragsent/.venv/bin/python scripts/generate_sequential_prompts.py",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
         "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\"\n}\n"
       },
       {
-        "command": "python scripts/validate_sequential_prompts.py",
+        "command": "/root/vipragsent/.venv/bin/python scripts/validate_sequential_prompts.py",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
@@ -65,7 +60,79 @@
       }
     ],
     "hygiene": {
-      "data_files_changed": [],
+      "data_files_changed": [
+        "data/batch_probe_status/phobert_base.json",
+        "data/batch_probe_status/sailor_7b.json",
+        "data/batch_probe_status/vistral_7b.json",
+        "data/batch_probe_status/xlmr_large.json",
+        "data/external/manual_drop/aivivn_original/test.csv",
+        "data/external/manual_drop/aivivn_original/train.csv",
+        "data/external/manual_drop/uit_vsfc/README.txt",
+        "data/external/manual_drop/uit_vsfc/sentiments.txt",
+        "data/external/manual_drop/uit_vsfc/sents.txt",
+        "data/external/manual_drop/uit_vsfc/topics.txt",
+        "data/external/manual_drop/uit_vsmec/test_nor_811.xlsx",
+        "data/input/.gitkeep",
+        "data/manifests/approved_generated_rationales_train.json",
+        "data/model_cache_manifest.json",
+        "data/model_cache_status/phobert_base.json",
+        "data/model_cache_status/sailor_7b.json",
+        "data/model_cache_status/vistral_7b.json",
+        "data/model_cache_status/xlmr_large.json",
+        "data/model_smoke_report.json",
+        "data/model_smoke_status/phobert_base.json",
+        "data/model_smoke_status/sailor_7b.json",
+        "data/model_smoke_status/vistral_7b.json",
+        "data/model_smoke_status/xlmr_large.json",
+        "data/processed/external/uit_vsfc/test.csv",
+        "data/processed/external/uit_vsmec/test.csv",
+        "data/processed/rationales/approved_generated_rationales_train.jsonl",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/00_private_source_archive/01_annotator_1_RAW.xlsx",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/00_private_source_archive/02_annotator_2_RAW.xlsx",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/00_private_source_archive/03_gold_adjudicated_RAW.xlsx",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/00_private_source_archive/README_PRIVATE.md",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/01_clean_human_annotations/01_annotator_1_clean.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/01_clean_human_annotations/02_annotator_2_clean.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/01_clean_human_annotations/03_gold_adjudicated_clean.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/01_clean_human_annotations/adjudication_manifest.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/02_vipragsent/dev.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/02_vipragsent/label_schema.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/02_vipragsent/split_manifest.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/02_vipragsent/test.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/02_vipragsent/train.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/02_vipragsent/vipragsent_full.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/03_aivivn_human_derived_3way/dev.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/03_aivivn_human_derived_3way/manifest.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/03_aivivn_human_derived_3way/test.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/03_aivivn_human_derived_3way/train.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/04_q3_low_resource_sarcasm/README.md",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/04_q3_low_resource_sarcasm/budget_128_masks.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/04_q3_low_resource_sarcasm/budget_256_masks.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/04_q3_low_resource_sarcasm/budget_32_masks.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/04_q3_low_resource_sarcasm/budget_512_masks.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/04_q3_low_resource_sarcasm/budget_64_masks.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/04_q3_low_resource_sarcasm/budget_full_masks.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/04_q3_low_resource_sarcasm/budget_summary.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/05_rationale_generation/output_schema.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/05_rationale_generation/prompt_rationale_only.md",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/05_rationale_generation/prompt_rationale_plus_labels.md",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/05_rationale_generation/rationale_generation_input_train.jsonl",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/06_experiment_configs/calibration_config.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/06_experiment_configs/dataset_config.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/06_experiment_configs/loss_threshold_config.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/06_experiment_configs/seeds.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/06_experiment_configs/table3_protocol.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/07_reports/human_iaa_by_field.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/07_reports/human_iaa_summary.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/07_reports/label_distribution_by_split.csv",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/07_reports/setup_validation_report.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/08_external_benchmarks/README.md",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/08_external_benchmarks/UIT-VSFC_PLACE_FILES_HERE.txt",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/08_external_benchmarks/UIT-VSMEC_PLACE_FILES_HERE.txt",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/CHECKSUMS.sha256",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/PACKAGE_SUMMARY.json",
+        "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/README.md"
+      ],
       "forbidden_weight_or_secret_files": [],
       "secret_pattern_matches": [],
       "status": "PASS"
@@ -114,8 +181,44 @@
       "status": "PASS"
     }
   },
-  "phase15_executed": false,
+  "phase15_executed": true,
+  "phase15_handoff": {
+    "blockers": [],
+    "handoff_exists": true,
+    "next_phase_ready": true,
+    "phase15_evidence": {
+      "effective_batch_size": 16,
+      "gradient_accumulation_steps": 8,
+      "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
+      "hashes": {
+        "batch_probe_hash": "B20AC2A75428AB658AAFD2BB4FFC15A6D502BECB551249EB2B144D4306408D7F",
+        "cache_manifest_hash": "B5FD8414BEA7F873C3FBA5E2EE7D83F802133BC3CE8D7E8821293AA2DFBB288E",
+        "smoke_verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF"
+      },
+      "local_snapshot": "data/model_cache/sailor_7b",
+      "model_family": "sailor_7b",
+      "model_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+      "physical_batch": 2,
+      "repo_id": "sail/Sailor-7B",
+      "status_artifacts": {
+        "batch_status": "data/batch_probe_status/sailor_7b.json",
+        "cache_manifest": "data/model_cache_manifest.json",
+        "cache_status": "data/model_cache_status/sailor_7b.json",
+        "smoke_report": "data/model_smoke_report.json",
+        "smoke_status": "data/model_smoke_status/sailor_7b.json"
+      },
+      "tokenizer_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+      "validation": {
+        "cache": true,
+        "physical_batch": true,
+        "smoke": true
+      }
+    },
+    "previous_status": "PASS",
+    "status": "PASS",
+    "tests_passed": true
+  },
   "real_experiment_ran": false,
   "status": "PASS",
-  "weights_downloaded": false
+  "weights_downloaded": true
 }

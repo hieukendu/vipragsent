@@ -2,14 +2,15 @@
   "phase": "15",
   "status": "PASS",
   "inputs_read": [
-    "data/model_cache_manifest.json",
-    "configs/models/model_registry.yaml"
+    "configs/models/model_registry.yaml",
+    ".codex_input/prompt_pack/ViPragSent_Codex_Setup_First_OneClick_EXPERIMENT_READY_FINAL/32_RUNTIME_PREFLIGHT_CHECKLIST.md",
+    "data/model_cache_manifest.json"
   ],
   "files_created": [
+    "data/batch_probe_status/sailor_7b.json",
     "data/model_cache_manifest.json",
-    "data/model_cache_status/phobert_base.json",
-    "data/model_smoke_status/phobert_base.json",
-    "data/batch_probe_status/phobert_base.json",
+    "data/model_cache_status/sailor_7b.json",
+    "data/model_smoke_status/sailor_7b.json",
     "data/model_smoke_report.json"
   ],
   "tests_run": [
@@ -26,33 +27,32 @@
   "blockers": [],
   "next_phase_ready": true,
   "phase15_evidence": {
-    "model_family": "phobert_base",
-    "repo_id": "vinai/phobert-base",
-    "model_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
-    "tokenizer_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
-    "physical_batch": 32,
-    "effective_batch_size": 32,
-    "gradient_accumulation_steps": 1,
+    "model_family": "sailor_7b",
+    "repo_id": "sail/Sailor-7B",
+    "model_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+    "tokenizer_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+    "physical_batch": 2,
+    "effective_batch_size": 16,
+    "gradient_accumulation_steps": 8,
     "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
-    "local_snapshot": "data/model_cache/phobert_base",
+    "local_snapshot": "data/model_cache/sailor_7b",
     "hashes": {
-      "cache_manifest_hash": "71DF79A67A65B1EE472938D0DFF77297C0D77E20FEF1AF41E0013B1D384EFB0D",
-      "smoke_verification_hash": "A8F92BECA7F29131E72AEA1CBDDA7B02284D4F44385337263C70F25936E1D93B",
-      "batch_probe_hash": "F8A81090A28195E0573987B28970382845C24A29C3F5FEEB6534210ABE731CE0"
+      "cache_manifest_hash": "B5FD8414BEA7F873C3FBA5E2EE7D83F802133BC3CE8D7E8821293AA2DFBB288E",
+      "smoke_verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF",
+      "batch_probe_hash": "B20AC2A75428AB658AAFD2BB4FFC15A6D502BECB551249EB2B144D4306408D7F"
     },
     "status_artifacts": {
       "cache_manifest": "data/model_cache_manifest.json",
-      "cache_status": "data/model_cache_status/phobert_base.json",
-      "smoke_status": "data/model_smoke_status/phobert_base.json",
-      "batch_status": "data/batch_probe_status/phobert_base.json",
+      "cache_status": "data/model_cache_status/sailor_7b.json",
+      "smoke_status": "data/model_smoke_status/sailor_7b.json",
+      "batch_status": "data/batch_probe_status/sailor_7b.json",
       "smoke_report": "data/model_smoke_report.json"
     },
     "validation": {
       "cache": true,
       "smoke": true,
       "physical_batch": true
-    },
-    "approval_basis": "standing_user_authorization_after_successful_audit"
+    }
   },
-  "generated_at_utc": "2026-08-06T12:10:06.035778+00:00"
+  "generated_at_utc": "2026-08-06T21:54:20.305041+00:00"
 }

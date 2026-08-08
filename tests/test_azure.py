@@ -12,7 +12,11 @@ from vipragsent.azure.client import (
     AzureSettings,
 )
 from vipragsent.azure.prompts import build_demo_manifest, validate_demo_manifest
-from vipragsent.azure.schemas import strict_label_schema, validate_structured_output
+from vipragsent.azure.schemas import (
+    strict_label_schema,
+    strict_rationale_schema,
+    validate_structured_output,
+)
 from vipragsent.data.loaders import load_vipragsent
 
 
@@ -43,6 +47,30 @@ def test_mocked_azure_retry_and_response_metadata() -> None:
     result = client.create_structured(prompt="x", task="all", schema={"strict": True, "schema": strict_label_schema()}, max_output_tokens=32, sleep=lambda _: None)
     assert result["request_id"] == "resp_1"
     assert calls["n"] == 2
+
+
+def test_azure_v1_transport_does_not_require_legacy_api_version(monkeypatch: pytest.MonkeyPatch) -> None:
+    import openai
+
+    captured: dict[str, object] = {}
+
+    class FakeResponses:
+        def create(self, **kwargs: object) -> dict[str, object]:
+            captured["request"] = kwargs
+            return {"id": "resp_v1", "model": "gpt-4.1-mini", "output": {"parsed": {}}}
+
+    class FakeOpenAI:
+        def __init__(self, **kwargs: object) -> None:
+            captured["client"] = kwargs
+            self.responses = FakeResponses()
+
+    monkeypatch.setattr(openai, "OpenAI", FakeOpenAI)
+    settings = AzureSettings("https://r.openai.azure.com", "https://r.openai.azure.com/openai/v1/", "dep", None, "api_key", "secret")
+    result = AzureResponsesClient(settings)._default_transport(input="x")
+
+    assert result["id"] == "resp_v1"
+    assert captured["client"] == {"api_key": "secret", "base_url": settings.base_url, "max_retries": 0, "timeout": 300.0}
+    assert captured["request"]["model"] == "dep"
 
 
 def _structured_labels() -> dict[str, object]:
@@ -88,6 +116,17 @@ def test_public_client_parses_nested_responses_payload_and_caches(tmp_path: Path
     assert first["usage"]["input_tokens"] == 7
     assert second["cache_hit"] is True
     assert calls == 1
+
+
+def test_public_client_ignores_top_level_request_text_when_parsing_rationale() -> None:
+    payload = _nested_response({"rationale": "A valid rationale."})
+    payload["text"] = {"format": {"type": "json_schema", "name": "vipragsent_rationale"}}
+    settings = AzureSettings("https://r.openai.azure.com", "https://r.openai.azure.com/openai/v1/", "dep", None, "api_key", "secret")
+    client = AzureResponsesClient(settings, transport=lambda **_kwargs: payload)
+
+    result = client.create_structured(prompt="reason", task="rationale", schema={"strict": True, "schema": strict_rationale_schema()}, max_output_tokens=256)
+
+    assert result["labels"] == {"rationale": "A valid rationale."}
 
 
 def test_public_client_retries_payload_status_and_uses_retry_after() -> None:
