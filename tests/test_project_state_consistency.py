@@ -65,6 +65,12 @@ def test_project_state_matches_verified_backup_and_paused_run() -> None:
 
     canonical_run_ids = {item["run_id"] for item in backup["model_checkpoints"]}
     assert len(canonical_run_ids) == 19
+    manifest_approved_run_ids = {
+        item["run_id"]
+        for item in backup["model_checkpoints"]
+        if item["resume_eligibility"] == "REUSABLE_APPROVED_CHECKPOINT"
+    }
+    assert manifest_approved_run_ids == canonical_run_ids - {paused_run_id}
     records: dict[str, tuple[dict[str, Any], dict[str, Any]]] = {}
     for state_path in sorted((ROOT / "results/runs").glob("*/state.json")):
         run_state = _read_json(state_path)
@@ -72,11 +78,18 @@ def test_project_state_matches_verified_backup_and_paused_run() -> None:
         if run_id in canonical_run_ids:
             records[run_id] = (run_state, _read_json(state_path.with_name("approval_status.json")))
 
-    approved_run_ids = {
-        run_id
-        for run_id, (run_state, approval) in records.items()
-        if run_state.get("run_status") == "APPROVED" and approval.get("status") == "APPROVED"
-    }
-    assert approved_run_ids == canonical_run_ids - {paused_run_id}
+    if records:
+        assert set(records) == canonical_run_ids
+        approved_run_ids = {
+            run_id
+            for run_id, (run_state, approval) in records.items()
+            if run_state.get("run_status") == "APPROVED" and approval.get("status") == "APPROVED"
+        }
+        assert approved_run_ids == manifest_approved_run_ids
+    else:
+        # The model checkpoints and local run records are intentionally not
+        # committed to GitHub; the canonical backup manifest is the tracked
+        # provenance available in CPU-only CI.
+        approved_run_ids = manifest_approved_run_ids
     assert state["real_run_count"] == len(canonical_run_ids)
     assert state["approved_run_count"] == len(approved_run_ids)
