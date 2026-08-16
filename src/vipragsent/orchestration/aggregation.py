@@ -289,6 +289,7 @@ def _profile_q1b_record_blockers(records: Sequence[Mapping[str, Any]], profile: 
         if (
             not producer_id
             or not producer_run_id
+            or not producer_kind
             or checkpoint_key in (None, "")
             or ("source_seed" not in merged and "seed" not in merged)
         ):
