@@ -91,7 +91,16 @@ def _rationale_reports(root: Path) -> tuple[dict[str, Any], dict[str, Any]]:
     contract_checks = {
         "promotion_module_present": (root / "src/vipragsent/orchestration/rationale_promotion.py").exists(),
         "atomic_promotion": "os.replace" in source,
-        "approval_gate": all(token in source for token in ("APPROVED", "review_summary_sha256", "artifact_checksum_file_sha256")),
+        "approval_gate": all(
+            token in source
+            for token in (
+                "APPROVED",
+                "validate_approval_record",
+                "validate_review_summary",
+                "validate_checksums",
+                "checksums.sha256",
+            )
+        ),
         "canonical_fields_declared": all(token in source for token in required_fields),
         "training_consumes_canonical_artifact": "approved_generated_rationales_train.jsonl" in training_section and '"rationale_target"' not in training_section,
         "raw_target_mapping_only_in_promotion": "rationale_target" in source,
