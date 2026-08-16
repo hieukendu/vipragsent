@@ -13,6 +13,7 @@ from typing import Any
 
 import yaml
 
+from ..constants import TRAINING_SEEDS
 from ..hashing import sha256_file, sha256_json
 from ..orchestration.inventory import build_expected_runs
 from ..orchestration.q1b_dependencies import (
@@ -36,6 +37,12 @@ Q1B_SOURCE_FILES = (
     "configs/experiments/q1b/producer_registry.yaml",
     "configs/experiments/q1b/checkpoint_matrix.yaml",
 )
+PROTOCOL_SOURCE_FILES = (
+    "configs/experiments/q3/system_aliases.yaml",
+    "configs/experiments/q3/protocol.yaml",
+    "configs/experiments/q2/protocol.yaml",
+    "src/vipragsent/constants.py",
+)
 TRAINABLE_Q1B_PRODUCER_KIND = "trainable_checkpoint"
 AZURE_Q1B_PRODUCER_KIND = "approved_azure_output"
 
@@ -58,14 +65,135 @@ def _load_json(path: Path) -> dict[str, Any]:
     return payload
 
 
-def _source_digest(root: Path) -> dict[str, Any]:
+def _digest_files(root: Path, relatives: tuple[str, ...], label: str) -> dict[str, Any]:
     files = []
-    for relative in Q1B_SOURCE_FILES:
+    for relative in relatives:
         path = root / relative
         if not path.is_file():
-            raise ProfileValidationError(f"missing Q1b profile source: {relative}")
+            raise ProfileValidationError(f"missing {label} profile source: {relative}")
         files.append({"path": relative, "sha256": sha256_file(path)})
     return {"files": files, "sha256": sha256_json(files)}
+
+
+def _source_digest(root: Path) -> dict[str, Any]:
+    return _digest_files(root, Q1B_SOURCE_FILES, "Q1b")
+
+
+def _protocol_source_digest(root: Path) -> dict[str, Any]:
+    return _digest_files(root, PROTOCOL_SOURCE_FILES, "Q3/Q2 protocol")
+
+
+def _normalise_tokens(values: Any) -> list[str]:
+    if not isinstance(values, (list, tuple)):
+        return []
+    return [str(value) for value in values]
+
+
+def _normalise_seeds(values: Any) -> list[int]:
+    if not isinstance(values, (list, tuple)):
+        return []
+    try:
+        return [int(value) for value in values]
+    except (TypeError, ValueError):
+        return []
+
+
+def _protocol_binding(root: Path, config: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
+    errors: list[str] = []
+    aliases_payload = _load_yaml(root / "configs/experiments/q3/system_aliases.yaml")
+    q3_protocol = _load_yaml(root / "configs/experiments/q3/protocol.yaml")
+    q2_protocol = _load_yaml(root / "configs/experiments/q2/protocol.yaml")
+    aliases = aliases_payload.get("q3_system_aliases")
+    if not isinstance(aliases, list):
+        errors.append("Q3 alias source must contain q3_system_aliases")
+        aliases = []
+    alias_by_system: dict[str, list[dict[str, Any]]] = {}
+    for alias in aliases:
+        if isinstance(alias, dict):
+            alias_by_system.setdefault(str(alias.get("resolved_system_id")), []).append(alias)
+
+    q3 = config.get("q3", {})
+    q2 = config.get("q2", {})
+    retained_systems = _normalise_tokens(q3.get("systems"))
+    retained_budgets = _normalise_tokens(q3.get("budgets"))
+    profile_seeds = _normalise_seeds(q3.get("seeds"))
+    q2_seeds = _normalise_seeds(q2.get("seeds"))
+    locked_seeds = _normalise_seeds(TRAINING_SEEDS)
+
+    for system_id in retained_systems:
+        matches = alias_by_system.get(system_id, [])
+        if len(matches) != 1 or matches[0].get("resolution_status") != "RESOLVED":
+            errors.append(f"retained Q3 system alias drift: {system_id}")
+
+    excluded_systems = [
+        str(item.get("q3_system"))
+        for item in config.get("exclusions", [])
+        if isinstance(item, dict) and "q3_system" in item
+    ]
+    if "xlmr_pragmatic_finetune" not in excluded_systems:
+        errors.append("XLM-R Q3 exclusion is missing")
+    if "xlmr_pragmatic_finetune" in retained_systems:
+        errors.append("XLM-R Q3 is retained")
+    xlmr_alias = alias_by_system.get("xlmr_pragmatic_finetune", [])
+    if len(xlmr_alias) != 1 or xlmr_alias[0].get("paper_label") != "XLM-R" or xlmr_alias[0].get("resolution_status") != "RESOLVED":
+        errors.append("XLM-R alias source drift")
+
+    source_budgets = _normalise_tokens(q3_protocol.get("q3", {}).get("budgets"))
+    excluded_budgets = [
+        str(item.get("q3_budget"))
+        for item in config.get("exclusions", [])
+        if isinstance(item, dict) and "q3_budget" in item
+    ]
+    required_excluded_budgets = ["64", "256"]
+    if set(required_excluded_budgets) - set(source_budgets):
+        errors.append("Q3 protocol source is missing budget 64 or 256")
+    if set(excluded_budgets) != set(required_excluded_budgets):
+        errors.append("Q3 excluded budget policy drift")
+    expected_retained_budgets = [budget for budget in source_budgets if budget not in required_excluded_budgets]
+    if set(retained_budgets) != set(expected_retained_budgets):
+        errors.append(
+            f"Q3 retained budget drift: profile={sorted(retained_budgets)}, source={sorted(expected_retained_budgets)}"
+        )
+
+    if profile_seeds != locked_seeds:
+        errors.append(f"Q3 profile seed drift: profile={profile_seeds}, locked={locked_seeds}")
+    if q2_seeds != locked_seeds:
+        errors.append(f"Q2 profile seed drift: profile={q2_seeds}, locked={locked_seeds}")
+    if q2.get("expected_seed_count") != len(q2_seeds):
+        errors.append("Q2 expected seed count drift")
+    if q3.get("selection_metric") != q3_protocol.get("q3", {}).get("primary_metric"):
+        errors.append("Q3 primary metric drift")
+    q2_variants = q2_protocol.get("variants")
+    if not isinstance(q2_variants, list) or not q2_variants:
+        errors.append("Q2 protocol source must contain variants")
+        q2_variants = []
+    profile_q2_variants = _normalise_tokens(q2.get("variants"))
+    if profile_q2_variants != _normalise_tokens(q2_variants):
+        errors.append("Q2 retained variants drift")
+    expected_cells = len(retained_systems) * len(retained_budgets) * len(profile_seeds)
+    if q3.get("expected_cell_count") != expected_cells or expected_cells != 36:
+        errors.append(f"Q3 expected cell count drift: {expected_cells}")
+
+    binding = {
+        "q3": {
+            "alias_systems": [str(alias.get("resolved_system_id")) for alias in aliases if isinstance(alias, dict)],
+            "retained_systems": retained_systems,
+            "excluded_systems": excluded_systems,
+            "source_budgets": source_budgets,
+            "retained_budgets": retained_budgets,
+            "excluded_budgets": required_excluded_budgets,
+            "seeds": profile_seeds,
+            "expected_cell_count": expected_cells,
+            "primary_metric": q3_protocol.get("q3", {}).get("primary_metric"),
+        },
+        "q2": {
+            "source_variants": _normalise_tokens(q2_variants),
+            "retained_variants": profile_q2_variants,
+            "seeds": q2_seeds,
+            "expected_variant_count": len(q2_variants),
+        },
+    }
+    return binding, errors
 
 
 def _q1b_rows(inventory: dict[str, Any]) -> list[dict[str, Any]]:
@@ -231,7 +359,10 @@ def build_naacl_profile_snapshot(root: str | Path = ".") -> dict[str, Any]:
     inventory = build_expected_runs(root)
     graph = build_q1b_dependency_graph(root, inventory_rows=inventory["rows"])
     binding, errors = _build_binding(root, graph, inventory)
+    protocol_binding, protocol_errors = _protocol_binding(root, config)
+    errors.extend(protocol_errors)
     source = _source_digest(root)
+    protocol_source = _protocol_source_digest(root)
     snapshot = {
         "schema_version": 1,
         "profile_id": PROFILE_ID,
@@ -243,6 +374,8 @@ def build_naacl_profile_snapshot(root: str | Path = ".") -> dict[str, Any]:
             "checkpoint_matrix_sha256": graph.get("checkpoint_matrix_sha256"),
         },
         "source": source,
+        "protocol_sources": protocol_source,
+        "protocol_binding": protocol_binding,
         "q1b": binding,
         "errors": errors,
         "status": "PASS" if not errors else "FAIL",
@@ -278,6 +411,9 @@ def validate_naacl_profile(root: str | Path = ".") -> dict[str, Any]:
         errors.append("profile Q1b expected consumer count drift")
     if q1b_policy.get("expected_graph_edge_count") != snapshot["q1b"]["graph_edge_count"]:
         errors.append("profile Q1b expected graph edge count drift")
+    q2_policy = config.get("q2", {})
+    if q2_policy.get("expected_variant_count") != snapshot["protocol_binding"]["q2"]["expected_variant_count"]:
+        errors.append("profile Q2 expected variant count drift")
     report = _load_json(root / PROFILE_REPORT)
     report_binding = report.get("q1b", {}).get("dependency_binding")
     if report_binding != snapshot["q1b"]:
@@ -286,6 +422,27 @@ def validate_naacl_profile(root: str | Path = ".") -> dict[str, Any]:
     expected_digests = {"graph_sha256": snapshot["graph"]["sha256"], "source_sha256": snapshot["source"]["sha256"]}
     if report_digests != expected_digests:
         errors.append("checked-in Q1b graph/source digest drift")
+    if report.get("protocol_sources") != snapshot["protocol_sources"]:
+        errors.append("checked-in Q3/Q2 protocol source digest drift")
+    if report.get("protocol_binding") != snapshot["protocol_binding"]:
+        errors.append("checked-in Q3/Q2 protocol binding differs from source")
+    report_q3 = report.get("q3", {})
+    expected_q3 = snapshot["protocol_binding"]["q3"]
+    if {
+        "systems": report_q3.get("systems"),
+        "budgets": [str(value) for value in report_q3.get("budgets", [])],
+        "seeds": report_q3.get("seeds"),
+        "expected_cell_count": report_q3.get("expected_cell_count"),
+    } != {
+        "systems": expected_q3["retained_systems"],
+        "budgets": expected_q3["retained_budgets"],
+        "seeds": expected_q3["seeds"],
+        "expected_cell_count": expected_q3["expected_cell_count"],
+    }:
+        errors.append("checked-in Q3 profile scope differs from source")
+    report_q2 = report.get("q2", {})
+    if report_q2.get("variants") != snapshot["protocol_binding"]["q2"]["retained_variants"] or report_q2.get("seeds") != snapshot["protocol_binding"]["q2"]["seeds"] or report_q2.get("expected_seed_count") != len(snapshot["protocol_binding"]["q2"]["seeds"]):
+        errors.append("checked-in Q2 profile scope differs from source")
     if report.get("activation", {}).get("real_execution") != "PROHIBITED":
         errors.append("report real_execution exclusion must be PROHIBITED")
     if report.get("exclusions", {}).get("real_execution") != "PROHIBITED":
