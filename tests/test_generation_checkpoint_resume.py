@@ -15,12 +15,13 @@ from vipragsent.training.generation_checkpoint import (
 
 
 def _provenance() -> dict[str, object]:
+    dataset_hash = "A" * 64
     return {
         "model": {"name": "tiny", "revision": "r1"},
         "model_artifact": {"identity": "tiny-model@r1"},
         "tokenizer_artifact": {"identity": "tiny-tokenizer@r1"},
-        "dataset": {"identity": "tiny-dataset", "hash": "DATA_TINY"},
-        "data_hash": "DATA_TINY",
+        "dataset": {"identity": "tiny-dataset", "hash": dataset_hash},
+        "data_hash": dataset_hash,
         "optimizer": {"name": "AdamW", "revision": "torch"},
         "scheduler": {"name": "linear", "total_steps": 4},
         "rng": {"seed": 17, "algorithm": "torch+numpy+python"},
@@ -118,3 +119,38 @@ def test_legacy_fixture_with_expected_provenance_requires_validated_identity(tmp
         expected_provenance=provenance,
     )
     assert loaded.checkpoint.report.legacy_compatibility is True
+
+
+@pytest.mark.parametrize("data_hash", ["not-a-sha", "DATA_TINY", "0" * 63])
+def test_production_checkpoint_rejects_non_sha256_dataset_hash(tmp_path: Path, data_hash: str) -> None:
+    model = nn.Linear(2, 1)
+    provenance = _provenance()
+    provenance["data_hash"] = data_hash
+    provenance["dataset"] = {"identity": "tiny-dataset", "hash": data_hash}
+    with pytest.raises(GenerationCheckpointError, match="canonical SHA-256"):
+        save_generation_checkpoint(
+            tmp_path / "invalid.pt",
+            model,
+            None,
+            None,
+            {"step": 0},
+            provenance,
+            production_provenance_required=True,
+        )
+
+
+def test_cpu_fixture_may_keep_non_sha256_dataset_hash(tmp_path: Path) -> None:
+    model = nn.Linear(2, 1)
+    provenance = _provenance()
+    provenance["data_hash"] = "fixture-data"
+    provenance["dataset"] = {"identity": "fixture", "hash": "fixture-data"}
+    manifest = save_generation_checkpoint(
+        tmp_path / "fixture.pt",
+        model,
+        None,
+        None,
+        {"step": 0},
+        provenance,
+        fixture_mode=True,
+    )
+    assert manifest.provenance["data_hash"] == "fixture-data"
