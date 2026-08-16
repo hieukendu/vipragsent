@@ -13,6 +13,18 @@ from .status import RuntimeBlocked
 
 Q1B_PRODUCER_REGISTRY = "configs/experiments/q1b/producer_registry.yaml"
 Q1B_MATRIX = "configs/experiments/q1b/checkpoint_matrix.yaml"
+Q1B_SOURCE_FILES = (
+    "src/vipragsent/orchestration/q1b_dependencies.py",
+    "src/vipragsent/orchestration/inventory.py",
+    "src/vipragsent/orchestration/system_registry.py",
+    "src/vipragsent/protocol.py",
+    "configs/experiments/master_matrix.yaml",
+    "configs/experiments/system_execution_registry.yaml",
+    "configs/models/model_registry.yaml",
+    "configs/experiments/q4/checkpoint_resolution.yaml",
+    Q1B_PRODUCER_REGISTRY,
+    Q1B_MATRIX,
+)
 Q1B_MATRIX_KEY_BY_SYSTEM = {
     "phobert_pol_single": "phobert_ordinary_single_task",
     "phobert_emo_single": "phobert_ordinary_single_task",
@@ -24,6 +36,15 @@ Q1B_MATRIX_KEY_BY_SYSTEM = {
 }
 TRAINABLE_KINDS = frozenset({"trainable", "component_bundle", "generation"})
 Q1B_SYSTEMS = frozenset(Q1B_MATRIX_KEY_BY_SYSTEM)
+
+
+def q1b_source_sha256(root: str | Path) -> str:
+    """Return the digest binding the Q1b resolver to its audited source files."""
+    root = Path(root)
+    if not all((root / relative).is_file() for relative in Q1B_SOURCE_FILES):
+        return ""
+    files = [{"path": relative, "sha256": sha256_file(root / relative)} for relative in Q1B_SOURCE_FILES]
+    return sha256_json(files)
 
 
 @dataclass(frozen=True)
@@ -324,7 +345,11 @@ def resolve_q1b_producer(root: str | Path, entry: Mapping[str, Any]) -> dict[str
         candidates = [edge for edge in graph["edges"] if str(edge.get("consumer_id", "")).startswith("q1b_") and str(edge.get("consumer_id")).startswith(f"q1b_{entry.get('system_id')}_") and str(edge.get("seed")) == str(entry.get("seed"))]
     if len(candidates) != 1:
         raise RuntimeBlocked(f"Q1b entry does not resolve to exactly one producer: {experiment_id}")
-    return {"edge": candidates[0], "graph_sha256": sha256_json(graph)}
+    return {
+        "edge": candidates[0],
+        "graph_sha256": sha256_json(graph),
+        "source_sha256": q1b_source_sha256(root),
+    }
 
 
 def write_q1b_dependency_report(root: str | Path = ".") -> dict[str, Any]:

@@ -10,6 +10,11 @@ import yaml
 from ..hashing import sha256_file, sha256_json
 from .contracts import ExecutionKind, RunContext, RunEntry
 from .provenance import expected_inference_provenance, validate_inference_provenance
+from .q1b_dependencies import (
+    build_q1b_dependency_graph,
+    load_q1b_producer_registry,
+    q1b_source_sha256,
+)
 from .run_store import artifact_hashes, git_commit, utc_now
 from .variant_diff import changed_components_against_full_phobert
 
@@ -69,6 +74,8 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
     trainable = entry.execution_kind == ExecutionKind.TRAINABLE.value
     q4 = _load_json(run_root / "paper_artifacts/q4_pragmatic_calibration_per_seed.json", {})
     usage = _load_json(run_root / "azure/usage.json", {})
+    external_manifest = _load_json(run_root / "external/external_evaluation_manifest.json", {})
+    external_metrics = _load_json(run_root / "metrics/external_retention_metrics.json", {}) or _load_json(run_root / "metrics/partial_external_retention_metrics.json", {})
     start_time = str(state.get("created_at") or utc_now())
     end_time = utc_now()
     applicability: dict[str, str] = {}
@@ -87,7 +94,7 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
         "display_name": entry.display_name,
         "variant": entry.variant,
         "backbone": entry.backbone,
-        "seed": entry.seed if entry.seed not in (None, "") else "NOT_APPLICABLE",
+        "seed": entry.seed if entry.seed not in (None, "") else (None if entry.research_question == "Q3" and entry.is_azure else "NOT_APPLICABLE"),
         "budget": entry.budget if entry.budget not in (None, "") else "NOT_APPLICABLE",
         "execution_kind": entry.execution_kind,
         "execution_mode": "fixture_synthetic" if context.fixture else "production_sequential_review_gated",
@@ -230,6 +237,51 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
         })
     else:
         fields.update({"per_label_pragmatic_ece": "NOT_APPLICABLE", "macro_pragmatic_ece": "NOT_APPLICABLE", "temperature_scaling": False, "bin_count": "NOT_APPLICABLE", "probability_aggregation": "NOT_APPLICABLE", "source_checkpoint_id": "NOT_APPLICABLE", "source_prediction_hash": "NOT_APPLICABLE"})
+    if entry.research_question == "Q1b":
+        # Carry the executor's canonical producer binding into the review
+        # summary.  Aggregation also checks the raw metrics/manifest files so
+        # contradictory duplicate payloads cannot be hidden here.
+        for field in (
+            "producer_id",
+            "producer_run_id",
+            "producer_kind",
+            "checkpoint_key",
+            "source_seed",
+            "dependency_graph_sha256",
+            "dependency_source_sha256",
+        ):
+            if field in external_manifest:
+                fields[field] = external_manifest[field]
+            elif field in external_metrics:
+                fields[field] = external_metrics[field]
+        for field in ("external_finetuning", "train_loader_created", "optimizer_steps", "backward_calls", "training_applicability"):
+            if field in external_manifest:
+                fields[field] = external_manifest[field]
+            elif field in external_metrics:
+                fields[field] = external_metrics[field]
+        if entry.is_azure:
+            azure_definition = next(
+                (item for item in load_q1b_producer_registry(context.root).values() if item.producer_kind == "approved_azure_output"),
+                None,
+            )
+            if azure_definition is not None:
+                graph = build_q1b_dependency_graph(context.root)
+                fields.update(
+                    {
+                        "producer_id": azure_definition.producer_id,
+                        "producer_run_id": azure_definition.producer_id,
+                        "producer_kind": azure_definition.producer_kind,
+                        "checkpoint_key": azure_definition.checkpoint_key(None),
+                        "source_seed": None,
+                        "dependency_graph_sha256": sha256_json(graph),
+                        "dependency_source_sha256": q1b_source_sha256(context.root),
+                        "external_finetuning": False,
+                        "train_loader_created": False,
+                        "optimizer_steps": 0,
+                        "backward_calls": 0,
+                        "training_applicability": "NOT_APPLICABLE",
+                    }
+                )
     if entry.is_azure:
         fields.update({
             "azure_request_count": usage.get("request_count", "NOT_APPLICABLE"),

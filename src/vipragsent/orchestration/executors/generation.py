@@ -1158,6 +1158,8 @@ class ReasoningGenerationExecutor:
         latest_path: str = "checkpoints/latest/model.pt",
         best_epoch: int,
         selection_metric: float,
+        latest_epoch: int | None = None,
+        latest_selection_metric: float | None = None,
         rationale_source_hash: str = "NOT_PROVIDED",
     ) -> dict[str, Any]:
         best = self.run_root / best_path
@@ -1175,6 +1177,8 @@ class ReasoningGenerationExecutor:
             "checkpoint_sha256": sha256_file(best),
             "best_epoch": int(best_epoch),
             "selection_metric": float(selection_metric),
+            "latest_epoch": int(latest_epoch if latest_epoch is not None else best_epoch),
+            "latest_selection_metric": latest_selection_metric,
             "generation_prompt_hash": self.protocol["generation_prompt_hash"],
             "config_hash": self.config_hash,
             "data_hash": self.data_hash,
@@ -1206,6 +1210,8 @@ class ReasoningGenerationExecutor:
         best_path = "checkpoints/best/model.pt"
         all_history: list[dict[str, float]] = []
         start_epoch = 1
+        latest_epoch = 0
+        latest_metric: float | None = None
         if resume_from is not None:
             persisted_selection, _ = self._load_persisted_selection(expected_data_order=train_order)
             resumed = self.load_checkpoint(
@@ -1219,6 +1225,8 @@ class ReasoningGenerationExecutor:
             if isinstance(resume_epoch, bool) or not isinstance(resume_epoch, int | float) or not float(resume_epoch).is_integer() or int(resume_epoch) < 1:
                 raise GenerationCheckpointError("resume checkpoint epoch is missing or invalid")
             start_epoch = int(resume_epoch) + 1
+            latest_epoch = int(resume_epoch)
+            latest_metric = state.get("selection_metric") if isinstance(state.get("selection_metric"), int | float) else None
             best_epoch = int(persisted_selection["best_epoch"])
             best_metric = float(persisted_selection["value"])
             best_path = str(persisted_selection["path"])
@@ -1237,6 +1245,8 @@ class ReasoningGenerationExecutor:
             dev_predictions, _ = self.judge_reasoning_split("dev", generated_dev, gold_dev, **judge_kwargs)
             metrics_kwargs = {"artifact_root": epoch_root} if "artifact_root" in inspect.signature(self.compute_split_metrics).parameters else {}
             dev_metrics = self.compute_split_metrics("dev", dev_predictions, **metrics_kwargs)
+            latest_epoch = epoch
+            latest_metric = float(dev_metrics["primary_macro_f1"])
             self.write_checkpoint(
                 f"checkpoints/epoch_{epoch}/model.pt",
                 optimizer=optimizer,
@@ -1267,6 +1277,19 @@ class ReasoningGenerationExecutor:
                 selection_metric=best_metric if best_metric != float("-inf") else None,
                 data_order=train_order,
             )
+        if latest_epoch < 1:
+            raise GenerationCheckpointError("generation run completed without a latest checkpoint epoch")
+        # Keep the last completed training state separate from the persisted
+        # best selection.  Loading best before writing latest silently made
+        # resume start from an older epoch and discarded optimizer progress.
+        latest_hash = self.write_checkpoint(
+            "checkpoints/latest/model.pt",
+            optimizer=optimizer,
+            scheduler=scheduler,
+            epoch=latest_epoch,
+            selection_metric=latest_metric,
+            data_order=train_order,
+        )
         atomic_write_json(self.run_root / "training/history.json", all_history)
         dev_artifacts = self.publish_dev_artifacts(best_epoch) if (self.run_root / "epochs" / f"epoch_{best_epoch}" / "reasoning/dev_reasoning.jsonl").exists() else {}
         atomic_write_json(self.run_root / "selection/best_checkpoint.json", {"status": "PASS", "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_path": best_path, "checkpoint_sha256": best_hash, "dev_artifacts": dev_artifacts})
@@ -1275,15 +1298,13 @@ class ReasoningGenerationExecutor:
             scheduler=scheduler,
             expected_data_order=train_order,
         )
-        latest_hash = self.write_checkpoint(
-            "checkpoints/latest/model.pt",
-            optimizer=optimizer,
-            scheduler=scheduler,
-            epoch=best_epoch,
+        manifest = self.write_checkpoint_manifest(
+            best_path=best_path,
+            best_epoch=best_epoch,
             selection_metric=best_metric,
-            data_order=train_order,
+            latest_epoch=latest_epoch,
+            latest_selection_metric=latest_metric,
         )
-        manifest = self.write_checkpoint_manifest(best_path=best_path, best_epoch=best_epoch, selection_metric=best_metric)
         atomic_write_json(self.run_root / "selection/freeze_manifest.json", {"frozen": True, "checkpoint": {"path": best_path, "sha256": best_hash}, "best_epoch": best_epoch, "selection_metric": best_metric, "test_access": False, "checkpoint_manifest_sha256": sha256_file(self.run_root / "checkpoints/checkpoint_manifest.json")})
         generated_test = self.generate_reasoning_split("test", test_rows)
         test_predictions, _ = self.judge_reasoning_split("test", generated_test, gold_test)

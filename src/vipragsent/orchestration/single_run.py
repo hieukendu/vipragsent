@@ -25,7 +25,7 @@ def _blocked_summary(context: RunContext, *, run_status: str, reason: str, block
         "display_name": context.entry.display_name,
         "variant": context.entry.variant,
         "backbone": context.entry.backbone,
-        "seed": context.entry.seed if context.entry.seed not in (None, "") else "NOT_APPLICABLE",
+        "seed": context.entry.seed if context.entry.seed not in (None, "") else (None if context.entry.research_question == "Q3" and context.entry.is_azure else "NOT_APPLICABLE"),
         "budget": context.entry.budget if context.entry.budget not in (None, "") else "NOT_APPLICABLE",
         "execution_kind": context.entry.execution_kind,
         "execution_mode": "fixture_synthetic" if context.fixture else "production_sequential_review_gated",
