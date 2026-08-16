@@ -44,6 +44,7 @@ from ..training.class_weights import (
 )
 from ..training.config_resolver import persist_resolved_training_config, resolve_training_config
 from ..training.engine import TrainingConfig, TrainingEngine
+from ..training.generation_checkpoint import is_real_dataset_hash
 from ..training.optimizers import build_optimizer
 from ..training.schedulers import build_scheduler
 from .contracts import (
@@ -757,6 +758,9 @@ def _production_reasoning_records(root: Path, tokenizer: Any, examples: list[Dat
 
 
 def _production_generation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
+    data_hash = context.metadata.get("data_hash")
+    if not is_real_dataset_hash(data_hash):
+        return StageOutcome.blocked("production generation requires a real context.metadata data_hash")
     if not generation_targets_available(context.root):
         return StageOutcome.blocked("generation reasoning protocol files are incomplete")
     injected = context.metadata.get("reasoning_executor")
@@ -792,7 +796,10 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         run_root=context.run_root,
         seed=entry.seed,
         config_hash=resolved.config_hash,
-        data_hash=str(context.metadata.get("data_hash", "NOT_PROVIDED")),
+        data_hash=str(data_hash),
+        dataset_identity=str(context.metadata.get("dataset_identity", data_hash)),
+        production_provenance_required=True,
+        fixture_mode=False,
         physical_batch_size=resolved.physical_batch_size,
         gradient_accumulation_steps=resolved.gradient_accumulation_steps,
         pad_token_id=getattr(tokenizer, "pad_token_id", None),

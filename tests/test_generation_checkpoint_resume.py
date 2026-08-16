@@ -84,7 +84,7 @@ def test_legacy_fixture_requires_explicit_opt_in(tmp_path: Path) -> None:
     torch.save({"model": model.state_dict(), "state": {"step": 1}}, path)
     with pytest.raises(GenerationCheckpointError, match="legacy"):
         load_generation_checkpoint(path, nn.Linear(2, 1))
-    loaded = load_generation_checkpoint(path, nn.Linear(2, 1), allow_legacy_fixture=True)
+    loaded = load_generation_checkpoint(path, nn.Linear(2, 1), allow_legacy_fixture=True, fixture_mode=True)
     assert loaded.checkpoint.report.legacy_compatibility is True
 
 
@@ -97,6 +97,7 @@ def test_legacy_fixture_with_expected_provenance_requires_validated_identity(tmp
             path,
             nn.Linear(2, 1),
             allow_legacy_fixture=True,
+            fixture_mode=True,
             expected_provenance=_provenance(),
         )
 
@@ -113,6 +114,7 @@ def test_legacy_fixture_with_expected_provenance_requires_validated_identity(tmp
         path,
         nn.Linear(2, 1),
         allow_legacy_fixture=True,
+        fixture_mode=True,
         expected_provenance=provenance,
     )
     assert loaded.checkpoint.report.legacy_compatibility is True

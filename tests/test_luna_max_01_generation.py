@@ -15,6 +15,8 @@ from torch import nn
 from vipragsent.evaluation.reasoning_judge import ReasoningJudge
 from vipragsent.hashing import sha256_file
 from vipragsent.models.factory import build_production_model
+from vipragsent.orchestration import stage_registry
+from vipragsent.orchestration.contracts import RunContext, RunEntry
 from vipragsent.orchestration.executors.generation import (
     GenerationCheckpointError,
     ReasoningGenerationExecutor,
@@ -273,6 +275,8 @@ def _executor(
     dataset_identity: str | None = None,
     model_artifact_identity: str | None = None,
     tokenizer_artifact_identity: str | None = None,
+    production_provenance_required: bool = False,
+    fixture_mode: bool = True,
 ) -> ReasoningGenerationExecutor:
     root = _protocol_root(tmp_path)
     judge = ReasoningJudge(root, transport=lambda **_: {"labels": {label: 0 for label in ("sarcasm", "irony", "idiom_figurative", "code_switching", "mocking", "implicit_sentiment")}}, cache_root=root / "judge-cache", sleep_fn=lambda _: None)
@@ -287,6 +291,8 @@ def _executor(
         dataset_identity=dataset_identity,
         model_artifact_identity=model_artifact_identity,
         tokenizer_artifact_identity=tokenizer_artifact_identity,
+        production_provenance_required=production_provenance_required,
+        fixture_mode=fixture_mode,
     )
 
 
@@ -313,6 +319,7 @@ def test_generation_training_obeys_physical_batch_and_accumulation_contract(tmp_
         tokenizer=_TinyTokenizer(),
         judge=judge,
         run_root=root / "run",
+        fixture_mode=True,
         physical_batch_size=2,
         gradient_accumulation_steps=2,
     )
@@ -389,6 +396,56 @@ def test_generation_checkpoint_dataset_identity_mismatch_blocks(tmp_path: Path) 
     changed_dataset = _executor(tmp_path, data_hash="DATA_B", dataset_identity="DATASET")
     with pytest.raises(GenerationCheckpointError, match="provenance identity mismatch"):
         changed_dataset.load_checkpoint(path)
+
+
+@pytest.mark.parametrize("data_hash", [None, "", "NOT_PROVIDED", "fixture-data"])
+def test_production_generation_blocks_missing_or_placeholder_context_data_hash(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+    data_hash: str | None,
+) -> None:
+    entry = RunEntry.from_mapping(
+        {
+            "run_id": "cot-provenance",
+            "system_id": "cot_only_vistral",
+            "execution_kind": "generation",
+            "backbone": "vistral_7b",
+            "research_question": "Q1",
+        }
+    )
+    context = RunContext(
+        tmp_path,
+        entry,
+        metadata={} if data_hash is None else {"data_hash": data_hash},
+    )
+    reached_model_resolution = False
+
+    def unexpected_model_resolution(*_: object, **__: object) -> object:
+        nonlocal reached_model_resolution
+        reached_model_resolution = True
+        raise AssertionError("model resolution must not run before provenance validation")
+
+    monkeypatch.setattr(stage_registry, "_execution_spec", unexpected_model_resolution)
+    outcome = stage_registry._production_generation_stage(context, entry, "train_generation")
+    assert outcome.status == "BLOCKED"
+    assert "data_hash" in outcome.error
+    assert reached_model_resolution is False
+    assert not (context.run_root / "checkpoints").exists()
+
+
+@pytest.mark.parametrize("data_hash", ["", "NOT_PROVIDED", "fixture-data"])
+def test_production_generation_requires_real_dataset_hash_before_checkpoint(
+    tmp_path: Path,
+    data_hash: str,
+) -> None:
+    with pytest.raises(GenerationCheckpointError, match="real dataset hash"):
+        _executor(
+            tmp_path,
+            data_hash=data_hash,
+            production_provenance_required=True,
+            fixture_mode=False,
+        )
+    assert not (tmp_path / "run/checkpoints").exists()
 
 
 def test_generation_checkpoint_artifact_identity_mismatch_blocks(tmp_path: Path) -> None:
