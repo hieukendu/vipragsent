@@ -247,6 +247,8 @@ def _selected_dev_artifacts_reusable(run_root: Path) -> bool:
         run_root / "predictions/dev_predictions.jsonl",
         run_root / "judge/dev_judge_responses.jsonl",
         run_root / "metrics/dev_reasoning_metrics.json",
+        run_root / "reasoning/dev_chunks_manifest.json",
+        run_root / "checkpoints/best/model.pt",
     )
     if not all(path.exists() for path in (selection_path, marker_path, *required)):
         return False
@@ -257,9 +259,14 @@ def _selected_dev_artifacts_reusable(run_root: Path) -> bool:
         return (
             marker.get("status") == "PASS"
             and selected.get("epoch") == marker.get("epoch")
+            and selection.get("best_epoch") == marker.get("epoch")
+            and str(selection.get("sha256") or selection.get("checkpoint_sha256")) == marker.get("checkpoint_sha256")
+            and sha256_file(required[5]) == marker.get("checkpoint_sha256")
             and sha256_file(required[0]) == marker.get("reasoning_sha256")
             and sha256_file(required[1]) == marker.get("predictions_sha256")
             and sha256_file(required[2]) == marker.get("judge_sha256")
+            and sha256_file(required[3]) == marker.get("metrics_sha256")
+            and sha256_file(required[4]) == marker.get("chunks_manifest_sha256")
         )
     except (OSError, TypeError, ValueError, KeyError):
         return False

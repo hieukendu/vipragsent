@@ -46,6 +46,22 @@ class _BatchFixtureTokenizer:
         return "".join(f"t{value}" for value in values if value not in {0, 2})
 
 
+class _LastNonPadCausalFixtureModel(nn.Module):
+    """Fixture whose continuation depends on each row's actual final token."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.anchor = nn.Parameter(torch.ones(1))
+        self.config = SimpleNamespace(use_cache=False)
+
+    def generate(self, *, input_ids: torch.Tensor, attention_mask: torch.Tensor, **_: object) -> torch.Tensor:
+        positions = torch.arange(input_ids.size(1), device=input_ids.device).expand_as(input_ids)
+        last_positions = positions.masked_fill(attention_mask == 0, -1).max(dim=1).values
+        last_tokens = input_ids.gather(1, last_positions.unsqueeze(1)).squeeze(1)
+        continuation = torch.stack((last_tokens + 10, torch.full_like(last_tokens, 2)), dim=1)
+        return torch.cat((input_ids, continuation), dim=1)
+
+
 def _protocol_root(tmp_path: Path) -> Path:
     source = Path(__file__).resolve().parents[1]
     for relative in (
@@ -100,6 +116,8 @@ def test_generation_batch_requires_passing_profile_and_defaults_safe() -> None:
     with pytest.raises(GenerationPersistenceError, match="explicit passing"):
         select_generation_batch_size(requested=2)
     assert select_generation_batch_size({"status": "PASS", "selected_batch_size": 2, "profiled": True}) == 2
+    with pytest.raises(GenerationPersistenceError, match="profiled/approved evidence"):
+        select_generation_batch_size({"status": "PASS", "selected_batch_size": 2})
     with pytest.raises(GenerationPersistenceError):
         select_generation_batch_size({"status": "BLOCKED", "selected_batch_size": 2})
 
@@ -124,7 +142,7 @@ def test_batched_generation_pads_stops_preserves_failures_and_resumes(tmp_path: 
     assert first[2]["failure_reason"]
     assert first[0]["truncated"] is False
     assert model.generate_calls[0][0] == 2
-    assert model.generate_calls[0][1].tolist() == [[1, 1, 0, 0], [1, 1, 1, 1]]
+    assert model.generate_calls[0][1].tolist() == [[0, 0, 1, 1], [1, 1, 1, 1]]
     assert (executor.run_root / "reasoning/dev_chunks_manifest.json").exists()
 
     resumed_model = _BatchFixtureModel(fail_token=9)
@@ -138,6 +156,24 @@ def test_fixture_equivalence_harness_covers_candidate_batches(tmp_path: Path) ->
     executor = _executor(tmp_path, _BatchFixtureModel())
     report = executor.fixture_generation_equivalence("dev", _records()[:2])
     assert report == {"fixture_only": True, "baseline_batch_size": 1, "candidates": [1, 2, 4], "equivalent": True}
+
+
+def test_left_padded_causal_generation_is_equivalent_for_batch_1_2_4(tmp_path: Path) -> None:
+    executor = _executor(tmp_path, _LastNonPadCausalFixtureModel())
+    records = [
+        {"sample_id": "short", "input_ids": torch.tensor([[11, 12]]), "attention_mask": torch.tensor([[1, 1]])},
+        {"sample_id": "long", "input_ids": torch.tensor([[21, 22, 23, 24]]), "attention_mask": torch.tensor([[1, 1, 1, 1]])},
+        {"sample_id": "mid", "input_ids": torch.tensor([[31, 32, 33]]), "attention_mask": torch.tensor([[1, 1, 1]])},
+        {"sample_id": "tiny", "input_ids": torch.tensor([[41]]), "attention_mask": torch.tensor([[1]])},
+    ]
+    baseline = executor._generate_reasoning_rows("dev", records, batch_size=1)
+    baseline_projection = [(row["sample_id"], row["generated_reasoning"]) for row in baseline]
+    for batch_size in (2, 4):
+        current = executor._generate_reasoning_rows("dev", records, batch_size=batch_size)
+        assert [(row["sample_id"], row["generated_reasoning"]) for row in current] == baseline_projection
+    batch = executor._inference_batch(records[:2])
+    assert batch["input_ids"].tolist() == [[0, 0, 11, 12], [21, 22, 23, 24]]
+    assert batch["attention_mask"].tolist() == [[0, 0, 1, 1], [1, 1, 1, 1]]
 
 
 def test_committed_chunk_rejects_changed_rows(tmp_path: Path) -> None:
