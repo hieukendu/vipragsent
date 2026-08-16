@@ -266,10 +266,28 @@ def _protocol_root(tmp_path: Path) -> Path:
     return tmp_path
 
 
-def _executor(tmp_path: Path) -> ReasoningGenerationExecutor:
+def _executor(
+    tmp_path: Path,
+    *,
+    data_hash: str = "NOT_PROVIDED",
+    dataset_identity: str | None = None,
+    model_artifact_identity: str | None = None,
+    tokenizer_artifact_identity: str | None = None,
+) -> ReasoningGenerationExecutor:
     root = _protocol_root(tmp_path)
     judge = ReasoningJudge(root, transport=lambda **_: {"labels": {label: 0 for label in ("sarcasm", "irony", "idiom_figurative", "code_switching", "mocking", "implicit_sentiment")}}, cache_root=root / "judge-cache", sleep_fn=lambda _: None)
-    return ReasoningGenerationExecutor(root, model=_FakeCausalModel(), tokenizer=_TinyTokenizer(), judge=judge, run_root=root / "run", seed=20260521)
+    return ReasoningGenerationExecutor(
+        root,
+        model=_FakeCausalModel(),
+        tokenizer=_TinyTokenizer(),
+        judge=judge,
+        run_root=root / "run",
+        seed=20260521,
+        data_hash=data_hash,
+        dataset_identity=dataset_identity,
+        model_artifact_identity=model_artifact_identity,
+        tokenizer_artifact_identity=tokenizer_artifact_identity,
+    )
 
 
 def _rows() -> tuple[list[dict[str, object]], list[dict[str, object]], list[dict[str, object]]]:
@@ -359,6 +377,54 @@ def test_generation_checkpoint_hash_mismatch_blocks(tmp_path: Path) -> None:
     digest = executor.write_checkpoint("checkpoints/best/model.pt")
     with pytest.raises(GenerationCheckpointError, match="hash mismatch"):
         executor.load_checkpoint(executor.run_root / "checkpoints/best/model.pt", expected_sha256="0" * len(digest))
+
+
+def test_generation_checkpoint_dataset_identity_mismatch_blocks(tmp_path: Path) -> None:
+    source = _executor(tmp_path, data_hash="DATA_A", dataset_identity="DATASET")
+    path = source.run_root / "checkpoints/latest/model.pt"
+    source.write_checkpoint("checkpoints/latest/model.pt")
+    sidecar = json.loads(path.with_suffix(path.suffix + ".manifest.json").read_text(encoding="utf-8"))
+    assert sidecar["provenance"]["data_hash"] == "DATA_A"
+    assert sidecar["provenance"]["dataset"] == {"identity": "DATASET", "hash": "DATA_A"}
+    changed_dataset = _executor(tmp_path, data_hash="DATA_B", dataset_identity="DATASET")
+    with pytest.raises(GenerationCheckpointError, match="provenance identity mismatch"):
+        changed_dataset.load_checkpoint(path)
+
+
+def test_generation_checkpoint_artifact_identity_mismatch_blocks(tmp_path: Path) -> None:
+    source = _executor(
+        tmp_path,
+        data_hash="DATA_A",
+        model_artifact_identity="model@A",
+        tokenizer_artifact_identity="tokenizer@A",
+    )
+    path = source.run_root / "checkpoints/latest/model.pt"
+    source.write_checkpoint("checkpoints/latest/model.pt")
+    changed_artifacts = _executor(
+        tmp_path,
+        data_hash="DATA_A",
+        model_artifact_identity="model@B",
+        tokenizer_artifact_identity="tokenizer@A",
+    )
+    with pytest.raises(GenerationCheckpointError, match="provenance identity mismatch"):
+        changed_artifacts.load_checkpoint(path)
+
+    tokenizer_source = _executor(
+        tmp_path / "tokenizer",
+        data_hash="DATA_A",
+        model_artifact_identity="model@A",
+        tokenizer_artifact_identity="tokenizer@A",
+    )
+    tokenizer_path = tokenizer_source.run_root / "checkpoints/latest/model.pt"
+    tokenizer_source.write_checkpoint("checkpoints/latest/model.pt")
+    changed_tokenizer = _executor(
+        tmp_path / "tokenizer",
+        data_hash="DATA_A",
+        model_artifact_identity="model@A",
+        tokenizer_artifact_identity="tokenizer@B",
+    )
+    with pytest.raises(GenerationCheckpointError, match="provenance identity mismatch"):
+        changed_tokenizer.load_checkpoint(tokenizer_path)
 
 
 def test_generation_checkpoint_sidecar_failure_is_fail_closed(tmp_path: Path) -> None:

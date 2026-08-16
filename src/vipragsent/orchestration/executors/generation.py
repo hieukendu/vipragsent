@@ -80,6 +80,40 @@ def teacher_forced_generation_loss(
     return F.cross_entropy(logits[:, :-1].reshape(-1, logits.size(-1)), labels[:, 1:].reshape(-1), ignore_index=-100)
 
 
+def _stable_artifact_identity(
+    artifact: Any,
+    explicit: Mapping[str, Any] | str | None,
+    *,
+    config: Any | None = None,
+) -> dict[str, Any]:
+    """Build a JSON-stable model/tokenizer artifact identity."""
+    if isinstance(explicit, Mapping):
+        identity = dict(explicit)
+    elif explicit is not None:
+        identity = {"identity": str(explicit)}
+    else:
+        source = config if config is not None else artifact
+        repository = getattr(source, "_name_or_path", None) or getattr(source, "name_or_path", None)
+        init_kwargs = getattr(artifact, "init_kwargs", {})
+        if not repository and isinstance(init_kwargs, Mapping):
+            repository = init_kwargs.get("name_or_path")
+        repository = str(repository or f"{type(artifact).__module__}.{type(artifact).__qualname__}")
+        revision = getattr(source, "_commit_hash", None) or getattr(source, "revision", None)
+        if not revision and isinstance(init_kwargs, Mapping):
+            revision = init_kwargs.get("revision")
+        revision = str(revision or "local")
+        identity = {
+            "identity": f"{repository}@{revision}",
+            "repository": repository,
+            "revision": revision,
+        }
+    if not str(identity.get("identity", "")):
+        repository = str(identity.get("repository", "local"))
+        revision = str(identity.get("revision", "local"))
+        identity["identity"] = f"{repository}@{revision}"
+    return identity
+
+
 class GenerationExecutor:
     """Fixture compatibility executor for the pre-resolution parser contract.
 
@@ -179,6 +213,10 @@ class GenerationExecutor:
         atomic_write_json(self.root / "selection/thresholds.json", {"source": "strict_parser", "status": "NOT_APPLICABLE"})
         compatibility_provenance = {
             "model": {"class": f"{type(self.model).__module__}.{type(self.model).__qualname__}"},
+            "model_artifact": {"identity": f"{type(self.model).__module__}.{type(self.model).__qualname__}@local"},
+            "tokenizer_artifact": {"identity": f"{type(self.tokenizer).__module__}.{type(self.tokenizer).__qualname__}@local"},
+            "dataset": {"identity": "compatibility", "hash": "NOT_PROVIDED"},
+            "data_hash": "NOT_PROVIDED",
             "optimizer": {
                 "class": f"{type(optimizer).__module__}.{type(optimizer).__qualname__}" if optimizer is not None else None,
                 "param_group_count": len(optimizer.param_groups) if optimizer is not None else 0,
@@ -299,6 +337,9 @@ class ReasoningGenerationExecutor:
         seed: int | str | None = None,
         config_hash: str = "NOT_PROVIDED",
         data_hash: str = "NOT_PROVIDED",
+        dataset_identity: str | None = None,
+        model_artifact_identity: Mapping[str, Any] | str | None = None,
+        tokenizer_artifact_identity: Mapping[str, Any] | str | None = None,
         physical_batch_size: int = 1,
         gradient_accumulation_steps: int = 1,
         pad_token_id: int | None = None,
@@ -310,7 +351,15 @@ class ReasoningGenerationExecutor:
         self.judge = judge
         self.seed = seed
         self.config_hash = config_hash
-        self.data_hash = data_hash
+        self.data_hash = str(data_hash)
+        self.dataset_identity = str(dataset_identity or self.data_hash)
+        model_config = getattr(model, "config", None)
+        self.model_artifact_identity = _stable_artifact_identity(
+            model,
+            model_artifact_identity,
+            config=model_config,
+        )
+        self.tokenizer_artifact_identity = _stable_artifact_identity(tokenizer, tokenizer_artifact_identity)
         if physical_batch_size < 1 or gradient_accumulation_steps < 1:
             raise ValueError("generation physical batch and gradient accumulation must be positive")
         self.physical_batch_size = int(physical_batch_size)
@@ -479,6 +528,7 @@ class ReasoningGenerationExecutor:
         usable = [dict(record) for record in records if record.get("input_ids") is not None and record.get("target_ids") is not None]
         if not usable:
             raise ValueError("generation training requires approved non-empty rationale records")
+        self._last_data_order = self._record_order(usable)
         batches = [
             self._collate_training_records(usable[start:start + self.physical_batch_size])
             for start in range(0, len(usable), self.physical_batch_size)
@@ -555,6 +605,10 @@ class ReasoningGenerationExecutor:
             dtype = "unknown"
         return {
             "model": model_identity,
+            "model_artifact": dict(self.model_artifact_identity),
+            "tokenizer_artifact": dict(self.tokenizer_artifact_identity),
+            "dataset": {"identity": self.dataset_identity, "hash": self.data_hash},
+            "data_hash": self.data_hash,
             "optimizer": optimizer_identity,
             "scheduler": scheduler_identity,
             "rng": {
@@ -583,11 +637,11 @@ class ReasoningGenerationExecutor:
         epoch: int | None = None,
         selection_metric: float | None = None,
         metadata: Mapping[str, Any] | None = None,
-        data_order: Sequence[str] = (),
+        data_order: Sequence[str] | None = None,
     ) -> str:
         """Write one canonical model/state file and its fail-closed sidecar."""
         path = self.run_root / relative_path
-        order = [str(item) for item in data_order]
+        order = [str(item) for item in (getattr(self, "_last_data_order", ()) if data_order is None else data_order)]
         provenance = self._checkpoint_provenance(optimizer=optimizer, scheduler=scheduler, data_order=order)
         run_state = {
             "epoch": epoch,
@@ -639,16 +693,32 @@ class ReasoningGenerationExecutor:
                 f"generation checkpoint hash mismatch: expected {expected_sha256}, observed {observed_hash}"
             )
         expected_provenance = None
-        if expected_data_order is not None or optimizer is not None or scheduler is not None:
-            expected_provenance = self._checkpoint_provenance(
-                optimizer=optimizer,
-                scheduler=scheduler,
-                data_order=[str(item) for item in (expected_data_order or ())],
-            )
+        expected_provenance = self._checkpoint_provenance(
+            optimizer=optimizer,
+            scheduler=scheduler,
+            data_order=[str(item) for item in (expected_data_order or ())],
+        )
+        compared_fields = [
+            "model",
+            "model_artifact",
+            "tokenizer_artifact",
+            "dataset",
+            "data_hash",
+            "rng",
+            "config",
+            "model_environment",
+        ]
+        if expected_data_order is not None:
+            compared_fields.append("data_order")
+        if optimizer is not None:
+            compared_fields.append("optimizer")
+        if scheduler is not None:
+            compared_fields.append("scheduler")
         loaded = load_generation_checkpoint(
             checkpoint_path,
             self.model,
             expected_provenance=expected_provenance,
+            compare_provenance_fields=compared_fields,
             optimizer=optimizer,
             scheduler=scheduler,
             allow_legacy_fixture=allow_legacy_fixture,

@@ -8,7 +8,7 @@ never contains a second copy of model weights.
 from __future__ import annotations
 
 import json
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -26,9 +26,13 @@ from .checkpoints import (
     save_checkpoint,
 )
 
-GENERATION_CHECKPOINT_SCHEMA_VERSION = 1
+GENERATION_CHECKPOINT_SCHEMA_VERSION = 2
 PROVENANCE_FIELDS = (
     "model",
+    "model_artifact",
+    "tokenizer_artifact",
+    "dataset",
+    "data_hash",
     "optimizer",
     "scheduler",
     "rng",
@@ -80,6 +84,17 @@ def _validated_provenance(value: Mapping[str, Any]) -> dict[str, Any]:
     missing = [field for field in PROVENANCE_FIELDS if field not in value]
     if missing:
         raise GenerationCheckpointError(f"generation provenance is missing: {missing}")
+    for field in ("model_artifact", "tokenizer_artifact"):
+        artifact = value[field]
+        if not isinstance(artifact, Mapping) or not str(artifact.get("identity", "")):
+            raise GenerationCheckpointError(f"generation provenance {field} identity is missing")
+    dataset = value["dataset"]
+    if not isinstance(dataset, Mapping) or not str(dataset.get("identity", "")) or not str(dataset.get("hash", "")):
+        raise GenerationCheckpointError("generation provenance dataset identity/hash is missing")
+    if value["data_hash"] in (None, ""):
+        raise GenerationCheckpointError("generation provenance data_hash is missing")
+    if str(value["data_hash"]) != str(dataset["hash"]):
+        raise GenerationCheckpointError("generation provenance data_hash does not match dataset hash")
     # Round-trip through JSON to reject non-portable identities at the boundary.
     try:
         encoded = json.dumps(dict(value), ensure_ascii=False, sort_keys=True, separators=(",", ":"))
@@ -163,11 +178,25 @@ def save_generation_checkpoint(
     return manifest
 
 
+def _provenance_matches(
+    observed: Mapping[str, Any],
+    expected: Mapping[str, Any],
+    fields: Sequence[str] | None,
+) -> bool:
+    if fields is None:
+        return dict(observed) == dict(expected)
+    unknown = [field for field in fields if field not in PROVENANCE_FIELDS]
+    if unknown:
+        raise GenerationCheckpointError(f"unknown provenance comparison fields: {unknown}")
+    return all(observed.get(field) == expected.get(field) for field in fields)
+
+
 def load_generation_checkpoint(
     path: str | Path,
     model: nn.Module,
     *,
     expected_provenance: Mapping[str, Any] | None = None,
+    compare_provenance_fields: Sequence[str] | None = None,
     optimizer: torch.optim.Optimizer | None = None,
     scheduler: Any | None = None,
     loss_aggregator: nn.Module | None = None,
@@ -195,11 +224,11 @@ def load_generation_checkpoint(
             expected = _validated_provenance(expected_provenance)
             if legacy_provenance is None:
                 raise GenerationCheckpointError("legacy checkpoint lacks validated provenance for identity checking")
-            if legacy_provenance != expected:
+            if not _provenance_matches(legacy_provenance, expected, compare_provenance_fields):
                 raise GenerationCheckpointError("legacy generation checkpoint provenance identity mismatch")
     if manifest is not None and expected_provenance is not None:
         expected = _validated_provenance(expected_provenance)
-        if manifest.provenance != expected:
+        if not _provenance_matches(manifest.provenance, expected, compare_provenance_fields):
             raise GenerationCheckpointError("generation checkpoint provenance identity mismatch")
     kwargs: dict[str, Any] = {
         "optimizer": optimizer,

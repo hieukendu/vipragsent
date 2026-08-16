@@ -17,6 +17,10 @@ from vipragsent.training.generation_checkpoint import (
 def _provenance() -> dict[str, object]:
     return {
         "model": {"name": "tiny", "revision": "r1"},
+        "model_artifact": {"identity": "tiny-model@r1"},
+        "tokenizer_artifact": {"identity": "tiny-tokenizer@r1"},
+        "dataset": {"identity": "tiny-dataset", "hash": "DATA_TINY"},
+        "data_hash": "DATA_TINY",
         "optimizer": {"name": "AdamW", "revision": "torch"},
         "scheduler": {"name": "linear", "total_steps": 4},
         "rng": {"seed": 17, "algorithm": "torch+numpy+python"},
