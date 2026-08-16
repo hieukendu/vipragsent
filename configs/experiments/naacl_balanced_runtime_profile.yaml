@@ -37,9 +37,19 @@ q3:
   budgets: [32, 128, 512, full]
   seeds: [20260521, 20260522, 20260523]
   expected_cell_count: 36
+  local_cell_count: 36
   selection_metric: sarcasm_binary_macro_f1
   threshold_tuning: per_seed_and_budget_on_fixed_dev
   mask_source: data/processed/q3_low_resource_sarcasm
+  azure_comparison:
+    system_id: azure_gpt41_mini_8shot
+    budgets: [32, 128, 512, full]
+    seed: null
+    seed_axis: absent
+    expected_row_count: 4
+    row_source: generated_q3_inventory_and_azure_registry
+    comparison_kind: protocol_defined_reduced_comparison
+  expected_total_row_count: 40
 q2:
   status: retained
   seeds: [20260521, 20260522, 20260523]
@@ -80,6 +90,16 @@ aggregation:
     require_complete_cartesian_product: true
     budget_order: [32, 128, 512, full]
     exclude_out_of_profile_rows: true
+    local_cell_count: 36
+    azure_comparison:
+      system_id: azure_gpt41_mini_8shot
+      aggregate_axes: [system_id, budget]
+      seed: null
+      seed_axis: absent
+      budgets: [32, 128, 512, full]
+      expected_row_count: 4
+      require_all_rows: true
+    expected_total_row_count: 40
   q2:
     aggregate_axes: [variant, seed]
     require_all_profile_seeds: true
@@ -96,8 +116,6 @@ exclusions:
     reason: explicitly_excluded_budget
   - q3_budget: 256
     reason: explicitly_excluded_budget
-  - q3_system: azure_gpt41_mini_8shot
-    reason: non_local_system
   - execution: any_real_run
     reason: policy_artifact_only
 scientific_invariants:
@@ -105,6 +123,8 @@ scientific_invariants:
     assertion: profile references current audited source and does not rewrite it
   - id: q3_local_cartesian_design
     assertion: exactly three retained local systems, four retained budgets, and three retained seeds
+  - id: q3_azure_reduced_comparison
+    assertion: four protocol-defined Azure Q3 rows are retained for budgets 32, 128, 512, and full with seed null
   - id: q3_budget_exclusions
     assertion: Q3 budgets 64 and 256 are absent from the profile
   - id: q3_xlmr_exclusion

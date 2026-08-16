@@ -48,6 +48,27 @@
     ],
     "sha256": "AE255C19D686857824EE5801279A70C9F786277675056938194FDEBAD5AAC307"
   },
+  "q3_azure_sources": {
+    "files": [
+      {
+        "path": "configs/experiments/q3/system_aliases.yaml",
+        "sha256": "D9862086827E7F5FEA80C887AD26EDCAF8EF07FBF899F2032E0750A19FC6D238"
+      },
+      {
+        "path": "configs/experiments/q3/protocol.yaml",
+        "sha256": "67D5DD80154F399CC23262D6E425B3CBCBB56138629A1DDBF0A1ADBF96B51F7D"
+      },
+      {
+        "path": "configs/experiments/system_execution_registry.yaml",
+        "sha256": "1DE8DF8823815FD0DE96EFA3887A5319ABA3997DDF94E1ACE93022F0B86EC3B1"
+      },
+      {
+        "path": "src/vipragsent/orchestration/inventory.py",
+        "sha256": "B076A4C8EEF2F7EFD993C60B4DC37C9AFBFA99AAFD3FB5F43E6FC6D4F435E5AC"
+      }
+    ],
+    "sha256": "9298646E6075A4A76F1BEF3EA8327B171AC9FDBDF775E6582DD72A15B55C8FD4"
+  },
   "protocol_binding": {
     "q3": {
       "alias_systems": [
@@ -58,8 +79,9 @@
         "vipragsent_full_vistral"
       ],
       "excluded_budgets": ["64", "256"],
-      "excluded_systems": ["xlmr_pragmatic_finetune", "azure_gpt41_mini_8shot"],
+      "excluded_systems": ["xlmr_pragmatic_finetune"],
       "expected_cell_count": 36,
+      "local_cell_count": 36,
       "primary_metric": "sarcasm_binary_macro_f1",
       "retained_budgets": ["32", "128", "512", "full"],
       "retained_systems": [
@@ -68,7 +90,25 @@
         "vipragsent_full_vistral"
       ],
       "seeds": [20260521, 20260522, 20260523],
-      "source_budgets": ["32", "64", "128", "256", "512", "full"]
+      "source_budgets": ["32", "64", "128", "256", "512", "full"],
+      "azure_comparison": {
+        "system_id": "azure_gpt41_mini_8shot",
+        "budgets": ["32", "128", "512", "full"],
+        "seed": null,
+        "seed_axis": "absent",
+        "expected_row_count": 4,
+        "row_source": "generated_q3_inventory_and_azure_registry",
+        "comparison_kind": "protocol_defined_reduced_comparison",
+        "rows": [
+          {"system_id": "azure_gpt41_mini_8shot", "budget": "32", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_32"},
+          {"system_id": "azure_gpt41_mini_8shot", "budget": "128", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_128"},
+          {"system_id": "azure_gpt41_mini_8shot", "budget": "512", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_512"},
+          {"system_id": "azure_gpt41_mini_8shot", "budget": "full", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_full"}
+        ],
+        "row_summary": {"local_cell_count": 36, "azure_row_count": 4, "total_row_count": 40, "azure_seed": null}
+      },
+      "expected_total_row_count": 40,
+      "inventory_q3_row_count": 78
     },
     "q2": {
       "expected_variant_count": 6,
@@ -96,6 +136,24 @@
     "budgets": [32, 128, 512, "full"],
     "seeds": [20260521, 20260522, 20260523],
     "expected_cell_count": 36,
+    "local_cell_count": 36,
+    "azure_comparison": {
+      "system_id": "azure_gpt41_mini_8shot",
+      "budgets": ["32", "128", "512", "full"],
+      "seed": null,
+      "seed_axis": "absent",
+      "expected_row_count": 4,
+      "row_source": "generated_q3_inventory_and_azure_registry",
+      "comparison_kind": "protocol_defined_reduced_comparison",
+      "rows": [
+        {"system_id": "azure_gpt41_mini_8shot", "budget": "32", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_32"},
+        {"system_id": "azure_gpt41_mini_8shot", "budget": "128", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_128"},
+        {"system_id": "azure_gpt41_mini_8shot", "budget": "512", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_512"},
+        {"system_id": "azure_gpt41_mini_8shot", "budget": "full", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_full"}
+      ],
+      "row_summary": {"local_cell_count": 36, "azure_row_count": 4, "total_row_count": 40, "azure_seed": null}
+    },
+    "expected_total_row_count": 40,
     "selection_metric": "sarcasm_binary_macro_f1"
   },
   "q2": {

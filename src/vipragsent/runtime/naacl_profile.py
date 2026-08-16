@@ -21,10 +21,22 @@ from ..orchestration.q1b_dependencies import (
     load_q1b_producer_registry,
 )
 
-
 PROFILE_ID = "LUNA_NAACL_PROFILE"
 PROFILE_CONFIG = "configs/experiments/naacl_balanced_runtime_profile.yaml"
 PROFILE_REPORT = "reports/runtime_optimization/naacl_balanced_profile.json"
+Q3_LOCAL_SYSTEMS = (
+    "phobert_pragmatic_finetune",
+    "vistral_pragmatic_sft",
+    "vipragsent_full_vistral",
+)
+Q3_RETAINED_BUDGETS = ("32", "128", "512", "full")
+Q3_AZURE_SYSTEM = "azure_gpt41_mini_8shot"
+Q3_AZURE_SOURCE_FILES = (
+    "configs/experiments/q3/system_aliases.yaml",
+    "configs/experiments/q3/protocol.yaml",
+    "configs/experiments/system_execution_registry.yaml",
+    "src/vipragsent/orchestration/inventory.py",
+)
 Q1B_SOURCE_FILES = (
     "src/vipragsent/orchestration/q1b_dependencies.py",
     "src/vipragsent/orchestration/inventory.py",
@@ -83,14 +95,18 @@ def _protocol_source_digest(root: Path) -> dict[str, Any]:
     return _digest_files(root, PROTOCOL_SOURCE_FILES, "Q3/Q2 protocol")
 
 
+def _q3_azure_source_digest(root: Path) -> dict[str, Any]:
+    return _digest_files(root, Q3_AZURE_SOURCE_FILES, "Q3 Azure")
+
+
 def _normalise_tokens(values: Any) -> list[str]:
-    if not isinstance(values, (list, tuple)):
+    if not isinstance(values, list | tuple):
         return []
     return [str(value) for value in values]
 
 
 def _normalise_seeds(values: Any) -> list[int]:
-    if not isinstance(values, (list, tuple)):
+    if not isinstance(values, list | tuple):
         return []
     try:
         return [int(value) for value in values]
@@ -98,11 +114,99 @@ def _normalise_seeds(values: Any) -> list[int]:
         return []
 
 
-def _protocol_binding(root: Path, config: dict[str, Any]) -> tuple[dict[str, Any], list[str]]:
+def _q3_row_key(row: dict[str, Any]) -> tuple[str, str, Any]:
+    seed = row.get("seed")
+    return str(row.get("system_id")), str(row.get("budget")), seed
+
+
+def _q3_expected_keys(
+    *,
+    local_systems: list[str],
+    local_budgets: list[str],
+    seeds: list[int],
+    azure_system: str,
+    azure_budgets: list[str],
+) -> tuple[set[tuple[str, str, Any]], set[tuple[str, str, Any]]]:
+    local = {
+        (system_id, budget, seed)
+        for system_id in local_systems
+        for budget in local_budgets
+        for seed in seeds
+    }
+    azure = {(azure_system, budget, None) for budget in azure_budgets}
+    return local, azure
+
+
+def validate_q3_profile_rows(
+    rows: list[dict[str, Any]],
+    *,
+    local_systems: list[str] | None = None,
+    local_budgets: list[str] | None = None,
+    seeds: list[int] | None = None,
+    azure_system: str = Q3_AZURE_SYSTEM,
+    azure_budgets: list[str] | None = None,
+) -> dict[str, Any]:
+    """Validate the exact Q3 rows allowed into profile aggregation.
+
+    Local rows use the three-dimensional ``system/budget/seed`` Cartesian
+    product.  Azure is a fixed-prompt comparison and therefore has one row per
+    retained budget with no seed axis.  This function deliberately validates a
+    candidate aggregation input rather than silently filtering it.
+    """
+
+    local_systems = list(local_systems or Q3_LOCAL_SYSTEMS)
+    local_budgets = list(local_budgets or Q3_RETAINED_BUDGETS)
+    seeds = list(seeds or [int(seed) for seed in TRAINING_SEEDS])
+    azure_budgets = list(azure_budgets or Q3_RETAINED_BUDGETS)
+    expected_local, expected_azure = _q3_expected_keys(
+        local_systems=local_systems,
+        local_budgets=local_budgets,
+        seeds=seeds,
+        azure_system=azure_system,
+        azure_budgets=azure_budgets,
+    )
+    expected = expected_local | expected_azure
+    actual = [_q3_row_key(row) for row in rows]
+    errors: list[str] = []
+    duplicates = {key for key in actual if actual.count(key) > 1}
+    if duplicates:
+        errors.append(f"duplicate Q3 profile rows: {sorted(duplicates, key=str)}")
+    missing = expected - set(actual)
+    missing_azure = sorted(missing & expected_azure, key=str)
+    if missing_azure:
+        errors.append(f"missing retained Azure Q3 row(s): {missing_azure}")
+    missing_local = sorted(missing & expected_local, key=str)
+    if missing_local:
+        errors.append(f"missing retained local Q3 cell(s): {missing_local}")
+    extra = set(actual) - expected
+    if extra:
+        errors.append(f"out-of-profile Q3 row(s): {sorted(extra, key=str)}")
+    invented_azure_seeds = sorted(
+        {key for key in actual if key[0] == azure_system and key[2] is not None},
+        key=str,
+    )
+    if invented_azure_seeds:
+        errors.append(f"Azure Q3 rows must not define a seed axis: {invented_azure_seeds}")
+    if errors:
+        raise ProfileValidationError("Q3 profile aggregation validation failed: " + "; ".join(errors))
+    return {
+        "local_cell_count": len(expected_local),
+        "azure_row_count": len(expected_azure),
+        "total_row_count": len(expected),
+        "azure_seed": None,
+    }
+
+
+def _protocol_binding(
+    root: Path,
+    config: dict[str, Any],
+    inventory: dict[str, Any],
+) -> tuple[dict[str, Any], list[str]]:
     errors: list[str] = []
     aliases_payload = _load_yaml(root / "configs/experiments/q3/system_aliases.yaml")
     q3_protocol = _load_yaml(root / "configs/experiments/q3/protocol.yaml")
     q2_protocol = _load_yaml(root / "configs/experiments/q2/protocol.yaml")
+    execution_registry = _load_yaml(root / "configs/experiments/system_execution_registry.yaml")
     aliases = aliases_payload.get("q3_system_aliases")
     if not isinstance(aliases, list):
         errors.append("Q3 alias source must contain q3_system_aliases")
@@ -137,6 +241,31 @@ def _protocol_binding(root: Path, config: dict[str, Any]) -> tuple[dict[str, Any
     xlmr_alias = alias_by_system.get("xlmr_pragmatic_finetune", [])
     if len(xlmr_alias) != 1 or xlmr_alias[0].get("paper_label") != "XLM-R" or xlmr_alias[0].get("resolution_status") != "RESOLVED":
         errors.append("XLM-R alias source drift")
+    if Q3_AZURE_SYSTEM in excluded_systems:
+        errors.append("protocol-defined Azure Q3 comparison is excluded")
+    azure_alias = alias_by_system.get(Q3_AZURE_SYSTEM, [])
+    if len(azure_alias) != 1 or azure_alias[0].get("resolution_status") != "RESOLVED":
+        errors.append("Azure Q3 alias source drift")
+
+    registry_entries = {
+        str(item.get("system_id")): item
+        for item in execution_registry.get("systems", [])
+        if isinstance(item, dict) and item.get("system_id")
+    }
+    azure_registry = registry_entries.get(Q3_AZURE_SYSTEM)
+    if azure_registry is None:
+        errors.append("Azure Q3 execution registry entry is missing")
+    else:
+        expected_registry = {
+            "executor_kind": "azure",
+            "variant_id": "azure_pragmatic_8shot",
+            "checkpoint_semantics": "fixed_prompt_no_checkpoint",
+            "rationale_training": False,
+            "rationale_inference": False,
+        }
+        for field, expected in expected_registry.items():
+            if azure_registry.get(field) != expected:
+                errors.append(f"Azure Q3 execution registry drift: {field}")
 
     source_budgets = _normalise_tokens(q3_protocol.get("q3", {}).get("budgets"))
     excluded_budgets = [
@@ -154,6 +283,79 @@ def _protocol_binding(root: Path, config: dict[str, Any]) -> tuple[dict[str, Any
         errors.append(
             f"Q3 retained budget drift: profile={sorted(retained_budgets)}, source={sorted(expected_retained_budgets)}"
         )
+
+    azure_config = q3.get("azure_comparison", {})
+    azure_budgets = _normalise_tokens(azure_config.get("budgets"))
+    if azure_config.get("system_id") != Q3_AZURE_SYSTEM:
+        errors.append("Q3 Azure comparison system drift")
+    if "seeds" in azure_config or azure_config.get("seed_axis") != "absent":
+        errors.append("Azure Q3 comparison must not define a seed axis")
+    if azure_config.get("seed") is not None:
+        errors.append("Azure Q3 comparison seed must be null")
+    if azure_budgets != expected_retained_budgets:
+        errors.append("Q3 Azure comparison budget drift")
+    if azure_config.get("expected_row_count") != len(expected_retained_budgets):
+        errors.append("Q3 Azure comparison row count drift")
+
+    q3_source_rows = [
+        row
+        for row in inventory.get("rows", [])
+        if str(row.get("research_question", "")).casefold() == "q3"
+    ]
+    q3_azure_rows = [row for row in q3_source_rows if str(row.get("system_id")) == Q3_AZURE_SYSTEM]
+    source_azure_keys = {_q3_row_key(row) for row in q3_azure_rows}
+    expected_azure_keys = {
+        (Q3_AZURE_SYSTEM, budget, None)
+        for budget in expected_retained_budgets
+    }
+    missing_azure = sorted(expected_azure_keys - source_azure_keys, key=str)
+    if missing_azure:
+        errors.append(f"missing retained Azure Q3 source row(s): {missing_azure}")
+    if any(row.get("seed") is not None for row in q3_azure_rows):
+        errors.append("Azure Q3 source rows must not define a seed axis")
+    selected_rows = [
+        row
+        for row in q3_source_rows
+        if _q3_row_key(row) in expected_azure_keys
+    ]
+    if not errors:
+        try:
+            azure_row_summary = validate_q3_profile_rows(
+                [
+                    row
+                    for row in q3_source_rows
+                    if _q3_row_key(row)
+                    in (
+                        {
+                            (system, budget, seed)
+                            for system in retained_systems
+                            for budget in expected_retained_budgets
+                            for seed in profile_seeds
+                        }
+                        | expected_azure_keys
+                    )
+                ],
+                local_systems=retained_systems,
+                local_budgets=expected_retained_budgets,
+                seeds=profile_seeds,
+                azure_system=Q3_AZURE_SYSTEM,
+                azure_budgets=expected_retained_budgets,
+            )
+        except ProfileValidationError as exc:
+            errors.append(str(exc))
+            azure_row_summary = {
+                "local_cell_count": len(retained_systems) * len(expected_retained_budgets) * len(profile_seeds),
+                "azure_row_count": len(expected_retained_budgets),
+                "total_row_count": None,
+                "azure_seed": None,
+            }
+    else:
+        azure_row_summary = {
+            "local_cell_count": len(retained_systems) * len(expected_retained_budgets) * len(profile_seeds),
+            "azure_row_count": len(expected_retained_budgets),
+            "total_row_count": None,
+            "azure_seed": None,
+        }
 
     if profile_seeds != locked_seeds:
         errors.append(f"Q3 profile seed drift: profile={profile_seeds}, locked={locked_seeds}")
@@ -173,6 +375,10 @@ def _protocol_binding(root: Path, config: dict[str, Any]) -> tuple[dict[str, Any
     expected_cells = len(retained_systems) * len(retained_budgets) * len(profile_seeds)
     if q3.get("expected_cell_count") != expected_cells or expected_cells != 36:
         errors.append(f"Q3 expected cell count drift: {expected_cells}")
+    if q3.get("local_cell_count") != expected_cells:
+        errors.append("Q3 local cell count drift")
+    if q3.get("expected_total_row_count") != expected_cells + len(expected_retained_budgets):
+        errors.append("Q3 total profile row count drift")
 
     binding = {
         "q3": {
@@ -185,6 +391,33 @@ def _protocol_binding(root: Path, config: dict[str, Any]) -> tuple[dict[str, Any
             "seeds": profile_seeds,
             "expected_cell_count": expected_cells,
             "primary_metric": q3_protocol.get("q3", {}).get("primary_metric"),
+            "local_cell_count": expected_cells,
+            "azure_comparison": {
+                "system_id": Q3_AZURE_SYSTEM,
+                "budgets": expected_retained_budgets,
+                "seed": None,
+                "seed_axis": "absent",
+                "expected_row_count": len(expected_retained_budgets),
+                "row_source": azure_config.get("row_source"),
+                "comparison_kind": azure_config.get("comparison_kind"),
+                "rows": [
+                    {
+                        "system_id": Q3_AZURE_SYSTEM,
+                        "budget": budget,
+                        "seed": None,
+                        "run_id": next(
+                            row["run_id"]
+                            for row in selected_rows
+                            if _q3_row_key(row) == (Q3_AZURE_SYSTEM, budget, None)
+                        ),
+                    }
+                    for budget in expected_retained_budgets
+                    if any(_q3_row_key(row) == (Q3_AZURE_SYSTEM, budget, None) for row in selected_rows)
+                ],
+                "row_summary": azure_row_summary,
+            },
+            "expected_total_row_count": expected_cells + len(expected_retained_budgets),
+            "inventory_q3_row_count": len(q3_source_rows),
         },
         "q2": {
             "source_variants": _normalise_tokens(q2_variants),
@@ -359,10 +592,11 @@ def build_naacl_profile_snapshot(root: str | Path = ".") -> dict[str, Any]:
     inventory = build_expected_runs(root)
     graph = build_q1b_dependency_graph(root, inventory_rows=inventory["rows"])
     binding, errors = _build_binding(root, graph, inventory)
-    protocol_binding, protocol_errors = _protocol_binding(root, config)
+    protocol_binding, protocol_errors = _protocol_binding(root, config, inventory)
     errors.extend(protocol_errors)
     source = _source_digest(root)
     protocol_source = _protocol_source_digest(root)
+    q3_azure_source = _q3_azure_source_digest(root)
     snapshot = {
         "schema_version": 1,
         "profile_id": PROFILE_ID,
@@ -375,6 +609,7 @@ def build_naacl_profile_snapshot(root: str | Path = ".") -> dict[str, Any]:
         },
         "source": source,
         "protocol_sources": protocol_source,
+        "q3_azure_sources": q3_azure_source,
         "protocol_binding": protocol_binding,
         "q1b": binding,
         "errors": errors,
@@ -424,6 +659,8 @@ def validate_naacl_profile(root: str | Path = ".") -> dict[str, Any]:
         errors.append("checked-in Q1b graph/source digest drift")
     if report.get("protocol_sources") != snapshot["protocol_sources"]:
         errors.append("checked-in Q3/Q2 protocol source digest drift")
+    if report.get("q3_azure_sources") != snapshot["q3_azure_sources"]:
+        errors.append("checked-in Q3 Azure source digest drift")
     if report.get("protocol_binding") != snapshot["protocol_binding"]:
         errors.append("checked-in Q3/Q2 protocol binding differs from source")
     report_q3 = report.get("q3", {})
@@ -433,13 +670,19 @@ def validate_naacl_profile(root: str | Path = ".") -> dict[str, Any]:
         "budgets": [str(value) for value in report_q3.get("budgets", [])],
         "seeds": report_q3.get("seeds"),
         "expected_cell_count": report_q3.get("expected_cell_count"),
+        "local_cell_count": report_q3.get("local_cell_count"),
+        "expected_total_row_count": report_q3.get("expected_total_row_count"),
     } != {
         "systems": expected_q3["retained_systems"],
         "budgets": expected_q3["retained_budgets"],
         "seeds": expected_q3["seeds"],
         "expected_cell_count": expected_q3["expected_cell_count"],
+        "local_cell_count": expected_q3["local_cell_count"],
+        "expected_total_row_count": expected_q3["expected_total_row_count"],
     }:
         errors.append("checked-in Q3 profile scope differs from source")
+    if report_q3.get("azure_comparison") != expected_q3.get("azure_comparison"):
+        errors.append("checked-in Azure Q3 comparison scope differs from source")
     report_q2 = report.get("q2", {})
     if report_q2.get("variants") != snapshot["protocol_binding"]["q2"]["retained_variants"] or report_q2.get("seeds") != snapshot["protocol_binding"]["q2"]["seeds"] or report_q2.get("expected_seed_count") != len(snapshot["protocol_binding"]["q2"]["seeds"]):
         errors.append("checked-in Q2 profile scope differs from source")
@@ -456,5 +699,6 @@ __all__ = [
     "PROFILE_ID",
     "ProfileValidationError",
     "build_naacl_profile_snapshot",
+    "validate_q3_profile_rows",
     "validate_naacl_profile",
 ]

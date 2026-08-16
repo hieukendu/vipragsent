@@ -6,13 +6,14 @@ from pathlib import Path
 import pytest
 import yaml
 
+from vipragsent.orchestration.inventory import build_expected_runs
 from vipragsent.runtime import naacl_profile
 from vipragsent.runtime.naacl_profile import (
     ProfileValidationError,
     build_naacl_profile_snapshot,
     validate_naacl_profile,
+    validate_q3_profile_rows,
 )
-
 
 ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / "configs/experiments/naacl_balanced_runtime_profile.yaml"
@@ -64,12 +65,21 @@ def test_q3_q2_protocol_binding_matches_sources() -> None:
         "vistral_pragmatic_sft",
         "vipragsent_full_vistral",
     ]
-    assert q3["excluded_systems"] == ["xlmr_pragmatic_finetune", "azure_gpt41_mini_8shot"]
+    assert q3["excluded_systems"] == ["xlmr_pragmatic_finetune"]
     assert q3["source_budgets"] == ["32", "64", "128", "256", "512", "full"]
     assert q3["retained_budgets"] == ["32", "128", "512", "full"]
     assert q3["excluded_budgets"] == ["64", "256"]
     assert q3["seeds"] == [20260521, 20260522, 20260523]
     assert q3["expected_cell_count"] == 36
+    assert q3["local_cell_count"] == 36
+    assert q3["expected_total_row_count"] == 40
+    azure = q3["azure_comparison"]
+    assert azure["system_id"] == "azure_gpt41_mini_8shot"
+    assert azure["budgets"] == ["32", "128", "512", "full"]
+    assert azure["seed"] is None
+    assert azure["seed_axis"] == "absent"
+    assert azure["expected_row_count"] == 4
+    assert [row["budget"] for row in azure["rows"]] == ["32", "128", "512", "full"]
     assert q2["retained_variants"] == [
         "full",
         "no_emotion_auxiliary",
@@ -98,7 +108,7 @@ def _copy_profile_tree(tmp_path: Path) -> None:
 def test_exclusions_are_explicit_and_original_source_is_immutable() -> None:
     config, report = _artifacts()
     exclusions = config["exclusions"]
-    assert {item["q3_system"] for item in exclusions if "q3_system" in item} == {"xlmr_pragmatic_finetune", "azure_gpt41_mini_8shot"}
+    assert {item["q3_system"] for item in exclusions if "q3_system" in item} == {"xlmr_pragmatic_finetune"}
     assert {item["q3_budget"] for item in exclusions if "q3_budget" in item} == {64, 256}
     assert config["source"]["source_is_read_only"] is True
     assert report["source"]["read_only"] is True
@@ -200,6 +210,63 @@ def test_validator_fails_closed_on_q3_budget_seed_and_cell_drift(tmp_path: Path)
     config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
     with pytest.raises(ProfileValidationError, match="Q3 protocol source is missing budget 64 or 256|Q3 profile seed drift|Q3 expected cell count drift"):
         validate_naacl_profile(tmp_path)
+
+
+def test_validator_fails_closed_when_xlmr_exclusion_is_removed(tmp_path: Path) -> None:
+    _copy_profile_tree(tmp_path)
+    config_path = tmp_path / "configs/experiments/naacl_balanced_runtime_profile.yaml"
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["exclusions"] = [item for item in config["exclusions"] if item.get("q3_system") != "xlmr_pragmatic_finetune"]
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    with pytest.raises(ProfileValidationError, match="XLM-R Q3 exclusion is missing"):
+        validate_naacl_profile(tmp_path)
+
+
+def test_validator_rejects_invented_azure_seed_axis(tmp_path: Path) -> None:
+    _copy_profile_tree(tmp_path)
+    config_path = tmp_path / "configs/experiments/naacl_balanced_runtime_profile.yaml"
+    config = yaml.safe_load(config_path.read_text(encoding="utf-8"))
+    config["q3"]["azure_comparison"]["seeds"] = [20260521]
+    config_path.write_text(yaml.safe_dump(config, sort_keys=False), encoding="utf-8")
+    with pytest.raises(ProfileValidationError, match="Azure Q3 comparison must not define a seed axis"):
+        validate_naacl_profile(tmp_path)
+
+
+def test_q3_aggregation_fails_closed_on_missing_retained_azure_row() -> None:
+    rows = build_expected_runs(ROOT)["rows"]
+    profile_rows = [
+        row
+        for row in rows
+        if row["research_question"] == "Q3"
+        and (
+            row["system_id"] in {"phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"}
+            or (row["system_id"] == "azure_gpt41_mini_8shot" and row["budget"] in {"32", "128", "512", "full"})
+        )
+        and row["budget"] in {"32", "128", "512", "full"}
+    ]
+    profile_rows = [row for row in profile_rows if not (row["system_id"] == "azure_gpt41_mini_8shot" and row["budget"] == "128")]
+    with pytest.raises(ProfileValidationError, match="missing retained Azure Q3 row"):
+        validate_q3_profile_rows(profile_rows)
+
+
+def test_q3_aggregation_rejects_excluded_system_and_budget() -> None:
+    rows = build_expected_runs(ROOT)["rows"]
+    profile_rows = [
+        row
+        for row in rows
+        if row["research_question"] == "Q3"
+        and row["system_id"] in {"phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"}
+        and row["budget"] in {"32", "128", "512", "full"}
+    ]
+    profile_rows.extend(
+        row
+        for row in rows
+        if row["research_question"] == "Q3"
+        and ((row["system_id"] == "xlmr_pragmatic_finetune" and row["budget"] == "32") or (row["system_id"] == "phobert_pragmatic_finetune" and row["budget"] == "64"))
+        and row["seed"] == 20260521
+    )
+    with pytest.raises(ProfileValidationError, match="out-of-profile Q3 row"):
+        validate_q3_profile_rows(profile_rows)
 
 
 def test_aggregation_is_profile_aware_and_fail_closed() -> None:
