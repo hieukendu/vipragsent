@@ -1,8 +1,8 @@
 {
   "schema_version": 3,
-  "as_of": "2026-08-16T19:02:21Z",
-  "manager_head": "16181334b5d00a6e3f622dffa826575a1b18915d",
-  "reviewed_code_head": "16181334b5d00a6e3f622dffa826575a1b18915d",
+  "as_of": "2026-08-16T19:42:54Z",
+  "manager_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+  "reviewed_code_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
   "artifact_commit": "REPORT_ONLY_DESCENDANT_OF_REVIEWED_CODE_HEAD",
   "artifact_head_semantics": "Code review and evidence bind to reviewed_code_head; the report commit is a report-only descendant and does not change source behavior.",
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
@@ -12,13 +12,28 @@
     "draft": true,
     "base": "main",
     "head": "codex/naacl-runtime-optimization",
-    "last_remote_ci_run": 31958375122,
-    "last_remote_ci_conclusion": "FAILURE",
-    "last_remote_ci_is_stale": true,
-    "fresh_remote_ci_required": true
+    "last_remote_ci_run": 31968069469,
+    "last_remote_ci_conclusion": "SUCCESS",
+    "last_remote_ci_head_sha": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+    "last_remote_ci_is_stale": false,
+    "fresh_remote_ci_required": false
   },
   "review_status": "PASS",
-  "final_gate_status": "PENDING_FRESH_REMOTE_CI",
+  "final_gate_status": "PASS",
+  "last_remote_ci": {
+    "run_id": 31968069469,
+    "workflow": "cpu-ci",
+    "head_sha": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+    "status": "completed",
+    "conclusion": "success",
+    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31968069469"
+  },
+  "evidence": {
+    "fresh_remote_ci": "PASS; cpu-ci run 31968069469",
+    "fresh_remote_ci_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+    "final_runtime_integration_audit": "PASS",
+    "final_readiness_consistency": "PASS"
+  },
   "bugs": [
     {
       "bug_id": "BUG-KNOWN-001",
@@ -59,8 +74,8 @@
     {
       "bug_id": "BUG-KNOWN-004",
       "severity": "HIGH",
-      "status": "CLOSED_PENDING_REMOTE_CI",
-      "closure_evidence": "Both local Ruff versions pass; fresh remote CI remains a delivery gate.",
+      "status": "CLOSED",
+      "closure_evidence": "Both local Ruff versions and fresh cpu-ci run 31968069469 on 23332af0bf5454958ea48b630ef43a4e45a61feb pass.",
       "fix_commits": [
         "0c5bca2"
       ],
@@ -409,6 +424,14 @@
       "reviewed_head": "16181334b5d00a6e3f622dffa826575a1b18915d",
       "verdict": "PASS",
       "actionable_findings": []
+    },
+    {
+      "round": 6,
+      "reviewer": "Dalton",
+      "reviewed_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+      "verdict": "PASS",
+      "scope": "scoped CI audit contract fix",
+      "actionable_findings": []
     }
   ],
   "closure_summary": {
@@ -418,7 +441,7 @@
     "open_low": 0,
     "code_findings_closed": true,
     "report_findings_closed": true,
-    "remote_ci_gate_open": true
+    "remote_ci_gate_open": false
   },
   "local_evidence": {
     "broad_cpu_mock_only": "331 passed in 70.76s",
@@ -429,7 +452,7 @@
     "sequential_prompts": "PASS",
     "naacl_profile": "PASS; 36 local Q3 cells + 4 Azure rows = 40 retained rows",
     "production_implementation_audit": "PASS",
-    "final_production_correctness_audit": "PASS; CI_STATUS=NOT_RUN",
+    "final_production_correctness_audit": "PASS; CI_STATUS=NOT_RUN locally; remote cpu-ci PASS",
     "compileall": "PASS",
     "git_diff_check": "PASS",
     "ruff_0_6_9": "PASS",

@@ -1,6 +1,6 @@
 # Runtime estimate after optimization
 
-As of `2026-08-16T19:02:21Z`, against reviewed code head `16181334b5d00a6e3f622dffa826575a1b18915d`, the strongest defensible result is `PROJECTED_GATE_CONDITIONAL`, not a measured campaign duration. The live run has no active PID, the production worktree is dirty, loaded-code identity is uncertain, telemetry is partial, and the code-only phase forbids real production-model/data benchmarks and real Azure calls.
+As of `2026-08-16T19:42:54Z`, against reviewed code head `23332af0bf5454958ea48b630ef43a4e45a61feb`, the strongest defensible result is `PROJECTED_GATE_CONDITIONAL`, not a measured campaign duration. The live run has no active PID, the production worktree is dirty, loaded-code identity is uncertain, telemetry is partial, and the code-only phase forbids real production-model/data benchmarks and real Azure calls.
 
 The only timing evidence is the last-known historical reference of approximately **49 hours per 1,999-example Vistral DEV split**. The sensitivity table below is therefore a per-split planning reference, not a measured speedup or a total-experiment estimate.
 

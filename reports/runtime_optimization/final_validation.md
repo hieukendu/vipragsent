@@ -6,7 +6,7 @@
 ## Scope and identity
 
 - Manager branch: `codex/naacl-runtime-optimization`.
-- Reviewed code head: `16181334b5d00a6e3f622dffa826575a1b18915d`.
+- Reviewed code head: `23332af0bf5454958ea48b630ef43a4e45a61feb`.
 - Base: `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`.
 - The convergence artifacts are a report-only descendant of the reviewed code head; no source behavior changes occur in that descendant.
 - Production worktree `/root/vipragsent` was not edited or controlled.
@@ -28,8 +28,8 @@
 - Broad CPU/mock-only suite: **331 passed in 70.76 seconds**.
 - Fixture DAG, execution registry, schemas, sequential prompts, NAACL profile validation, production implementation audit, and final production correctness audit: **PASS**.
 - Compilation, `git diff --check`, Ruff 0.6.9, and Ruff 0.16.3: **PASS**.
-- Final correctness audit records `CI_STATUS: NOT_RUN`; the previous remote Ruff failure (`31958375122`) is stale.
+- Fresh GitHub Actions `cpu-ci` run `31968069469` passed on exact reviewed code head `23332af0bf5454958ea48b630ef43a4e45a61feb`; the previous remote Ruff failure (`31958375122`) is stale.
 
 ## Gate result
 
-`PROJECTED_GATE_CONDITIONAL`. The code review is complete, but fresh remote CI on the pushed head and final PR synchronization remain required. This code-only task does not claim measured campaign readiness. PR #10 remains a draft and was **not merged**.
+`PROJECTED_GATE_CONDITIONAL` for campaign readiness; code review, CI, and PR synchronization are complete. This code-only task does not claim measured campaign readiness. PR #10 is ready for review and was **not merged**.

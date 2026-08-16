@@ -1,15 +1,15 @@
 # V27 Debug Convergence Bug Register
 
-The final read-only review is `PASS` for reviewed code head `16181334b5d00a6e3f622dffa826575a1b18915d`, against base `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`. The report files are a report-only descendant of that code head; this distinction prevents report commits from being mistaken for source changes.
+The final read-only review is `PASS` for reviewed code head `23332af0bf5454958ea48b630ef43a4e45a61feb`, against base `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`. The report files are a report-only descendant of that code head; this distinction prevents report commits from being mistaken for source changes.
 
-PR #10 remains open and draft. The previous remote run (`31958375122`) failed at Ruff before the current head and is stale. A fresh remote Actions run is the only remaining delivery gate.
+PR #10 is open and synchronized. Fresh `cpu-ci` run `31968069469` passed on the reviewed code head; the previous remote run (`31958375122`) failed at Ruff before the current head and is stale. The PR is ready for review and remains unmerged.
 
 | Bug | Severity | Status | Closure |
 |---|---:|---|---|
 | BUG-KNOWN-001 | HIGH | CLOSED | Exact 36 local + 4 Azure Q3 profile and full authorized inventory validation. |
 | BUG-KNOWN-002 | HIGH | CLOSED | Shared GPU boundary with only the validated PhoBERT exception. |
 | BUG-KNOWN-003 | HIGH | CLOSED | Exact 49/S estimator factors and monotonic makespan. |
-| BUG-KNOWN-004 | HIGH | CLOSED_PENDING_REMOTE_CI | Both local Ruff versions pass; fresh remote CI remains required. |
+| BUG-KNOWN-004 | HIGH | CLOSED | Both local Ruff versions and fresh `cpu-ci` run `31968069469` pass. |
 | BUG-REV-001 | CRITICAL | CLOSED | Legacy Q3 shape rejected; retained profile enforced. |
 | BUG-REV-002 | HIGH | CLOSED | Exact Q1b producer/consumer and Q2 matrix gates. |
 | BUG-REV-003 | HIGH | CLOSED | Explanation reuse requires an approved exact source. |
@@ -34,4 +34,4 @@ PR #10 remains open and draft. The previous remote run (`31958375122`) failed at
 | BUG-REV-022 | HIGH | CLOSED | All source consumers require approved state and full approval; legacy export is rejected. |
 | BUG-REV-023 | HIGH | CLOSED | Injected Q1b predictors require explicit fixture mode. |
 
-Local evidence: **331 CPU/mock-only tests passed in 70.76s**, 55 targeted approval/source tests passed, fixture DAG and all required validators/audits passed, both Ruff versions passed, and scientific hashes are unchanged. No production, Azure, Hugging Face, model-download, benchmark, process-control, TEST-environment, or merge action occurred.
+Local evidence: **331 CPU/mock-only tests passed in 70.76s**, 55 targeted approval/source tests passed, fixture DAG and all required validators/audits passed, both Ruff versions passed, and scientific hashes are unchanged. Fresh remote `cpu-ci` run `31968069469` passed, including final runtime integration and readiness audits. No production, Azure, Hugging Face, model-download, benchmark, process-control, TEST-environment, or merge action occurred.
