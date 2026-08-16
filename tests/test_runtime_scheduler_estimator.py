@@ -20,6 +20,7 @@ from vipragsent.runtime.scheduler import (
     LeaseIdentity,
     ResourcePolicy,
     ResourceProfile,
+    ResourceRequest,
     SchedulerInvariantError,
     StageRecord,
     StageSpec,
@@ -81,6 +82,17 @@ def test_default_policy_is_legacy_and_resource_lanes_are_bounded() -> None:
         phobert_concurrency=2,
         phobert_profile=ResourceProfile("validated", 0.25, throughput_gain_fraction=0.25),
     ).capacities()["phobert"] == 2
+    assert ResourcePolicy.resource_aware().capacities()["gpu_allocation"] == 1
+    with pytest.raises(SchedulerInvariantError):
+        StageSpec(
+            "bad-gpu-request",
+            "campaign",
+            "run",
+            "train",
+            1,
+            "7b",
+            request=ResourceRequest(seven_b=1),
+        )
 
 
 def test_legacy_mode_is_sequential_and_resource_aware_mode_overlaps_safe_lanes() -> None:
@@ -90,8 +102,64 @@ def test_legacy_mode_is_sequential_and_resource_aware_mode_overlaps_safe_lanes()
     assert legacy.launches_performed == 0
     aware = build_dry_run_plan(specs, policy=ResourcePolicy.resource_aware())
     starts = {item.stage_id: item.start_minute for item in aware.placements}
-    assert aware.makespan_minutes == 10
-    assert starts == {"phobert": 0.0, "seven": 0.0, "xlmr": 0.0}
+    assert aware.makespan_minutes == 19
+    assert starts == {"phobert": 0.0, "seven": 4.0, "xlmr": 14.0}
+
+
+@pytest.mark.parametrize(
+    ("left_resource", "right_resource"),
+    (
+        ("7b", "7b"),
+        ("7b", "phobert"),
+        ("7b", "xlmr"),
+        ("xlmr", "7b"),
+        ("phobert", "phobert"),
+    ),
+)
+def test_shared_gpu_boundary_rejects_forbidden_overlaps(
+    left_resource: str, right_resource: str
+) -> None:
+    plan = build_dry_run_plan(
+        (stage("left", 10, left_resource), stage("right", 3, right_resource)),
+        policy=ResourcePolicy.resource_aware(),
+    )
+    placements = {item.stage_id: item for item in plan.placements}
+    assert placements["left"].start_minute is not None
+    assert placements["right"].start_minute is not None
+    assert max(placements["left"].start_minute, placements["right"].start_minute) >= min(
+        placements["left"].end_minute, placements["right"].end_minute
+    )
+    assert plan.makespan_minutes == 13
+
+
+@pytest.mark.parametrize("non_gpu_resource", ("cpu", "azure", "io"))
+def test_gpu_may_overlap_with_dependency_safe_non_gpu_work(non_gpu_resource: str) -> None:
+    plan = build_dry_run_plan(
+        (stage("gpu", 10, "7b"), stage("non-gpu", 3, non_gpu_resource)),
+        policy=ResourcePolicy.resource_aware(),
+    )
+    starts = {item.stage_id: item.start_minute for item in plan.placements}
+    assert starts == {"gpu": 0.0, "non-gpu": 0.0}
+    assert plan.makespan_minutes == 10
+
+
+def test_qualified_phobert_pair_is_the_only_shared_gpu_exception() -> None:
+    policy = ResourcePolicy.resource_aware(
+        phobert_concurrency=2,
+        phobert_profile=ResourceProfile("validated-quarter", 0.25, throughput_gain_fraction=0.25),
+    )
+    pair = build_dry_run_plan(
+        (stage("p1", 10, "phobert"), stage("p2", 3, "phobert")),
+        policy=policy,
+    )
+    assert pair.makespan_minutes == 10
+    assert {item.start_minute for item in pair.placements} == {0.0}
+
+    mixed = build_dry_run_plan(
+        (stage("p", 3, "phobert"), stage("seven", 10, "7b")),
+        policy=policy,
+    )
+    assert mixed.makespan_minutes == 13
 
 
 def test_exclusive_and_phobert_lanes_prevent_invalid_overlap() -> None:

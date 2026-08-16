@@ -21,6 +21,9 @@ MAX_CPU_LANES = 256
 MAX_AZURE_LANES = 32
 MAX_IO_LANES = 32
 MIN_PHOBERT_PROFILE_CPU_FRACTION = 0.25
+GPU_ALLOCATION_RESOURCE = "gpu_allocation"
+_RESOURCE_FIELDS = ("gpu_allocation", "seven_b", "xlmr", "phobert", "cpu", "azure", "io")
+_GPU_RESOURCE_CLASSES = frozenset({"7b", "xlmr", "phobert", GPU_ALLOCATION_RESOURCE})
 
 
 class SchedulerInvariantError(ValueError):
@@ -44,6 +47,7 @@ class ResourceClass(str, Enum):
     SEVEN_B = "7b"
     XLM_R = "xlmr"
     PHOBERT = "phobert"
+    GPU_ALLOCATION = GPU_ALLOCATION_RESOURCE
     CPU = "cpu"
     AZURE = "azure"
     IO = "io"
@@ -121,6 +125,7 @@ class ResourcePolicy:
 
     def capacities(self) -> dict[str, int]:
         return {
+            GPU_ALLOCATION_RESOURCE: 1,
             "seven_b": self.seven_b_exclusive,
             "xlmr": self.xlmr_exclusive,
             "phobert": self.phobert_concurrency,
@@ -141,6 +146,7 @@ def _bounded_int(name: str, value: int, minimum: int, maximum: int) -> None:
 class ResourceRequest:
     """Integer lane demand for a stage."""
 
+    gpu_allocation: int = 0
     seven_b: int = 0
     xlmr: int = 0
     phobert: int = 0
@@ -149,24 +155,30 @@ class ResourceRequest:
     io: int = 0
 
     def __post_init__(self) -> None:
-        for name in ("seven_b", "xlmr", "phobert", "cpu", "azure", "io"):
+        for name in _RESOURCE_FIELDS:
             value = getattr(self, name)
             if isinstance(value, bool) or value < 0 or int(value) != value:
                 raise SchedulerInvariantError(f"resource request {name} must be a non-negative integer")
 
     @classmethod
     def for_class(cls, resource_class: ResourceClass | str) -> ResourceRequest:
-        name = ResourceClass(resource_class).value
-        return cls(**{name.replace("7b", "seven_b").replace("xlmr", "xlmr"): 1})
+        resource = ResourceClass(resource_class).value
+        field = {"7b": "seven_b", "xlmr": "xlmr", "phobert": "phobert"}.get(resource, resource)
+        if field not in _RESOURCE_FIELDS:
+            raise SchedulerInvariantError(f"unsupported resource class: {resource}")
+        values = {field: 1}
+        if resource in _GPU_RESOURCE_CLASSES:
+            values[GPU_ALLOCATION_RESOURCE] = 1
+        return cls(**values)
 
     def fits(self, used: Mapping[str, int], capacity: Mapping[str, int]) -> bool:
-        for name in ("seven_b", "xlmr", "phobert", "cpu", "azure", "io"):
+        for name in _RESOURCE_FIELDS:
             if used.get(name, 0) + getattr(self, name) > capacity.get(name, 0):
                 return False
         return True
 
     def as_dict(self) -> dict[str, int]:
-        return {name: int(getattr(self, name)) for name in ("seven_b", "xlmr", "phobert", "cpu", "azure", "io")}
+        return {name: int(getattr(self, name)) for name in _RESOURCE_FIELDS}
 
 
 @dataclass(frozen=True, slots=True)
@@ -198,6 +210,13 @@ class StageSpec:
             raise SchedulerInvariantError("stage duration cannot be negative")
         if self.request is None:
             object.__setattr__(self, "request", ResourceRequest.for_class(self.resource_class))
+        if (
+            ResourceClass(self.resource_class).value in _GPU_RESOURCE_CLASSES
+            and self.request.gpu_allocation < 1
+        ):
+            raise SchedulerInvariantError(
+                "GPU-consuming stages must request the shared GPU allocation"
+            )
         if len(set(self.dependencies)) != len(self.dependencies):
             raise SchedulerInvariantError(f"duplicate dependency for {self.stage_id}")
         if self.requires_dev_feedback and not self.dev_feedback_stage:
@@ -612,6 +631,41 @@ def _gate_dependencies(spec: StageSpec) -> tuple[str, ...]:
     return tuple(gates)
 
 
+def _phobert_pair_is_allowed(
+    stage: StageSpec, overlapping: Sequence[StageSpec], policy: ResourcePolicy
+) -> bool:
+    """Allow only the explicitly profiled two-PhoBERT exception to share the GPU."""
+
+    if (
+        policy.phobert_concurrency != 2
+        or ResourceClass(stage.resource_class) is not ResourceClass.PHOBERT
+    ):
+        return False
+    active_gpu = [item for item in overlapping if item.request.gpu_allocation > 0]
+    return (
+        len(active_gpu) == 1
+        and ResourceClass(active_gpu[0].resource_class) is ResourceClass.PHOBERT
+        and active_gpu[0].request.gpu_allocation == 1
+    )
+
+
+def _request_fits(stage: StageSpec, overlapping: Sequence[StageSpec], policy: ResourcePolicy) -> bool:
+    used = {
+        name: sum(getattr(item.request, name) for item in overlapping)
+        for name in _RESOURCE_FIELDS
+    }
+    capacity = policy.capacities()
+    if _phobert_pair_is_allowed(stage, overlapping, policy):
+        # Keep GPU_ALLOCATION at one for every ordinary GPU stage.  This
+        # narrowly permits exactly two PhoBERT stages after ResourcePolicy's
+        # validated >=25% profile gate, while still rejecting PhoBERT with 7B
+        # or XLM-R and any third PhoBERT stage.
+        capacity[GPU_ALLOCATION_RESOURCE] = (
+            used[GPU_ALLOCATION_RESOURCE] + stage.request.gpu_allocation
+        )
+    return stage.request.fits(used, capacity)
+
+
 def build_dry_run_plan(specs: Iterable[StageSpec], *, policy: ResourcePolicy | None = None, state: CampaignState | None = None, safe_stop: bool = False) -> DryRunPlan:
     """Create a deterministic plan.  This function can never launch a stage."""
 
@@ -624,7 +678,7 @@ def build_dry_run_plan(specs: Iterable[StageSpec], *, policy: ResourcePolicy | N
     chosen = policy or ResourcePolicy()
     records = state or CampaignState(campaign_id)
     placements: list[Placement] = []
-    intervals: list[tuple[float, float, ResourceRequest]] = []
+    intervals: list[tuple[float, float, StageSpec]] = []
     ends: dict[str, float] = {}
     cursor = 0.0
     by_id = {stage.stage_id: stage for stage in stages}
@@ -650,13 +704,16 @@ def build_dry_run_plan(specs: Iterable[StageSpec], *, policy: ResourcePolicy | N
         else:
             start = earliest
             while True:
-                overlapping = [(left, right, request) for left, right, request in intervals if left < start + stage.duration_minutes and start < right]
-                used = {name: sum(getattr(request, name) for _, _, request in overlapping) for name in ("seven_b", "xlmr", "phobert", "cpu", "azure", "io")}
-                if stage.request.fits(used, chosen.capacities()):
+                overlapping = [
+                    (left, right, active)
+                    for left, right, active in intervals
+                    if left < start + stage.duration_minutes and start < right
+                ]
+                if _request_fits(stage, [active for _, _, active in overlapping], chosen):
                     break
                 start = min(right for left, right, _request in overlapping if right > start)
         end = start + stage.duration_minutes
-        intervals.append((start, end, stage.request))
+        intervals.append((start, end, stage))
         ends[stage.stage_id] = end
         cursor = end
         placements.append(Placement(stage.stage_id, "SCHEDULED", start, end, "resource-aware" if chosen.resource_aware_enabled else "legacy-sequential", False))
@@ -666,6 +723,7 @@ def build_dry_run_plan(specs: Iterable[StageSpec], *, policy: ResourcePolicy | N
 
 __all__ = [
     "AuthorizationBinding", "CampaignState", "DEFAULT_RESOURCE_AWARE_ENABLED", "DurableJournal", "DryRunPlan",
+    "GPU_ALLOCATION_RESOURCE",
     "JobSpec", "JournalEntry", "LEGACY_SCHEDULER_MODE", "Lease", "LeaseDecision", "LeaseIdentity",
     "LockDecision", "LockOwner", "LockRecord", "Placement", "ResourceClass", "ResourcePolicy",
     "ResourceProfile", "ResourceRequest", "RetryDecision", "SafeStopDecision", "SchedulerInvariantError",
