@@ -14,18 +14,18 @@ PR #10 contains bounded runtime engineering changes for ViPragSent: provenance-b
 
 ## Validation at reviewed code head
 
-- Reviewed code head: `16181334b5d00a6e3f622dffa826575a1b18915d`.
+- Reviewed code head: `23332af0bf5454958ea48b630ef43a4e45a61feb`.
 - Broad CPU/mock-only suite: **331 passed in 70.76s**.
 - Targeted approval/source suite: **55 passed**.
 - Fixture DAG, execution registry, schemas, sequential prompts, NAACL profile validation, production implementation audit, and final correctness audit: **PASS**.
 - Python compilation, `git diff --check`, Ruff 0.6.9, and Ruff 0.16.3: **PASS**.
 - Dalton's final whole-repository read-only review: **PASS** with no actionable findings.
-- Fresh remote CI has not yet run on the pushed head; `31958375122` is a stale pre-current-head Ruff failure.
+- Fresh GitHub Actions `cpu-ci` run `31968069469` passed on the exact reviewed code head; `31958375122` is a stale pre-current-head Ruff failure.
 
 ## Readiness
 
-`PROJECTED_GATE_CONDITIONAL` remains the correct code-only status. Campaign authorization still requires later user-authorized DEV-only throughput/concurrency measurements and exact live-code/provenance reconciliation. The branch remains a draft until fresh remote CI is green and the final PR state is synchronized.
+`PROJECTED_GATE_CONDITIONAL` remains the correct code-only status. Campaign authorization still requires later user-authorized DEV-only throughput/concurrency measurements and exact live-code/provenance reconciliation. The branch is synchronized and ready for the draft-to-ready transition.
 
 ## Delivery note
 
-Target is `main`. The PR will be pushed as a draft and marked ready only if fresh remote CI passes. The PR was **not merged**.
+Target is `main`. Fresh CI is green; the PR is ready to be marked for review and remains **not merged**.

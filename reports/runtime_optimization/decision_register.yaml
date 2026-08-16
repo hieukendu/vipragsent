@@ -8,7 +8,7 @@ prompt:
   v26_exact_bytes_available: false
   interpretation: V26 remains authoritative for science; V27 supplies bounded debugging and delivery rules.
 phase: FINAL_DEBUG_CONVERGENCE
-status: FINAL_REVIEW_CLOSED_REMOTE_CI_PENDING
+status: FINAL_REVIEW_CLOSED_REMOTE_CI_GREEN
 identity:
   status: LIVE_CODE_IDENTITY_UNCERTAIN
   isolated_base: /root/vipragsent-runtime-opt
@@ -200,7 +200,7 @@ final_validation:
   second_live_snapshot_sha256: ed1e6cdc08a92151a9665ce2e5835d3813d3fba399b5f2702dbfa445ee17aaa4
   safe_cpu_mock_matrix: "331 passed in 70.76s"
   targeted_approval_source_suite: "55 passed"
-  reviewed_code_head: 16181334b5d00a6e3f622dffa826575a1b18915d
+  reviewed_code_head: 23332af0bf5454958ea48b630ef43a4e45a61feb
   artifact_commit: REPORT_ONLY_DESCENDANT_OF_REVIEWED_CODE_HEAD
   measured_gate_pass: false
   remaining_blockers:
@@ -209,8 +209,8 @@ final_validation:
     - partial_gpu_telemetry
     - real_profile_required_before_campaign_authorization
 current_delivery:
-  manager_head: 16181334b5d00a6e3f622dffa826575a1b18915d
-  reviewed_code_head: 16181334b5d00a6e3f622dffa826575a1b18915d
+  manager_head: 23332af0bf5454958ea48b630ef43a4e45a61feb
+  reviewed_code_head: 23332af0bf5454958ea48b630ef43a4e45a61feb
   artifact_commit: REPORT_ONLY_DESCENDANT_OF_REVIEWED_CODE_HEAD
   base_sha: fb40c91a7c39ac575db2bd71d9957f0e89069b3e
   branch: codex/naacl-runtime-optimization
@@ -218,7 +218,10 @@ current_delivery:
   remote_head_before_push: c2e78c62ee51c7566629930b3b0a115920735f30
   final_review: PASS
   local_ruff: PASS
-  remote_ci: STALE_FAILURE_NOT_RUN_ON_CURRENT_HEAD
+  remote_ci: PASS
+  remote_ci_run_id: 31968069469
+  remote_ci_head_sha: 23332af0bf5454958ea48b630ef43a4e45a61feb
+  remote_ci_conclusion: success
   required_bug_register: reports/runtime_optimization/debug_convergence/bug_register.json
   required_final_bug_review: reports/runtime_optimization/debug_convergence/final_bug_review.json
   pr_was_not_merged: true
