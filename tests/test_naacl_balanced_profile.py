@@ -3,7 +3,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
 import yaml
+
+from vipragsent.runtime import naacl_profile
+from vipragsent.runtime.naacl_profile import (
+    ProfileValidationError,
+    build_naacl_profile_snapshot,
+    validate_naacl_profile,
+)
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,8 +32,11 @@ def test_profile_fixture_schema_and_artifact_parity() -> None:
     assert config["profile_id"] == report["profile_id"] == "LUNA_NAACL_PROFILE"
     assert config["activation"]["default_enabled"] is False
     assert config["activation"]["execution_enabled"] is False
-    assert config["scope"]["real_execution"] == "prohibited"
+    assert config["activation"]["real_execution"] == "PROHIBITED"
+    assert config["scope"]["real_execution"] == "PROHIBITED"
     assert report["status"] == "POLICY_ONLY_READY_AFTER_WAVE0_ACCEPTED"
+    assert report["activation"]["real_execution"] == "PROHIBITED"
+    assert report["exclusions"]["real_execution"] == config["scope"]["real_execution"]
     assert MARKDOWN.exists()
 
 
@@ -64,6 +75,67 @@ def test_q1b_is_evaluation_only_and_dependency_aware() -> None:
     assert policy["checkpoint_key_must_match_consumer"] is True
     assert policy["missing_source_action"] == "block_profile_aggregation"
     assert report["q1b"]["dependency_policy"] == policy
+
+
+def test_q1b_binding_matches_audited_graph_and_includes_azure_null_seed() -> None:
+    snapshot = build_naacl_profile_snapshot(ROOT)
+    assert snapshot["status"] == "PASS", snapshot
+    binding = snapshot["q1b"]
+    assert binding["consumer_count"] == 22
+    assert binding["graph_edge_count"] == 21
+    assert binding["profile_edge_count"] == 22
+    assert binding["seeded_consumer_count"] == 21
+    assert binding["seedless_consumer_count"] == 1
+    assert len(binding["consumer_edges"]) == 22
+    azure = next(edge for edge in binding["consumer_edges"] if edge["consumer_id"] == "q1b_azure_gpt41_mini")
+    assert azure["producer_id"] == "azure_gpt41_mini_dedicated_prompts"
+    assert azure["producer_kind"] == "approved_azure_output"
+    assert azure["checkpoint_key"] == "azure_gpt41_mini:dedicated_prompts"
+    assert azure["seed"] is None
+    assert azure["graph_edge"] is False
+    assert all(edge["producer_kind"] == "trainable_checkpoint" for edge in binding["consumer_edges"] if edge["consumer_id"] != "q1b_azure_gpt41_mini")
+    assert snapshot["graph"]["sha256"]
+    assert snapshot["source"]["sha256"]
+
+
+def test_checked_in_report_validates_and_real_execution_parity_is_unambiguous() -> None:
+    snapshot = validate_naacl_profile(ROOT)
+    report = json.loads(REPORT.read_text(encoding="utf-8"))
+    assert report["q1b"]["dependency_binding"] == snapshot["q1b"]
+    assert report["q1b"]["digests"] == {
+        "graph_sha256": snapshot["graph"]["sha256"],
+        "source_sha256": snapshot["source"]["sha256"],
+    }
+    assert report["activation"]["real_execution"] == "PROHIBITED"
+    assert report["exclusions"]["real_execution"] == "PROHIBITED"
+
+
+def test_validator_fails_closed_on_binding_drift(tmp_path: Path) -> None:
+    import shutil
+
+    shutil.copytree(ROOT / "configs", tmp_path / "configs")
+    shutil.copytree(ROOT / "reports", tmp_path / "reports")
+    shutil.copytree(ROOT / "src", tmp_path / "src")
+    report_path = tmp_path / "reports/runtime_optimization/naacl_balanced_profile.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    report["q1b"]["dependency_binding"]["consumer_edges"][0]["seed"] = 999
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ProfileValidationError, match="dependency binding"):
+        validate_naacl_profile(tmp_path)
+
+
+def test_validator_fails_closed_on_live_graph_key_drift(monkeypatch: pytest.MonkeyPatch) -> None:
+    original = naacl_profile.build_q1b_dependency_graph
+
+    def drifted_graph(*args, **kwargs):
+        graph = original(*args, **kwargs)
+        edge = next(edge for edge in graph["edges"] if str(edge.get("consumer_id", "")).startswith("q1b_"))
+        edge["produced_checkpoint_key"] = "drifted-key"
+        return graph
+
+    monkeypatch.setattr(naacl_profile, "build_q1b_dependency_graph", drifted_graph)
+    with pytest.raises(ProfileValidationError, match="produced_checkpoint_key"):
+        validate_naacl_profile(ROOT)
 
 
 def test_aggregation_is_profile_aware_and_fail_closed() -> None:
