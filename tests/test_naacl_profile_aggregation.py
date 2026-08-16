@@ -110,6 +110,32 @@ def test_aggregation_entry_validates_the_current_profile(monkeypatch: pytest.Mon
     assert "current graph/source digest drift" in result["blockers"][0]
 
 
+def test_approved_run_validation_fails_closed_on_incomplete_approval_record(tmp_path: Path) -> None:
+    run_root = tmp_path / "results/runs/run"
+    run_root.mkdir(parents=True)
+    (run_root / "state.json").write_text(
+        json.dumps({"run_id": "run", "run_status": "APPROVED", "approval_status": "APPROVED"}),
+        encoding="utf-8",
+    )
+    (run_root / "approval_status.json").write_text(
+        json.dumps(
+            {
+                "run_id": "run",
+                "status": "APPROVED",
+                "approved_by": "reviewer",
+                "approved_at": "2026-08-16T00:00:00Z",
+                "record": {"approved_or_rejected_by": "reviewer", "timestamp": "2026-08-16T00:00:00Z"},
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    record, errors = aggregation._validate_approved_run(tmp_path, "run")
+
+    assert record is None
+    assert any("approval decision record is missing fields" in error for error in errors)
+
+
 def test_q1b_profile_rejects_unresolved_producer_and_training_metrics(tmp_path: Path) -> None:
     profile = build_naacl_profile_snapshot(ROOT)
     edge = next(edge for edge in profile["q1b"]["consumer_edges"] if edge["seed"] is not None)

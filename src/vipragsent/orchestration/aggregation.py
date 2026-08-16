@@ -34,6 +34,7 @@ from ..statistics.bootstrap import (
     paired_bootstrap_trainable_vs_azure,
 )
 from ..statistics.significance import load_p_value_strategy
+from .approval import validate_approval_record
 from .run_store import artifact_hashes
 
 NAACL_PROFILE_SCOPES = frozenset({"Q1b", "Q2", "Q3", "all"})
@@ -72,13 +73,25 @@ def _validate_approved_run(root: Path, run_id: str) -> tuple[dict[str, Any] | No
     manifest = _load(run_root / "run_manifest.json", {}) or {}
     if not run_root.exists():
         return None, [f"missing run directory: {run_id}"]
+    if not isinstance(state, Mapping):
+        errors.append(f"{run_id}: state.json must be a JSON object")
+        state = {}
+    if not isinstance(approval, Mapping):
+        errors.append(f"{run_id}: approval_status.json must be a JSON object")
+        approval = {}
+    approval_errors = validate_approval_record(run_root, expected_run_id=run_id)
+    errors.extend(f"{run_id}: {error}" for error in approval_errors)
     if state.get("run_status") not in {"APPROVED", "COMPLETED_PENDING_APPROVAL"}:
         errors.append(f"{run_id}: run_status is not completed/approved")
+    if state.get("run_id") not in {None, run_id}:
+        errors.append(f"{run_id}: state run_id does not match the requested run")
+    if state.get("run_status") != "APPROVED" or state.get("approval_status") != "APPROVED":
+        errors.append(f"{run_id}: state and approval status are not consistently APPROVED")
+    if approval.get("run_id") != run_id:
+        errors.append(f"{run_id}: approval run_id does not match the requested run")
     if approval.get("status") != "APPROVED":
         errors.append(f"{run_id}: approval status is not APPROVED")
-    approval_record = approval.get("record") or {}
-    if not approval_record.get("approved_or_rejected_by") or not approval_record.get("timestamp"):
-        errors.append(f"{run_id}: approval record lacks an explicit reviewer and timestamp")
+    approval_record = approval.get("record") if isinstance(approval.get("record"), Mapping) else {}
     if summary.get("RUN_STATUS") != "PASS" or summary.get("USER_REVIEW_STATUS") != "PENDING" or summary.get("NEXT_RUN_ALLOWED") != "NO":
         errors.append(f"{run_id}: review summary approval gate is invalid")
     if manifest.get("mode") != "full" or manifest.get("synthetic_results") is True:
