@@ -15,3 +15,11 @@
 | Hardware/telemetry | H100 MIG `2g.20gb`; telemetry `PARTIAL`. |
 | Forbidden actions | No source edits, production/Azure/HF writes, benchmarks, or process control. |
 | Wave-0 DAG | Audit Builder → independent Sentinel → Manager gate → serialized generation/checkpoint work and disjoint scheduling/Azure/reuse work; package contracts are recorded in the ledger. |
+| Wave-1 acceptance | Checkpoint/resume, read-only reuse, and NAACL profile chains passed independent Sentinel round 4; accepted residuals are recorded in `decision_register.yaml`. |
+| Wave-2 generation | Manager commits `89c4d51`, `74586d5`, `6488e02`; independent Sentinel round 2 PASS at Builder commit `2cf464b7d63a9dd65777b04a00bc885684e8336e`; 33 generation/Luna and 26 red-team/pre-experiment cache-free tests passed. |
+| HF current revisions | [`hf_reuse_audit.json`](hf_reuse_audit.json) and [`hf_reuse_audit.md`](hf_reuse_audit.md) cover all five repositories via read-only metadata; no automatic reuse is authorized. |
+| Wave-3 isolation | Azure, explanation-only, and scheduler/estimator Builders each have a disjoint worktree and new-file ownership; all are GPT-5.6 Luna and forbidden from external/production execution. |
+| Wave-3 Sentinel | Independent review PASS: 29 focused tests; scheduler/estimator rework independently PASS: 12 tests; no open findings. |
+| Second live snapshot | `live_state_snapshot_after.json/.md` captured at `2026-08-16T15:07:31Z`; no active process; epoch-2 evidence credited once; state conflict and identity uncertainty remain explicit. |
+| Runtime gate | `PROJECTED_GATE_CONDITIONAL`; required 1.0×/1.5×/2.0×/2.5×/3.0×/4.0× sensitivity is in `runtime_estimate_after.json`; no measured speedup is claimed. |
+| Safe validation | Broad CPU/mock-only suite: `292 passed in 4:36`, CUDA hidden, temporary pytest cache, no external markers. |
