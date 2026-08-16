@@ -88,7 +88,7 @@ def select_generation_batch_size(
             candidates = resolved.get("candidate_batch_sizes", resolved.get("candidates", SUPPORTED_GENERATION_BATCH_SIZES))
             if status != "PASS" or selected not in {int(value) for value in candidates}:
                 raise GenerationPersistenceError("generation batch >1 requires an explicit passing generation profile")
-            if resolved.get("profiled", resolved.get("measured", resolved.get("approved", True))) is not True:
+            if not any(resolved.get(key) is True for key in ("profiled", "measured", "approved")):
                 raise GenerationPersistenceError("generation batch >1 requires profiled/approved evidence")
     elif selected > 1:
         raise GenerationPersistenceError("generation batch >1 requires an explicit passing generation profile")
@@ -512,16 +512,24 @@ class ReasoningGenerationExecutor:
         masks: list[torch.Tensor] = []
         for record in records:
             input_ids, attention_mask = self._record_inputs(record)
-            inputs.append(input_ids.squeeze(0).to(dtype=torch.long))
-            masks.append(attention_mask.squeeze(0).to(dtype=torch.long))
+            input_row = input_ids.squeeze(0).to(dtype=torch.long)
+            mask_row = attention_mask.squeeze(0).to(dtype=torch.long)
+            if input_row.ndim != 1 or mask_row.ndim != 1:
+                raise ValueError("generation inference records must contain one-dimensional token rows")
+            if input_row.numel() != mask_row.numel():
+                raise ValueError("generation input and attention-mask lengths must match")
+            active = mask_row.to(dtype=torch.bool)
+            if not bool(active.any()):
+                raise ValueError("generation inference records must contain at least one active token")
+            inputs.append(input_row[active])
+            masks.append(torch.ones(int(active.sum()), dtype=torch.long))
         max_length = max(int(row.numel()) for row in inputs)
         input_ids = torch.full((len(records), max_length), self.pad_token_id, dtype=torch.long)
         attention_mask = torch.zeros((len(records), max_length), dtype=torch.long)
         for index, (row, mask) in enumerate(zip(inputs, masks, strict=True)):
-            if row.numel() != mask.numel():
-                raise ValueError("generation input and attention-mask lengths must match")
-            input_ids[index, : row.numel()] = row
-            attention_mask[index, : mask.numel()] = mask
+            start = max_length - row.numel()
+            input_ids[index, start:] = row
+            attention_mask[index, start:] = mask
         return {"input_ids": input_ids, "attention_mask": attention_mask}
 
     def _generation_kwargs(self) -> dict[str, Any]:
@@ -696,9 +704,12 @@ class ReasoningGenerationExecutor:
             "status": "PASS",
             "epoch": int(epoch),
             "source_root": str(source_root.relative_to(self.run_root)).replace("\\", "/"),
+            "checkpoint_sha256": sha256_file(self.run_root / "checkpoints/best/model.pt"),
             "reasoning_sha256": sha256_file(self.run_root / "reasoning/dev_reasoning.jsonl"),
             "predictions_sha256": sha256_file(self.run_root / "predictions/dev_predictions.jsonl"),
             "judge_sha256": sha256_file(self.run_root / "judge/dev_judge_responses.jsonl"),
+            "metrics_sha256": sha256_file(self.run_root / "metrics/dev_reasoning_metrics.json"),
+            "chunks_manifest_sha256": sha256_file(self.run_root / "reasoning/dev_chunks_manifest.json"),
         }
         atomic_write_json(self.run_root / "selection/dev_artifacts.json", manifest)
         return manifest

@@ -571,19 +571,24 @@ def test_selected_dev_artifact_marker_is_validated_for_reuse(tmp_path: Path) -> 
     predictions = tmp_path / "predictions/dev_predictions.jsonl"
     judge = tmp_path / "judge/dev_judge_responses.jsonl"
     metrics = tmp_path / "metrics/dev_reasoning_metrics.json"
-    for path in (reasoning, predictions, judge, metrics):
+    chunks_manifest = tmp_path / "reasoning/dev_chunks_manifest.json"
+    checkpoint = tmp_path / "checkpoints/best/model.pt"
+    for path in (reasoning, predictions, judge, metrics, chunks_manifest, checkpoint):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("{}\n", encoding="utf-8")
     marker = {
         "status": "PASS",
         "epoch": 2,
+        "checkpoint_sha256": sha256_file(checkpoint),
         "reasoning_sha256": sha256_file(reasoning),
         "predictions_sha256": sha256_file(predictions),
         "judge_sha256": sha256_file(judge),
+        "metrics_sha256": sha256_file(metrics),
+        "chunks_manifest_sha256": sha256_file(chunks_manifest),
     }
     (tmp_path / "selection").mkdir(parents=True)
     (tmp_path / "selection/dev_artifacts.json").write_text(json.dumps(marker), encoding="utf-8")
-    (tmp_path / "selection/best_checkpoint.json").write_text(json.dumps({"dev_artifacts": {"epoch": 2}}), encoding="utf-8")
+    (tmp_path / "selection/best_checkpoint.json").write_text(json.dumps({"best_epoch": 2, "checkpoint_sha256": marker["checkpoint_sha256"], "dev_artifacts": {"epoch": 2}}), encoding="utf-8")
     assert stage_registry._selected_dev_artifacts_reusable(tmp_path)
     predictions.write_text("changed\n", encoding="utf-8")
     assert not stage_registry._selected_dev_artifacts_reusable(tmp_path)
