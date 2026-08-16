@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "profile_id": "LUNA_NAACL_PROFILE",
+  "profile_name": "naacl_balanced_runtime_profile",
+  "status": "POLICY_ONLY_READY_AFTER_WAVE0_ACCEPTED",
+  "activation": {
+    "prerequisite": "WAVE0_ACCEPTED",
+    "default_enabled": false,
+    "execution_enabled": false,
+    "activation_requires_explicit_opt_in": true,
+    "real_execution": "PROHIBITED"
+  },
+  "source": {
+    "status": "current_audited_source",
+    "read_only": true,
+    "no_run_data_consumed": true,
+    "configs": [
+      "configs/experiments/q3/system_aliases.yaml",
+      "configs/experiments/q3/protocol.yaml",
+      "configs/experiments/q2/protocol.yaml",
+      "configs/experiments/q1b/producer_registry.yaml",
+      "configs/experiments/q1b/checkpoint_matrix.yaml"
+    ],
+    "audits": [
+      "reports/system_execution_registry_audit.json",
+      "reports/runtime_self_review.json",
+      "reports/final_runtime_integration_audit.json"
+    ]
+  },
+  "q3": {
+    "systems": ["phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"],
+    "budgets": [32, 128, 512, "full"],
+    "seeds": [20260521, 20260522, 20260523],
+    "expected_cell_count": 36,
+    "selection_metric": "sarcasm_binary_macro_f1"
+  },
+  "q2": {
+    "seeds": [20260521, 20260522, 20260523],
+    "expected_seed_count": 3
+  },
+  "q1b": {
+    "execution_kind": "evaluation_only",
+    "training_applicability": "NOT_APPLICABLE",
+    "seeds": [20260521, 20260522, 20260523],
+    "official_external_tests_only": true,
+    "approved_source_required": true,
+    "optimizer_steps": 0,
+    "dependency_policy": {
+      "resolve_exact_approved_producer": true,
+      "same_seed_required": true,
+      "checkpoint_key_must_match_consumer": true,
+      "missing_source_action": "block_profile_aggregation"
+    }
+  },
+  "aggregation": {
+    "profile_aware": true,
+    "include_only_profile_cells": true,
+    "missing_cell_action": "fail_closed",
+    "synthetic_or_fixture_rows": "forbidden",
+    "q1b_requires_resolved_dependencies": true
+  },
+  "exclusions": {
+    "q3_systems": ["xlmr_pragmatic_finetune", "azure_gpt41_mini_8shot"],
+    "q3_budgets": [64, 256],
+    "real_execution": true
+  },
+  "invariants": [
+    "audited_source_immutable",
+    "q3_local_cartesian_design",
+    "q3_budget_exclusions",
+    "q3_xlmr_exclusion",
+    "q1b_no_training",
+    "q1b_dependency_integrity",
+    "no_execution",
+    "no_fixture_contamination"
+  ]
+}
