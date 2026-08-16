@@ -6,6 +6,7 @@ activation:
   default_enabled: false
   execution_enabled: false
   activation_requires_explicit_opt_in: true
+  real_execution: PROHIBITED
   purpose: scientific_traceability_policy_artifact
 source:
   status: current_audited_source
@@ -23,7 +24,7 @@ source:
 scope:
   research_questions: [Q1b, Q2, Q3]
   benchmark_or_experiment: false
-  real_execution: prohibited
+  real_execution: PROHIBITED
 q3:
   status: retained_local_subset
   systems:
@@ -55,6 +56,16 @@ q1b:
     same_seed_required: true
     checkpoint_key_must_match_consumer: true
     missing_source_action: block_profile_aggregation
+  dependency_binding:
+    validator: src/vipragsent/runtime/naacl_profile.py
+    graph_builder: src/vipragsent/orchestration/q1b_dependencies.py
+    expected_consumer_count: 22
+    expected_graph_edge_count: 21
+    expected_profile_edge_count: 22
+    expected_seeded_consumer_count: 21
+    expected_seedless_consumer_count: 1
+    azure_approved_output_seed: null
+    fail_closed_on: [graph_digest, source_digest, consumer_id, producer_id, producer_kind, checkpoint_key, seed]
   producer_registry: configs/experiments/q1b/producer_registry.yaml
   checkpoint_matrix: configs/experiments/q1b/checkpoint_matrix.yaml
 aggregation:
