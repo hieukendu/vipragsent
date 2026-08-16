@@ -93,6 +93,7 @@ def test_q1b_profile_rejects_unresolved_producer_and_training_metrics(tmp_path: 
         "summary": {
             "producer_id": edge["producer_id"],
             "producer_run_id": edge["producer_run_id"],
+            "producer_kind": edge["producer_kind"],
             "source_checkpoint_id": edge["checkpoint_key"],
             "source_seed": edge["seed"],
         },
