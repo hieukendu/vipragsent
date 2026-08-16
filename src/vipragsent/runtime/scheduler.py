@@ -57,6 +57,7 @@ class ResourceProfile:
     cpu_fraction: float
     memory_gb: float = 0.0
     validated: bool = True
+    throughput_gain_fraction: float = 0.0
 
     def __post_init__(self) -> None:
         if not self.profile_id.strip():
@@ -65,6 +66,8 @@ class ResourceProfile:
             raise SchedulerInvariantError("profile cpu_fraction must be in (0, 1]")
         if self.memory_gb < 0:
             raise SchedulerInvariantError("profile memory_gb cannot be negative")
+        if not 0.0 <= self.throughput_gain_fraction <= 1.0:
+            raise SchedulerInvariantError("profile throughput_gain_fraction must be in [0, 1]")
 
 
 @dataclass(frozen=True, slots=True)
@@ -102,6 +105,10 @@ class ResourcePolicy:
             if self.phobert_profile.cpu_fraction < MIN_PHOBERT_PROFILE_CPU_FRACTION:
                 raise SchedulerInvariantError(
                     "PhoBERT concurrency above one requires at least 25% CPU profile"
+                )
+            if self.phobert_profile.throughput_gain_fraction < MIN_PHOBERT_PROFILE_CPU_FRACTION:
+                raise SchedulerInvariantError(
+                    "PhoBERT concurrency above one requires at least 25% aggregate throughput gain"
                 )
 
     @classmethod
