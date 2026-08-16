@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, replace
-from enum import Enum
-from typing import Any, Iterable, Mapping, Sequence
+from enum import Enum, StrEnum
+from typing import Any
 
 from .scheduler import (
     CampaignState,
@@ -16,11 +17,14 @@ from .scheduler import (
     validate_artifact,
 )
 
-
 GENERATION_FACTORS = (1.0, 1.5, 2.0, 2.5, 3.0, 4.0)
 
 
-class EstimateStatus(str, Enum):
+class EstimateStatus(StrEnum):
+    # Preserve the legacy str(Enum) representation while using the py311
+    # standard enum base recommended by Ruff UP042.
+    __str__ = Enum.__str__
+
     REUSE = "REUSE"
     RESUME = "RESUME"
     TRAIN = "TRAIN"
