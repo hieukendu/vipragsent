@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "status": "STATIC_ONLY_NO_TIMING",
+  "prompt_sha256": "457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0",
+  "identity_status": "LIVE_CODE_IDENTITY_UNCERTAIN",
+  "run_id": "q1a_cot_only_vistral_20260521",
+  "known_boundary": {"paused_after_epoch": 2, "active_pid": null, "checkpoint_local_verified": true, "hf_exact_remote_path_verified_read_only": true, "checkpoint_bytes": 4942818023, "checkpoint_sha256": "d3fe7e99bb0758e527c4967fe2a8502c722fce8d86cd7664ea776440a3b41a77"},
+  "critical_path_roles": [{"stage":"train_generation","role":"GPU/optimizer critical path; duration not claimable","serial_reason":"scientific training order"},{"stage":"generate_dev_reasoning","role":"GPU generation; source is per-record in clean base","serial_reason":"implementation serial; candidate for fixture-equivalence batching"},{"stage":"judge_dev_reasoning","role":"judge calls/cache and persistence; duration not claimable","serial_reason":"per-row implementation and external dependency"},{"stage":"checkpoint_persistence","role":"4.94 GB artifact write/storage path","serial_reason":"atomic commit required"},{"stage":"freeze_and_test","role":"downstream scientific dependency","serial_reason":"must use best DEV-selected epoch; TEST sealed until freeze"}],
+  "already_completed_credit": ["epoch_2 training/dev/judging/metrics/checkpoint as recorded by runtime_pause; do not double-count"],
+  "path_after_boundary": "UNKNOWN_UNTIL_CODE_IDENTITY_RECONCILIATION",
+  "candidate_review_domains": ["checkpoint_resume", "generation", "persistence", "scheduling", "artifact_reuse"],
+  "measurements": {"runtime": null, "throughput": null, "speedup": null, "quality": null},
+  "constraints": ["no benchmarks in Wave 0", "production worktree unchanged", "telemetry PARTIAL", "LIVE_CODE_IDENTITY_UNCERTAIN", "no timing or speedup claim"]
+}
