@@ -1,4 +1,7 @@
-# Final validation — code-only runtime optimization
+# Final validation — V27 code-only runtime optimization
+
+- Governing debug overlay: V27, SHA-256 `d77f564135d9196ff88e1da24a0fb15fd760c9a19041d0f7097cfd5850a4580` (see `debug_convergence/governing_prompt_provenance.json`).
+- Scientific authority: V26 remains authoritative; the repository-recorded V26 digest is `457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0`. The exact V26 bytes were not included in the current attachment, so no missing V26 rule is inferred.
 
 ## Scope and identity
 

@@ -1,7 +1,12 @@
 schema_version: 1
 prompt:
-  version: V26
-  sha256: 457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0
+  version: V27
+  sha256: d77f564135d9196ff88e1da24a0fb15fd760c9a19041d0f7097cfd5850a4580
+  governing_overlay: true
+  source: reports/runtime_optimization/debug_convergence/governing_prompt_provenance.json
+  v26_authoritative_sha256: 457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0
+  v26_exact_bytes_available: false
+  interpretation: V26 remains authoritative for science; V27 supplies bounded debugging and delivery rules.
 phase: WAVE_0_AUDIT
 status: WAVE0_ACCEPTED
 identity:
