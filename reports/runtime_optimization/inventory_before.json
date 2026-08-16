@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "prompt_sha256": "457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0",
+  "run_id": "q1a_cot_only_vistral_20260521",
+  "production_worktree": {"path":"/root/vipragsent", "dirty":true, "must_not_change":true},
+  "isolated_base": {"path":"/root/vipragsent-runtime-opt", "commit":"fb40c91a7c39ac575db2bd71d9957f0e89069b3e", "source_clean_commit":true, "worktree_contains_intentional_wave0_reports":true, "fresh_builder_worktree_required":true},
+  "live_state": {"paused_after_epoch":2, "active_pid":null, "recorded_state":"RUNNING_STALE", "approval":"PENDING_USER_APPROVAL", "next_run_allowed":"NO"},
+  "checkpoint": {"epoch":2, "local_path":"results/runs/q1a_cot_only_vistral_20260521/checkpoints/epoch_2/model.pt", "bytes":4942818023, "sha256":"d3fe7e99bb0758e527c4967fe2a8502c722fce8d86cd7664ea776440a3b41a77", "local_verified":true, "hf_repo":"Thundergod2007/vipragsent-vistral7b-checkpoints", "hf_path":"q1a_cot_only_vistral_20260521/checkpoints/epoch_2/model.pt", "hf_revision":"1aadf557a77853cf19946a747f9fe5c40a8288b0", "hf_remote_verified":true, "verification":"read_only_local_sha256_and_remote_metadata"},
+  "source_binding": {"state_code_commit":"fb40c91a7c39ac575db2bd71d9957f0e89069b3e", "state_code_tree":"a670b1ca9af0a6921b2f0d7f194bfa29fe568c6d", "state_source_fingerprint":"2daf51d98fa18b076a4020dada95dcbf8320304abcc0440b684a99291ec6500e", "run_manifest_code_commit":"a765b2bca625ff66cf97dc608eacb3a3c63553b5", "identity_status":"LIVE_CODE_IDENTITY_UNCERTAIN"},
+  "run_binding": {"model_revision":"d331b64e61b935cc43c2b3010ae9fb4fde599b45", "tokenizer_revision":"d331b64e61b935cc43c2b3010ae9fb4fde599b45", "config_hash":"3F6AF966D078AF57CC8989269380B2DD1C44D2402540AD21E9B5C419A8743642", "data_hash":"B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9", "processed_fingerprint":"7C39BEEBC462D1F9076F5DF1565E924BD884263D5503F23398BD83A6BF4205EB"},
+  "hardware": {"gpu":"H100 MIG 2g.20gb", "telemetry":"PARTIAL"},
+  "environment": {"python":"3.11.0rc1", "torch":"2.4.0+cu124", "transformers":"4.46.3"},
+  "identity_status":"LIVE_CODE_IDENTITY_UNCERTAIN"
+}

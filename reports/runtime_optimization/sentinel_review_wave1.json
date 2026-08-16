@@ -1,0 +1,198 @@
+{
+  "schema_version": 4,
+  "review": "LUNA_SENTINEL independent post-Wave-0 Builder review",
+  "wave": "WAVE-1",
+  "round": 4,
+  "decision": "PASS",
+  "pass_rule": "PASS requires zero open CRITICAL or HIGH findings; accepted MEDIUM findings are non-blocking and must have rationale.",
+  "base": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
+  "scope_constraints": [
+    "Read-only review of Builder branches and exact commits",
+    "Only the two sentinel report files were written",
+    "No production or Builder branch edits",
+    "No network, Azure, Hugging Face, benchmark, real model, or real data execution"
+  ],
+  "builders": [
+    {
+      "name": "cot_checkpoint_resume",
+      "branch": "codex/naacl-opt/cot-resume",
+      "worktree": "/root/vipragsent-runtime-opt-cot",
+      "commit": "beb823d0f0e2e65cfee88b26ce5da03916adc821",
+      "parent": "326ad50cab09d87a53512309eb7b154ec1470ed6",
+      "decision": "PASS",
+      "open_critical": 0,
+      "open_high": 0,
+      "accepted_medium": 1,
+      "closed_prior_high": ["COT-H002"],
+      "closed_prior_medium": ["COT-M002", "COT-M003"]
+    },
+    {
+      "name": "naacl_policy_profile",
+      "branch": "codex/naacl-opt/naacl-profile",
+      "worktree": "/root/vipragsent-runtime-opt-profile",
+      "commit": "371b8717160be7e8a9be04eda0ca95415096ea76",
+      "parent": "008f16231b2b174b022838057e92b9f4c51e7017",
+      "decision": "PASS",
+      "open_critical": 0,
+      "open_high": 0,
+      "accepted_medium": 1,
+      "closed_prior_high": ["PROFILE-H001"],
+      "closed_prior_medium": ["PROFILE-M001"]
+    },
+    {
+      "name": "read_only_reuse",
+      "branch": "codex/naacl-opt/hf-reuse",
+      "worktree": "/root/vipragsent-runtime-opt-reuse",
+      "commit": "4b721704448b3781b6ff6a379f4c5bb208f575b7",
+      "parent": "2672c295cb82ae99758a42d0b106bc87e4112ad0",
+      "decision": "PASS",
+      "open_critical": 0,
+      "open_high": 0,
+      "accepted_medium": 0,
+      "closed_prior_high": ["REUSE-H001", "REUSE-H002", "REUSE-H003"]
+    }
+  ],
+  "findings": [
+    {
+      "id": "COT-M001",
+      "builder": "cot_checkpoint_resume",
+      "severity": "MEDIUM",
+      "status": "OPEN_ACCEPTED",
+      "blocking": false,
+      "summary": "Checkpoint payload and provenance sidecar use separate atomic replacements.",
+      "evidence": "A crash between replacements can leave a missing sidecar; loading fails closed rather than silently accepting incomplete state.",
+      "rationale": "Operational integrity is preserved by fail-closed loading; a future single-container publication would remove the crash window.",
+      "exact_fix_if_reopened": "Publish payload and provenance in one atomically replaced container or add an atomic commit marker protocol."
+    },
+    {
+      "id": "PROFILE-M002",
+      "builder": "naacl_policy_profile",
+      "severity": "MEDIUM",
+      "status": "OPEN_ACCEPTED",
+      "blocking": false,
+      "summary": "Azure Q3 exclusion is test/report enforced but not independently required by the standalone validator.",
+      "evidence": "Checked-in profile/report tests assert the exact exclusion; the profile is default-off and prohibited from ordinary execution.",
+      "rationale": "The checked-in artifact remains policy-consistent and the omission cannot silently enable default execution; validator hardening is still desirable.",
+      "exact_fix_if_reopened": "Require the named Azure Q3 exclusion directly in validator policy and add a validator-negative test."
+    },
+    {
+      "id": "COT-H002",
+      "builder": "cot_checkpoint_resume",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Production generation previously permitted placeholder data provenance.",
+      "closure": "stage_registry now rejects missing/placeholder data_hash before executor injection or production model resolution; targeted negative tests verify the resolution path is not reached."
+    },
+    {
+      "id": "COT-M002",
+      "builder": "cot_checkpoint_resume",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Resume state and RNG restoration evidence.",
+      "closure": "Cache-free targeted checkpoint/generation/device-contract tests passed, including state/RNG and mismatch rejection coverage."
+    },
+    {
+      "id": "COT-M003",
+      "builder": "cot_checkpoint_resume",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Legacy checkpoint provenance gating.",
+      "closure": "Legacy loading requires explicit CPU fixture_mode; production paths require real provenance."
+    },
+    {
+      "id": "PROFILE-M001",
+      "builder": "naacl_policy_profile",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Profile source drift could evade the intended policy binding.",
+      "closure": "Validator and tests bind Q1b/Q2/Q3 sources, digests, systems, budgets, seeds, metrics, and expected cells."
+    },
+    {
+      "id": "PROFILE-H001",
+      "builder": "naacl_policy_profile",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Profile policy validation and exclusion closure.",
+      "closure": "The exact checked-in profile/report and Q1b dependency tests passed cache-free; default execution remains off."
+    },
+    {
+      "id": "REUSE-H001",
+      "builder": "read_only_reuse",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Read-only safety boundary.",
+      "closure": "Read-only tests passed; no network/HF/filesystem mutation or subprocess path was introduced."
+    },
+    {
+      "id": "REUSE-H002",
+      "builder": "read_only_reuse",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Artifact identity and content verification.",
+      "closure": "Identity/hash schema and evidence-bearing verification/promotion checks are covered by the targeted tests."
+    },
+    {
+      "id": "REUSE-H003",
+      "builder": "read_only_reuse",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Backup/restore and promotion safety.",
+      "closure": "The read-only path retains denied backup/restore mutation plans and refuses bare promotion without verification evidence."
+    }
+  ],
+  "invariants_checked": [
+    "Exact commit heads and parents resolved on requested branches",
+    "Placeholder data_hash rejection occurs in stage_registry before production resolution",
+    "Explicit fixture_mode is required for placeholder/legacy use and is CPU-only",
+    "Dataset identity/hash and model/tokenizer identity/artifacts are compared",
+    "Canonical checkpoint serialization retains run state, optimizer/scheduler, RNG, data order, and provenance",
+    "No duplicate generation serializer was introduced",
+    "Legacy gating, read-only/no-network/HF safety, default-off execution, ownership, and commit scope",
+    "Profile exclusions, Q1b dependency, source bindings, and drift checks"
+  ],
+  "tests": [
+    {
+      "builder": "cot_checkpoint_resume",
+      "command_scope": "tests/test_generation_checkpoint_resume.py tests/test_luna_max_01_generation.py tests/test_checkpoint_device_contract.py",
+      "result": "35 passed",
+      "cache_free": true
+    },
+    {
+      "builder": "naacl_policy_profile",
+      "command_scope": "tests/test_naacl_balanced_profile.py tests/test_q1b_dependencies.py",
+      "result": "19 passed",
+      "cache_free": true
+    },
+    {
+      "builder": "read_only_reuse",
+      "command_scope": "targeted reuse read-only/identity safety tests",
+      "result": "13 passed",
+      "cache_free": true
+    },
+    {
+      "builder": "all",
+      "command_scope": "Python compilation and git diff --check",
+      "result": "passed",
+      "cache_free": true
+    }
+  ],
+  "external_execution": {
+    "network": false,
+    "azure": false,
+    "huggingface": false,
+    "real_model_or_data": false,
+    "benchmark": false
+  },
+  "report_files": [
+    "/root/vipragsent-runtime-opt/reports/runtime_optimization/sentinel_review_wave1.md",
+    "/root/vipragsent-runtime-opt/reports/runtime_optimization/sentinel_review_wave1.json"
+  ]
+}
