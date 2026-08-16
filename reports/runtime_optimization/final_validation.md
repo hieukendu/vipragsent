@@ -1,35 +1,33 @@
 # Final validation — V27 code-only runtime optimization
 
-- Governing debug overlay: V27, SHA-256 `d77f564135d9196ff88e1da24a0fb15fd760c9a19041d0f7097cfd5850a4580` (see `debug_convergence/governing_prompt_provenance.json`).
-- Scientific authority: V26 remains authoritative; the repository-recorded V26 digest is `457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0`. The exact V26 bytes were not included in the current attachment, so no missing V26 rule is inferred.
+- Governing overlay: V27, SHA-256 `d77f564135d9196ff88e1da24a0fb15fd760c9a19041d0f7097cfd5850a4580` (see `debug_convergence/governing_prompt_provenance.json`).
+- Scientific authority: V26 remains authoritative, recorded digest `457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0`. The exact V26 bytes were not included in the current attachment, so no missing V26 rule is inferred.
 
 ## Scope and identity
 
-- Master prompt: V26, SHA-256 `457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0`.
 - Manager branch: `codex/naacl-runtime-optimization`.
-- Isolated source base: `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`.
-- Production worktree `/root/vipragsent` was not edited. Its live loaded-code identity remains `LIVE_CODE_IDENTITY_UNCERTAIN`; the observed run is stale/paused after epoch 2 with no active PID, `PENDING_USER_APPROVAL`, and `next run = NO`.
-- Current epoch-2 checkpoint evidence is read-only: local SHA-256 `d3fe7e99bb0758e527c4967fe2a8502c722fce8d86cd7664ea776440a3b41a77`, matching the current Vistral HF metadata revision/path. This does not promote reuse or resume because source identity and approval bindings are incomplete.
+- Reviewed Manager head: `e0c502a3879fb3a65305841e6941a6bae24e5778`.
+- Base: `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`.
+- Production worktree `/root/vipragsent` was not edited. Its live loaded-code identity remains uncertain; the observed run is stale/paused with no active PID, `PENDING_USER_APPROVAL`, and `next run = NO`.
+- No production, Azure, Hugging Face, model-download, benchmark, or process-control action occurred.
 
-## Review-gated implementation
+## Scientific invariants
 
-- Wave 0: accepted by independent Sentinel; path-specific identity/reuse blockers remain recorded.
-- Wave 1: checkpoint/resume, read-only reuse, and NAACL profile chains accepted by Sentinel round 4.
-- Wave 2: generation chain accepted by Sentinel round 2; decoder-safe left padding, causal variable-length equivalence, committed chunk persistence, and best-epoch artifact binding are integrated.
-- Wave 3: Azure, explanation-only, scheduler, and estimator slices accepted by independent Sentinel. Scheduler/estimator rework `0cec7982ca412b4fe1b9efc50dc6e07e7f5ba2ec` was independently re-reviewed and passed.
+- Q3 profile validation passes with 36 local cells plus four Azure rows, Azure `seed: null`, and fail-closed complete-inventory validation. XLM-R and budgets `64/256` remain explicit exclusions.
+- Q1b remains evaluation-only: canonical producer kind/ID/run/checkpoint/seed and graph/source digests are emitted and bound through source, external manifest/metrics, and review summary; conflicting or type-coerced provenance blocks aggregation.
+- Q2 retains exactly six variants across the three locked seeds.
+- Shared GPU occupancy is serialized by default; only the validated PhoBERT pair exception is allowed.
+- Generation speedup divides duration by the exact factors 1.0/1.5/2.0/2.5/3.0/4.0.
+- `latest` preserves the last completed epoch independently of persisted `best` selection.
 
-## Tests and static checks
+## Checks
 
-The integrated CPU/mock-only selected matrix passed **124 tests** after the scheduler rework. It included the Wave-3 packages, Wave-2 generation/resume/red-team coverage, reuse/profile/Q1b coverage, and pre-experiment closure tests. The broader CPU/mock-only repository run passed **292 tests** in 4:36 with CUDA hidden and an isolated temporary pytest cache.
-
-Additional evidence:
-
-- Wave-3 independent Sentinel: 29 focused tests passed; scheduler re-review: 12 passed.
-- Python 3.11 compilation passed for all new runtime modules.
-- `git diff --check` passed for reviewed commits and reports.
-- Ruff 0.6.9 reports 13 pre-existing findings on `origin/main` and 19 additional style findings in the reviewed runtime modules; no auto-fix was applied after the implementation reviews. Mypy was not run.
-- No real model/data benchmark, training, evaluation, Azure request, HF mutation, process control, or secret-bearing environment dump occurred.
+- Focused correction suite: **47 passed**.
+- Broad CPU/mock-only suite: **325 passed in 57.74 seconds**.
+- Fixture DAG, execution registry, schemas, sequential prompt validation, NAACL profile validation, production implementation audit, and final production correctness audit: **PASS**.
+- Compilation, `git diff --check`, Ruff 0.6.9, and Ruff 0.16.3: **PASS**.
+- Final correctness audit reports `ci_status: NOT_RUN`; fresh remote CI is still required.
 
 ## Gate result
 
-`PROJECTED_GATE_CONDITIONAL`. The implementation removes safe execution waste and provides a resource-constrained estimator, but the final campaign makespan still depends on later authorized production-hardware measurements: Vistral generation throughput, Azure transport throughput, and any PhoBERT concurrency-2 profile. This code-only task does not claim `MEASURED_GATE_PASS`.
+`PROJECTED_GATE_CONDITIONAL`. This code-only task does not claim measured campaign readiness. PR #10 remains a draft pending final read-only review and fresh remote CI. The PR was **not merged**.
