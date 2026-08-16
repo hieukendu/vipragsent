@@ -89,6 +89,8 @@ def _validated_provenance(value: Mapping[str, Any]) -> dict[str, Any]:
 
 
 def _read_manifest(path: Path, checkpoint_path: Path) -> GenerationCheckpointManifest:
+    if not path.exists():
+        raise GenerationCheckpointError(f"generation checkpoint sidecar manifest is missing: {path}")
     try:
         raw = json.loads(path.read_text(encoding="utf-8"))
         provenance = _validated_provenance(raw["provenance"])
@@ -109,6 +111,23 @@ def _read_manifest(path: Path, checkpoint_path: Path) -> GenerationCheckpointMan
     return manifest
 
 
+def _legacy_payload_info(path: Path) -> tuple[bool, dict[str, Any] | None]:
+    """Inspect a legacy fixture without making a canonical checkpoint optional."""
+    try:
+        raw = torch.load(path, map_location="cpu", weights_only=False)
+    except TypeError:
+        raw = torch.load(path, map_location="cpu")
+    if not isinstance(raw, Mapping) or raw.get("schema_version") == 2 or "model" not in raw:
+        return False, None
+    metadata = raw.get("metadata")
+    if not isinstance(metadata, Mapping) or not isinstance(metadata.get("provenance"), Mapping):
+        return True, None
+    provenance = _validated_provenance(metadata["provenance"])
+    if metadata.get("provenance_sha256") != sha256_json(provenance):
+        raise GenerationCheckpointError("legacy generation provenance hash mismatch")
+    return True, provenance
+
+
 def save_generation_checkpoint(
     path: str | Path,
     model: nn.Module,
@@ -119,13 +138,18 @@ def save_generation_checkpoint(
     *,
     loss_aggregator: nn.Module | None = None,
     rng_state: Mapping[str, Any] | None = None,
+    metadata: Mapping[str, Any] | None = None,
 ) -> GenerationCheckpointManifest:
     """Atomically save one canonical checkpoint plus its integrity manifest."""
     checkpoint_path = Path(path)
     normalized = _validated_provenance(provenance)
     payload = build_checkpoint_payload(
         model, optimizer, scheduler, loss_aggregator, run_state,
-        metadata={"checkpoint_kind": "generation_resume", "provenance": normalized},
+        metadata={
+            **dict(metadata or {}),
+            "checkpoint_kind": "generation_resume",
+            "provenance": normalized,
+        },
         rng_state=rng_state,
     )
     save_checkpoint(checkpoint_path, payload)
@@ -160,10 +184,19 @@ def load_generation_checkpoint(
     try:
         manifest = _read_manifest(manifest_path, checkpoint_path)
     except GenerationCheckpointError:
-        # Historical CPU fixtures may lack the sidecar, but only an explicit
-        # legacy opt-in can reach the canonical loader in this mode.
-        if not allow_legacy_fixture or manifest_path.exists():
+        # A canonical checkpoint without its sidecar is never loadable.  Only
+        # an explicitly opted-in historical fixture may use this recovery path.
+        if manifest_path.exists() or not allow_legacy_fixture:
             raise
+        is_legacy, legacy_provenance = _legacy_payload_info(checkpoint_path)
+        if not is_legacy:
+            raise GenerationCheckpointError("canonical generation checkpoint cannot load without its sidecar manifest")
+        if expected_provenance is not None:
+            expected = _validated_provenance(expected_provenance)
+            if legacy_provenance is None:
+                raise GenerationCheckpointError("legacy checkpoint lacks validated provenance for identity checking")
+            if legacy_provenance != expected:
+                raise GenerationCheckpointError("legacy generation checkpoint provenance identity mismatch")
     if manifest is not None and expected_provenance is not None:
         expected = _validated_provenance(expected_provenance)
         if manifest.provenance != expected:
@@ -187,4 +220,3 @@ def load_generation_checkpoint(
     if result.payload.get("rng_state") and "rng" in hooks:
         hooks["rng"](result.payload["rng_state"])
     return GenerationCheckpointLoadResult(result, manifest)
-

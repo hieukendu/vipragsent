@@ -6,6 +6,7 @@ import pytest
 import torch
 from torch import nn
 
+from vipragsent.hashing import sha256_json
 from vipragsent.training.generation_checkpoint import (
     GenerationCheckpointError,
     load_generation_checkpoint,
@@ -80,4 +81,34 @@ def test_legacy_fixture_requires_explicit_opt_in(tmp_path: Path) -> None:
     with pytest.raises(GenerationCheckpointError, match="legacy"):
         load_generation_checkpoint(path, nn.Linear(2, 1))
     loaded = load_generation_checkpoint(path, nn.Linear(2, 1), allow_legacy_fixture=True)
+    assert loaded.checkpoint.report.legacy_compatibility is True
+
+
+def test_legacy_fixture_with_expected_provenance_requires_validated_identity(tmp_path: Path) -> None:
+    model = nn.Linear(2, 1)
+    path = tmp_path / "legacy.pt"
+    torch.save({"model": model.state_dict(), "state": {"step": 1}}, path)
+    with pytest.raises(GenerationCheckpointError, match="lacks validated provenance"):
+        load_generation_checkpoint(
+            path,
+            nn.Linear(2, 1),
+            allow_legacy_fixture=True,
+            expected_provenance=_provenance(),
+        )
+
+    provenance = _provenance()
+    torch.save(
+        {
+            "model": model.state_dict(),
+            "state": {"step": 1},
+            "metadata": {"provenance": provenance, "provenance_sha256": sha256_json(provenance)},
+        },
+        path,
+    )
+    loaded = load_generation_checkpoint(
+        path,
+        nn.Linear(2, 1),
+        allow_legacy_fixture=True,
+        expected_provenance=provenance,
+    )
     assert loaded.checkpoint.report.legacy_compatibility is True

@@ -1,10 +1,12 @@
 from __future__ import annotations
 
 import json
+import random
 import shutil
 from pathlib import Path
 from types import SimpleNamespace
 
+import numpy as np
 import pytest
 import torch
 import yaml
@@ -340,6 +342,11 @@ def test_generation_checkpoint_load_changes_weights(tmp_path: Path) -> None:
     for parameter in executor.model.parameters():
         parameter.data.add_(1.0)
     digest = executor.write_checkpoint("checkpoints/distinct/model.pt")
+    payload = torch.load(path, map_location="cpu", weights_only=False)
+    assert payload["schema_version"] == 2
+    assert "model_state_dict" in payload
+    assert "model" not in payload
+    assert (path.with_suffix(path.suffix + ".manifest.json")).exists()
     for parameter in executor.model.parameters():
         parameter.data.zero_()
     report = executor.load_checkpoint(path, expected_sha256=digest)
@@ -352,6 +359,62 @@ def test_generation_checkpoint_hash_mismatch_blocks(tmp_path: Path) -> None:
     digest = executor.write_checkpoint("checkpoints/best/model.pt")
     with pytest.raises(GenerationCheckpointError, match="hash mismatch"):
         executor.load_checkpoint(executor.run_root / "checkpoints/best/model.pt", expected_sha256="0" * len(digest))
+
+
+def test_generation_checkpoint_sidecar_failure_is_fail_closed(tmp_path: Path) -> None:
+    executor = _executor(tmp_path)
+    path = executor.run_root / "checkpoints/latest/model.pt"
+    executor.write_checkpoint("checkpoints/latest/model.pt")
+    path.with_suffix(path.suffix + ".manifest.json").unlink()
+    with pytest.raises(GenerationCheckpointError, match="sidecar manifest"):
+        executor.load_checkpoint(path)
+
+
+def test_generation_checkpoint_restores_all_resume_state_and_rng_streams(tmp_path: Path) -> None:
+    random.seed(91)
+    np.random.seed(91)
+    torch.manual_seed(91)
+    executor = _executor(tmp_path)
+    optimizer = torch.optim.AdamW(executor.model.parameters(), lr=0.01)
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda _: 1.0)
+    records = [
+        {"input_ids": torch.tensor([[1, 2]]), "target_ids": torch.tensor([[3, 4]])},
+        {"input_ids": torch.tensor([[2, 3]]), "target_ids": torch.tensor([[4, 5]])},
+    ]
+    executor.train_generation(records, optimizer=optimizer, scheduler=scheduler)
+    order = ["train-0", "train-1"]
+    path = executor.run_root / "checkpoints/latest/model.pt"
+    executor.write_checkpoint(
+        "checkpoints/latest/model.pt",
+        optimizer=optimizer,
+        scheduler=scheduler,
+        epoch=1,
+        selection_metric=0.75,
+        data_order=order,
+    )
+    expected_python = random.random()
+    expected_numpy = float(np.random.random())
+    expected_torch = torch.rand(3)
+    for parameter in executor.model.parameters():
+        parameter.data.zero_()
+    random.random()
+    np.random.random()
+    torch.rand(3)
+    restored_optimizer = torch.optim.AdamW(executor.model.parameters(), lr=0.01)
+    restored_scheduler = torch.optim.lr_scheduler.LambdaLR(restored_optimizer, lambda _: 1.0)
+    report = executor.load_checkpoint(
+        path,
+        optimizer=restored_optimizer,
+        scheduler=restored_scheduler,
+        expected_data_order=order,
+    )
+    assert report["run_state"]["epoch"] == 1
+    assert report["run_state"]["data_order"] == order
+    assert restored_scheduler.last_epoch == scheduler.last_epoch
+    assert restored_optimizer.state
+    assert random.random() == expected_python
+    assert float(np.random.random()) == expected_numpy
+    assert torch.equal(torch.rand(3), expected_torch)
 
 
 def test_generation_test_stage_requires_freeze(tmp_path: Path) -> None:
