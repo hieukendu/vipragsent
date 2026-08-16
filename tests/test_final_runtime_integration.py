@@ -257,6 +257,7 @@ def test_q1b_disk_executor_reads_only_normalized_tests_and_records_no_training(t
     source.mkdir(parents=True)
     (source / "review_summary.json").write_text(json.dumps({"system_id": "source_system", "seed": 20260521, "checkpoint_path": "best.pt", "USER_REVIEW_STATUS": "PENDING", "NEXT_RUN_ALLOWED": "NO"}), encoding="utf-8")
     (source / "checksums.sha256").write_text("fixture checksum list\n", encoding="utf-8")
+    (source / "state.json").write_text(json.dumps({"run_id": source.name, "run_status": "APPROVED", "approval_status": "APPROVED"}), encoding="utf-8")
     approval_timestamp = "2026-08-16T00:00:00Z"
     (source / "approval_status.json").write_text(
         json.dumps(
@@ -299,7 +300,29 @@ def test_q4_extracts_only_approved_source_backing_artifacts(tmp_path: Path) -> N
     (source / "config_snapshot.yaml").write_text("config: locked\n", encoding="utf-8")
     (source / "provenance.json").write_text(json.dumps({"synthetic_results": False}), encoding="utf-8")
     (source / "review_summary.json").write_text(json.dumps({"system_id": "phobert_pragmatic_finetune", "seed": 20260521, "code_commit": "locked", "checkpoint_path": "checkpoints/best/model.pt"}), encoding="utf-8")
-    (source / "approval_status.json").write_text(json.dumps({"status": "APPROVED"}), encoding="utf-8")
+    (source / "checksums.sha256").write_text("fixture checksum list\n", encoding="utf-8")
+    (source / "state.json").write_text(json.dumps({"run_id": source.name, "run_status": "APPROVED", "approval_status": "APPROVED"}), encoding="utf-8")
+    approval_timestamp = "2026-08-16T00:00:00Z"
+    (source / "approval_status.json").write_text(
+        json.dumps(
+            {
+                "run_id": source.name,
+                "status": "APPROVED",
+                "approved_by": "fixture-reviewer",
+                "approved_at": approval_timestamp,
+                "record": {
+                    "run_id": source.name,
+                    "decision": "approve",
+                    "review_note": "fixture approval",
+                    "approved_or_rejected_by": "fixture-reviewer",
+                    "timestamp": approval_timestamp,
+                    "review_summary_sha256": sha256_file(source / "review_summary.json"),
+                    "artifact_checksum_file_sha256": sha256_file(source / "checksums.sha256"),
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
     result = resolve_and_extract_q4_source(tmp_path, {"system_id": "phobert_pragmatic_finetune", "seed": 20260521}, output_root=tmp_path / "run")
     assert result["status"] == "PASS"
     assert result["provenance"]["synthetic_history"] is False

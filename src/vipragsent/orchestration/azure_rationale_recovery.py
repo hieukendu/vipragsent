@@ -9,6 +9,7 @@ from typing import Any
 from ..atomic import atomic_write_json, atomic_write_text
 from ..azure.schemas import strict_rationale_schema
 from ..hashing import sha256_file, sha256_json
+from .approval import validate_approval_record
 from .provenance import expected_inference_provenance
 from .review import COMMON_FIELDS, validate_review_summary
 from .run_store import RunStore, artifact_hashes, utc_now
@@ -737,6 +738,9 @@ def integrate_azure_rationale_recovery(root: str | Path = ".", *, reviewer: str 
         )
         approval = _load(approval_path)
     else:
+        approval_errors = validate_approval_record(run_root, expected_run_id=RUN_ID)
+        if approval_errors:
+            raise ValueError("existing Azure approval is incomplete: " + "; ".join(approval_errors))
         existing_review = _load(run_root / "review_summary.json")
         errors = validate_review_summary(existing_review, completed=True)
         if errors:

@@ -147,7 +147,7 @@ def resolve_exact_q1b_source(root: str | Path, entry: Mapping[str, Any]) -> Q1BS
             continue
         if str(summary.get("reusable_checkpoint_key")) != checkpoint_key:
             continue
-        if state.get("run_status") not in {"COMPLETED_PENDING_APPROVAL", "APPROVED"}:
+        if state.get("run_status") != "APPROVED" or state.get("approval_status") != "APPROVED":
             continue
         summary_hash = sha256_file(summary_path)
         checksum_hash = sha256_file(checksums_path)

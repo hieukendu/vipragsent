@@ -40,11 +40,13 @@ def _approved_source_fixture_compatibility(root: Path, entry: Mapping[str, Any])
     for summary_path in sorted((root / "results/runs").glob("*/review_summary.json")):
         run_root = summary_path.parent
         approval_path = run_root / "approval_status.json"
-        if not approval_path.exists():
+        state_path = run_root / "state.json"
+        if not approval_path.exists() or not state_path.exists():
             continue
         summary = json.loads(summary_path.read_text(encoding="utf-8"))
         approval = json.loads(approval_path.read_text(encoding="utf-8"))
-        if approval.get("status") != "APPROVED":
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+        if not isinstance(state, Mapping) or state.get("run_status") != "APPROVED" or state.get("approval_status") != "APPROVED":
             continue
         system_match = str(summary.get("system_id", "")) in {requested_system, requested_source} if requested_source else str(summary.get("system_id", "")) == requested_system
         seed_match = requested_seed in (None, "", "NOT_APPLICABLE") or str(summary.get("seed")) == str(requested_seed)

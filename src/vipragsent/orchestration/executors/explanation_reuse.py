@@ -106,7 +106,7 @@ def resolve_approved_full_vistral_source(root: str | Path, entry: Mapping[str, A
             continue
         if str(summary.get("reusable_checkpoint_key") or summary.get("source_checkpoint_id")) != expected_key:
             continue
-        if state.get("run_status") not in {"COMPLETED_PENDING_APPROVAL", "APPROVED"}:
+        if state.get("run_status") != "APPROVED" or state.get("approval_status") != "APPROVED":
             continue
         summary_hash = sha256_file(summary_path)
         checksum_hash = sha256_file(checksums_path)

@@ -309,7 +309,7 @@ def test_q1b_factory_routing_and_same_seed_composition(tmp_path: Path) -> None:
     checksums = run_root / "checksums.sha256"
     checksums.write_text("checkpoint-entry\n", encoding="utf-8")
     state = run_root / "state.json"
-    state.write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
+    state.write_text(json.dumps({"run_id": run_root.name, "run_status": "APPROVED", "approval_status": "APPROVED"}), encoding="utf-8")
     manifest = run_root / "checkpoints/checkpoint_manifest.json"
     manifest.write_text(json.dumps({"best": "checkpoints/best/model.pt", "checkpoint_sha256": sha256_file(checkpoint), "variant_fingerprint": "variant"}), encoding="utf-8")
     approval = run_root / "approval_status.json"

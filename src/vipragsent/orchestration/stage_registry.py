@@ -47,6 +47,7 @@ from ..training.engine import TrainingConfig, TrainingEngine
 from ..training.generation_checkpoint import is_real_dataset_hash
 from ..training.optimizers import build_optimizer
 from ..training.schedulers import build_scheduler
+from .approval import validate_approval_record
 from .contracts import (
     ExecutionKind,
     RunContext,
@@ -678,7 +679,7 @@ def _approved_source_run(root: Path, entry: RunEntry) -> Path | None:
         run_root = root / "results/runs" / run_id
         state = _load_mapping(run_root / "state.json")
         approval = _load_mapping(run_root / "approval_status.json")
-        if state.get("run_status") == "APPROVED" and approval.get("status") == "APPROVED":
+        if state.get("run_status") == "APPROVED" and approval.get("status") == "APPROVED" and not validate_approval_record(run_root, expected_run_id=run_id):
             return run_root
     return None
 
