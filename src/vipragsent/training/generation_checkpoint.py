@@ -27,6 +27,15 @@ from .checkpoints import (
 )
 
 GENERATION_CHECKPOINT_SCHEMA_VERSION = 2
+_PLACEHOLDER_DATA_HASHES = {
+    "",
+    "NONE",
+    "NULL",
+    "NOT_PROVIDED",
+    "NOT PROVIDED",
+    "TO_BE_FILLED",
+    "TO_BE_FILLED_AFTER_PROTOCOL_FILES_ARE_WRITTEN",
+}
 PROVENANCE_FIELDS = (
     "model",
     "model_artifact",
@@ -74,6 +83,40 @@ class GenerationCheckpointLoadResult:
     @property
     def run_state(self) -> Mapping[str, Any]:
         return self.checkpoint.run_state
+
+
+def is_real_dataset_hash(value: Any) -> bool:
+    """Return whether a data hash is usable as production provenance."""
+    if value is None:
+        return False
+    normalized = str(value).strip()
+    upper = normalized.upper()
+    lower = normalized.lower()
+    return bool(normalized) and upper not in _PLACEHOLDER_DATA_HASHES and not lower.startswith(
+        ("fixture", "synthetic", "placeholder")
+    )
+
+
+def _model_is_cpu(model: nn.Module) -> bool:
+    devices = {parameter.device for parameter in model.parameters()} | {buffer.device for buffer in model.buffers()}
+    return all(device.type == "cpu" for device in devices)
+
+
+def _validate_provenance_mode(
+    provenance: Mapping[str, Any],
+    model: nn.Module,
+    *,
+    production_provenance_required: bool,
+    fixture_mode: bool,
+) -> None:
+    if fixture_mode and not _model_is_cpu(model):
+        raise GenerationCheckpointError("fixture/legacy generation checkpoint mode requires a CPU model")
+    if is_real_dataset_hash(provenance.get("data_hash")):
+        return
+    if production_provenance_required:
+        raise GenerationCheckpointError("production generation checkpoint requires a real dataset hash")
+    if not fixture_mode:
+        raise GenerationCheckpointError("placeholder dataset hash requires explicit CPU fixture mode")
 
 
 def _manifest_path(checkpoint_path: Path) -> Path:
@@ -154,10 +197,18 @@ def save_generation_checkpoint(
     loss_aggregator: nn.Module | None = None,
     rng_state: Mapping[str, Any] | None = None,
     metadata: Mapping[str, Any] | None = None,
+    production_provenance_required: bool = False,
+    fixture_mode: bool = False,
 ) -> GenerationCheckpointManifest:
     """Atomically save one canonical checkpoint plus its integrity manifest."""
     checkpoint_path = Path(path)
     normalized = _validated_provenance(provenance)
+    _validate_provenance_mode(
+        normalized,
+        model,
+        production_provenance_required=production_provenance_required,
+        fixture_mode=fixture_mode,
+    )
     payload = build_checkpoint_payload(
         model, optimizer, scheduler, loss_aggregator, run_state,
         metadata={
@@ -205,11 +256,20 @@ def load_generation_checkpoint(
     report_path: str | Path | None = None,
     restore_rng: Callable[[Mapping[str, Any]], None] | None = None,
     restore_hooks: Mapping[str, Callable[[Any], None]] | None = None,
+    production_provenance_required: bool = False,
+    fixture_mode: bool = False,
 ) -> GenerationCheckpointLoadResult:
     """Validate identity/integrity, then delegate loading to canonical primitives."""
     checkpoint_path = Path(path)
+    if allow_legacy_fixture and not fixture_mode:
+        raise GenerationCheckpointError("legacy loading requires explicit fixture_mode=True")
+    if production_provenance_required and expected_provenance is None:
+        raise GenerationCheckpointError("production generation checkpoint load requires expected provenance")
+    if fixture_mode and not _model_is_cpu(model):
+        raise GenerationCheckpointError("fixture/legacy generation checkpoint mode requires a CPU model")
     manifest_path = _manifest_path(checkpoint_path)
     manifest: GenerationCheckpointManifest | None = None
+    legacy_provenance: dict[str, Any] | None = None
     try:
         manifest = _read_manifest(manifest_path, checkpoint_path)
     except GenerationCheckpointError:
@@ -230,6 +290,22 @@ def load_generation_checkpoint(
         expected = _validated_provenance(expected_provenance)
         if not _provenance_matches(manifest.provenance, expected, compare_provenance_fields):
             raise GenerationCheckpointError("generation checkpoint provenance identity mismatch")
+    if manifest is not None:
+        _validate_provenance_mode(
+            manifest.provenance,
+            model,
+            production_provenance_required=production_provenance_required,
+            fixture_mode=fixture_mode,
+        )
+    elif production_provenance_required:
+        if legacy_provenance is None:
+            raise GenerationCheckpointError("production generation checkpoint requires validated legacy provenance")
+        _validate_provenance_mode(
+            legacy_provenance,
+            model,
+            production_provenance_required=production_provenance_required,
+            fixture_mode=fixture_mode,
+        )
     kwargs: dict[str, Any] = {
         "optimizer": optimizer,
         "scheduler": scheduler,

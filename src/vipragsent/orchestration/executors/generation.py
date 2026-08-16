@@ -26,6 +26,7 @@ from ...runtime.device import (
 )
 from ...training.generation_checkpoint import (
     GenerationCheckpointError,
+    is_real_dataset_hash,
     load_generation_checkpoint,
     save_generation_checkpoint,
 )
@@ -236,6 +237,7 @@ class GenerationExecutor:
                 {"epoch": history[-1]["epoch"], "data_order": []},
                 compatibility_provenance,
                 metadata={"executor": "causal_generation", "model_class": type(self.model).__name__},
+                fixture_mode=True,
             )
         return {"status": "PASS", "dev": dev, "test": test, "checkpoint_sha256": sha256_file(self.root / "checkpoints/best/model.pt")}
 
@@ -340,6 +342,8 @@ class ReasoningGenerationExecutor:
         dataset_identity: str | None = None,
         model_artifact_identity: Mapping[str, Any] | str | None = None,
         tokenizer_artifact_identity: Mapping[str, Any] | str | None = None,
+        production_provenance_required: bool = False,
+        fixture_mode: bool = False,
         physical_batch_size: int = 1,
         gradient_accumulation_steps: int = 1,
         pad_token_id: int | None = None,
@@ -353,6 +357,8 @@ class ReasoningGenerationExecutor:
         self.config_hash = config_hash
         self.data_hash = str(data_hash)
         self.dataset_identity = str(dataset_identity or self.data_hash)
+        self.production_provenance_required = bool(production_provenance_required)
+        self.fixture_mode = bool(fixture_mode)
         model_config = getattr(model, "config", None)
         self.model_artifact_identity = _stable_artifact_identity(
             model,
@@ -368,6 +374,12 @@ class ReasoningGenerationExecutor:
         tokenizer_eos_token_id = getattr(tokenizer, "eos_token_id", None)
         self.pad_token_id = int(pad_token_id if pad_token_id is not None else tokenizer_pad_token_id if tokenizer_pad_token_id is not None else tokenizer_eos_token_id if tokenizer_eos_token_id is not None else 0)
         self.device = resolve_model_input_device(model)
+        if self.fixture_mode and self.device.type != "cpu":
+            raise GenerationCheckpointError("fixture/legacy generation mode requires a CPU model")
+        if not is_real_dataset_hash(self.data_hash) and (self.production_provenance_required or not self.fixture_mode):
+            raise GenerationCheckpointError(
+                "production generation requires a real dataset hash or explicit CPU fixture mode"
+            )
         self._device_report_written = False
         self.protocol = load_reasoning_protocol(self.root)
         validation = validate_reasoning_protocol_files(self.root)
@@ -664,6 +676,8 @@ class ReasoningGenerationExecutor:
                 "data_hash": self.data_hash,
                 **dict(metadata or {}),
             },
+            production_provenance_required=self.production_provenance_required,
+            fixture_mode=self.fixture_mode,
         )
         return manifest.checkpoint_sha256
 
@@ -724,6 +738,8 @@ class ReasoningGenerationExecutor:
             allow_legacy_fixture=allow_legacy_fixture,
             restore_training_state=restore_training_state,
             report_path=self.run_root / "checkpoints/load_report.json",
+            production_provenance_required=self.production_provenance_required,
+            fixture_mode=self.fixture_mode,
         )
         report = loaded.checkpoint.report.as_dict()
         report.update({

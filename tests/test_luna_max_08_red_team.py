@@ -276,7 +276,7 @@ def test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_b
 
     monkeypatch.setattr(module, "validate_reasoning_protocol_files", lambda _root: {"status": "PASS", "errors": []})
     model = TinyModel()
-    executor = module.ReasoningGenerationExecutor(ROOT, model=model, tokenizer=SimpleNamespace(decode=lambda *_args, **_kwargs: "reason"), judge=FakeJudge(), run_root=tmp_path)
+    executor = module.ReasoningGenerationExecutor(ROOT, model=model, tokenizer=SimpleNamespace(decode=lambda *_args, **_kwargs: "reason"), judge=FakeJudge(), run_root=tmp_path, fixture_mode=True)
     epochs_seen: list[float] = []
 
     def train_generation(*_args: Any, epoch_start: int = 1, **_kwargs: Any) -> list[dict[str, float]]:

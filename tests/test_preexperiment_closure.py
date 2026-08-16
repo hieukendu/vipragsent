@@ -195,7 +195,7 @@ def test_cot_executor_trains_selects_on_dev_and_seals_test_until_after_selection
 
     judge = ReasoningJudge(tmp_path, transport=transport, cache_root=tmp_path / "judge-cache", sleep_fn=lambda _: None)
     model = _TinyCausal()
-    executor = ReasoningGenerationExecutor(tmp_path, model=model, tokenizer=_TinyTokenizer(), judge=judge, run_root=tmp_path / "run", seed=20260521)
+    executor = ReasoningGenerationExecutor(tmp_path, model=model, tokenizer=_TinyTokenizer(), judge=judge, run_root=tmp_path / "run", seed=20260521, fixture_mode=True)
     train = [{"input_ids": torch.tensor([[1]]), "target_ids": torch.tensor([[3]])}]
     dev = [{"sample_id": "dev-1", "input_ids": torch.tensor([[1]]), "gold": _labels(1)}]
     test = [{"sample_id": "test-1", "input_ids": torch.tensor([[1]]), "gold": _labels(1)}]
