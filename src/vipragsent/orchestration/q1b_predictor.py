@@ -19,6 +19,7 @@ from ..runtime.device import (
     write_device_report,
 )
 from ..training.checkpoints import infer_required_head_prefixes, load_checkpoint
+from .approval import validate_approval_record
 from .q1b_dependencies import (
     Q1B_MATRIX_KEY_BY_SYSTEM,
     q1b_dependency_graph_is_available,
@@ -141,16 +142,16 @@ def resolve_exact_q1b_source(root: str | Path, entry: Mapping[str, Any]) -> Q1BS
         checksums_path = run_root / "checksums.sha256"
         if not all(path.exists() for path in (summary_path, approval_path, state_path, manifest_path, checksums_path)):
             continue
-        summary, approval, state, manifest = (_load(summary_path), _load(approval_path), _load(state_path), _load(manifest_path))
+        summary, state, manifest = (_load(summary_path), _load(state_path), _load(manifest_path))
         if str(summary.get("system_id")) != system_id or str(summary.get("seed")) != str(seed):
             continue
-        if str(summary.get("reusable_checkpoint_key")) != checkpoint_key or approval.get("status") != "APPROVED":
+        if str(summary.get("reusable_checkpoint_key")) != checkpoint_key:
             continue
         if state.get("run_status") not in {"COMPLETED_PENDING_APPROVAL", "APPROVED"}:
             continue
         summary_hash = sha256_file(summary_path)
         checksum_hash = sha256_file(checksums_path)
-        if approval.get("review_summary_sha256") != summary_hash or approval.get("artifact_checksum_file_sha256") != checksum_hash:
+        if validate_approval_record(run_root, expected_run_id=run_id):
             continue
         checkpoint_value = manifest.get("best") or manifest.get("checkpoint_path")
         checkpoint_path = run_root / str(checkpoint_value or "")
@@ -201,6 +202,10 @@ class DiskBackedQ1BPredictor:
         if system_id == "phobert_emo_single":
             return task == "emotion"
         return True
+
+    def __call__(self, dataset: str, example: Any) -> str:
+        """Expose the predictor as the callable expected by retention evaluation."""
+        return self.predict(dataset, example)
 
     def _load(self) -> None:
         if self._loaded:

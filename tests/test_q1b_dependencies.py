@@ -21,6 +21,30 @@ from vipragsent.orchestration.status import RuntimeBlocked
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def _write_approved_status(run_root: Path, summary: Path, checksums: Path) -> None:
+    timestamp = "2026-08-16T00:00:00Z"
+    (run_root / "approval_status.json").write_text(
+        json.dumps(
+            {
+                "run_id": run_root.name,
+                "status": "APPROVED",
+                "approved_by": "fixture-reviewer",
+                "approved_at": timestamp,
+                "record": {
+                    "run_id": run_root.name,
+                    "decision": "approve",
+                    "review_note": "fixture approval",
+                    "approved_or_rejected_by": "fixture-reviewer",
+                    "timestamp": timestamp,
+                    "review_summary_sha256": sha256_file(summary),
+                    "artifact_checksum_file_sha256": sha256_file(checksums),
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
 def test_q1b_every_consumer_has_exact_producer() -> None:
     graph = build_q1b_dependency_graph(ROOT)
     assert graph["status"] == "PASS", graph
@@ -96,7 +120,7 @@ def test_q1b_no_fake_non_applicable_predictions(tmp_path: Path) -> None:
     checksums.write_text("checkpoint-entry\n", encoding="utf-8")
     (run_root / "state.json").write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
     (run_root / "checkpoints/checkpoint_manifest.json").write_text(json.dumps({"best": "checkpoints/best/model.pt", "checkpoint_sha256": sha256_file(checkpoint), "variant_fingerprint": "variant"}), encoding="utf-8")
-    (run_root / "approval_status.json").write_text(json.dumps({"status": "APPROVED", "review_summary_sha256": sha256_file(summary), "artifact_checksum_file_sha256": sha256_file(checksums)}), encoding="utf-8")
+    _write_approved_status(run_root, summary, checksums)
     index = tmp_path / "results/approved_run_index.json"
     index.parent.mkdir(parents=True, exist_ok=True)
     index.write_text(json.dumps({"runs": [{"system": "phobert_pol_single", "seed": 20260521, "run_id": "source"}]}), encoding="utf-8")
@@ -120,7 +144,7 @@ def test_q1b_public_cli_resolves_source_without_injection(tmp_path: Path) -> Non
     checksums.write_text("checkpoint-entry\n", encoding="utf-8")
     (run_root / "state.json").write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
     (run_root / "checkpoints/checkpoint_manifest.json").write_text(json.dumps({"best": "checkpoints/best/model.pt", "checkpoint_sha256": sha256_file(checkpoint), "variant_fingerprint": "variant"}), encoding="utf-8")
-    (run_root / "approval_status.json").write_text(json.dumps({"status": "APPROVED", "review_summary_sha256": sha256_file(summary), "artifact_checksum_file_sha256": sha256_file(checksums)}), encoding="utf-8")
+    _write_approved_status(run_root, summary, checksums)
     index = tmp_path / "results/approved_run_index.json"
     index.parent.mkdir(parents=True, exist_ok=True)
     index.write_text(json.dumps({"runs": [{"system": "phobert_pol_single", "seed": 20260521, "run_id": "source"}]}), encoding="utf-8")

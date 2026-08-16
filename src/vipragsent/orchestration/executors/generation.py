@@ -1212,6 +1212,7 @@ class ReasoningGenerationExecutor:
         start_epoch = 1
         latest_epoch = 0
         latest_metric: float | None = None
+        dev_metrics: dict[str, Any] = {}
         if resume_from is not None:
             persisted_selection, _ = self._load_persisted_selection(expected_data_order=train_order)
             resumed = self.load_checkpoint(
@@ -1227,6 +1228,24 @@ class ReasoningGenerationExecutor:
             start_epoch = int(resume_epoch) + 1
             latest_epoch = int(resume_epoch)
             latest_metric = state.get("selection_metric") if isinstance(state.get("selection_metric"), int | float) else None
+            if epochs <= int(resume_epoch):
+                raise GenerationCheckpointError(
+                    f"resume target epoch {epochs} must advance beyond checkpoint epoch {int(resume_epoch)}"
+                )
+            history_path = self.run_root / "training/history.json"
+            if history_path.exists():
+                try:
+                    persisted_history = json.loads(history_path.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError) as exc:
+                    raise GenerationCheckpointError("persisted generation history is unreadable") from exc
+                if not isinstance(persisted_history, list) or any(not isinstance(row, Mapping) for row in persisted_history):
+                    raise GenerationCheckpointError("persisted generation history must be a list of records")
+                all_history.extend(dict(row) for row in persisted_history)
+                history_epochs = [row.get("epoch") for row in persisted_history]
+                if any(type(epoch) not in (int, float) or isinstance(epoch, bool) for epoch in history_epochs):
+                    raise GenerationCheckpointError("persisted generation history contains an invalid epoch")
+                if history_epochs and int(max(history_epochs)) != int(resume_epoch):
+                    raise GenerationCheckpointError("persisted generation history does not end at the resume checkpoint epoch")
             best_epoch = int(persisted_selection["best_epoch"])
             best_metric = float(persisted_selection["value"])
             best_path = str(persisted_selection["path"])

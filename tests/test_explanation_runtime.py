@@ -117,18 +117,30 @@ def _approved_source_root(tmp_path: Path, checkpoint: Path, *, dataset_hash: str
     }
     summary_path = run_root / "review_summary.json"
     summary_path.write_text(json.dumps(summary), encoding="utf-8")
+    checksums_path = run_root / "checksums.sha256"
+    checksums_path.write_text("approved artifact list\n", encoding="utf-8")
     approval_path = run_root / "approval_status.json"
+    approval_timestamp = "2026-08-16T00:00:00Z"
     approval_path.write_text(
         json.dumps(
             {
+                "run_id": run_root.name,
                 "status": "APPROVED",
-                "review_summary_sha256": sha256_file(summary_path),
+                "approved_by": "fixture-reviewer",
+                "approved_at": approval_timestamp,
+                "record": {
+                    "run_id": run_root.name,
+                    "decision": "approve",
+                    "review_note": "fixture approval",
+                    "approved_or_rejected_by": "fixture-reviewer",
+                    "timestamp": approval_timestamp,
+                    "review_summary_sha256": sha256_file(summary_path),
+                    "artifact_checksum_file_sha256": sha256_file(checksums_path),
+                },
             }
         ),
         encoding="utf-8",
     )
-    checksums_path = run_root / "checksums.sha256"
-    checksums_path.write_text("approved artifact list\n", encoding="utf-8")
     manifest_path = run_root / "checkpoints" / "checkpoint_manifest.json"
     manifest_path.write_text(
         json.dumps(
@@ -144,10 +156,6 @@ def _approved_source_root(tmp_path: Path, checkpoint: Path, *, dataset_hash: str
     )
     state_path = run_root / "state.json"
     state_path.write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
-    approval = json.loads(approval_path.read_text(encoding="utf-8"))
-    approval["artifact_checksum_file_sha256"] = sha256_file(checksums_path)
-    approval["approval_sha256"] = sha256_file(approval_path)
-    approval_path.write_text(json.dumps(approval), encoding="utf-8")
     return tmp_path
 
 

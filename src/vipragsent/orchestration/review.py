@@ -236,7 +236,7 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
             "source_prediction_hash": q4.get("prediction_file_sha256", "NOT_APPLICABLE"),
         })
     else:
-        fields.update({"per_label_pragmatic_ece": "NOT_APPLICABLE", "macro_pragmatic_ece": "NOT_APPLICABLE", "temperature_scaling": False, "bin_count": "NOT_APPLICABLE", "probability_aggregation": "NOT_APPLICABLE", "source_checkpoint_id": "NOT_APPLICABLE", "source_prediction_hash": "NOT_APPLICABLE"})
+        fields.update({"per_label_pragmatic_ece": "NOT_APPLICABLE", "macro_pragmatic_ece": "NOT_APPLICABLE", "temperature_scaling": False, "bin_count": "NOT_APPLICABLE", "probability_aggregation": "NOT_APPLICABLE", "source_checkpoint_id": fields.get("checkpoint_key", "NOT_APPLICABLE") if entry.research_question == "Q1b" else "NOT_APPLICABLE", "source_prediction_hash": "NOT_APPLICABLE"})
     if entry.research_question == "Q1b":
         # Carry the executor's canonical producer binding into the review
         # summary.  Aggregation also checks the raw metrics/manifest files so

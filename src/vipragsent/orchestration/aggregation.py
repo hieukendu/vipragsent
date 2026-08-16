@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import csv
 import json
+import re
 from collections import defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from pathlib import Path
@@ -291,6 +292,10 @@ def _mapping_nodes(value: Any) -> Iterable[Mapping[str, Any]]:
     for child in value.values():
         if isinstance(child, Mapping):
             yield from _mapping_nodes(child)
+        elif isinstance(child, list | tuple):
+            for item in child:
+                if isinstance(item, Mapping):
+                    yield from _mapping_nodes(item)
 
 
 def _canonical_q1b_values(payloads: Sequence[Mapping[str, Any]]) -> tuple[dict[str, Any], dict[str, list[Any]]]:
@@ -305,15 +310,21 @@ def _canonical_q1b_values(payloads: Sequence[Mapping[str, Any]]) -> tuple[dict[s
     }
     values: dict[str, list[Any]] = {field: [] for field in aliases}
     top_level_seeds: list[Any] = []
+    malformed: dict[str, list[Any]] = {field: [] for field in aliases}
     for payload in payloads:
         if "seed" in payload:
             top_level_seeds.append(payload.get("seed"))
         for node in _mapping_nodes(payload):
             for field, keys in aliases.items():
-                for key in keys:
-                    if key in node:
-                        values[field].append(node.get(key))
-                        break
+                present = [(key, node.get(key)) for key in keys if key in node]
+                if not present:
+                    continue
+                values[field].extend(value for _, value in present)
+                if field != "source_seed" and any(value in (None, "") for _, value in present):
+                    malformed[field].extend(value for _, value in present if value in (None, ""))
+                alias_values = [value for _, value in present if value not in (None, "")]
+                if len({repr(value) for value in alias_values}) > 1:
+                    malformed[field].append({"conflicting_aliases": present})
     if not values["source_seed"] and top_level_seeds:
         values["source_seed"] = top_level_seeds
     canonical: dict[str, Any] = {}
@@ -326,8 +337,8 @@ def _canonical_q1b_values(payloads: Sequence[Mapping[str, Any]]) -> tuple[dict[s
         for value in meaningful:
             if value not in unique:
                 unique.append(value)
-        if len(unique) > 1:
-            conflicts[field] = unique
+        if len(unique) > 1 or malformed[field]:
+            conflicts[field] = unique + malformed[field]
         if meaningful:
             canonical[field] = meaningful[0]
     return canonical, conflicts
@@ -389,39 +400,54 @@ def _profile_q1b_record_blockers(records: Sequence[Mapping[str, Any]], profile: 
             blockers.append(f"{consumer_id}: unresolved Q1b dependency graph/source digest binding")
         else:
             checks = {
-                "producer_id": str(producer_id) == str(edge["producer_id"]),
-                "producer_run_id": str(producer_run_id) == str(edge["producer_run_id"]),
-                "checkpoint_key": str(checkpoint_key) == str(edge["checkpoint_key"]),
-                "seed": source_seed == edge["seed"] or str(source_seed) == str(edge["seed"]),
-                "producer_kind": producer_kind == str(edge["producer_kind"]),
+                "producer_id": producer_id == edge["producer_id"],
+                "producer_run_id": producer_run_id == edge["producer_run_id"],
+                "checkpoint_key": checkpoint_key == edge["checkpoint_key"],
+                "seed": (source_seed is None if edge["seed"] is None else type(source_seed) is int and not isinstance(source_seed, bool) and source_seed == edge["seed"]),
+                "producer_kind": producer_kind == edge["producer_kind"],
                 "graph_digest": graph_digest == expected_graph_digest,
                 "source_digest": source_digest == expected_source_digest,
             }
+            for digest_name, digest in (("graph_digest", graph_digest), ("source_digest", source_digest)):
+                if not isinstance(digest, str) or re.fullmatch(r"[0-9A-Fa-f]{64}", digest) is None:
+                    checks[digest_name] = False
             for field, passed in checks.items():
                 if not passed:
                     blockers.append(f"{consumer_id}: Q1b {field} binding disagrees with current profile")
+        training_fields = ("external_finetuning", "train_loader_created", "optimizer_steps", "backward_calls", "training_applicability")
+        training_values: dict[str, list[Any]] = {field: [] for field in training_fields}
+        training_metrics = ("train_loss", "best_dev_metric", "dev_loss", "dev_metric")
         for payload in payloads:
-            for boolean_field in ("external_finetuning", "train_loader_created"):
-                if boolean_field in payload:
-                    value = payload.get(boolean_field)
-                    if type(value) is not bool:
-                        blockers.append(f"{consumer_id}: Q1b {boolean_field} must be a JSON boolean")
-                    elif value is not False:
-                        blockers.append(f"{consumer_id}: Q1b {boolean_field} must be false")
-            for integer_field in ("backward_calls", "optimizer_steps"):
-                if integer_field in payload:
-                    value = payload.get(integer_field)
-                    if type(value) is not int:
-                        blockers.append(f"{consumer_id}: Q1b {integer_field.replace('_', ' ')} must be an integer")
-                    elif value != 0:
-                        blockers.append(f"{consumer_id}: Q1b {integer_field.replace('_', ' ')} must be zero")
-            if payload.get("training_applicability") not in (None, "NOT_APPLICABLE"):
+            for node in _mapping_nodes(payload):
+                for field in training_fields:
+                    if field in node:
+                        training_values[field].append(node.get(field))
+                if any(node.get(key) not in (None, "", "NOT_APPLICABLE") for key in training_metrics):
+                    blockers.append(f"{consumer_id}: Q1b training metrics cannot enter aggregation")
+        for boolean_field in ("external_finetuning", "train_loader_created"):
+            observed = training_values[boolean_field]
+            if not observed:
+                blockers.append(f"{consumer_id}: Q1b {boolean_field} must be explicitly false")
+            for value in observed:
+                if type(value) is not bool:
+                    blockers.append(f"{consumer_id}: Q1b {boolean_field} must be a JSON boolean")
+                elif value is not False:
+                    blockers.append(f"{consumer_id}: Q1b {boolean_field} must be false")
+        for integer_field in ("backward_calls", "optimizer_steps"):
+            observed = training_values[integer_field]
+            if not observed:
+                blockers.append(f"{consumer_id}: Q1b {integer_field.replace('_', ' ')} must be explicitly zero")
+            for value in observed:
+                if type(value) is not int:
+                    blockers.append(f"{consumer_id}: Q1b {integer_field.replace('_', ' ')} must be an integer")
+                elif value != 0:
+                    blockers.append(f"{consumer_id}: Q1b {integer_field.replace('_', ' ')} must be zero")
+        observed_applicability = training_values["training_applicability"]
+        if not observed_applicability:
+            blockers.append(f"{consumer_id}: Q1b training applicability must be explicitly NOT_APPLICABLE")
+        for value in observed_applicability:
+            if value != "NOT_APPLICABLE":
                 blockers.append(f"{consumer_id}: Q1b training applicability is not NOT_APPLICABLE")
-            if any(
-                payload.get(key) not in (None, "", "NOT_APPLICABLE")
-                for key in ("train_loss", "best_dev_metric", "dev_loss", "dev_metric")
-            ):
-                blockers.append(f"{consumer_id}: Q1b training metrics cannot enter aggregation")
     return blockers
 
 

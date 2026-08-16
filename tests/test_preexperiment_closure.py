@@ -313,7 +313,26 @@ def test_q1b_factory_routing_and_same_seed_composition(tmp_path: Path) -> None:
     manifest = run_root / "checkpoints/checkpoint_manifest.json"
     manifest.write_text(json.dumps({"best": "checkpoints/best/model.pt", "checkpoint_sha256": sha256_file(checkpoint), "variant_fingerprint": "variant"}), encoding="utf-8")
     approval = run_root / "approval_status.json"
-    approval.write_text(json.dumps({"status": "APPROVED", "review_summary_sha256": sha256_file(summary_path), "artifact_checksum_file_sha256": sha256_file(checksums)}), encoding="utf-8")
+    approval.write_text(
+        json.dumps(
+            {
+                "run_id": run_root.name,
+                "status": "APPROVED",
+                "approved_by": "fixture-reviewer",
+                "approved_at": "2026-08-16T00:00:00Z",
+                "record": {
+                    "run_id": run_root.name,
+                    "decision": "approve",
+                    "review_note": "fixture approval",
+                    "approved_or_rejected_by": "fixture-reviewer",
+                    "timestamp": "2026-08-16T00:00:00Z",
+                    "review_summary_sha256": sha256_file(summary_path),
+                    "artifact_checksum_file_sha256": sha256_file(checksums),
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
     (tmp_path / "results").mkdir(exist_ok=True)
     (tmp_path / "results/approved_run_index.json").write_text(json.dumps({"runs": [{"system": "phobert_pol_single", "seed": 20260521, "run_id": "source"}]}), encoding="utf-8")
     entry = {"system_id": "phobert_pol_single", "seed": 20260521, "backbone": "phobert_base"}

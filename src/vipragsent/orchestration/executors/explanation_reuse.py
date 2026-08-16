@@ -21,6 +21,7 @@ from ...runtime.device import (
     resolve_model_input_device,
     write_device_report,
 )
+from ..approval import validate_approval_record
 
 
 @dataclass(frozen=True)
@@ -98,20 +99,18 @@ def resolve_approved_full_vistral_source(root: str | Path, entry: Mapping[str, A
         if not all(path.exists() for path in (summary_path, approval_path, state_path, manifest_path, checksums_path)):
             continue
         summary = _load(summary_path)
-        approval = _load(approval_path)
+        _approval = _load(approval_path)
         state = _load(state_path)
         manifest = _load(manifest_path)
         if str(summary.get("system_id")) != "vipragsent_full_vistral" or str(summary.get("seed")) != str(seed):
             continue
         if str(summary.get("reusable_checkpoint_key") or summary.get("source_checkpoint_id")) != expected_key:
             continue
-        if approval.get("status") != "APPROVED" or state.get("run_status") not in {"COMPLETED_PENDING_APPROVAL", "APPROVED"}:
+        if state.get("run_status") not in {"COMPLETED_PENDING_APPROVAL", "APPROVED"}:
             continue
         summary_hash = sha256_file(summary_path)
-        if approval.get("review_summary_sha256") != summary_hash:
-            continue
         checksum_hash = sha256_file(checksums_path)
-        if approval.get("artifact_checksum_file_sha256") != checksum_hash:
+        if validate_approval_record(run_root, expected_run_id=str(run_root.name)):
             continue
         checkpoint_value = manifest.get("best") or manifest.get("checkpoint_path")
         if not checkpoint_value:
