@@ -12,7 +12,7 @@ import hashlib
 import json
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, field, replace
-from enum import Enum
+from enum import Enum, StrEnum
 from typing import Any, Protocol
 
 DEFAULT_RESOURCE_AWARE_ENABLED = False
@@ -30,7 +30,9 @@ class SchedulerInvariantError(ValueError):
     """Raised when a policy or state transition would be unsafe."""
 
 
-class StageStatus(str, Enum):
+class StageStatus(StrEnum):
+    __str__ = Enum.__str__
+
     PENDING = "PENDING"
     READY = "READY"
     RUNNING = "RUNNING"
@@ -43,7 +45,9 @@ class StageStatus(str, Enum):
     RESUMABLE = "RESUMABLE"
 
 
-class ResourceClass(str, Enum):
+class ResourceClass(StrEnum):
+    __str__ = Enum.__str__
+
     SEVEN_B = "7b"
     XLM_R = "xlmr"
     PHOBERT = "phobert"
