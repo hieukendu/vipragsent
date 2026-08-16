@@ -7,8 +7,8 @@ prompt:
   v26_authoritative_sha256: 457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0
   v26_exact_bytes_available: false
   interpretation: V26 remains authoritative for science; V27 supplies bounded debugging and delivery rules.
-phase: WAVE_0_AUDIT
-status: WAVE0_ACCEPTED
+phase: FINAL_DEBUG_CONVERGENCE
+status: FINAL_REVIEW_PENDING
 identity:
   status: LIVE_CODE_IDENTITY_UNCERTAIN
   isolated_base: /root/vipragsent-runtime-opt
@@ -196,10 +196,22 @@ final_validation:
   runtime_estimate_after_md: reports/runtime_optimization/runtime_estimate_after.md
   second_live_snapshot_json: reports/runtime_optimization/live_state_snapshot_after.json
   second_live_snapshot_sha256: ed1e6cdc08a92151a9665ce2e5835d3813d3fba399b5f2702dbfa445ee17aaa4
-  safe_cpu_mock_matrix: "292 passed in 4:36"
+  safe_cpu_mock_matrix: "325 passed in 57.74s"
   measured_gate_pass: false
   remaining_blockers:
     - LIVE_CODE_IDENTITY_UNCERTAIN
     - production_worktree_dirty
     - partial_gpu_telemetry
     - real_profile_required_before_campaign_authorization
+current_delivery:
+  manager_head: e0c502a3879fb3a65305841e6941a6bae24e5778
+  base_sha: fb40c91a7c39ac575db2bd71d9957f0e89069b3e
+  branch: codex/naacl-runtime-optimization
+  pr_number: 10
+  remote_head_before_push: c2e78c62ee51c7566629930b3b0a115920735f30
+  final_review: PENDING_FINAL_READ_ONLY_REVIEW
+  local_ruff: PASS
+  remote_ci: STALE_FAILURE_NOT_RUN_ON_CURRENT_HEAD
+  required_bug_register: reports/runtime_optimization/debug_convergence/bug_register.json
+  required_final_bug_review: reports/runtime_optimization/debug_convergence/final_bug_review.json
+  pr_was_not_merged: true
