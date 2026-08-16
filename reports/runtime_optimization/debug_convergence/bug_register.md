@@ -1,25 +1,37 @@
 # V27 Debug Convergence Bug Register
 
-Round 2 is recorded against Manager head `e0c502a3879fb3a65305841e6941a6bae24e5778`, base `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`, and stale remote head `c2e78c62ee51c7566629930b3b0a115920735f30`. PR #10 remains open and draft. The last remote run (`31958375122`) failed at Ruff before the new head was pushed; local Ruff 0.6.9 and 0.16.3 both pass.
+The final read-only review is `PASS` for reviewed code head `16181334b5d00a6e3f622dffa826575a1b18915d`, against base `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`. The report files are a report-only descendant of that code head; this distinction prevents report commits from being mistaken for source changes.
 
-| Bug | Severity | Status | Closure evidence |
+PR #10 remains open and draft. The previous remote run (`31958375122`) failed at Ruff before the current head and is stale. A fresh remote Actions run is the only remaining delivery gate.
+
+| Bug | Severity | Status | Closure |
 |---|---:|---|---|
-| BUG-KNOWN-001 | HIGH | FIXED_PENDING_FINAL_REVIEW | Q3 validates 36 local + 4 Azure rows and the complete authorized 78-row inventory. |
-| BUG-KNOWN-002 | HIGH | FIXED_PENDING_FINAL_REVIEW | Shared GPU occupancy and bounded PhoBERT exception pass scheduler tests. |
-| BUG-KNOWN-003 | HIGH | FIXED_PENDING_FINAL_REVIEW | Exact 49/S speedup projections and monotonic makespan pass. |
-| BUG-KNOWN-004 | HIGH | FIXED_PENDING_FINAL_REVIEW | Both local Ruff versions pass; fresh remote CI is pending. |
-| BUG-REV-001 | CRITICAL | FIXED_PENDING_FINAL_REVIEW | Legacy Q3 shape is rejected; exact profile slice is enforced. |
-| BUG-REV-002 | HIGH | FIXED_PENDING_FINAL_REVIEW | Q1b producer/consumer and Q2 six-by-three matrix gates are enforced. |
-| BUG-REV-003 | HIGH | FIXED_PENDING_FINAL_REVIEW | Direct unapproved explanation sources are rejected. |
-| BUG-REV-004 | HIGH | FIXED_PENDING_FINAL_REVIEW | Production checkpoint hashes require canonical SHA-256. |
-| BUG-REV-005 | MEDIUM | FIXED_PENDING_FINAL_REVIEW | Persisted best selection is validated on resume. |
-| BUG-REV-006 | HIGH | FIXED_PENDING_FINAL_REVIEW | Required reports and PR text are being regenerated against the current head. |
-| BUG-REV-007 | HIGH | FIXED_PENDING_FINAL_REVIEW | Q1b producer kind, IDs, key, seed, and digests flow through real artifacts. |
-| BUG-REV-008 | HIGH | FIXED_PENDING_FINAL_REVIEW | Required graph/source digests and conflict rejection are implemented. |
-| BUG-REV-009 | HIGH | FIXED_PENDING_FINAL_REVIEW | Boolean/integer training fields are strict and fail closed. |
-| BUG-REV-010 | HIGH | FIXED_PENDING_FINAL_REVIEW | Azure Q3 seed remains JSON `null`; sentinels are rejected. |
-| BUG-REV-011 | HIGH | FIXED_PENDING_FINAL_REVIEW | Rogue or duplicate full-inventory rows block aggregation. |
-| BUG-REV-012 | MEDIUM | FIXED_PENDING_FINAL_REVIEW | `latest` preserves the last epoch independently of `best`. |
-| BUG-REV-013 | MEDIUM | FIXED_PENDING_FINAL_REVIEW | New tests exercise canonical aggregation and latest-checkpoint paths. |
+| BUG-KNOWN-001 | HIGH | CLOSED | Exact 36 local + 4 Azure Q3 profile and full authorized inventory validation. |
+| BUG-KNOWN-002 | HIGH | CLOSED | Shared GPU boundary with only the validated PhoBERT exception. |
+| BUG-KNOWN-003 | HIGH | CLOSED | Exact 49/S estimator factors and monotonic makespan. |
+| BUG-KNOWN-004 | HIGH | CLOSED_PENDING_REMOTE_CI | Both local Ruff versions pass; fresh remote CI remains required. |
+| BUG-REV-001 | CRITICAL | CLOSED | Legacy Q3 shape rejected; retained profile enforced. |
+| BUG-REV-002 | HIGH | CLOSED | Exact Q1b producer/consumer and Q2 matrix gates. |
+| BUG-REV-003 | HIGH | CLOSED | Explanation reuse requires an approved exact source. |
+| BUG-REV-004 | HIGH | CLOSED | Production checkpoint identities require SHA-256. |
+| BUG-REV-005 | MEDIUM | CLOSED | Persisted best-selection resume contract is fail-closed. |
+| BUG-REV-006 | HIGH | CLOSED | Current code head and report-only descendant semantics are cross-file consistent. |
+| BUG-REV-007 | HIGH | CLOSED | Q1b canonical provenance propagates through real fixture-backed outputs. |
+| BUG-REV-008 | HIGH | CLOSED | Q1b graph/source digest binding and conflict rejection. |
+| BUG-REV-009 | HIGH | CLOSED | Explicit strict Q1b training-prohibition fields. |
+| BUG-REV-010 | HIGH | CLOSED | Azure Q3 seed is literal JSON null. |
+| BUG-REV-011 | HIGH | CLOSED | Complete Q3 inventory validation before filtering. |
+| BUG-REV-012 | MEDIUM | CLOSED | latest and best checkpoint semantics are independent. |
+| BUG-REV-013 | MEDIUM | CLOSED | Predictor → retention → review and resume-history integration coverage. |
+| BUG-REV-014 | HIGH | CLOSED | Missing Q1b prohibition fields block aggregation. |
+| BUG-REV-015 | HIGH | CLOSED | Q1b seed types are not coerced. |
+| BUG-REV-016 | HIGH | CLOSED | Null/empty/conflicting provenance is rejected. |
+| BUG-REV-017 | HIGH | CLOSED | Explanation approval is complete and hash-bound. |
+| BUG-REV-018 | MEDIUM | CLOSED | Non-advancing resume is rejected; metrics stay defined. |
+| BUG-REV-019 | MEDIUM | CLOSED | Existing resume history is appended, not replaced. |
+| BUG-REV-020 | MEDIUM | CLOSED | Direct Q1b source resolution uses the full approval validator. |
+| BUG-REV-021 | HIGH | CLOSED | Final aggregation validates complete approval and state consistency. |
+| BUG-REV-022 | HIGH | CLOSED | All source consumers require approved state and full approval; legacy export is rejected. |
+| BUG-REV-023 | HIGH | CLOSED | Injected Q1b predictors require explicit fixture mode. |
 
-The two independent read-only review waves found BUG-REV-001 through BUG-REV-013. All code findings have fixes in the Manager branch; the final Dalton review is pending. Local evidence is green: 325 CPU/mock-only tests in 57.74 seconds, fixture DAG, schemas, registry, sequential prompts, profile validation, implementation audit, final correctness audit, compilation, diff check, and both Ruff versions. No production campaign, real Azure request, HF mutation, model download, benchmark, or process control was performed. The PR was not merged.
+Local evidence: **331 CPU/mock-only tests passed in 70.76s**, 55 targeted approval/source tests passed, fixture DAG and all required validators/audits passed, both Ruff versions passed, and scientific hashes are unchanged. No production, Azure, Hugging Face, model-download, benchmark, process-control, TEST-environment, or merge action occurred.
