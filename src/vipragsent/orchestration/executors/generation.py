@@ -1050,14 +1050,14 @@ class ReasoningGenerationExecutor:
             raise GenerationCheckpointError("selected generation checkpoint hashes are inconsistent")
 
         raw_epoch = selection.get("best_epoch")
-        if isinstance(raw_epoch, bool) or not isinstance(raw_epoch, (int, float)) or not float(raw_epoch).is_integer():
+        if isinstance(raw_epoch, bool) or not isinstance(raw_epoch, int | float) or not float(raw_epoch).is_integer():
             raise GenerationCheckpointError("selected generation checkpoint best_epoch is missing or invalid")
         best_epoch = int(raw_epoch)
         if best_epoch < 1:
             raise GenerationCheckpointError("selected generation checkpoint best_epoch must be positive")
 
         metric_values = [selection[key] for key in ("value", "best_metric") if selection.get(key) is not None]
-        if not metric_values or any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in metric_values):
+        if not metric_values or any(isinstance(value, bool) or not isinstance(value, int | float) for value in metric_values):
             raise GenerationCheckpointError("selected generation checkpoint metric is missing or invalid")
         if len(metric_values) > 1 and not math.isclose(float(metric_values[0]), float(metric_values[1]), rel_tol=0.0, abs_tol=1e-12):
             raise GenerationCheckpointError("selected generation checkpoint metrics are inconsistent")
@@ -1076,7 +1076,7 @@ class ReasoningGenerationExecutor:
         if not isinstance(state, Mapping):
             raise GenerationCheckpointError("selected generation checkpoint has no run state")
         observed_epoch = state.get("epoch")
-        if isinstance(observed_epoch, bool) or not isinstance(observed_epoch, (int, float)) or not float(observed_epoch).is_integer():
+        if isinstance(observed_epoch, bool) or not isinstance(observed_epoch, int | float) or not float(observed_epoch).is_integer():
             raise GenerationCheckpointError("selected generation checkpoint epoch is missing or invalid")
         if int(observed_epoch) != int(selection["best_epoch"]):
             raise GenerationCheckpointError(
@@ -1084,7 +1084,7 @@ class ReasoningGenerationExecutor:
                 f"expected {selection['best_epoch']}, observed {observed_epoch}"
             )
         observed_metric = state.get("selection_metric")
-        if isinstance(observed_metric, bool) or not isinstance(observed_metric, (int, float)) or not math.isfinite(float(observed_metric)):
+        if isinstance(observed_metric, bool) or not isinstance(observed_metric, int | float) or not math.isfinite(float(observed_metric)):
             raise GenerationCheckpointError("selected generation checkpoint metric is missing or invalid")
         if not math.isclose(float(observed_metric), float(selection["value"]), rel_tol=0.0, abs_tol=1e-12):
             raise GenerationCheckpointError(
@@ -1216,7 +1216,7 @@ class ReasoningGenerationExecutor:
             )
             state = resumed["run_state"]
             resume_epoch = state.get("epoch")
-            if isinstance(resume_epoch, bool) or not isinstance(resume_epoch, (int, float)) or not float(resume_epoch).is_integer() or int(resume_epoch) < 1:
+            if isinstance(resume_epoch, bool) or not isinstance(resume_epoch, int | float) or not float(resume_epoch).is_integer() or int(resume_epoch) < 1:
                 raise GenerationCheckpointError("resume checkpoint epoch is missing or invalid")
             start_epoch = int(resume_epoch) + 1
             best_epoch = int(persisted_selection["best_epoch"])
