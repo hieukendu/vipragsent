@@ -43,4 +43,3 @@ Cache-free targeted tests and static checks:
 - No real model/data, Azure, Hugging Face, network, or benchmark execution.
 
 No branch or production source was modified. The manager worktree’s unrelated pre-existing `agent_task_ledger.md` modification was left untouched.
-
