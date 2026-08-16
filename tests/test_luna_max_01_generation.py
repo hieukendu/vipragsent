@@ -12,6 +12,7 @@ import torch
 import yaml
 from torch import nn
 
+from vipragsent.constants import PRAGMATIC_LABELS
 from vipragsent.evaluation.reasoning_judge import ReasoningJudge
 from vipragsent.hashing import sha256_file
 from vipragsent.models.factory import build_production_model
@@ -603,3 +604,114 @@ def test_generation_stage_loads_requested_epoch_checkpoint(tmp_path: Path) -> No
     report = executor.load_checkpoint(executor.run_root / "checkpoints/epoch_1/model.pt")
     assert report["status"] == "PASS"
     assert float(next(executor.model.parameters()).detach().flatten()[0]) == pytest.approx(1.0)
+
+
+def _write_resume_selection_fixture(tmp_path: Path) -> str:
+    executor = _executor(tmp_path)
+    optimizer = torch.optim.SGD(executor.model.parameters(), lr=0.01)
+    for parameter in executor.model.parameters():
+        parameter.data.fill_(1.0)
+    best_hash = executor.write_checkpoint(
+        "checkpoints/best/model.pt",
+        optimizer=optimizer,
+        epoch=1,
+        selection_metric=0.9,
+        data_order=["train-0"],
+    )
+    for parameter in executor.model.parameters():
+        parameter.data.fill_(2.0)
+    resume_hash = executor.write_checkpoint(
+        "checkpoints/epoch_2/model.pt",
+        optimizer=optimizer,
+        epoch=2,
+        selection_metric=0.1,
+        data_order=["train-0"],
+    )
+    selection_path = executor.run_root / "selection/best_checkpoint.json"
+    selection_path.parent.mkdir(parents=True, exist_ok=True)
+    selection_path.write_text(
+        json.dumps(
+            {
+                "status": "PASS",
+                "best_epoch": 1,
+                "selection_metric": "dev_metric",
+                "value": 0.9,
+                "checkpoint_path": "checkpoints/best/model.pt",
+                "checkpoint_sha256": best_hash,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return resume_hash
+
+
+def test_generation_resume_keeps_persisted_best_separate_from_arbitrary_resume_checkpoint(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    resume_hash = _write_resume_selection_fixture(tmp_path)
+    executor = _executor(tmp_path)
+    model = executor.model
+    train = [{"sample_id": "train-0", "input_ids": torch.tensor([[1, 2]]), "target_ids": torch.tensor([[3, 4]])}]
+    gold = {label: 0 for label in PRAGMATIC_LABELS}
+    dev = [{"sample_id": "dev-1", "input_ids": torch.tensor([[1, 2]]), "gold": gold}]
+    test = [{"sample_id": "test-1", "input_ids": torch.tensor([[1, 2]]), "gold": gold}]
+
+    def train_generation(*_: object, epoch_start: int = 1, **__: object) -> list[dict[str, float]]:
+        for parameter in model.parameters():
+            parameter.data.fill_(3.0)
+        return [{"epoch": float(epoch_start), "train_loss": 0.0}]
+
+    monkeypatch.setattr(executor, "train_generation", train_generation)
+    monkeypatch.setattr(
+        executor,
+        "generate_reasoning_split",
+        lambda split, records, **__: [{"sample_id": str(records[0]["sample_id"]), "generation_status": "PASS", "generated_reasoning": split}],
+    )
+    monkeypatch.setattr(executor, "judge_reasoning_split", lambda _split, rows, _gold, **__: (list(rows), []))
+    monkeypatch.setattr(executor, "compute_split_metrics", lambda _split, _rows, **__: {"primary_macro_f1": 0.5})
+
+    result = executor.run_cot(
+        train_records=train,
+        dev_records=dev,
+        test_records=test,
+        optimizer=torch.optim.SGD(model.parameters(), lr=0.01),
+        epochs=3,
+        resume_from="checkpoints/epoch_2/model.pt",
+    )
+
+    selection = json.loads((executor.run_root / "selection/best_checkpoint.json").read_text(encoding="utf-8"))
+    assert result["best_epoch"] == 1
+    assert result["best_dev_metric"] == pytest.approx(0.9)
+    assert selection["best_epoch"] == 1
+    assert selection["checkpoint_sha256"] != resume_hash
+    assert float(next(model.parameters()).detach().flatten()[0]) == pytest.approx(1.0)
+
+
+def test_generation_resume_requires_intact_persisted_selection_metadata(tmp_path: Path) -> None:
+    resume_hash = _write_resume_selection_fixture(tmp_path)
+    executor = _executor(tmp_path)
+    selection_path = executor.run_root / "selection/best_checkpoint.json"
+    selection = json.loads(selection_path.read_text(encoding="utf-8"))
+    selection["value"] = 0.1
+    selection_path.write_text(json.dumps(selection), encoding="utf-8")
+    train = [{"sample_id": "train-0", "input_ids": torch.tensor([[1, 2]]), "target_ids": torch.tensor([[3, 4]])}]
+    rows = [{"sample_id": "dev-1", "gold": {}}]
+    with pytest.raises(GenerationCheckpointError, match="metric disagrees"):
+        executor.run_cot(
+            train_records=train,
+            dev_records=rows,
+            test_records=rows,
+            optimizer=torch.optim.SGD(executor.model.parameters(), lr=0.01),
+            epochs=3,
+            resume_from="checkpoints/epoch_2/model.pt",
+        )
+
+    selection_path.unlink()
+    with pytest.raises(GenerationCheckpointError, match="manifest is missing"):
+        executor.run_cot(
+            train_records=train,
+            dev_records=rows,
+            test_records=rows,
+            optimizer=torch.optim.SGD(executor.model.parameters(), lr=0.01),
+            epochs=3,
+            resume_from="checkpoints/epoch_2/model.pt",
+        )
+    assert resume_hash

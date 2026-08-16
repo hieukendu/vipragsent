@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import json
+import math
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
@@ -1026,6 +1027,86 @@ class ReasoningGenerationExecutor:
             expected_data_order=expected_data_order,
         )
 
+    def _read_selection_record(self) -> dict[str, Any]:
+        selection_path = self.run_root / "selection/best_checkpoint.json"
+        if not selection_path.exists():
+            raise GenerationCheckpointError("selected generation checkpoint manifest is missing")
+        try:
+            selection = json.loads(selection_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as exc:
+            raise GenerationCheckpointError(f"selected generation checkpoint manifest is unreadable: {exc}") from exc
+        if not isinstance(selection, Mapping):
+            raise GenerationCheckpointError("selected generation checkpoint manifest is not a mapping")
+
+        paths = [selection[key] for key in ("path", "checkpoint_path") if selection.get(key) is not None]
+        hashes = [selection[key] for key in ("sha256", "checkpoint_sha256") if selection.get(key) is not None]
+        if not paths or any(not isinstance(value, str) or not value for value in paths):
+            raise GenerationCheckpointError("selected generation checkpoint path is missing")
+        if len({str(value) for value in paths}) != 1:
+            raise GenerationCheckpointError("selected generation checkpoint paths are inconsistent")
+        if not hashes or any(not isinstance(value, str) or not value for value in hashes):
+            raise GenerationCheckpointError("selected generation checkpoint hash is missing")
+        if len({str(value).lower() for value in hashes}) != 1:
+            raise GenerationCheckpointError("selected generation checkpoint hashes are inconsistent")
+
+        raw_epoch = selection.get("best_epoch")
+        if isinstance(raw_epoch, bool) or not isinstance(raw_epoch, (int, float)) or not float(raw_epoch).is_integer():
+            raise GenerationCheckpointError("selected generation checkpoint best_epoch is missing or invalid")
+        best_epoch = int(raw_epoch)
+        if best_epoch < 1:
+            raise GenerationCheckpointError("selected generation checkpoint best_epoch must be positive")
+
+        metric_values = [selection[key] for key in ("value", "best_metric") if selection.get(key) is not None]
+        if not metric_values or any(isinstance(value, bool) or not isinstance(value, (int, float)) for value in metric_values):
+            raise GenerationCheckpointError("selected generation checkpoint metric is missing or invalid")
+        if len(metric_values) > 1 and not math.isclose(float(metric_values[0]), float(metric_values[1]), rel_tol=0.0, abs_tol=1e-12):
+            raise GenerationCheckpointError("selected generation checkpoint metrics are inconsistent")
+        best_metric = float(metric_values[0])
+        if not math.isfinite(best_metric):
+            raise GenerationCheckpointError("selected generation checkpoint metric must be finite")
+        return {
+            "path": str(paths[0]),
+            "sha256": str(hashes[0]),
+            "best_epoch": best_epoch,
+            "value": best_metric,
+        }
+
+    def _validate_selection_checkpoint(self, selection: Mapping[str, Any], report: Mapping[str, Any]) -> None:
+        state = report.get("run_state")
+        if not isinstance(state, Mapping):
+            raise GenerationCheckpointError("selected generation checkpoint has no run state")
+        observed_epoch = state.get("epoch")
+        if isinstance(observed_epoch, bool) or not isinstance(observed_epoch, (int, float)) or not float(observed_epoch).is_integer():
+            raise GenerationCheckpointError("selected generation checkpoint epoch is missing or invalid")
+        if int(observed_epoch) != int(selection["best_epoch"]):
+            raise GenerationCheckpointError(
+                "selected generation checkpoint epoch disagrees with persisted selection: "
+                f"expected {selection['best_epoch']}, observed {observed_epoch}"
+            )
+        observed_metric = state.get("selection_metric")
+        if isinstance(observed_metric, bool) or not isinstance(observed_metric, (int, float)) or not math.isfinite(float(observed_metric)):
+            raise GenerationCheckpointError("selected generation checkpoint metric is missing or invalid")
+        if not math.isclose(float(observed_metric), float(selection["value"]), rel_tol=0.0, abs_tol=1e-12):
+            raise GenerationCheckpointError(
+                "selected generation checkpoint metric disagrees with persisted selection: "
+                f"expected {selection['value']}, observed {observed_metric}"
+            )
+
+    def _load_persisted_selection(
+        self,
+        *,
+        expected_data_order: Sequence[str] | None = None,
+    ) -> tuple[dict[str, Any], dict[str, Any]]:
+        selection = self._read_selection_record()
+        report = self.load_checkpoint(
+            selection["path"],
+            expected_sha256=selection["sha256"],
+            expected_data_order=expected_data_order,
+            restore_training_state=False,
+        )
+        self._validate_selection_checkpoint(selection, report)
+        return selection, report
+
     def load_selected_checkpoint(
         self,
         *,
@@ -1033,21 +1114,16 @@ class ReasoningGenerationExecutor:
         scheduler: Any | None = None,
         expected_data_order: Sequence[str] | None = None,
     ) -> dict[str, Any]:
-        selection_path = self.run_root / "selection/best_checkpoint.json"
-        if not selection_path.exists():
-            raise GenerationCheckpointError("selected generation checkpoint manifest is missing")
-        selection = json.loads(selection_path.read_text(encoding="utf-8"))
-        checkpoint_name = selection.get("path") or selection.get("checkpoint_path")
-        expected_hash = selection.get("sha256") or selection.get("checkpoint_sha256")
-        if not checkpoint_name:
-            raise GenerationCheckpointError("selected generation checkpoint path is missing")
-        return self.load_checkpoint(
-            checkpoint_name,
-            expected_sha256=expected_hash,
+        selection = self._read_selection_record()
+        report = self.load_checkpoint(
+            selection["path"],
+            expected_sha256=selection["sha256"],
             optimizer=optimizer,
             scheduler=scheduler,
             expected_data_order=expected_data_order,
         )
+        self._validate_selection_checkpoint(selection, report)
+        return report
 
     def load_frozen_checkpoint(
         self,
@@ -1127,9 +1203,11 @@ class ReasoningGenerationExecutor:
         best_metric = float("-inf")
         best_epoch = 0
         best_hash = ""
+        best_path = "checkpoints/best/model.pt"
         all_history: list[dict[str, float]] = []
         start_epoch = 1
         if resume_from is not None:
+            persisted_selection, _ = self._load_persisted_selection(expected_data_order=train_order)
             resumed = self.load_checkpoint(
                 resume_from,
                 optimizer=optimizer,
@@ -1137,11 +1215,18 @@ class ReasoningGenerationExecutor:
                 expected_data_order=train_order,
             )
             state = resumed["run_state"]
-            start_epoch = int(state.get("epoch") or 0) + 1
-            best_epoch = int(state.get("epoch") or 0)
-            best_metric = float(state.get("selection_metric") if state.get("selection_metric") is not None else best_metric)
-            best_path = self.run_root / "checkpoints/best/model.pt"
-            best_hash = sha256_file(best_path) if best_path.exists() else sha256_file(Path(resume_from) if Path(resume_from).is_absolute() else self.run_root / Path(resume_from))
+            resume_epoch = state.get("epoch")
+            if isinstance(resume_epoch, bool) or not isinstance(resume_epoch, (int, float)) or not float(resume_epoch).is_integer() or int(resume_epoch) < 1:
+                raise GenerationCheckpointError("resume checkpoint epoch is missing or invalid")
+            start_epoch = int(resume_epoch) + 1
+            best_epoch = int(persisted_selection["best_epoch"])
+            best_metric = float(persisted_selection["value"])
+            best_path = str(persisted_selection["path"])
+            best_hash = str(persisted_selection["sha256"])
+            if best_epoch > int(resume_epoch):
+                raise GenerationCheckpointError(
+                    "persisted best checkpoint is newer than the requested resume checkpoint"
+                )
         for epoch in range(start_epoch, epochs + 1):
             history = self.train_generation(train_rows, optimizer=optimizer, scheduler=scheduler, epochs=1, epoch_start=epoch)
             all_history.extend(history)
@@ -1152,7 +1237,7 @@ class ReasoningGenerationExecutor:
             dev_predictions, _ = self.judge_reasoning_split("dev", generated_dev, gold_dev, **judge_kwargs)
             metrics_kwargs = {"artifact_root": epoch_root} if "artifact_root" in inspect.signature(self.compute_split_metrics).parameters else {}
             dev_metrics = self.compute_split_metrics("dev", dev_predictions, **metrics_kwargs)
-            checkpoint_hash = self.write_checkpoint(
+            self.write_checkpoint(
                 f"checkpoints/epoch_{epoch}/model.pt",
                 optimizer=optimizer,
                 scheduler=scheduler,
@@ -1163,8 +1248,8 @@ class ReasoningGenerationExecutor:
             if float(dev_metrics["primary_macro_f1"]) > best_metric:
                 best_metric = float(dev_metrics["primary_macro_f1"])
                 best_epoch = epoch
-                best_hash = checkpoint_hash
-                self.write_checkpoint(
+                best_path = "checkpoints/best/model.pt"
+                best_hash = self.write_checkpoint(
                     "checkpoints/best/model.pt",
                     optimizer=optimizer,
                     scheduler=scheduler,
@@ -1175,7 +1260,7 @@ class ReasoningGenerationExecutor:
             atomic_write_json(self.run_root / f"metrics/dev_reasoning_metrics_epoch_{epoch}.json", dev_metrics)
         if not best_hash:
             best_hash = self.write_checkpoint(
-                "checkpoints/best/model.pt",
+                best_path,
                 optimizer=optimizer,
                 scheduler=scheduler,
                 epoch=best_epoch,
@@ -1184,10 +1269,8 @@ class ReasoningGenerationExecutor:
             )
         atomic_write_json(self.run_root / "training/history.json", all_history)
         dev_artifacts = self.publish_dev_artifacts(best_epoch) if (self.run_root / "epochs" / f"epoch_{best_epoch}" / "reasoning/dev_reasoning.jsonl").exists() else {}
-        atomic_write_json(self.run_root / "selection/best_checkpoint.json", {"status": "PASS", "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_path": "checkpoints/best/model.pt", "checkpoint_sha256": best_hash, "dev_artifacts": dev_artifacts})
-        self.load_checkpoint(
-            "checkpoints/best/model.pt",
-            expected_sha256=best_hash,
+        atomic_write_json(self.run_root / "selection/best_checkpoint.json", {"status": "PASS", "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_path": best_path, "checkpoint_sha256": best_hash, "dev_artifacts": dev_artifacts})
+        self.load_selected_checkpoint(
             optimizer=optimizer,
             scheduler=scheduler,
             expected_data_order=train_order,
@@ -1200,8 +1283,8 @@ class ReasoningGenerationExecutor:
             selection_metric=best_metric,
             data_order=train_order,
         )
-        manifest = self.write_checkpoint_manifest(best_epoch=best_epoch, selection_metric=best_metric)
-        atomic_write_json(self.run_root / "selection/freeze_manifest.json", {"frozen": True, "checkpoint": {"path": "checkpoints/best/model.pt", "sha256": best_hash}, "best_epoch": best_epoch, "selection_metric": best_metric, "test_access": False, "checkpoint_manifest_sha256": sha256_file(self.run_root / "checkpoints/checkpoint_manifest.json")})
+        manifest = self.write_checkpoint_manifest(best_path=best_path, best_epoch=best_epoch, selection_metric=best_metric)
+        atomic_write_json(self.run_root / "selection/freeze_manifest.json", {"frozen": True, "checkpoint": {"path": best_path, "sha256": best_hash}, "best_epoch": best_epoch, "selection_metric": best_metric, "test_access": False, "checkpoint_manifest_sha256": sha256_file(self.run_root / "checkpoints/checkpoint_manifest.json")})
         generated_test = self.generate_reasoning_split("test", test_rows)
         test_predictions, _ = self.judge_reasoning_split("test", generated_test, gold_test)
         test_metrics = self.compute_split_metrics("test", test_predictions)
