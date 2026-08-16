@@ -200,7 +200,7 @@ def _stage_gates(spec: StageSpec) -> tuple[str, ...]:
 
 def _scaled(specs: Sequence[StageSpec], factor: float) -> tuple[StageSpec, ...]:
     return tuple(
-        replace(spec, duration_minutes=spec.duration_minutes * factor)
+        replace(spec, duration_minutes=spec.duration_minutes / factor)
         if spec.generation or "generation" in spec.kind.casefold()
         else spec
         for spec in specs
