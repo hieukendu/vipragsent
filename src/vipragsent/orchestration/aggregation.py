@@ -22,6 +22,11 @@ from ..evaluation.confidence_intervals import (
 from ..evaluation.metrics import binary_macro_f1, macro_pragmatic_f1
 from ..hashing import sha256_file, sha256_json
 from ..protocol import validate_protocol_resolution
+from ..runtime.naacl_profile import (
+    ProfileValidationError,
+    validate_naacl_profile,
+    validate_q3_profile_rows,
+)
 from ..statistics.bootstrap import (
     holm_bonferroni,
     paired_bootstrap_comparison,
@@ -29,6 +34,8 @@ from ..statistics.bootstrap import (
 )
 from ..statistics.significance import load_p_value_strategy
 from .run_store import artifact_hashes
+
+NAACL_PROFILE_SCOPES = frozenset({"Q1b", "Q2", "Q3", "all"})
 
 
 def _write_csv(path: Path, columns: list[str], rows: Iterable[Mapping[str, Any]]) -> None:
@@ -111,8 +118,13 @@ def _scope_rows(root: Path, research_question: str) -> list[dict[str, Any]]:
     return [row for row in rows if str(row.get("research_question")) == research_question or str(row.get("research_question")).casefold() == research_question.casefold()]
 
 
-def _required_records(root: Path, scope: str) -> tuple[list[dict[str, Any]], list[str]]:
-    required = _scope_rows(root, scope)
+def _required_records(
+    root: Path,
+    scope: str,
+    *,
+    inventory_rows: list[dict[str, Any]] | None = None,
+) -> tuple[list[dict[str, Any]], list[str]]:
+    required = inventory_rows if inventory_rows is not None else _scope_rows(root, scope)
     if not required:
         return [], [f"no inventory entries found for scope {scope}"]
     records: list[dict[str, Any]] = []
@@ -124,6 +136,208 @@ def _required_records(root: Path, scope: str) -> tuple[list[dict[str, Any]], lis
         if record:
             records.append(record)
     return records, errors
+
+
+def _profile_scope_enabled(research_question: str) -> bool:
+    return research_question.casefold() in {scope.casefold() for scope in NAACL_PROFILE_SCOPES}
+
+
+def _profile_q3_inventory_rows(root: Path, profile: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Return only the rows named by the current profile protocol binding."""
+    binding = profile["protocol_binding"]["q3"]
+    local_keys = {
+        (str(system), str(budget), seed)
+        for system in binding["retained_systems"]
+        for budget in binding["retained_budgets"]
+        for seed in binding["seeds"]
+    }
+    azure = binding["azure_comparison"]
+    expected = local_keys | {
+        (str(azure["system_id"]), str(budget), None)
+        for budget in azure["budgets"]
+    }
+    return [
+        row
+        for row in _scope_rows(root, "Q3")
+        if (str(row.get("system_id")), str(row.get("budget")), row.get("seed")) in expected
+    ]
+
+
+def _profile_inventory_rows(root: Path, research_question: str, profile: Mapping[str, Any]) -> list[dict[str, Any]] | None:
+    if research_question == "Q3":
+        return _profile_q3_inventory_rows(root, profile)
+    if research_question == "all":
+        q3_ids = {
+            str(row.get("experiment_id") or row.get("run_id"))
+            for row in _profile_q3_inventory_rows(root, profile)
+        }
+        return [
+            row
+            for row in _scope_rows(root, "all")
+            if str(row.get("research_question")) != "Q3"
+            or str(row.get("experiment_id") or row.get("run_id")) in q3_ids
+        ]
+    return None
+
+
+def _profile_q3_record_blockers(records: Sequence[Mapping[str, Any]], profile: Mapping[str, Any]) -> list[str]:
+    binding = profile["protocol_binding"]["q3"]
+    azure = binding["azure_comparison"]
+    rows = [
+        {
+            "system_id": record["summary"].get("system_id"),
+            "budget": record["summary"].get("budget"),
+            "seed": (
+                None
+                if record["summary"].get("system_id") == str(azure["system_id"])
+                and record["summary"].get("seed") in (None, "", "NOT_APPLICABLE")
+                else record["summary"].get("seed")
+            ),
+        }
+        for record in records
+    ]
+    try:
+        validate_q3_profile_rows(
+            rows,
+            local_systems=list(binding["retained_systems"]),
+            local_budgets=[str(value) for value in binding["retained_budgets"]],
+            seeds=[int(value) for value in binding["seeds"]],
+            azure_system=str(azure["system_id"]),
+            azure_budgets=[str(value) for value in azure["budgets"]],
+        )
+    except ProfileValidationError as exc:
+        return [str(exc)]
+    return []
+
+
+def _profile_q2_record_blockers(records: Sequence[Mapping[str, Any]], profile: Mapping[str, Any]) -> list[str]:
+    binding = profile["protocol_binding"]["q2"]
+    expected_variants = {str(value) for value in binding["retained_variants"]}
+    expected_seeds = {str(value) for value in binding["seeds"]}
+    expected = {(variant, seed) for variant in expected_variants for seed in expected_seeds}
+    observed = {
+        (str(record["summary"].get("variant")), str(record["summary"].get("seed")))
+        for record in records
+    }
+    blockers: list[str] = []
+    if len(records) != len(expected) or observed != expected:
+        blockers.append(
+            "NAACL Q2 requires exactly the six retained variants and three locked seeds: "
+            f"missing={sorted(expected - observed)}, extra={sorted(observed - expected)}, count={len(records)}"
+        )
+    return blockers
+
+
+def _profile_payloads(record: Mapping[str, Any]) -> list[Mapping[str, Any]]:
+    payloads: list[Mapping[str, Any]] = []
+    summary = record.get("summary")
+    if isinstance(summary, Mapping):
+        payloads.append(summary)
+    run_root = Path(record["run_root"])
+    for relative in (
+        "metrics/external_retention_metrics.json",
+        "metrics/partial_external_retention_metrics.json",
+        "external/external_evaluation_manifest.json",
+        "source/source_provenance.json",
+    ):
+        payload = _load(run_root / relative, {})
+        if isinstance(payload, Mapping):
+            payloads.append(payload)
+    return payloads
+
+
+def _profile_q1b_record_blockers(records: Sequence[Mapping[str, Any]], profile: Mapping[str, Any]) -> list[str]:
+    binding = profile["q1b"]
+    expected_edges = {str(edge["consumer_id"]): edge for edge in binding["consumer_edges"]}
+    observed_ids = [str(record.get("run_id")) for record in records]
+    observed_set = set(observed_ids)
+    blockers: list[str] = []
+    if len(observed_ids) != len(observed_set) or observed_set != set(expected_edges):
+        blockers.append(
+            "NAACL Q1b requires exactly the profile-bound consumers: "
+            f"missing={sorted(set(expected_edges) - observed_set)}, extra={sorted(observed_set - set(expected_edges))}"
+        )
+    expected_graph_digest = str(profile.get("graph", {}).get("sha256", ""))
+    expected_source_digest = str(profile.get("source", {}).get("sha256", ""))
+    if not expected_graph_digest or not expected_source_digest:
+        blockers.append("NAACL Q1b profile graph/source digests are missing")
+    for record in records:
+        consumer_id = str(record.get("run_id"))
+        edge = expected_edges.get(consumer_id)
+        if edge is None:
+            continue
+        manifest = record.get("manifest")
+        if isinstance(manifest, Mapping) and (manifest.get("mode") != "full" or manifest.get("synthetic_results") is True):
+            blockers.append(f"{consumer_id}: fixture/synthetic Q1b rows cannot enter profile aggregation")
+        payloads = _profile_payloads(record)
+        merged: dict[str, Any] = {}
+        for payload in payloads:
+            merged.update(payload)
+            pending = [payload.get(key) for key in ("producer", "predictor_factory", "source")]
+            while pending:
+                nested = pending.pop()
+                if not isinstance(nested, Mapping):
+                    continue
+                merged.update(nested)
+                pending.extend(nested.get(key) for key in ("producer", "predictor_factory", "source"))
+        producer_id = merged.get("producer_id")
+        producer_run_id = merged.get("producer_run_id")
+        producer_kind = merged.get("producer_kind")
+        checkpoint_key = merged.get("checkpoint_key") or merged.get("source_checkpoint_id") or merged.get("source_checkpoint_key")
+        source_seed = merged.get("source_seed", merged.get("seed"))
+        graph_digest = merged.get("dependency_graph_sha256") or merged.get("graph_sha256")
+        if (
+            not producer_id
+            or not producer_run_id
+            or checkpoint_key in (None, "")
+            or ("source_seed" not in merged and "seed" not in merged)
+        ):
+            blockers.append(f"{consumer_id}: unresolved Q1b producer/checkpoint/seed binding")
+            continue
+        checks = {
+            "producer_id": str(producer_id) == str(edge["producer_id"]),
+            "producer_run_id": str(producer_run_id) == str(edge["producer_run_id"]),
+            "checkpoint_key": str(checkpoint_key) == str(edge["checkpoint_key"]),
+            "seed": str(source_seed) == str(edge["seed"]),
+        }
+        if producer_kind not in (None, ""):
+            checks["producer_kind"] = str(producer_kind) == str(edge["producer_kind"])
+        if graph_digest not in (None, ""):
+            checks["graph_digest"] = str(graph_digest) == expected_graph_digest
+        for field, passed in checks.items():
+            if not passed:
+                blockers.append(f"{consumer_id}: Q1b {field} binding disagrees with current profile")
+        for payload in payloads:
+            if payload.get("external_finetuning") is True or payload.get("train_loader_created") is True or payload.get("backward_calls", 0) not in (0, "0", None):
+                blockers.append(f"{consumer_id}: Q1b training metrics or training execution are not allowed")
+            if payload.get("optimizer_steps", 0) not in (0, "0", None):
+                blockers.append(f"{consumer_id}: Q1b optimizer steps must be zero")
+            if payload.get("training_applicability") == "APPLICABLE":
+                blockers.append(f"{consumer_id}: Q1b training applicability is not NOT_APPLICABLE")
+            if any(
+                payload.get(key) not in (None, "", "NOT_APPLICABLE")
+                for key in ("train_loss", "best_dev_metric", "dev_loss", "dev_metric")
+            ):
+                blockers.append(f"{consumer_id}: Q1b training metrics cannot enter aggregation")
+    return blockers
+
+
+def _profile_record_blockers(
+    records: Sequence[Mapping[str, Any]],
+    research_question: str,
+    profile: Mapping[str, Any],
+) -> list[str]:
+    if research_question == "Q1b":
+        return _profile_q1b_record_blockers(records, profile)
+    if research_question == "Q2":
+        return _profile_q2_record_blockers(records, profile)
+    if research_question == "Q3":
+        return _profile_q3_record_blockers(records, profile)
+    blockers: list[str] = []
+    for scope in ("Q1b", "Q2", "Q3"):
+        scoped = [record for record in records if str(record["summary"].get("research_question")) == scope]
+        blockers.extend(_profile_record_blockers(scoped, scope, profile))
+    return blockers
 
 
 def _number(value: Any, default: float = 0.0) -> float:
@@ -543,12 +757,35 @@ def _validate_significance_alignment(left_records: list[dict[str, Any]], right_r
 
 def aggregate_approved_scope(root: str | Path, research_question: str) -> dict[str, Any]:
     root = Path(root)
+    profile: dict[str, Any] | None = None
+    if _profile_scope_enabled(research_question):
+        try:
+            profile = validate_naacl_profile(root)
+        except Exception as exc:
+            return {
+                "status": "BLOCKED",
+                "scope": research_question,
+                "blockers": [f"NAACL profile validation failed: {exc}"],
+                "outputs": [],
+            }
+        if profile.get("status") != "PASS" or not profile.get("graph", {}).get("sha256") or not profile.get("source", {}).get("sha256"):
+            return {
+                "status": "BLOCKED",
+                "scope": research_question,
+                "blockers": ["NAACL profile validation returned an incomplete PASS snapshot"],
+                "outputs": [],
+            }
     resolution = validate_protocol_resolution(root)
     if resolution.get("scientific_protocol_conflicts"):
         return {"status": "BLOCKED", "scope": research_question, "blockers": list(resolution["scientific_protocol_conflicts"]), "outputs": []}
-    records, blockers = _required_records(root, research_question)
+    inventory_rows = _profile_inventory_rows(root, research_question, profile) if profile is not None else None
+    records, blockers = _required_records(root, research_question, inventory_rows=inventory_rows)
     if blockers:
         return {"status": "BLOCKED", "scope": research_question, "blockers": blockers, "outputs": []}
+    if profile is not None:
+        profile_blockers = _profile_record_blockers(records, research_question, profile)
+        if profile_blockers:
+            return {"status": "BLOCKED", "scope": research_question, "blockers": profile_blockers, "outputs": []}
     output = root / "experiment_artifacts"
     outputs: list[str] = []
     by_question: dict[str, list[dict[str, Any]]] = defaultdict(list)
@@ -578,11 +815,17 @@ def aggregate_approved_scope(root: str | Path, research_question: str) -> dict[s
         outputs.append(str(path.relative_to(root)))
     if research_question in {"Q3", "all"}:
         q3 = _q3_rows(q3_records)
-        required_budgets = {"32", "64", "128", "256", "512", "full"}
-        expected_pairs = {(system, budget, str(seed)) for system in {"phobert_pragmatic_finetune", "xlmr_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"} for budget in required_budgets for seed in TRAINING_SEEDS}
-        observed_pairs = {(str(row.get("system")), str(row.get("budget")), str(row.get("seed"))) for row in q3}
-        if observed_pairs != expected_pairs or len(q3) != len(expected_pairs):
-            return {"status": "BLOCKED", "scope": research_question, "blockers": [f"incomplete Q3 system-budget-seed Cartesian product: missing={sorted(expected_pairs - observed_pairs)[:5]}; extra={sorted(observed_pairs - expected_pairs)[:5]}"], "outputs": []}
+        if profile is not None:
+            azure_system = str(profile["protocol_binding"]["q3"]["azure_comparison"]["system_id"])
+            for row in q3:
+                if row.get("system") == azure_system and row.get("seed") in ("", "NOT_APPLICABLE"):
+                    row["seed"] = None
+        if profile is None:
+            required_budgets = {"32", "64", "128", "256", "512", "full"}
+            expected_pairs = {(system, budget, str(seed)) for system in {"phobert_pragmatic_finetune", "xlmr_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"} for budget in required_budgets for seed in TRAINING_SEEDS}
+            observed_pairs = {(str(row.get("system")), str(row.get("budget")), str(row.get("seed"))) for row in q3}
+            if observed_pairs != expected_pairs or len(q3) != len(expected_pairs):
+                return {"status": "BLOCKED", "scope": research_question, "blockers": [f"incomplete Q3 system-budget-seed Cartesian product: missing={sorted(expected_pairs - observed_pairs)[:5]}; extra={sorted(observed_pairs - expected_pairs)[:5]}"], "outputs": []}
         path = output / "backing_data/q3_low_resource.csv"
         _write_csv(path, REQUIRED_COLUMNS["q3_low_resource.csv"].split(","), q3)
         outputs.append(str(path.relative_to(root)))
