@@ -23,8 +23,9 @@ class ReuseStatus(StrEnum):
     INVALID = "invalid"
 
 
-IDENTITY_FIELDS = ("model", "tokenizer", "config", "data", "source")
+IDENTITY_FIELDS = ("model", "tokenizer", "config", "data", "source", "live_code_identity")
 HASH_FIELDS = tuple(f"{name}_hash" for name in IDENTITY_FIELDS)
+APPROVED_FIELDS = IDENTITY_FIELDS + HASH_FIELDS
 LIVE_CODE_IDENTITY_UNCERTAIN = "LIVE_CODE_IDENTITY_UNCERTAIN"
 
 
@@ -34,15 +35,31 @@ def canonical_hash(value: Any) -> str:
     return sha256(encoded).hexdigest()
 
 
-def _value(metadata: Mapping[str, Any], name: str) -> Any:
-    """Accept either ``model`` or the common ``model_identity`` spelling."""
-    if name in metadata:
-        return metadata[name]
-    return metadata.get(f"{name}_identity")
-
-
 def _is_uncertain(value: Any) -> bool:
     return value is None or value == "" or value == "unknown" or value is False
+
+
+def _schema_issues(metadata: Mapping[str, Any], side: str) -> list[str]:
+    issues: list[str] = []
+    keys = set(metadata)
+    for name in sorted(set(APPROVED_FIELDS) - keys):
+        issues.append(f"MISSING_FIELD:{side}:{name}")
+        if name == "live_code_identity":
+            issues.append(LIVE_CODE_IDENTITY_UNCERTAIN)
+        elif name == "source":
+            issues.append("SOURCE_IDENTITY_ABSENT")
+    for name in sorted(keys - set(APPROVED_FIELDS), key=str):
+        issues.append(f"EXTRA_FIELD:{side}:{name}")
+    for name in APPROVED_FIELDS:
+        if name not in metadata or not _is_uncertain(metadata[name]):
+            continue
+        if name == "live_code_identity":
+            issues.append(LIVE_CODE_IDENTITY_UNCERTAIN)
+        elif name.endswith("_hash"):
+            issues.append(f"{name.removesuffix('_hash').upper()}_HASH_ABSENT")
+        else:
+            issues.append(f"{name.upper()}_IDENTITY_ABSENT")
+    return issues
 
 
 @dataclass(frozen=True)
@@ -58,6 +75,18 @@ class ReuseDecision:
     def reusable(self) -> bool:
         return self.status is ReuseStatus.VERIFIED
 
+    @property
+    def evidence_bearing(self) -> bool:
+        """Whether this decision contains complete proof for a VERIFY event."""
+        return (
+            self.reusable
+            and not self.reasons
+            and not self.mismatched_fields
+            and self.local_metadata_hash is not None
+            and self.local_metadata_hash == self.remote_metadata_hash
+            and set(self.matched_fields) == set(APPROVED_FIELDS)
+        )
+
 
 def decide_reuse(
     local_metadata: Mapping[str, Any],
@@ -67,56 +96,44 @@ def decide_reuse(
 ) -> ReuseDecision:
     """Classify a possible reuse without reading or changing anything.
 
-    ``BLOCKED`` is reserved for missing/uncertain provenance, especially live
-    code identity and source identity.  A known disagreement is ``INVALID``.
-    The caller must provide the live code identity explicitly; it is never
-    inferred from local or remote artifact metadata.
+    ``BLOCKED`` is returned for incomplete or non-exact metadata schemas.  A
+    known disagreement between complete records is ``INVALID``.  The optional
+    ``live_code_identity`` argument is only an expected-value assertion; it is
+    never used to fill either record.  Both records must contain their own
+    live-code field and digest.
     """
     local_hash = canonical_hash(dict(local_metadata))
     remote_hash = canonical_hash(dict(remote_metadata))
-    if _is_uncertain(live_code_identity):
-        return ReuseDecision(
-            ReuseStatus.BLOCKED,
-            (LIVE_CODE_IDENTITY_UNCERTAIN,),
-            local_metadata_hash=local_hash,
-            remote_metadata_hash=remote_hash,
-        )
-
+    blocked = _schema_issues(local_metadata, "local") + _schema_issues(remote_metadata, "remote")
     matched: list[str] = []
     mismatched: list[str] = []
-    blocked: list[str] = []
-    for name in IDENTITY_FIELDS:
-        local = _value(local_metadata, name)
-        remote = _value(remote_metadata, name)
+    for name in APPROVED_FIELDS:
+        if name not in local_metadata or name not in remote_metadata:
+            continue
+        local = local_metadata[name]
+        remote = remote_metadata[name]
         if _is_uncertain(local) or _is_uncertain(remote):
-            if name == "source":
-                blocked.append("SOURCE_IDENTITY_ABSENT")
-            else:
-                blocked.append(f"{name.upper()}_IDENTITY_ABSENT")
-        elif local != remote:
+            continue
+        if local != remote:
             mismatched.append(name)
         else:
             matched.append(name)
 
-        local_hash_value = local_metadata.get(f"{name}_hash")
-        remote_hash_value = remote_metadata.get(f"{name}_hash")
-        if local_hash_value is not None or remote_hash_value is not None:
-            if _is_uncertain(local_hash_value) or _is_uncertain(remote_hash_value):
-                blocked.append(f"{name.upper()}_HASH_ABSENT")
-            elif local_hash_value != remote_hash_value:
-                mismatched.append(f"{name}_hash")
-
-    local_code = local_metadata.get("live_code_identity", live_code_identity)
-    remote_code = remote_metadata.get("live_code_identity", live_code_identity)
-    if local_code != live_code_identity or remote_code != live_code_identity:
-        mismatched.append("live_code_identity")
+    if live_code_identity is not None:
+        for metadata in (local_metadata, remote_metadata):
+            recorded = metadata.get("live_code_identity")
+            if not _is_uncertain(recorded) and recorded != live_code_identity:
+                mismatched.append("live_code_identity")
 
     if blocked:
         status = ReuseStatus.BLOCKED
         reasons = tuple(dict.fromkeys(blocked))
     elif mismatched:
         status = ReuseStatus.INVALID
-        reasons = tuple(f"IDENTITY_MISMATCH:{name}" for name in dict.fromkeys(mismatched))
+        reasons = tuple(
+            f"{'DIGEST' if name.endswith('_hash') else 'IDENTITY'}_MISMATCH:{name}"
+            for name in dict.fromkeys(mismatched)
+        )
     else:
         status = ReuseStatus.VERIFIED
         reasons = ()
@@ -138,17 +155,27 @@ class ReuseState:
     history: tuple[str, ...] = ()
     backup_requested: bool = False
     restore_requested: bool = False
+    evidence: ReuseDecision | None = None
 
 
-def transition(state: ReuseState, event: ReuseEvent | str) -> ReuseState:
-    """Pure state transition; repeated events are idempotent."""
+def transition(
+    state: ReuseState,
+    event: ReuseEvent | str,
+    *,
+    evidence: ReuseDecision | None = None,
+) -> ReuseState:
+    """Pure state transition; VERIFY requires complete verified evidence."""
     event = ReuseEvent(event)
-    if event is ReuseEvent.VERIFY:
+    next_evidence = state.evidence
+    if event is ReuseEvent.VERIFY and evidence is not None and evidence.evidence_bearing:
         next_status = ReuseStatus.VERIFIED
+        next_evidence = evidence
     elif event is ReuseEvent.INVALIDATE:
         next_status = ReuseStatus.INVALID
+        next_evidence = None
     elif event is ReuseEvent.BLOCK:
         next_status = ReuseStatus.BLOCKED
+        next_evidence = None
     else:
         next_status = state.status
     return replace(
@@ -157,6 +184,7 @@ def transition(state: ReuseState, event: ReuseEvent | str) -> ReuseState:
         history=state.history if event.value in state.history else state.history + (event.value,),
         backup_requested=state.backup_requested or event is ReuseEvent.BACKUP_REQUESTED,
         restore_requested=state.restore_requested or event is ReuseEvent.RESTORE_REQUESTED,
+        evidence=next_evidence,
     )
 
 
@@ -190,6 +218,7 @@ def plan_restore() -> ArtifactOperation:
 
 __all__ = [
     "ArtifactOperation",
+    "APPROVED_FIELDS",
     "IDENTITY_FIELDS",
     "LIVE_CODE_IDENTITY_UNCERTAIN",
     "MutationForbiddenError",
