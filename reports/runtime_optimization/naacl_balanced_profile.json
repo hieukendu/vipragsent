@@ -27,6 +27,70 @@
       "reports/final_runtime_integration_audit.json"
     ]
   },
+  "protocol_sources": {
+    "files": [
+      {
+        "path": "configs/experiments/q3/system_aliases.yaml",
+        "sha256": "D9862086827E7F5FEA80C887AD26EDCAF8EF07FBF899F2032E0750A19FC6D238"
+      },
+      {
+        "path": "configs/experiments/q3/protocol.yaml",
+        "sha256": "67D5DD80154F399CC23262D6E425B3CBCBB56138629A1DDBF0A1ADBF96B51F7D"
+      },
+      {
+        "path": "configs/experiments/q2/protocol.yaml",
+        "sha256": "F1B2F06EE059C9C999AD96ED9D6AA354465B914F3D6EA444EB9F7D72DC6CE70C"
+      },
+      {
+        "path": "src/vipragsent/constants.py",
+        "sha256": "2E9A973555A2278920A2D5A49C09E378157C31E19E12054FB8AF8C0C368DCCCF"
+      }
+    ],
+    "sha256": "AE255C19D686857824EE5801279A70C9F786277675056938194FDEBAD5AAC307"
+  },
+  "protocol_binding": {
+    "q3": {
+      "alias_systems": [
+        "phobert_pragmatic_finetune",
+        "xlmr_pragmatic_finetune",
+        "vistral_pragmatic_sft",
+        "azure_gpt41_mini_8shot",
+        "vipragsent_full_vistral"
+      ],
+      "excluded_budgets": ["64", "256"],
+      "excluded_systems": ["xlmr_pragmatic_finetune", "azure_gpt41_mini_8shot"],
+      "expected_cell_count": 36,
+      "primary_metric": "sarcasm_binary_macro_f1",
+      "retained_budgets": ["32", "128", "512", "full"],
+      "retained_systems": [
+        "phobert_pragmatic_finetune",
+        "vistral_pragmatic_sft",
+        "vipragsent_full_vistral"
+      ],
+      "seeds": [20260521, 20260522, 20260523],
+      "source_budgets": ["32", "64", "128", "256", "512", "full"]
+    },
+    "q2": {
+      "expected_variant_count": 6,
+      "retained_variants": [
+        "full",
+        "no_emotion_auxiliary",
+        "no_polarity_auxiliary",
+        "no_rationale",
+        "no_multitask",
+        "no_uncertainty_weighting"
+      ],
+      "seeds": [20260521, 20260522, 20260523],
+      "source_variants": [
+        "full",
+        "no_emotion_auxiliary",
+        "no_polarity_auxiliary",
+        "no_rationale",
+        "no_multitask",
+        "no_uncertainty_weighting"
+      ]
+    }
+  },
   "q3": {
     "systems": ["phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"],
     "budgets": [32, 128, 512, "full"],
@@ -36,6 +100,7 @@
   },
   "q2": {
     "seeds": [20260521, 20260522, 20260523],
+    "variants": ["full", "no_emotion_auxiliary", "no_polarity_auxiliary", "no_rationale", "no_multitask", "no_uncertainty_weighting"],
     "expected_seed_count": 3
   },
   "q1b": {

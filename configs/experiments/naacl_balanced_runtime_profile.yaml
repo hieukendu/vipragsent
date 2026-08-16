@@ -11,8 +11,10 @@ activation:
 source:
   status: current_audited_source
   registry: configs/experiments/q3/system_aliases.yaml
+  q3_aliases: configs/experiments/q3/system_aliases.yaml
   q3_protocol: configs/experiments/q3/protocol.yaml
   q2_protocol: configs/experiments/q2/protocol.yaml
+  seed_source: src/vipragsent/constants.py
   q1b_producer_registry: configs/experiments/q1b/producer_registry.yaml
   q1b_checkpoint_matrix: configs/experiments/q1b/checkpoint_matrix.yaml
   audit_reports:
@@ -41,6 +43,8 @@ q3:
 q2:
   status: retained
   seeds: [20260521, 20260522, 20260523]
+  variants: [full, no_emotion_auxiliary, no_polarity_auxiliary, no_rationale, no_multitask, no_uncertainty_weighting]
+  expected_variant_count: 6
   variants_source: configs/experiments/q2/protocol.yaml
   expected_seed_count: 3
 q1b:
