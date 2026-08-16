@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "round": 0,
+  "source": "V27 known external review plus current remote-state audit",
+  "as_of": "2026-08-16T16:20:01Z",
+  "manager_head": "16ff2b0f403eb694ed0c53d6808a5b441d903735",
+  "remote_head": "16ff2b0f403eb694ed0c53d6808a5b441d903735",
+  "pr_url": "https://github.com/hieukendu/vipragsent/pull/10",
+  "ci_run": 31957116632,
+  "ci_status": "completed",
+  "ci_conclusion": "failure",
+  "ci_failed_step": "Ruff",
+  "findings": ["BUG-KNOWN-001", "BUG-KNOWN-002", "BUG-KNOWN-003", "BUG-KNOWN-004"],
+  "current_branch_clean": true,
+  "production_worktree_edited": false,
+  "forbidden_actions_performed": {
+    "production_run": false,
+    "real_benchmark": false,
+    "real_azure": false,
+    "hf_mutation": false,
+    "process_control": false
+  }
+}
