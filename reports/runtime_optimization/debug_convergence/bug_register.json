@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "round": 0,
-  "as_of": "2026-08-16T16:27:30Z",
-  "manager_head": "183126ecf888c86c679da8fac9e66321617f1f20",
+  "as_of": "2026-08-16T16:39:10Z",
+  "manager_head": "0c5bca22402287f613b26f79dff3692bca8dc15e",
   "remote_head": "c2e78c62ee51c7566629930b3b0a115920735f30",
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "pr": {
@@ -38,7 +38,7 @@
       "root_cause_hypothesis": "The local balanced-cell reduction was applied to the total Q3 inventory, conflating local cells with non-local Azure comparison rows.",
       "assigned_worker": "LUNA_WORKER_SCIENCE_PROFILE",
       "dependencies": [],
-      "fix_commit": "c465b1f765ff71ef845a2407e196617c8232eaf4",
+      "fix_commit": "183126e",
       "regression_tests": ["PYTHONPATH=\"$PWD:$PWD/src\" python -m pytest -q -p no:cacheprovider tests/test_naacl_balanced_profile.py (16 passed)"],
       "reviewer_verdict": null,
       "closure_evidence": "Profile validator now reports 36 local cells plus 4 retained Azure rows, with fail-closed checks for retained Azure inventory and no invented Azure seeds."
@@ -91,7 +91,7 @@
       "bug_id": "BUG-KNOWN-004",
       "round_discovered": 0,
       "severity": "HIGH",
-      "status": "OPEN",
+      "status": "FIXED_PENDING_REVIEW",
       "confidence": "HIGH",
       "category": "ci_static_quality",
       "files": [".github/workflows/cpu-ci.yml", "src", "tests"],
@@ -104,10 +104,10 @@
       "root_cause_hypothesis": "The previous implementation wave introduced lint findings while the repository baseline already contained legacy findings under the exact CI command.",
       "assigned_worker": "LUNA_WORKER_ESTIMATOR_CI",
       "dependencies": [],
-      "fix_commit": "c71573a",
-      "regression_tests": ["Scoped Ruff passed for generation executor, explanation runtime, and estimator"],
+      "fix_commit": "0c5bca2",
+      "regression_tests": ["/root/vipragsent/.venv/bin/ruff check . (0 findings)"],
       "reviewer_verdict": null,
-      "closure_evidence": "Partial only: residual Ruff findings remain in legacy/base files plus scheduler/profile/test files and require a separate hygiene commit before CI can close this bug."
+      "closure_evidence": "Exact local Ruff command passes after behavior-preserving UP038 conversions; clean remote GitHub Actions remains required for final closure."
     }
   ],
   "production_actions_taken": false,
