@@ -28,4 +28,4 @@ The runtime gate remains `PROJECTED_GATE_CONDITIONAL`. A later user-authorized D
 
 ## Delivery note
 
-This local branch is ready for review. Push and draft-PR creation are pending because the environment does not contain the required authenticated `gh` CLI; no merge is requested or performed.
+This branch is ready for review. It will be pushed as a draft PR targeting `main`; no merge is requested or performed.
