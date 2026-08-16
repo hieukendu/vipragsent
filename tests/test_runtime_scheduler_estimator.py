@@ -7,6 +7,7 @@ import pytest
 
 from vipragsent.runtime.estimator import (
     ESTIMATE_STATUSES,
+    GENERATION_FACTORS,
     EstimateStatus,
     RuntimeObservation,
     estimate_runtime,
@@ -66,8 +67,19 @@ def test_default_policy_is_legacy_and_resource_lanes_are_bounded() -> None:
         ResourcePolicy(phobert_concurrency=2)
     with pytest.raises(SchedulerInvariantError):
         ResourcePolicy.resource_aware(phobert_concurrency=2, phobert_profile=ResourceProfile("weak", 0.2))
+    with pytest.raises(SchedulerInvariantError):
+        ResourcePolicy.resource_aware(
+            phobert_concurrency=2,
+            phobert_profile=ResourceProfile("validated-low-gain", 0.25, throughput_gain_fraction=0.24),
+        )
+    with pytest.raises(SchedulerInvariantError):
+        ResourcePolicy.resource_aware(
+            phobert_concurrency=2,
+            phobert_profile=ResourceProfile("unvalidated", 0.25, validated=False, throughput_gain_fraction=0.25),
+        )
     assert ResourcePolicy.resource_aware(
-        phobert_concurrency=2, phobert_profile=ResourceProfile("validated", 0.25)
+        phobert_concurrency=2,
+        phobert_profile=ResourceProfile("validated", 0.25, throughput_gain_fraction=0.25),
     ).capacities()["phobert"] == 2
 
 
@@ -89,7 +101,8 @@ def test_exclusive_and_phobert_lanes_prevent_invalid_overlap() -> None:
     two = build_dry_run_plan(
         specs,
         policy=ResourcePolicy.resource_aware(
-            phobert_concurrency=2, phobert_profile=ResourceProfile("cpu-quarter", 0.25)
+            phobert_concurrency=2,
+            phobert_profile=ResourceProfile("cpu-quarter", 0.25, throughput_gain_fraction=0.25),
         ),
     )
     assert two.makespan_minutes == 10
@@ -187,7 +200,9 @@ def test_estimator_has_exact_statuses_reconciliation_hashes_and_sensitivities() 
     assert set(ESTIMATE_STATUSES) == {"REUSE", "RESUME", "TRAIN", "EVALUATE_ONLY", "ARTIFACT_ONLY", "NOT_SCHEDULED_NAACL_BALANCED", "BLOCKED"}
     assert report.as_of.endswith("Z")
     assert report.source_hashes["inventory"] == "i"
-    assert report.generation_sensitivity[4] >= report.generation_sensitivity[1]
+    assert tuple(report.generation_sensitivity) == GENERATION_FACTORS
+    assert all(isinstance(factor, float) for factor in report.generation_sensitivity)
+    assert report.generation_sensitivity[4.0] >= report.generation_sensitivity[1.0]
     assert report.phobert_concurrency_sensitivity[2] is None
     assert report.reconciliation.changed_stage_count == 1
     assert report.remaining_wall_clock_minutes >= 0

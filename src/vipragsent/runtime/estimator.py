@@ -17,6 +17,9 @@ from .scheduler import (
 )
 
 
+GENERATION_FACTORS = (1.0, 1.5, 2.0, 2.5, 3.0, 4.0)
+
+
 class EstimateStatus(str, Enum):
     REUSE = "REUSE"
     RESUME = "RESUME"
@@ -86,7 +89,7 @@ class RuntimeEstimateReport:
     lower_bound_minutes: float
     scheduler_makespan_minutes: float
     remaining_wall_clock_minutes: float
-    generation_sensitivity: Mapping[int, float]
+    generation_sensitivity: Mapping[float, float]
     phobert_concurrency_sensitivity: Mapping[int, float | None]
     reconciliation: ReconciliationReport
     assumptions: tuple[str, ...]
@@ -195,7 +198,7 @@ def _stage_gates(spec: StageSpec) -> tuple[str, ...]:
     )
 
 
-def _scaled(specs: Sequence[StageSpec], factor: int) -> tuple[StageSpec, ...]:
+def _scaled(specs: Sequence[StageSpec], factor: float) -> tuple[StageSpec, ...]:
     return tuple(
         replace(spec, duration_minutes=spec.duration_minutes * factor)
         if spec.generation or "generation" in spec.kind.casefold()
@@ -221,7 +224,7 @@ def estimate_runtime(*, specs: Iterable[StageSpec], as_of: str, source_hashes: M
     if not stages:
         chosen = policy or ResourcePolicy()
         empty = reconcile_before_after(before_label="before", after_label="after", specs=(), before={}, after={})
-        return RuntimeEstimateReport(as_of, dict(source_hashes or {}), (), 0.0, 0.0, 0.0, {factor: 0.0 for factor in range(1, 5)}, {1: 0.0}, empty, ("No stages were supplied.",), "No gates supplied.", "PROJECTED", build_dry_run_plan((), policy=chosen))
+        return RuntimeEstimateReport(as_of, dict(source_hashes or {}), (), 0.0, 0.0, 0.0, {factor: 0.0 for factor in GENERATION_FACTORS}, {1: 0.0}, empty, ("No stages were supplied.",), "No gates supplied.", "PROJECTED", build_dry_run_plan((), policy=chosen))
     chosen = policy or ResourcePolicy()
     current_state = state or CampaignState(stages[0].campaign_id)
     by_id = {spec.stage_id: spec for spec in stages}
@@ -276,8 +279,8 @@ def estimate_runtime(*, specs: Iterable[StageSpec], as_of: str, source_hashes: M
     plan = build_dry_run_plan(measured_active, policy=chosen, state=planning_state)
     lower_bound = _lower_bound(active, active_durations, chosen)
     remaining = max(0.0, plan.makespan_minutes - max(0.0, elapsed_minutes))
-    generation_sensitivity: dict[int, float] = {}
-    for factor in range(1, 5):
+    generation_sensitivity: dict[float, float] = {}
+    for factor in GENERATION_FACTORS:
         scaled = _scaled(measured_active, factor)
         scaled_plan = build_dry_run_plan(scaled, policy=chosen, state=planning_state)
         generation_sensitivity[factor] = scaled_plan.makespan_minutes
@@ -307,7 +310,7 @@ def estimate_campaign(**kwargs: Any) -> RuntimeEstimateReport:
 
 
 __all__ = [
-    "ESTIMATE_STATUSES", "EstimateRow", "EstimateStatus", "ReconciliationReport", "ReconciliationRow",
+    "ESTIMATE_STATUSES", "GENERATION_FACTORS", "EstimateRow", "EstimateStatus", "ReconciliationReport", "ReconciliationRow",
     "RuntimeEstimateReport", "RuntimeObservation", "estimate_campaign", "estimate_runtime",
     "reconcile_before_after",
 ]
