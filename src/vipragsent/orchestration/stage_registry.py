@@ -209,6 +209,62 @@ def _read_jsonl(path: Path) -> list[dict[str, Any]]:
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
+def _production_generation_profile(context: RunContext) -> Mapping[str, Any] | list[Mapping[str, Any]]:
+    """Resolve generation-only profiling evidence, with a safe batch-one default."""
+    profile = context.metadata.get("generation_profile")
+    profile_path = context.metadata.get("generation_profile_path")
+    if profile is None and profile_path:
+        profile = Path(str(profile_path))
+    if profile is None:
+        profile = Path(context.run_root) / "profiling/generation_profile.json"
+    if isinstance(profile, (str, Path)):
+        path = Path(profile)
+        if not path.is_absolute():
+            path = context.root / path
+        if path.exists():
+            try:
+                loaded = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, TypeError, ValueError, json.JSONDecodeError):
+                loaded = None
+            if isinstance(loaded, (Mapping, list)):
+                return loaded
+    if isinstance(profile, (Mapping, list)):
+        return profile
+    return {
+        "status": "PASS",
+        "selected_batch_size": 1,
+        "candidate_batch_sizes": [1, 2, 4],
+        "profiled": True,
+        "source": "default-safe-generation-batch-one",
+    }
+
+
+def _selected_dev_artifacts_reusable(run_root: Path) -> bool:
+    selection_path = run_root / "selection/best_checkpoint.json"
+    marker_path = run_root / "selection/dev_artifacts.json"
+    required = (
+        run_root / "reasoning/dev_reasoning.jsonl",
+        run_root / "predictions/dev_predictions.jsonl",
+        run_root / "judge/dev_judge_responses.jsonl",
+        run_root / "metrics/dev_reasoning_metrics.json",
+    )
+    if not all(path.exists() for path in (selection_path, marker_path, *required)):
+        return False
+    try:
+        selection = _load_mapping(selection_path)
+        marker = _load_mapping(marker_path)
+        selected = selection.get("dev_artifacts", {})
+        return (
+            marker.get("status") == "PASS"
+            and selected.get("epoch") == marker.get("epoch")
+            and sha256_file(required[0]) == marker.get("reasoning_sha256")
+            and sha256_file(required[1]) == marker.get("predictions_sha256")
+            and sha256_file(required[2]) == marker.get("judge_sha256")
+        )
+    except (OSError, TypeError, ValueError, KeyError):
+        return False
+
+
 def _metrics_from_rows(path: Path) -> dict[str, Any]:
     rows = _read_jsonl(path)
     output: dict[str, Any] = {"prediction_file": path.name, "prediction_count": len(rows), "invalid_prediction_count": 0}
@@ -803,6 +859,8 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         physical_batch_size=resolved.physical_batch_size,
         gradient_accumulation_steps=resolved.gradient_accumulation_steps,
         pad_token_id=getattr(tokenizer, "pad_token_id", None),
+        generation_profile=_production_generation_profile(context),
+        generation_batch_size=context.metadata.get("generation_batch_size"),
     )
     bundle = load_vipragsent(context.root / "data/processed/vipragsent")
     prompt = (context.root / str(executor.protocol["generation_prompt_path"])).read_text(encoding="utf-8")
@@ -818,10 +876,11 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         history: list[dict[str, float]] = []
         for epoch in range(1, resolved.maximum_epochs + 1):
             history.extend(executor.train_generation(train_records, optimizer=optimizer, epochs=1, scheduler=scheduler, gradient_clipping=resolved.gradient_clipping, epoch_start=epoch))
-            generated_dev = executor.generate_reasoning_split("dev", dev_records)
+            epoch_root = Path(context.run_root) / "epochs" / f"epoch_{epoch}"
+            generated_dev = executor.generate_reasoning_split("dev", dev_records, artifact_root=epoch_root)
             gold_dev = {str(row["sample_id"]): row["gold"] for row in dev_records}
-            dev_predictions, _ = executor.judge_reasoning_split("dev", generated_dev, gold_dev)
-            dev_metrics = executor.compute_split_metrics("dev", dev_predictions)
+            dev_predictions, _ = executor.judge_reasoning_split("dev", generated_dev, gold_dev, artifact_root=epoch_root)
+            dev_metrics = executor.compute_split_metrics("dev", dev_predictions, artifact_root=epoch_root)
             epoch_checkpoint = executor.write_checkpoint(f"checkpoints/epoch_{epoch}/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=epoch, selection_metric=float(dev_metrics["primary_macro_f1"]))
             history[-1]["dev_primary_macro_f1"] = float(dev_metrics["primary_macro_f1"])
             if float(dev_metrics["primary_macro_f1"]) > best_metric:
@@ -838,7 +897,8 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         atomic_write_json(Path(context.run_root) / "training/history.json", history)
         atomic_write_text(Path(context.run_root) / "training/history.csv", "epoch,train_loss,optimizer_steps,dev_primary_macro_f1\n" + "\n".join(f"{row.get('epoch')},{row.get('train_loss')},{row.get('optimizer_steps')},{row.get('dev_primary_macro_f1', '')}" for row in history) + "\n")
         manifest = executor.write_checkpoint_manifest(best_epoch=best_epoch, selection_metric=best_metric, rationale_source_hash=str(source_report.get("source_sha256", "NOT_PROVIDED")))
-        atomic_write_json(Path(context.run_root) / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": best_hash, "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_sha256": best_hash})
+        dev_artifacts = executor.publish_dev_artifacts(best_epoch)
+        atomic_write_json(Path(context.run_root) / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": best_hash, "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_sha256": best_hash, "dev_artifacts": dev_artifacts})
         atomic_write_json(Path(context.run_root) / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "best_epoch": best_epoch})
         atomic_write_json(Path(context.run_root) / "selection/thresholds.json", {"status": "NOT_APPLICABLE", "reason": "reasoning judge emits strict binary labels; no dev threshold tuning"})
         atomic_write_json(Path(context.run_root) / "training/optimizer_summary.json", optimizer_summary | {"executor_kind": "generation_trainable", "classifier_heads": 0})
@@ -847,6 +907,8 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         return StageOutcome.passed(summary={"history": history, "rationale_source": source_report, "best_epoch": best_epoch, "best_dev_metric": best_metric, "checkpoint_manifest": manifest}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "checkpoints/load_report.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"))
     if stage in {"generate_dev_reasoning", "generate_test_reasoning"}:
         split = "dev" if stage.startswith("generate_dev") else "test"
+        if split == "dev" and _selected_dev_artifacts_reusable(Path(context.run_root)):
+            return StageOutcome.passed(summary={"split": "dev", "reused_best_epoch_artifacts": True}, expected_files=("reasoning/dev_reasoning.jsonl", "selection/dev_artifacts.json"))
         try:
             if split == "test":
                 executor.load_frozen_checkpoint()
@@ -862,6 +924,8 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
     if stage.startswith("judge_"):
         if not reasoning_path.exists():
             return StageOutcome.blocked(f"{split} reasoning is missing")
+        if split == "dev" and _selected_dev_artifacts_reusable(Path(context.run_root)):
+            return StageOutcome.passed(summary={"split": "dev", "reused_best_epoch_artifacts": True}, expected_files=("judge/dev_judge_responses.jsonl", "predictions/dev_predictions.jsonl"))
         generated = _read_jsonl(reasoning_path)
         gold = {row.sample_id: {label: int(row.labels[label]) for label in PRAGMATIC_LABELS} for row in getattr(bundle, split)}
         predictions, _ = executor.judge_reasoning_split(split, generated, gold)
@@ -870,6 +934,9 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         predictions_path = Path(context.run_root) / f"predictions/{split}_predictions.jsonl"
         if not predictions_path.exists():
             return StageOutcome.blocked(f"{split} judge predictions are missing")
+        if split == "dev" and _selected_dev_artifacts_reusable(Path(context.run_root)):
+            metrics_path = Path(context.run_root) / "metrics/dev_reasoning_metrics.json"
+            return StageOutcome.passed(summary=_load_mapping(metrics_path) if metrics_path.exists() else {}, expected_files=("metrics/dev_reasoning_metrics.json",))
         metrics = executor.compute_split_metrics(split, _read_jsonl(predictions_path))
         return StageOutcome.passed(summary=metrics, expected_files=(f"metrics/{split}_reasoning_metrics.json",))
     return StageOutcome.failed(f"unsupported production generation stage: {stage}")

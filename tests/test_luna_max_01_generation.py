@@ -557,6 +557,38 @@ def test_generation_test_stage_loads_frozen_best_checkpoint(tmp_path: Path) -> N
     assert report["status"] == "PASS"
 
 
+def test_production_generation_profile_defaults_to_safe_batch_one(tmp_path: Path) -> None:
+    entry = RunEntry.from_mapping({"run_id": "profile", "system_id": "cot_only_vistral", "execution_kind": "generation", "backbone": "vistral_7b", "research_question": "Q1"})
+    context = RunContext(tmp_path, entry)
+    profile = stage_registry._production_generation_profile(context)
+    assert profile["status"] == "PASS"
+    assert profile["selected_batch_size"] == 1
+    assert profile["source"] == "default-safe-generation-batch-one"
+
+
+def test_selected_dev_artifact_marker_is_validated_for_reuse(tmp_path: Path) -> None:
+    reasoning = tmp_path / "reasoning/dev_reasoning.jsonl"
+    predictions = tmp_path / "predictions/dev_predictions.jsonl"
+    judge = tmp_path / "judge/dev_judge_responses.jsonl"
+    metrics = tmp_path / "metrics/dev_reasoning_metrics.json"
+    for path in (reasoning, predictions, judge, metrics):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("{}\n", encoding="utf-8")
+    marker = {
+        "status": "PASS",
+        "epoch": 2,
+        "reasoning_sha256": sha256_file(reasoning),
+        "predictions_sha256": sha256_file(predictions),
+        "judge_sha256": sha256_file(judge),
+    }
+    (tmp_path / "selection").mkdir(parents=True)
+    (tmp_path / "selection/dev_artifacts.json").write_text(json.dumps(marker), encoding="utf-8")
+    (tmp_path / "selection/best_checkpoint.json").write_text(json.dumps({"dev_artifacts": {"epoch": 2}}), encoding="utf-8")
+    assert stage_registry._selected_dev_artifacts_reusable(tmp_path)
+    predictions.write_text("changed\n", encoding="utf-8")
+    assert not stage_registry._selected_dev_artifacts_reusable(tmp_path)
+
+
 def test_generation_stage_loads_requested_epoch_checkpoint(tmp_path: Path) -> None:
     executor = _executor(tmp_path)
     for value in (1.0, 2.0):
