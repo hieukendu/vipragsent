@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "governing_overlay": {
     "version": "V27",
     "source_kind": "external_pasted_attachment",
@@ -13,6 +13,9 @@
     "exact_bytes_available_in_current_attachment": false,
     "interpretation": "V26 remains authoritative for science; V27 is an execution and review overlay. No missing V26 rule is inferred."
   },
-  "verified_at": "2026-08-16T17:57:28Z",
-  "manager_head_at_recording": "e0c502a3879fb3a65305841e6941a6bae24e5778"
+  "verified_at": "2026-08-16T19:02:21Z",
+  "manager_head_at_recording": "16181334b5d00a6e3f622dffa826575a1b18915d",
+  "reviewed_code_head": "16181334b5d00a6e3f622dffa826575a1b18915d",
+  "artifact_commit": "REPORT_ONLY_DESCENDANT_OF_REVIEWED_CODE_HEAD",
+  "head_semantics": "The code review binds to reviewed_code_head; only report files are committed afterward."
 }
