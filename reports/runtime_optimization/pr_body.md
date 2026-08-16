@@ -20,7 +20,7 @@ The only scientific scheduling change is the authorized NAACL-balanced Q3 profil
 - Integrated selected suite: `124 passed`.
 - Independent Wave-3 review: `29 passed`; scheduler re-review: `12 passed`.
 - Python compilation and `git diff --check` passed.
-- Ruff/mypy were unavailable.
+- Ruff is not clean: `origin/main` has 13 pre-existing findings and this branch reports 19 additional style findings in the reviewed runtime modules; no auto-fix was applied after the implementation reviews. Mypy was not run.
 
 ## Known gates before production
 
