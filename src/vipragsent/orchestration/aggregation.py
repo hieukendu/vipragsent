@@ -143,24 +143,67 @@ def _profile_scope_enabled(research_question: str) -> bool:
 
 
 def _profile_q3_inventory_rows(root: Path, profile: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """Return only the rows named by the current profile protocol binding."""
+    """Validate the complete Q3 inventory, then return the retained profile rows.
+
+    The inventory contains explicitly excluded XLM-R and budget-64/256 rows.
+    Those rows are allowed by the frozen source protocol, but an arbitrary
+    extra row must never disappear merely because it is outside the profile.
+    """
     binding = profile["protocol_binding"]["q3"]
+    all_budgets = {str(value) for value in binding["source_budgets"]}
+    all_local_systems = {str(value) for value in binding["retained_systems"]} | {
+        str(value) for value in binding["excluded_systems"]
+    }
+    seeds = {int(value) for value in binding["seeds"]}
+    azure = binding["azure_comparison"]
+    expected_inventory = {
+        (system, budget, seed)
+        for system in all_local_systems
+        for budget in all_budgets
+        for seed in seeds
+    } | {
+        (str(azure["system_id"]), budget, None)
+        for budget in all_budgets
+    }
+    inventory = _scope_rows(root, "Q3")
+    actual = [
+        (str(row.get("system_id")), str(row.get("budget")), row.get("seed"))
+        for row in inventory
+    ]
+    duplicates = {key for key in actual if actual.count(key) > 1}
+    missing = expected_inventory - set(actual)
+    extra = set(actual) - expected_inventory
+    if duplicates or missing or extra or len(actual) != len(expected_inventory):
+        raise ProfileValidationError(
+            "Q3 inventory is not the complete authorized source matrix: "
+            f"missing={sorted(missing, key=str)}, extra={sorted(extra, key=str)}, "
+            f"duplicates={sorted(duplicates, key=str)}"
+        )
     local_keys = {
         (str(system), str(budget), seed)
         for system in binding["retained_systems"]
         for budget in binding["retained_budgets"]
         for seed in binding["seeds"]
     }
-    azure = binding["azure_comparison"]
     expected = local_keys | {
         (str(azure["system_id"]), str(budget), None)
         for budget in azure["budgets"]
     }
-    return [
-        row
-        for row in _scope_rows(root, "Q3")
-        if (str(row.get("system_id")), str(row.get("budget")), row.get("seed")) in expected
+    retained = [
+        row for row, key in zip(inventory, actual, strict=True) if key in expected
     ]
+    try:
+        validate_q3_profile_rows(
+            [{"system_id": key[0], "budget": key[1], "seed": key[2]} for key in actual if key in expected],
+            local_systems=list(binding["retained_systems"]),
+            local_budgets=[str(value) for value in binding["retained_budgets"]],
+            seeds=[int(value) for value in binding["seeds"]],
+            azure_system=str(azure["system_id"]),
+            azure_budgets=[str(value) for value in azure["budgets"]],
+        )
+    except ProfileValidationError:
+        raise
+    return retained
 
 
 def _profile_inventory_rows(root: Path, research_question: str, profile: Mapping[str, Any]) -> list[dict[str, Any]] | None:
@@ -187,12 +230,7 @@ def _profile_q3_record_blockers(records: Sequence[Mapping[str, Any]], profile: M
         {
             "system_id": record["summary"].get("system_id"),
             "budget": record["summary"].get("budget"),
-            "seed": (
-                None
-                if record["summary"].get("system_id") == str(azure["system_id"])
-                and record["summary"].get("seed") in (None, "", "NOT_APPLICABLE")
-                else record["summary"].get("seed")
-            ),
+            "seed": record["summary"].get("seed"),
         }
         for record in records
     ]
@@ -246,6 +284,55 @@ def _profile_payloads(record: Mapping[str, Any]) -> list[Mapping[str, Any]]:
     return payloads
 
 
+def _mapping_nodes(value: Any) -> Iterable[Mapping[str, Any]]:
+    if not isinstance(value, Mapping):
+        return
+    yield value
+    for child in value.values():
+        if isinstance(child, Mapping):
+            yield from _mapping_nodes(child)
+
+
+def _canonical_q1b_values(payloads: Sequence[Mapping[str, Any]]) -> tuple[dict[str, Any], dict[str, list[Any]]]:
+    aliases = {
+        "producer_id": ("producer_id",),
+        "producer_run_id": ("producer_run_id",),
+        "producer_kind": ("producer_kind",),
+        "checkpoint_key": ("checkpoint_key", "source_checkpoint_id", "source_checkpoint_key"),
+        "source_seed": ("source_seed",),
+        "dependency_graph_sha256": ("dependency_graph_sha256", "graph_sha256"),
+        "dependency_source_sha256": ("dependency_source_sha256", "source_sha256"),
+    }
+    values: dict[str, list[Any]] = {field: [] for field in aliases}
+    top_level_seeds: list[Any] = []
+    for payload in payloads:
+        if "seed" in payload:
+            top_level_seeds.append(payload.get("seed"))
+        for node in _mapping_nodes(payload):
+            for field, keys in aliases.items():
+                for key in keys:
+                    if key in node:
+                        values[field].append(node.get(key))
+                        break
+    if not values["source_seed"] and top_level_seeds:
+        values["source_seed"] = top_level_seeds
+    canonical: dict[str, Any] = {}
+    conflicts: dict[str, list[Any]] = {}
+    for field, observed in values.items():
+        meaningful = [value for value in observed if value not in (None, "")]
+        if field == "source_seed" and any(value is None for value in observed):
+            meaningful.append(None)
+        unique = []
+        for value in meaningful:
+            if value not in unique:
+                unique.append(value)
+        if len(unique) > 1:
+            conflicts[field] = unique
+        if meaningful:
+            canonical[field] = meaningful[0]
+    return canonical, conflicts
+
+
 def _profile_q1b_record_blockers(records: Sequence[Mapping[str, Any]], profile: Mapping[str, Any]) -> list[str]:
     binding = profile["q1b"]
     expected_edges = {str(edge["consumer_id"]): edge for edge in binding["consumer_edges"]}
@@ -270,50 +357,65 @@ def _profile_q1b_record_blockers(records: Sequence[Mapping[str, Any]], profile: 
         if isinstance(manifest, Mapping) and (manifest.get("mode") != "full" or manifest.get("synthetic_results") is True):
             blockers.append(f"{consumer_id}: fixture/synthetic Q1b rows cannot enter profile aggregation")
         payloads = _profile_payloads(record)
-        merged: dict[str, Any] = {}
-        for payload in payloads:
-            merged.update(payload)
-            pending = [payload.get(key) for key in ("producer", "predictor_factory", "source")]
-            while pending:
-                nested = pending.pop()
-                if not isinstance(nested, Mapping):
-                    continue
-                merged.update(nested)
-                pending.extend(nested.get(key) for key in ("producer", "predictor_factory", "source"))
-        producer_id = merged.get("producer_id")
-        producer_run_id = merged.get("producer_run_id")
-        producer_kind = merged.get("producer_kind")
-        checkpoint_key = merged.get("checkpoint_key") or merged.get("source_checkpoint_id") or merged.get("source_checkpoint_key")
-        source_seed = merged.get("source_seed", merged.get("seed"))
-        graph_digest = merged.get("dependency_graph_sha256") or merged.get("graph_sha256")
-        if (
-            not producer_id
+        canonical, conflicts = _canonical_q1b_values(payloads)
+        for field, observed in conflicts.items():
+            blockers.append(f"{consumer_id}: conflicting Q1b {field} provenance values: {observed}")
+        producer_id = canonical.get("producer_id")
+        producer_run_id = canonical.get("producer_run_id")
+        producer_kind = canonical.get("producer_kind")
+        checkpoint_key = canonical.get("checkpoint_key")
+        source_seed = canonical.get("source_seed")
+        graph_digest = canonical.get("dependency_graph_sha256")
+        source_digest = canonical.get("dependency_source_sha256")
+        binding_missing = (
+            not isinstance(producer_id, str)
+            or not producer_id
+            or not isinstance(producer_run_id, str)
             or not producer_run_id
+            or not isinstance(producer_kind, str)
             or not producer_kind
-            or checkpoint_key in (None, "")
-            or ("source_seed" not in merged and "seed" not in merged)
-        ):
+            or not isinstance(checkpoint_key, str)
+            or not checkpoint_key
+            or "source_seed" not in canonical
+        )
+        if binding_missing:
             blockers.append(f"{consumer_id}: unresolved Q1b producer/checkpoint/seed binding")
-            continue
-        checks = {
-            "producer_id": str(producer_id) == str(edge["producer_id"]),
-            "producer_run_id": str(producer_run_id) == str(edge["producer_run_id"]),
-            "checkpoint_key": str(checkpoint_key) == str(edge["checkpoint_key"]),
-            "seed": str(source_seed) == str(edge["seed"]),
-        }
-        if producer_kind not in (None, ""):
-            checks["producer_kind"] = str(producer_kind) == str(edge["producer_kind"])
-        if graph_digest not in (None, ""):
-            checks["graph_digest"] = str(graph_digest) == expected_graph_digest
-        for field, passed in checks.items():
-            if not passed:
-                blockers.append(f"{consumer_id}: Q1b {field} binding disagrees with current profile")
+        elif (
+            not isinstance(graph_digest, str)
+            or not graph_digest
+            or not isinstance(source_digest, str)
+            or not source_digest
+        ):
+            blockers.append(f"{consumer_id}: unresolved Q1b dependency graph/source digest binding")
+        else:
+            checks = {
+                "producer_id": str(producer_id) == str(edge["producer_id"]),
+                "producer_run_id": str(producer_run_id) == str(edge["producer_run_id"]),
+                "checkpoint_key": str(checkpoint_key) == str(edge["checkpoint_key"]),
+                "seed": source_seed == edge["seed"] or str(source_seed) == str(edge["seed"]),
+                "producer_kind": producer_kind == str(edge["producer_kind"]),
+                "graph_digest": graph_digest == expected_graph_digest,
+                "source_digest": source_digest == expected_source_digest,
+            }
+            for field, passed in checks.items():
+                if not passed:
+                    blockers.append(f"{consumer_id}: Q1b {field} binding disagrees with current profile")
         for payload in payloads:
-            if payload.get("external_finetuning") is True or payload.get("train_loader_created") is True or payload.get("backward_calls", 0) not in (0, "0", None):
-                blockers.append(f"{consumer_id}: Q1b training metrics or training execution are not allowed")
-            if payload.get("optimizer_steps", 0) not in (0, "0", None):
-                blockers.append(f"{consumer_id}: Q1b optimizer steps must be zero")
-            if payload.get("training_applicability") == "APPLICABLE":
+            for boolean_field in ("external_finetuning", "train_loader_created"):
+                if boolean_field in payload:
+                    value = payload.get(boolean_field)
+                    if type(value) is not bool:
+                        blockers.append(f"{consumer_id}: Q1b {boolean_field} must be a JSON boolean")
+                    elif value is not False:
+                        blockers.append(f"{consumer_id}: Q1b {boolean_field} must be false")
+            for integer_field in ("backward_calls", "optimizer_steps"):
+                if integer_field in payload:
+                    value = payload.get(integer_field)
+                    if type(value) is not int:
+                        blockers.append(f"{consumer_id}: Q1b {integer_field.replace('_', ' ')} must be an integer")
+                    elif value != 0:
+                        blockers.append(f"{consumer_id}: Q1b {integer_field.replace('_', ' ')} must be zero")
+            if payload.get("training_applicability") not in (None, "NOT_APPLICABLE"):
                 blockers.append(f"{consumer_id}: Q1b training applicability is not NOT_APPLICABLE")
             if any(
                 payload.get(key) not in (None, "", "NOT_APPLICABLE")
@@ -779,7 +881,15 @@ def aggregate_approved_scope(root: str | Path, research_question: str) -> dict[s
     resolution = validate_protocol_resolution(root)
     if resolution.get("scientific_protocol_conflicts"):
         return {"status": "BLOCKED", "scope": research_question, "blockers": list(resolution["scientific_protocol_conflicts"]), "outputs": []}
-    inventory_rows = _profile_inventory_rows(root, research_question, profile) if profile is not None else None
+    try:
+        inventory_rows = _profile_inventory_rows(root, research_question, profile) if profile is not None else None
+    except ProfileValidationError as exc:
+        return {
+            "status": "BLOCKED",
+            "scope": research_question,
+            "blockers": [f"NAACL profile inventory validation failed: {exc}"],
+            "outputs": [],
+        }
     records, blockers = _required_records(root, research_question, inventory_rows=inventory_rows)
     if blockers:
         return {"status": "BLOCKED", "scope": research_question, "blockers": blockers, "outputs": []}
@@ -816,11 +926,6 @@ def aggregate_approved_scope(root: str | Path, research_question: str) -> dict[s
         outputs.append(str(path.relative_to(root)))
     if research_question in {"Q3", "all"}:
         q3 = _q3_rows(q3_records)
-        if profile is not None:
-            azure_system = str(profile["protocol_binding"]["q3"]["azure_comparison"]["system_id"])
-            for row in q3:
-                if row.get("system") == azure_system and row.get("seed") in ("", "NOT_APPLICABLE"):
-                    row["seed"] = None
         if profile is None:
             required_budgets = {"32", "64", "128", "256", "512", "full"}
             expected_pairs = {(system, budget, str(seed)) for system in {"phobert_pragmatic_finetune", "xlmr_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"} for budget in required_budgets for seed in TRAINING_SEEDS}

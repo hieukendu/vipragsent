@@ -881,6 +881,8 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         best_epoch = 0
         best_hash = ""
         history: list[dict[str, float]] = []
+        latest_epoch = 0
+        latest_metric: float | None = None
         for epoch in range(1, resolved.maximum_epochs + 1):
             history.extend(executor.train_generation(train_records, optimizer=optimizer, epochs=1, scheduler=scheduler, gradient_clipping=resolved.gradient_clipping, epoch_start=epoch))
             epoch_root = Path(context.run_root) / "epochs" / f"epoch_{epoch}"
@@ -888,6 +890,8 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
             gold_dev = {str(row["sample_id"]): row["gold"] for row in dev_records}
             dev_predictions, _ = executor.judge_reasoning_split("dev", generated_dev, gold_dev, artifact_root=epoch_root)
             dev_metrics = executor.compute_split_metrics("dev", dev_predictions, artifact_root=epoch_root)
+            latest_epoch = epoch
+            latest_metric = float(dev_metrics["primary_macro_f1"])
             epoch_checkpoint = executor.write_checkpoint(f"checkpoints/epoch_{epoch}/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=epoch, selection_metric=float(dev_metrics["primary_macro_f1"]))
             history[-1]["dev_primary_macro_f1"] = float(dev_metrics["primary_macro_f1"])
             if float(dev_metrics["primary_macro_f1"]) > best_metric:
@@ -896,14 +900,18 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
                 best_hash = executor.write_checkpoint("checkpoints/best/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=epoch, selection_metric=best_metric)
             atomic_write_json(Path(context.run_root) / f"metrics/dev_reasoning_metrics_epoch_{epoch}.json", dev_metrics | {"checkpoint_sha256": epoch_checkpoint})
         best_checkpoint = Path(context.run_root) / "checkpoints/best/model.pt"
+        if latest_epoch < 1:
+            return StageOutcome.blocked("generation run completed without a latest checkpoint epoch")
+        # Preserve the last completed model/optimizer state independently of
+        # the selected best checkpoint.  Resume must consume this latest file.
+        latest_hash = executor.write_checkpoint("checkpoints/latest/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=latest_epoch, selection_metric=latest_metric)
         try:
             executor.load_checkpoint(best_checkpoint, expected_sha256=best_hash)
         except GenerationCheckpointError as exc:
             return StageOutcome.blocked(str(exc))
-        executor.write_checkpoint("checkpoints/latest/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=best_epoch, selection_metric=best_metric)
         atomic_write_json(Path(context.run_root) / "training/history.json", history)
         atomic_write_text(Path(context.run_root) / "training/history.csv", "epoch,train_loss,optimizer_steps,dev_primary_macro_f1\n" + "\n".join(f"{row.get('epoch')},{row.get('train_loss')},{row.get('optimizer_steps')},{row.get('dev_primary_macro_f1', '')}" for row in history) + "\n")
-        manifest = executor.write_checkpoint_manifest(best_epoch=best_epoch, selection_metric=best_metric, rationale_source_hash=str(source_report.get("source_sha256", "NOT_PROVIDED")))
+        manifest = executor.write_checkpoint_manifest(best_epoch=best_epoch, selection_metric=best_metric, latest_epoch=latest_epoch, latest_selection_metric=latest_metric, rationale_source_hash=str(source_report.get("source_sha256", "NOT_PROVIDED")))
         dev_artifacts = executor.publish_dev_artifacts(best_epoch)
         atomic_write_json(Path(context.run_root) / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": best_hash, "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_sha256": best_hash, "dev_artifacts": dev_artifacts})
         atomic_write_json(Path(context.run_root) / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "best_epoch": best_epoch})
@@ -911,7 +919,7 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         atomic_write_json(Path(context.run_root) / "training/optimizer_summary.json", optimizer_summary | {"executor_kind": "generation_trainable", "classifier_heads": 0})
         atomic_write_json(Path(context.run_root) / "training/scheduler_summary.json", scheduler_summary | {"executor_kind": "generation_trainable"})
         atomic_write_json(Path(context.run_root) / "training/resource_usage.json", {"successful_gpu_hours": 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": 0.0, "synthetic_results": False})
-        return StageOutcome.passed(summary={"history": history, "rationale_source": source_report, "best_epoch": best_epoch, "best_dev_metric": best_metric, "checkpoint_manifest": manifest}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "checkpoints/load_report.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"))
+        return StageOutcome.passed(summary={"history": history, "rationale_source": source_report, "best_epoch": best_epoch, "best_dev_metric": best_metric, "latest_epoch": latest_epoch, "latest_checkpoint_sha256": latest_hash, "checkpoint_manifest": manifest}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "checkpoints/load_report.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"))
     if stage in {"generate_dev_reasoning", "generate_test_reasoning"}:
         split = "dev" if stage.startswith("generate_dev") else "test"
         if split == "dev" and _selected_dev_artifacts_reusable(Path(context.run_root)):

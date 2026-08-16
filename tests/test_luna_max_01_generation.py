@@ -685,6 +685,47 @@ def test_generation_resume_keeps_persisted_best_separate_from_arbitrary_resume_c
     assert float(next(model.parameters()).detach().flatten()[0]) == pytest.approx(1.0)
 
 
+def test_generation_latest_checkpoint_tracks_last_completed_epoch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    executor = _executor(tmp_path)
+    model = executor.model
+    train = [{"sample_id": "train-0", "input_ids": torch.tensor([[1, 2]]), "target_ids": torch.tensor([[3, 4]])}]
+    gold = {label: 0 for label in PRAGMATIC_LABELS}
+    dev = [{"sample_id": "dev-1", "input_ids": torch.tensor([[1, 2]]), "gold": gold}]
+    test = [{"sample_id": "test-1", "input_ids": torch.tensor([[1, 2]]), "gold": gold}]
+    metrics = iter((0.9, 0.5, 0.4))
+
+    def train_generation(*_: object, epoch_start: int = 1, **__: object) -> list[dict[str, float]]:
+        for parameter in model.parameters():
+            parameter.data.fill_(float(epoch_start))
+        return [{"epoch": float(epoch_start), "train_loss": 0.0}]
+
+    monkeypatch.setattr(executor, "train_generation", train_generation)
+    monkeypatch.setattr(
+        executor,
+        "generate_reasoning_split",
+        lambda split, records, **__: [{"sample_id": str(records[0]["sample_id"]), "generation_status": "PASS", "generated_reasoning": split}],
+    )
+    monkeypatch.setattr(executor, "judge_reasoning_split", lambda _split, rows, _gold, **__: (list(rows), []))
+    monkeypatch.setattr(executor, "compute_split_metrics", lambda _split, _rows, **__: {"primary_macro_f1": next(metrics) if _split == "dev" else 0.0})
+
+    result = executor.run_cot(
+        train_records=train,
+        dev_records=dev,
+        test_records=test,
+        optimizer=torch.optim.SGD(model.parameters(), lr=0.01),
+        epochs=3,
+    )
+
+    assert result["best_epoch"] == 1
+    latest = executor.load_checkpoint(
+        "checkpoints/latest/model.pt",
+        expected_data_order=["train-0"],
+        restore_training_state=False,
+    )
+    assert latest["run_state"]["epoch"] == 3
+    assert result["latest_checkpoint_sha256"] != result["checkpoint_sha256"]
+
+
 def test_generation_resume_requires_intact_persisted_selection_metadata(tmp_path: Path) -> None:
     resume_hash = _write_resume_selection_fixture(tmp_path)
     executor = _executor(tmp_path)

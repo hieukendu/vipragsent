@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import json
 from itertools import product
 from pathlib import Path
 
 import pytest
 
 from vipragsent.orchestration import aggregation
+from vipragsent.orchestration.sequential import load_inventory
 from vipragsent.runtime.naacl_profile import (
     ProfileValidationError,
     build_naacl_profile_snapshot,
@@ -74,6 +76,18 @@ def test_q3_profile_fails_closed_on_missing_extra_and_invented_azure_seed(
         validate_q3_profile_rows(rows)
 
 
+def test_profile_aggregation_rejects_q3_inventory_rows_outside_authorized_source_matrix(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    profile = build_naacl_profile_snapshot(ROOT)
+    inventory = load_inventory(ROOT)
+    q3_rows = [row for row in inventory if str(row.get("research_question")) == "Q3"]
+    q3_rows.append({"system_id": "rogue_q3_system", "budget": "32", "seed": LOCKED_SEEDS[0]})
+    monkeypatch.setattr(aggregation, "_scope_rows", lambda _root, scope: q3_rows if scope == "Q3" else [])
+    with pytest.raises(ProfileValidationError, match="complete authorized source matrix"):
+        aggregation._profile_q3_inventory_rows(ROOT, profile)
+
+
 def test_aggregation_entry_validates_the_current_profile(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     def reject(_root: Path) -> dict[str, object]:
         raise ProfileValidationError("current graph/source digest drift")
@@ -107,6 +121,48 @@ def test_q1b_profile_rejects_unresolved_producer_and_training_metrics(tmp_path: 
     unresolved = {**record, "summary": {"source_seed": edge["seed"]}}
     blockers = aggregation._profile_q1b_record_blockers([unresolved], profile)
     assert any("unresolved Q1b producer/checkpoint/seed binding" in blocker for blocker in blockers)
+
+
+def test_q1b_profile_requires_canonical_digests_and_rejects_conflicts_or_type_coercion(tmp_path: Path) -> None:
+    profile = build_naacl_profile_snapshot(ROOT)
+    edge = next(edge for edge in profile["q1b"]["consumer_edges"] if edge["seed"] is not None)
+    canonical = {
+        "producer_id": edge["producer_id"],
+        "producer_run_id": edge["producer_run_id"],
+        "producer_kind": edge["producer_kind"],
+        "checkpoint_key": edge["checkpoint_key"],
+        "source_seed": edge["seed"],
+        "dependency_graph_sha256": profile["graph"]["sha256"],
+        "dependency_source_sha256": profile["source"]["sha256"],
+        "external_finetuning": False,
+        "train_loader_created": False,
+        "optimizer_steps": 0,
+        "backward_calls": 0,
+        "training_applicability": "NOT_APPLICABLE",
+    }
+    record = {"run_id": edge["consumer_id"], "run_root": str(tmp_path), "summary": dict(canonical)}
+    (tmp_path / "external").mkdir()
+    (tmp_path / "external/external_evaluation_manifest.json").write_text(json.dumps(canonical), encoding="utf-8")
+    blockers = aggregation._profile_q1b_record_blockers([record], profile)
+    assert not any("binding disagrees" in blocker or "unresolved Q1b" in blocker for blocker in blockers)
+
+    conflicting = dict(canonical, producer_kind="wrong_kind")
+    (tmp_path / "external/external_evaluation_manifest.json").write_text(json.dumps(conflicting), encoding="utf-8")
+    blockers = aggregation._profile_q1b_record_blockers([record], profile)
+    assert any("conflicting Q1b producer_kind" in blocker for blocker in blockers)
+
+    typed = dict(canonical, external_finetuning="true")
+    (tmp_path / "external/external_evaluation_manifest.json").write_text(json.dumps(typed), encoding="utf-8")
+    blockers = aggregation._profile_q1b_record_blockers([record], profile)
+    assert any("external_finetuning must be a JSON boolean" in blocker for blocker in blockers)
+
+
+def test_q3_aggregation_does_not_normalize_azure_seed_sentinels() -> None:
+    profile = build_naacl_profile_snapshot(ROOT)
+    rows = _profile_rows()
+    rows[-1]["seed"] = "NOT_APPLICABLE"
+    blockers = aggregation._profile_q3_record_blockers([{"summary": row} for row in rows], profile)
+    assert blockers and "missing retained Azure" in blockers[0]
 
 
 def test_q2_profile_requires_six_variants_and_three_locked_seeds() -> None:
