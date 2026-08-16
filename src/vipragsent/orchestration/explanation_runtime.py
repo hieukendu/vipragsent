@@ -14,6 +14,7 @@ artifacts must remain untouched.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -76,6 +77,45 @@ def _jsonable(value: Any) -> Any:
 
 def _same_json(left: Any, right: Any) -> bool:
     return _jsonable(left) == _jsonable(right)
+
+
+def _dataset_binding(payload: Mapping[str, Any], run_manifest_path: Path | None = None) -> dict[str, str]:
+    """Read the canonical dataset identity/hash binding from source metadata."""
+    candidates: list[Mapping[str, Any]] = [payload]
+    nested = payload.get("dataset")
+    if isinstance(nested, Mapping):
+        candidates.insert(0, nested)
+    if run_manifest_path is not None and run_manifest_path.exists():
+        try:
+            manifest = json.loads(run_manifest_path.read_text(encoding="utf-8"))
+        except (OSError, TypeError, ValueError, json.JSONDecodeError):
+            manifest = None
+        if isinstance(manifest, Mapping):
+            candidates.append(manifest)
+            nested_manifest = manifest.get("dataset")
+            if isinstance(nested_manifest, Mapping):
+                candidates.insert(0, nested_manifest)
+    identity_keys = ("identity", "dataset_identity", "dataset_id", "manifest_id", "dataset_manifest_id")
+    hash_keys = ("hash", "dataset_hash", "data_hash", "dataset_fingerprint", "manifest_hash", "dataset_manifest_hash")
+    identity = next((str(item[key]) for item in candidates for key in identity_keys if str(item.get(key, "")).strip()), "")
+    digest = next((str(item[key]) for item in candidates for key in hash_keys if str(item.get(key, "")).strip()), "")
+    return {"identity": identity, "hash": digest.upper()}
+
+
+def _dataset_binding_from_run_root(root: Path) -> dict[str, str]:
+    for name in ("review_summary.json", "run_manifest.json", "state.json"):
+        path = root / name
+        if not path.exists():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, TypeError, ValueError, json.JSONDecodeError):
+            continue
+        if isinstance(payload, Mapping):
+            binding = _dataset_binding(payload, root / "run_manifest.json")
+            if binding["identity"] and binding["hash"]:
+                return binding
+    return {"identity": "", "hash": ""}
 
 
 @dataclass(frozen=True)
@@ -150,17 +190,28 @@ class SourceCheckpointIdentity:
     approval_sha256: str = ""
     checksum_file_sha256: str = ""
     config_sha256: str = ""
+    source_run_root: Path | None = None
+    dataset_identity: str = ""
+    dataset_hash: str = ""
 
     def __post_init__(self) -> None:
         if not self.source_checkpoint_key:
             object.__setattr__(self, "source_checkpoint_key", f"{SOURCE_SYSTEM_ID}:{self.seed}")
         object.__setattr__(self, "checkpoint_path", Path(self.checkpoint_path))
         object.__setattr__(self, "checkpoint_sha256", str(self.checkpoint_sha256).upper())
+        if self.source_run_root is not None:
+            object.__setattr__(self, "source_run_root", Path(self.source_run_root))
+        object.__setattr__(self, "dataset_hash", str(self.dataset_hash).upper())
 
     def as_dict(self) -> dict[str, Any]:
         return _jsonable(asdict(self))
 
-    def validate(self, requested_seed: int | str | None = None) -> None:
+    def validate(
+        self,
+        requested_seed: int | str | None = None,
+        *,
+        require_approval_bindings: bool = False,
+    ) -> None:
         if self.source_system_id != SOURCE_SYSTEM_ID:
             raise ExplanationRuntimeError("explanation-only requires a full Vistral source checkpoint")
         if requested_seed is not None and str(self.seed) != str(requested_seed):
@@ -179,9 +230,91 @@ class SourceCheckpointIdentity:
         observed = sha256_file(self.checkpoint_path)
         if observed != str(self.checkpoint_sha256).upper():
             raise ExplanationRuntimeError("source checkpoint hash mismatch")
+        if require_approval_bindings:
+            self._validate_approval_bindings(requested_seed)
+
+    def _validate_approval_bindings(self, requested_seed: int | str | None) -> None:
+        """Validate the on-disk approval chain, not just copied hash fields."""
+        root = self.source_run_root
+        if root is None:
+            raise ExplanationRuntimeError(
+                "production explanation inference requires a source resolved through resolve_explanation_source"
+            )
+        root = root.resolve()
+        try:
+            self.checkpoint_path.resolve().relative_to(root)
+        except ValueError as exc:
+            raise ExplanationRuntimeError("approved source checkpoint is outside its approved run root") from exc
+
+        required = {
+            "variant fingerprint": self.variant_fingerprint,
+            "model revision": self.model_revision,
+            "tokenizer revision": self.tokenizer_revision,
+            "review-summary SHA": self.review_summary_sha256,
+            "approval SHA": self.approval_sha256,
+            "checksum-file SHA": self.checksum_file_sha256,
+            "config SHA": self.config_sha256,
+            "dataset identity": self.dataset_identity,
+            "dataset SHA": self.dataset_hash,
+        }
+        for label, value in required.items():
+            if not str(value).strip():
+                raise ExplanationRuntimeError(f"approved source {label} is missing")
+        for label, value in (
+            ("review-summary SHA", self.review_summary_sha256),
+            ("approval SHA", self.approval_sha256),
+            ("checksum-file SHA", self.checksum_file_sha256),
+            ("checkpoint SHA", self.checkpoint_sha256),
+            ("config SHA", self.config_sha256),
+            ("dataset SHA", self.dataset_hash),
+        ):
+            if not re.fullmatch(r"[0-9A-Fa-f]{64}", str(value)):
+                raise ExplanationRuntimeError(f"approved source {label} is not a SHA-256 digest")
+
+        summary_path = root / "review_summary.json"
+        approval_path = root / "approval_status.json"
+        checksums_path = root / "checksums.sha256"
+        manifest_path = root / "checkpoints/checkpoint_manifest.json"
+        config_path = root / "config_snapshot.yaml"
+        if not all(path.exists() for path in (summary_path, approval_path, checksums_path, manifest_path, config_path)):
+            raise ExplanationRuntimeError("approved source approval bindings are incomplete")
+        try:
+            summary = _read_json(summary_path)
+            approval = _read_json(approval_path)
+            manifest = _read_json(manifest_path)
+        except ExplanationRuntimeError as exc:
+            raise ExplanationRuntimeError("approved source approval bindings are unreadable") from exc
+        if approval.get("status") != "APPROVED":
+            raise ExplanationRuntimeError("approved source does not have APPROVED status")
+        if str(summary.get("system_id")) != SOURCE_SYSTEM_ID or str(summary.get("seed")) != str(self.seed):
+            raise ExplanationRuntimeError("approved source summary system or seed binding mismatch")
+        expected_key = f"{SOURCE_SYSTEM_ID}:{self.seed}"
+        if str(summary.get("reusable_checkpoint_key") or summary.get("source_checkpoint_id")) != expected_key:
+            raise ExplanationRuntimeError("approved source summary checkpoint key binding mismatch")
+        if sha256_file(summary_path) != self.review_summary_sha256.upper():
+            raise ExplanationRuntimeError("approved source review-summary SHA mismatch")
+        if sha256_file(approval_path) != self.approval_sha256.upper():
+            raise ExplanationRuntimeError("approved source approval SHA mismatch")
+        if sha256_file(checksums_path) != self.checksum_file_sha256.upper():
+            raise ExplanationRuntimeError("approved source checksum-file SHA mismatch")
+        if sha256_file(config_path) != self.config_sha256.upper():
+            raise ExplanationRuntimeError("approved source config SHA mismatch")
+        if str(manifest.get("checkpoint_sha256", "")).upper() != self.checkpoint_sha256.upper():
+            raise ExplanationRuntimeError("approved source checkpoint manifest SHA mismatch")
+        manifest_variant = str(manifest.get("variant_fingerprint") or summary.get("variant_fingerprint") or "")
+        if manifest_variant != self.variant_fingerprint:
+            raise ExplanationRuntimeError("approved source variant binding mismatch")
+        for field_name, summary_key in (("model_revision", "model_revision"), ("tokenizer_revision", "tokenizer_revision")):
+            observed = str(summary.get(summary_key) or manifest.get(summary_key) or "")
+            if observed != str(getattr(self, field_name)):
+                raise ExplanationRuntimeError(f"approved source {field_name} binding mismatch")
+        observed_dataset = _dataset_binding(summary, root / "run_manifest.json")
+        if observed_dataset["identity"] != self.dataset_identity or observed_dataset["hash"].upper() != self.dataset_hash.upper():
+            raise ExplanationRuntimeError("approved source dataset identity binding mismatch")
 
     @classmethod
     def from_approved_source(cls, source: ApprovedFullVistralSource) -> SourceCheckpointIdentity:
+        dataset = _dataset_binding_from_run_root(source.run_root)
         return cls(
             seed=source.seed,
             checkpoint_path=source.checkpoint_path,
@@ -193,6 +326,9 @@ class SourceCheckpointIdentity:
             approval_sha256=source.approval_sha256,
             checksum_file_sha256=source.checksum_file_sha256,
             config_sha256=source.config_sha256,
+            source_run_root=source.run_root,
+            dataset_identity=dataset["identity"],
+            dataset_hash=dataset["hash"],
         )
 
     @classmethod
@@ -215,6 +351,9 @@ class SourceCheckpointIdentity:
             approval_sha256=str(source.get("approval_sha256", "")),
             checksum_file_sha256=str(source.get("checksum_file_sha256", "")),
             config_sha256=str(source.get("config_sha256", "")),
+            source_run_root=source.get("source_run_root"),
+            dataset_identity=str(source.get("dataset_identity", "")),
+            dataset_hash=str(source.get("dataset_hash", source.get("dataset_sha256", ""))),
         )
 
 
@@ -286,14 +425,21 @@ class ExplanationOnlyRequest:
             source = SourceCheckpointIdentity.from_approved_source(source)
         elif isinstance(source, Mapping):
             source = SourceCheckpointIdentity.from_mapping(source)
-        source.validate(self.seed)
+        source.validate(self.seed, require_approval_bindings=not self.fixture_mode)
         return source
 
     def validate(self, run_root: str | Path | None = None) -> None:
         self.config.validate()
         source = self.normalized_source()
         if not is_real_dataset_hash(self.data_hash) and not self.fixture_mode:
-            raise ExplanationRuntimeError("production explanation inference requires a real dataset hash")
+            raise ExplanationRuntimeError("production explanation inference requires a canonical SHA-256 dataset hash")
+        if not self.fixture_mode:
+            if not self.dataset_identity.strip():
+                raise ExplanationRuntimeError("production explanation inference requires a dataset identity")
+            if source.dataset_hash.upper() != self.data_hash.strip().upper():
+                raise ExplanationRuntimeError("explanation data_hash does not match the approved source dataset hash")
+            if source.dataset_identity != self.dataset_identity:
+                raise ExplanationRuntimeError("explanation dataset identity does not match the approved source dataset identity")
         if self.batch_size is not None and int(self.batch_size) not in SUPPORTED_GENERATION_BATCH_SIZES:
             raise ExplanationRuntimeError(f"batch size must be one of {SUPPORTED_GENERATION_BATCH_SIZES}")
         artifact = Path(self.artifact_root) if self.artifact_root is not None else Path(run_root or ".")

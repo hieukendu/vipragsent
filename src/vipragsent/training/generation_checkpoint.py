@@ -8,6 +8,7 @@ never contains a second copy of model weights.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -91,10 +92,7 @@ def is_real_dataset_hash(value: Any) -> bool:
         return False
     normalized = str(value).strip()
     upper = normalized.upper()
-    lower = normalized.lower()
-    return bool(normalized) and upper not in _PLACEHOLDER_DATA_HASHES and not lower.startswith(
-        ("fixture", "synthetic", "placeholder")
-    )
+    return bool(re.fullmatch(r"[0-9A-F]{64}", upper)) and upper not in _PLACEHOLDER_DATA_HASHES
 
 
 def _model_is_cpu(model: nn.Module) -> bool:
@@ -114,9 +112,11 @@ def _validate_provenance_mode(
     if is_real_dataset_hash(provenance.get("data_hash")):
         return
     if production_provenance_required:
-        raise GenerationCheckpointError("production generation checkpoint requires a real dataset hash")
+        raise GenerationCheckpointError(
+            "production generation checkpoint requires a real dataset hash in canonical SHA-256 format"
+        )
     if not fixture_mode:
-        raise GenerationCheckpointError("placeholder dataset hash requires explicit CPU fixture mode")
+        raise GenerationCheckpointError("dataset hash must be a canonical SHA-256 digest or explicit CPU fixture mode")
 
 
 def _manifest_path(checkpoint_path: Path) -> Path:
@@ -136,7 +136,7 @@ def _validated_provenance(value: Mapping[str, Any]) -> dict[str, Any]:
         raise GenerationCheckpointError("generation provenance dataset identity/hash is missing")
     if value["data_hash"] in (None, ""):
         raise GenerationCheckpointError("generation provenance data_hash is missing")
-    if str(value["data_hash"]) != str(dataset["hash"]):
+    if str(value["data_hash"]).strip().upper() != str(dataset["hash"]).strip().upper():
         raise GenerationCheckpointError("generation provenance data_hash does not match dataset hash")
     # Round-trip through JSON to reject non-portable identities at the boundary.
     try:

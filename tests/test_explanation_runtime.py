@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -16,6 +17,7 @@ from vipragsent.orchestration.explanation_runtime import (
     ExplanationRuntimeError,
     SharedInferenceIdentity,
     SourceCheckpointIdentity,
+    resolve_explanation_source,
     validate_three_seed_binding,
 )
 
@@ -95,6 +97,60 @@ def _records() -> list[dict[str, object]]:
     ]
 
 
+def _approved_source_root(tmp_path: Path, checkpoint: Path, *, dataset_hash: str) -> Path:
+    run_root = tmp_path / "results" / "runs" / "approved-full-vistral"
+    (run_root / "checkpoints").mkdir(parents=True)
+    checkpoint_target = run_root / "checkpoints" / "best.pt"
+    checkpoint_target.write_bytes(checkpoint.read_bytes())
+    config_path = run_root / "config_snapshot.yaml"
+    config_path.write_text("system_id: vipragsent_full_vistral\n", encoding="utf-8")
+    summary = {
+        "system_id": "vipragsent_full_vistral",
+        "seed": 20260521,
+        "reusable_checkpoint_key": "vipragsent_full_vistral:20260521",
+        "variant_fingerprint": "full-v1",
+        "model_revision": "model-r1",
+        "tokenizer_revision": "tokenizer-r1",
+        "config_hash": sha256_file(config_path),
+        "dataset_identity": "dataset-v1",
+        "dataset_fingerprint": dataset_hash,
+    }
+    summary_path = run_root / "review_summary.json"
+    summary_path.write_text(json.dumps(summary), encoding="utf-8")
+    approval_path = run_root / "approval_status.json"
+    approval_path.write_text(
+        json.dumps(
+            {
+                "status": "APPROVED",
+                "review_summary_sha256": sha256_file(summary_path),
+            }
+        ),
+        encoding="utf-8",
+    )
+    checksums_path = run_root / "checksums.sha256"
+    checksums_path.write_text("approved artifact list\n", encoding="utf-8")
+    manifest_path = run_root / "checkpoints" / "checkpoint_manifest.json"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "best": "checkpoints/best.pt",
+                "checkpoint_sha256": sha256_file(checkpoint_target),
+                "variant_fingerprint": "full-v1",
+                "model_revision": "model-r1",
+                "tokenizer_revision": "tokenizer-r1",
+            }
+        ),
+        encoding="utf-8",
+    )
+    state_path = run_root / "state.json"
+    state_path.write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
+    approval = json.loads(approval_path.read_text(encoding="utf-8"))
+    approval["artifact_checksum_file_sha256"] = sha256_file(checksums_path)
+    approval["approval_sha256"] = sha256_file(approval_path)
+    approval_path.write_text(json.dumps(approval), encoding="utf-8")
+    return tmp_path
+
+
 def test_runtime_is_inference_only_and_does_not_call_full_forward(tmp_path: Path) -> None:
     checkpoint = tmp_path / "source.pt"
     checkpoint.write_bytes(b"approved-source")
@@ -128,14 +184,18 @@ def test_source_checkpoint_mismatch_and_unauthorized_fallback_are_rejected(tmp_p
             ),
             run_root=tmp_path / "mismatch",
         )
-
     with pytest.raises(ExplanationRuntimeError, match="unauthorized"):
         ExplanationOnlyRuntime(
             _TinyFullModel(),
             _Tokenizer(),
             ExplanationOnlyRequest(
                 seed=20260521,
-                source_checkpoint=SourceCheckpointIdentity(20260521, checkpoint, sha256_file(checkpoint), source_checkpoint_key="cot_only_vistral:20260521"),
+                source_checkpoint=SourceCheckpointIdentity(
+                    20260521,
+                    checkpoint,
+                    sha256_file(checkpoint),
+                    source_checkpoint_key="cot_only_vistral:20260521",
+                ),
                 config=ExplanationOnlyConfig(identity=_identity()),
                 data_hash="fixture-data",
                 dataset_identity="fixture",
@@ -144,6 +204,57 @@ def test_source_checkpoint_mismatch_and_unauthorized_fallback_are_rejected(tmp_p
             ),
             run_root=tmp_path / "unauthorized",
         )
+
+
+def test_production_rejects_probe_source_but_accepts_resolved_approved_source(tmp_path: Path) -> None:
+    checkpoint = tmp_path / "probe.pt"
+    checkpoint.write_bytes(b"same-file-hash-is-not-approval")
+    data_hash = "B" * 64
+    unapproved = SourceCheckpointIdentity(
+        20260521,
+        checkpoint,
+        sha256_file(checkpoint),
+        variant_fingerprint="full-v1",
+        model_revision="model-r1",
+        tokenizer_revision="tokenizer-r1",
+        review_summary_sha256="C" * 64,
+        approval_sha256="D" * 64,
+        checksum_file_sha256="E" * 64,
+        config_sha256="F" * 64,
+        dataset_identity="dataset-v1",
+        dataset_hash=data_hash,
+    )
+    with pytest.raises(ExplanationRuntimeError, match="resolved through"):
+        ExplanationOnlyRuntime(
+            _TinyFullModel(),
+            _Tokenizer(),
+            ExplanationOnlyRequest(
+                seed=20260521,
+                source_checkpoint=unapproved,
+                config=ExplanationOnlyConfig(identity=_identity()),
+                data_hash=data_hash,
+                dataset_identity="dataset-v1",
+                artifact_root=tmp_path / "unapproved",
+            ),
+            run_root=tmp_path / "unapproved",
+        )
+
+    root = _approved_source_root(tmp_path / "approved", checkpoint, dataset_hash=data_hash)
+    approved = resolve_explanation_source(root, seed=20260521)
+    runtime = ExplanationOnlyRuntime(
+        _TinyFullModel(),
+        _Tokenizer(),
+        ExplanationOnlyRequest(
+            seed=20260521,
+            source_checkpoint=approved,
+            config=ExplanationOnlyConfig(identity=_identity()),
+            data_hash=data_hash,
+            dataset_identity="dataset-v1",
+            artifact_root=root / "explanation",
+        ),
+        run_root=root / "explanation",
+    )
+    assert runtime.source.source_checkpoint_key == "vipragsent_full_vistral:20260521"
 
 
 def test_engine_identity_is_bound_and_changed_engine_cannot_resume(tmp_path: Path) -> None:
