@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import inspect
+from contextlib import contextmanager
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from pathlib import Path
 from typing import Any
@@ -30,6 +32,7 @@ from ...training.generation_checkpoint import (
     load_generation_checkpoint,
     save_generation_checkpoint,
 )
+from ..generation_persistence import GenerationChunkStore, GenerationPersistenceError
 
 
 class GenerationProtocolConflict(RuntimeError):
@@ -37,6 +40,82 @@ class GenerationProtocolConflict(RuntimeError):
 
 
 GENERATION_CHECKPOINT_SCHEMA_VERSION = 2
+SUPPORTED_GENERATION_BATCH_SIZES = (1, 2, 4)
+
+
+def _unwrap_generation_profile(profile: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None) -> Mapping[str, Any] | None:
+    if profile is None:
+        return None
+    if isinstance(profile, Mapping):
+        for key in ("generation_inference", "generation", "inference"):
+            nested = profile.get(key)
+            if isinstance(nested, Mapping):
+                return nested
+        return profile
+    candidates = [item for item in profile if isinstance(item, Mapping)]
+    for item in candidates:
+        if str(item.get("stage", item.get("profile_kind", ""))).lower() in {"generation", "generation_inference", "inference"}:
+            return item
+    return candidates[0] if len(candidates) == 1 else None
+
+
+def select_generation_batch_size(
+    profile: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
+    *,
+    requested: int | None = None,
+) -> int:
+    """Resolve an inference batch only from an explicit, passing profile.
+
+    Training's measured physical batch is intentionally not accepted here:
+    generation has a separate memory/decoding contract.  A missing profile is
+    therefore safe and deterministic (batch one).
+    """
+    if requested is not None and int(requested) not in SUPPORTED_GENERATION_BATCH_SIZES:
+        raise ValueError(f"generation batch size must be one of {SUPPORTED_GENERATION_BATCH_SIZES}")
+    selected = 1 if requested is None else int(requested)
+    resolved = _unwrap_generation_profile(profile)
+    if resolved is not None:
+        status = str(resolved.get("status", "")).upper()
+        configured = resolved.get("selected_batch_size", resolved.get("generation_batch_size", resolved.get("batch_size")))
+        if configured is not None:
+            configured = int(configured)
+            if configured not in SUPPORTED_GENERATION_BATCH_SIZES:
+                raise ValueError(f"profile selected unsupported generation batch size: {configured}")
+            if requested is not None and configured != selected:
+                raise ValueError("requested generation batch conflicts with the profiled selection")
+            selected = configured
+        if selected > 1:
+            candidates = resolved.get("candidate_batch_sizes", resolved.get("candidates", SUPPORTED_GENERATION_BATCH_SIZES))
+            if status != "PASS" or selected not in {int(value) for value in candidates}:
+                raise GenerationPersistenceError("generation batch >1 requires an explicit passing generation profile")
+            if resolved.get("profiled", resolved.get("measured", resolved.get("approved", True))) is not True:
+                raise GenerationPersistenceError("generation batch >1 requires profiled/approved evidence")
+    elif selected > 1:
+        raise GenerationPersistenceError("generation batch >1 requires an explicit passing generation profile")
+    return selected
+
+
+@contextmanager
+def reversible_inference_context(model: torch.nn.Module):
+    """Temporarily enable evaluation/cache settings and restore them exactly."""
+    was_training = bool(model.training)
+    config = getattr(model, "config", None)
+    had_use_cache = config is not None and hasattr(config, "use_cache")
+    previous_use_cache = getattr(config, "use_cache", None) if had_use_cache else None
+    model.eval()
+    if had_use_cache:
+        config.use_cache = True
+    try:
+        with torch.inference_mode():
+            yield
+    finally:
+        if had_use_cache:
+            config.use_cache = previous_use_cache
+        model.train(was_training)
+
+
+# Short alias for callers that describe this as an inference-mode context.
+generation_inference_context = reversible_inference_context
 
 
 def generation_optimizer_steps_per_epoch(record_count: int, physical_batch_size: int, gradient_accumulation_steps: int) -> int:
@@ -347,6 +426,8 @@ class ReasoningGenerationExecutor:
         physical_batch_size: int = 1,
         gradient_accumulation_steps: int = 1,
         pad_token_id: int | None = None,
+        generation_profile: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
+        generation_batch_size: int | None = None,
     ) -> None:
         self.root = Path(root)
         self.run_root = Path(run_root) if run_root is not None else self.root
@@ -370,6 +451,8 @@ class ReasoningGenerationExecutor:
             raise ValueError("generation physical batch and gradient accumulation must be positive")
         self.physical_batch_size = int(physical_batch_size)
         self.gradient_accumulation_steps = int(gradient_accumulation_steps)
+        self.generation_batch_size = select_generation_batch_size(generation_profile, requested=generation_batch_size)
+        self.generation_profile = dict(_unwrap_generation_profile(generation_profile) or {})
         tokenizer_pad_token_id = getattr(tokenizer, "pad_token_id", None)
         tokenizer_eos_token_id = getattr(tokenizer, "eos_token_id", None)
         self.pad_token_id = int(pad_token_id if pad_token_id is not None else tokenizer_pad_token_id if tokenizer_pad_token_id is not None else tokenizer_eos_token_id if tokenizer_eos_token_id is not None else 0)
@@ -422,51 +505,152 @@ class ReasoningGenerationExecutor:
             return input_ids, attention_mask
         return _encode_text(self.tokenizer, str(record.get("prompt_text", record.get("text", ""))))
 
-    def generate_reasoning_split(self, split: str, records: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
-        generation_rows: list[dict[str, Any]] = []
+    def _inference_batch(self, records: Sequence[Mapping[str, Any]]) -> dict[str, torch.Tensor]:
+        if not records:
+            raise ValueError("cannot collate an empty generation inference batch")
+        inputs: list[torch.Tensor] = []
+        masks: list[torch.Tensor] = []
+        for record in records:
+            input_ids, attention_mask = self._record_inputs(record)
+            inputs.append(input_ids.squeeze(0).to(dtype=torch.long))
+            masks.append(attention_mask.squeeze(0).to(dtype=torch.long))
+        max_length = max(int(row.numel()) for row in inputs)
+        input_ids = torch.full((len(records), max_length), self.pad_token_id, dtype=torch.long)
+        attention_mask = torch.zeros((len(records), max_length), dtype=torch.long)
+        for index, (row, mask) in enumerate(zip(inputs, masks, strict=True)):
+            if row.numel() != mask.numel():
+                raise ValueError("generation input and attention-mask lengths must match")
+            input_ids[index, : row.numel()] = row
+            attention_mask[index, : mask.numel()] = mask
+        return {"input_ids": input_ids, "attention_mask": attention_mask}
+
+    def _generation_kwargs(self) -> dict[str, Any]:
+        decoding = self.protocol["decoding"]
+        return {
+            "do_sample": bool(decoding["do_sample"]),
+            "num_beams": int(decoding["num_beams"]),
+            "max_new_tokens": int(decoding["max_new_tokens"]),
+            "repetition_penalty": float(decoding["repetition_penalty"]),
+            "num_return_sequences": int(decoding["num_return_sequences"]),
+            "pad_token_id": self.pad_token_id,
+        }
+
+    def _row_from_sequence(self, record: Mapping[str, Any], sequence: torch.Tensor, padded_input_length: int, split: str) -> dict[str, Any]:
         decoding = self.protocol["decoding"]
         eos_id = getattr(self.tokenizer, "eos_token_id", None)
-        self.model.eval()
-        with torch.no_grad():
-            for record in records:
-                sample_id = str(record["sample_id"])
-                try:
-                    input_ids, attention_mask = self._record_inputs(record)
-                    batch = self._prepare_device_batch({"input_ids": input_ids, "attention_mask": attention_mask})
-                    generated = self.model.generate(
-                        input_ids=batch["input_ids"],
-                        attention_mask=batch["attention_mask"],
-                        do_sample=bool(decoding["do_sample"]),
-                        num_beams=int(decoding["num_beams"]),
-                        max_new_tokens=int(decoding["max_new_tokens"]),
-                        repetition_penalty=float(decoding["repetition_penalty"]),
-                        num_return_sequences=int(decoding["num_return_sequences"]),
-                    )
-                    sequence = generated[0] if getattr(generated, "ndim", 0) == 2 else generated
-                    input_length = int(input_ids.shape[-1])
-                    continuation = sequence[input_length:] if getattr(sequence, "numel", lambda: 0)() > input_length else sequence
-                    text = self._decode(continuation)
-                    truncated = bool(eos_id is not None and len(continuation) >= int(decoding["max_new_tokens"]) and eos_id not in continuation.tolist())
-                    status = "PASS" if text.strip() else "INVALID"
-                    failure_reason = None if status == "PASS" else "empty_reasoning"
-                except Exception as exc:
-                    text = ""
-                    truncated = False
-                    status = "INVALID"
-                    failure_reason = f"{type(exc).__name__}: {exc}"
-                generation_rows.append({
-                    "sample_id": sample_id,
-                    "split": split,
-                    "generated_reasoning": text,
-                    "raw_generation": text,
-                    "generation_status": status,
-                    "failure_reason": failure_reason,
-                    "truncated": truncated,
-                })
-        atomic_write_text(self.run_root / f"reasoning/{split}_reasoning.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in generation_rows))
-        return generation_rows
+        continuation = sequence[padded_input_length:]
+        values = continuation.detach().cpu().tolist()
+        eos_position = values.index(int(eos_id)) if eos_id is not None and int(eos_id) in values else None
+        stopped = eos_position is not None
+        if eos_position is not None:
+            values = values[: eos_position + 1]
+            continuation = torch.tensor(values, dtype=sequence.dtype)
+        text = self._decode(continuation)
+        truncated = bool(not stopped and len(values) >= int(decoding["max_new_tokens"]))
+        status = "PASS" if text.strip() else "INVALID"
+        return {
+            "sample_id": str(record["sample_id"]),
+            "split": split,
+            "generated_reasoning": text,
+            "raw_generation": text,
+            "generation_status": status,
+            "failure_reason": None if status == "PASS" else "empty_reasoning",
+            "truncated": truncated,
+        }
 
-    def judge_reasoning_split(self, split: str, generation_rows: Iterable[Mapping[str, Any]], gold_by_id: Mapping[str, Mapping[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+    def _generate_batch(self, split: str, records: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+        batch = self._prepare_device_batch(self._inference_batch(records))
+        generated = self.model.generate(input_ids=batch["input_ids"], attention_mask=batch["attention_mask"], **self._generation_kwargs())
+        if not isinstance(generated, torch.Tensor) or generated.ndim != 2 or generated.size(0) < len(records):
+            raise ValueError("generation model returned an invalid batched sequence tensor")
+        padded_input_length = int(batch["input_ids"].shape[-1])
+        return [self._row_from_sequence(record, generated[index], padded_input_length, split) for index, record in enumerate(records)]
+
+    def _generation_failure(self, split: str, record: Mapping[str, Any], exc: Exception) -> dict[str, Any]:
+        return {
+            "sample_id": str(record["sample_id"]),
+            "split": split,
+            "generated_reasoning": "",
+            "raw_generation": "",
+            "generation_status": "INVALID",
+            "failure_reason": f"{type(exc).__name__}: {exc}",
+            "truncated": False,
+        }
+
+    def _generate_reasoning_rows(
+        self,
+        split: str,
+        records: Sequence[Mapping[str, Any]],
+        *,
+        batch_size: int | None = None,
+        on_chunk: Callable[[Sequence[Mapping[str, Any]]], None] | None = None,
+    ) -> list[dict[str, Any]]:
+        rows: list[dict[str, Any]] = []
+        selected_batch_size = self.generation_batch_size if batch_size is None else (
+            int(batch_size) if self.fixture_mode else select_generation_batch_size(self.generation_profile, requested=batch_size)
+        )
+        if selected_batch_size not in SUPPORTED_GENERATION_BATCH_SIZES:
+            raise ValueError(f"generation batch size must be one of {SUPPORTED_GENERATION_BATCH_SIZES}")
+        with reversible_inference_context(self.model):
+            for start in range(0, len(records), selected_batch_size):
+                batch_records = records[start : start + selected_batch_size]
+                try:
+                    chunk = self._generate_batch(split, batch_records)
+                except Exception:
+                    # A single bad sample must not discard successful neighbors.
+                    chunk = []
+                    for record in batch_records:
+                        try:
+                            chunk.extend(self._generate_batch(split, [record]))
+                        except Exception as exc:
+                            chunk.append(self._generation_failure(split, record, exc))
+                rows.extend(chunk)
+                if on_chunk is not None:
+                    on_chunk(chunk)
+        return rows
+
+    def generate_reasoning_split(
+        self,
+        split: str,
+        records: Iterable[Mapping[str, Any]],
+        *,
+        artifact_root: str | Path | None = None,
+        resume: bool = True,
+        batch_size: int | None = None,
+    ) -> list[dict[str, Any]]:
+        rows = [dict(record) for record in records]
+        output_root = Path(artifact_root) if artifact_root is not None else self.run_root
+        sample_ids = [str(record["sample_id"]) for record in rows]
+        store = GenerationChunkStore(output_root, split, sample_ids)
+        committed = store.committed_rows() if resume else []
+        committed_ids = {str(row["sample_id"]) for row in committed}
+        pending = [record for record in rows if str(record["sample_id"]) not in committed_ids]
+        generated = (
+            self._generate_reasoning_rows(
+                split,
+                pending,
+                batch_size=batch_size,
+                on_chunk=store.commit,
+            )
+            if pending
+            else []
+        )
+        all_rows_by_id = {str(row["sample_id"]): row for row in committed}
+        all_rows_by_id.update({str(row["sample_id"]): row for row in generated})
+        ordered = [all_rows_by_id[str(record["sample_id"])] for record in rows]
+        store.mark_complete()
+        atomic_write_text(output_root / f"reasoning/{split}_reasoning.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in ordered))
+        return ordered
+
+    def judge_reasoning_split(
+        self,
+        split: str,
+        generation_rows: Iterable[Mapping[str, Any]],
+        gold_by_id: Mapping[str, Mapping[str, Any]],
+        *,
+        artifact_root: str | Path | None = None,
+    ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        output_root = Path(artifact_root) if artifact_root is not None else self.run_root
         predictions: list[dict[str, Any]] = []
         decisions: list[dict[str, Any]] = []
         for generation in generation_rows:
@@ -477,15 +661,79 @@ class ReasoningGenerationExecutor:
                 decision = self.judge.judge(str(generation.get("generated_reasoning", "")))
             decisions.append({"sample_id": sample_id, **dict(decision)})
             predictions.append(build_reasoning_prediction_row(sample_id, gold_by_id[sample_id], str(generation.get("generated_reasoning", "")), decision, truncated=bool(generation.get("truncated"))))
-        self.judge.write_artifacts(self.run_root, split, predictions, decisions)
-        atomic_write_text(self.run_root / f"predictions/{split}_predictions.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in predictions))
+        self.judge.write_artifacts(output_root, split, predictions, decisions)
+        atomic_write_text(output_root / f"predictions/{split}_predictions.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in predictions))
         return predictions, decisions
 
-    def compute_split_metrics(self, split: str, rows: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
+    def compute_split_metrics(self, split: str, rows: Iterable[Mapping[str, Any]], *, artifact_root: str | Path | None = None) -> dict[str, Any]:
+        output_root = Path(artifact_root) if artifact_root is not None else self.run_root
         metrics = compute_reasoning_metrics(rows, diagnostics=self.judge.diagnostics)
         metrics.update({"status": "PASS", "split": split, "judge_protocol_id": self.judge.judge_protocol_id, "judge_prompt_hash": self.judge.prompt_hash, "judge_schema_hash": self.judge.schema_hash, "generation_protocol_id": self.protocol["protocol_version"]})
-        atomic_write_json(self.run_root / f"metrics/{split}_reasoning_metrics.json", metrics)
+        atomic_write_json(output_root / f"metrics/{split}_reasoning_metrics.json", metrics)
         return metrics
+
+    def publish_dev_artifacts(self, epoch: int) -> dict[str, Any]:
+        """Materialize the selected epoch's DEV artifacts without inference."""
+        source_root = self.run_root / "epochs" / f"epoch_{int(epoch)}"
+        required = (
+            source_root / "reasoning/dev_reasoning.jsonl",
+            source_root / "reasoning/dev_chunks_manifest.json",
+            source_root / "predictions/dev_predictions.jsonl",
+            source_root / "judge/dev_judge_responses.jsonl",
+            source_root / "metrics/dev_reasoning_metrics.json",
+        )
+        missing = [str(path) for path in required if not path.exists()]
+        if missing:
+            raise GenerationPersistenceError("selected DEV artifacts are incomplete: " + ", ".join(missing))
+        for source in required:
+            target = self.run_root / source.relative_to(source_root)
+            atomic_write_text(target, source.read_text(encoding="utf-8"))
+        source_chunks = source_root / "reasoning/dev_chunks"
+        target_chunks = self.run_root / "reasoning/dev_chunks"
+        for source in sorted(source_chunks.glob("chunk_*.jsonl")):
+            atomic_write_text(target_chunks / source.name, source.read_text(encoding="utf-8"))
+        manifest = {
+            "status": "PASS",
+            "epoch": int(epoch),
+            "source_root": str(source_root.relative_to(self.run_root)).replace("\\", "/"),
+            "reasoning_sha256": sha256_file(self.run_root / "reasoning/dev_reasoning.jsonl"),
+            "predictions_sha256": sha256_file(self.run_root / "predictions/dev_predictions.jsonl"),
+            "judge_sha256": sha256_file(self.run_root / "judge/dev_judge_responses.jsonl"),
+        }
+        atomic_write_json(self.run_root / "selection/dev_artifacts.json", manifest)
+        return manifest
+
+    def fixture_generation_equivalence(
+        self,
+        split: str,
+        records: Iterable[Mapping[str, Any]],
+        *,
+        candidate_batch_sizes: Sequence[int] = SUPPORTED_GENERATION_BATCH_SIZES,
+    ) -> dict[str, Any]:
+        """Compare fixture outputs across candidate batches; never valid in production."""
+        if not self.fixture_mode:
+            raise GenerationPersistenceError("generation-equivalence harness is fixture-only")
+        rows = [dict(record) for record in records]
+        candidates = tuple(int(value) for value in candidate_batch_sizes)
+        if not candidates or any(value not in SUPPORTED_GENERATION_BATCH_SIZES for value in candidates):
+            raise ValueError("equivalence candidates must be drawn from 1, 2, and 4")
+        baseline = self._generate_reasoning_rows(split, rows, batch_size=1)
+        baseline_projection = [
+            {key: row.get(key) for key in ("sample_id", "generated_reasoning", "generation_status", "failure_reason", "truncated")}
+            for row in baseline
+        ]
+        report: dict[str, Any] = {"fixture_only": True, "baseline_batch_size": 1, "candidates": list(candidates), "equivalent": True}
+        for candidate in candidates:
+            if candidate == 1:
+                continue
+            current = self._generate_reasoning_rows(split, rows, batch_size=candidate)
+            projection = [{key: row.get(key) for key in ("sample_id", "generated_reasoning", "generation_status", "failure_reason", "truncated")} for row in current]
+            if projection != baseline_projection:
+                report.update({"equivalent": False, "mismatch_batch_size": candidate})
+                raise GenerationPersistenceError(f"fixture generation differs between batch 1 and batch {candidate}")
+        return report
+
+    run_fixture_generation_equivalence = fixture_generation_equivalence
 
     @staticmethod
     def _sequence(value: Any, *, dtype: torch.dtype) -> torch.Tensor:
@@ -886,9 +1134,13 @@ class ReasoningGenerationExecutor:
         for epoch in range(start_epoch, epochs + 1):
             history = self.train_generation(train_rows, optimizer=optimizer, scheduler=scheduler, epochs=1, epoch_start=epoch)
             all_history.extend(history)
-            generated_dev = self.generate_reasoning_split("dev", dev_rows)
-            dev_predictions, _ = self.judge_reasoning_split("dev", generated_dev, gold_dev)
-            dev_metrics = self.compute_split_metrics("dev", dev_predictions)
+            epoch_root = self.run_root / "epochs" / f"epoch_{epoch}"
+            generation_kwargs = {"artifact_root": epoch_root} if "artifact_root" in inspect.signature(self.generate_reasoning_split).parameters else {}
+            generated_dev = self.generate_reasoning_split("dev", dev_rows, **generation_kwargs)
+            judge_kwargs = {"artifact_root": epoch_root} if "artifact_root" in inspect.signature(self.judge_reasoning_split).parameters else {}
+            dev_predictions, _ = self.judge_reasoning_split("dev", generated_dev, gold_dev, **judge_kwargs)
+            metrics_kwargs = {"artifact_root": epoch_root} if "artifact_root" in inspect.signature(self.compute_split_metrics).parameters else {}
+            dev_metrics = self.compute_split_metrics("dev", dev_predictions, **metrics_kwargs)
             checkpoint_hash = self.write_checkpoint(
                 f"checkpoints/epoch_{epoch}/model.pt",
                 optimizer=optimizer,
@@ -920,7 +1172,8 @@ class ReasoningGenerationExecutor:
                 data_order=train_order,
             )
         atomic_write_json(self.run_root / "training/history.json", all_history)
-        atomic_write_json(self.run_root / "selection/best_checkpoint.json", {"status": "PASS", "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_path": "checkpoints/best/model.pt", "checkpoint_sha256": best_hash})
+        dev_artifacts = self.publish_dev_artifacts(best_epoch) if (self.run_root / "epochs" / f"epoch_{best_epoch}" / "reasoning/dev_reasoning.jsonl").exists() else {}
+        atomic_write_json(self.run_root / "selection/best_checkpoint.json", {"status": "PASS", "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_path": "checkpoints/best/model.pt", "checkpoint_sha256": best_hash, "dev_artifacts": dev_artifacts})
         self.load_checkpoint(
             "checkpoints/best/model.pt",
             expected_sha256=best_hash,
