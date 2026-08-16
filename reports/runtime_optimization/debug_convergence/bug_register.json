@@ -38,7 +38,7 @@
       "root_cause_hypothesis": "The local balanced-cell reduction was applied to the total Q3 inventory, conflating local cells with non-local Azure comparison rows.",
       "assigned_worker": "LUNA_WORKER_SCIENCE_PROFILE",
       "dependencies": [],
-      "fix_commit": "183126e",
+      "fix_commit": "183126ecf888c86c679da8fac9e66321617f1f20",
       "regression_tests": ["PYTHONPATH=\"$PWD:$PWD/src\" python -m pytest -q -p no:cacheprovider tests/test_naacl_balanced_profile.py (16 passed)"],
       "reviewer_verdict": null,
       "closure_evidence": "Profile validator now reports 36 local cells plus 4 retained Azure rows, with fail-closed checks for retained Azure inventory and no invented Azure seeds."
