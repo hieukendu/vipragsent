@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-08-16T16:20:01Z",
+  "current_head": "16ff2b0f403eb694ed0c53d6808a5b441d903735",
+  "review_round": 0,
+  "open_critical": 0,
+  "open_high": 4,
+  "open_medium": 0,
+  "open_low": 0,
+  "workers_active": 0,
+  "last_round_elapsed_minutes": null,
+  "focused_test_elapsed_minutes": null,
+  "broad_test_elapsed_minutes": null,
+  "github_ci_elapsed_minutes": 1.63,
+  "estimated_remaining_debug_rounds": null,
+  "central_eta_to_review_ready": "NOT_ESTIMABLE_BEFORE_INITIAL_FIX_WAVE",
+  "conservative_eta_to_review_ready": "NOT_ESTIMABLE_BEFORE_INITIAL_FIX_WAVE",
+  "assumptions": [
+    "All four V27 known findings require reproduction, focused tests, integration, and independent review.",
+    "Remote CI duration is measured for the failed Ruff-only path and is not a full-pipeline ETA.",
+    "No production execution or forbidden benchmark is needed for the engineering correction loop."
+  ],
+  "confidence": "LOW_INITIAL_SNAPSHOT"
+}
