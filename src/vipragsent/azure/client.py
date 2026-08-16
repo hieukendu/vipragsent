@@ -118,9 +118,9 @@ def _extract_structured_candidate(value: Any) -> Any:
             return value["parsed"]
         if "labels" in value:
             return value["labels"]
-        if "output_text" in value and isinstance(value["output_text"], (str, bytes, bytearray)) and value["output_text"].strip():
+        if "output_text" in value and isinstance(value["output_text"], str | bytes | bytearray) and value["output_text"].strip():
             return value["output_text"]
-        if "text" in value and isinstance(value["text"], (str, bytes, bytearray)):
+        if "text" in value and isinstance(value["text"], str | bytes | bytearray):
             return value["text"]
         for key in ("output", "response", "content"):
             if key in value:
@@ -128,13 +128,13 @@ def _extract_structured_candidate(value: Any) -> Any:
                 if candidate is not _MISSING:
                     return candidate
         return _MISSING
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         for item in value:
             candidate = _extract_structured_candidate(item)
             if candidate is not _MISSING:
                 return candidate
         return _MISSING
-    if isinstance(value, (str, bytes, bytearray)):
+    if isinstance(value, str | bytes | bytearray):
         return value
     return _MISSING
 
@@ -144,7 +144,7 @@ def extract_responses_structured_output(payload: Any) -> Any:
     candidate = _extract_structured_candidate(_response_mapping(payload))
     if candidate is _MISSING:
         raise AzureStructuredOutputError("Responses API payload has no structured output", payload=_response_mapping(payload))
-    if isinstance(candidate, (bytes, bytearray)):
+    if isinstance(candidate, bytes | bytearray):
         candidate = bytes(candidate).decode("utf-8")
     for _ in range(3):
         if isinstance(candidate, Mapping):
@@ -223,7 +223,7 @@ def _normalize_usage(value: Any) -> dict[str, Any]:
 
 
 def _is_retryable(exc: Exception) -> bool:
-    if isinstance(exc, (TimeoutError, ConnectionError)):
+    if isinstance(exc, TimeoutError | ConnectionError):
         return True
     if isinstance(exc, AzureRetryableError):
         return exc.status_code is None or exc.status_code in RETRYABLE_STATUS_CODES

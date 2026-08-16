@@ -451,7 +451,7 @@ def _resolve_run_file(root: Path, metrics_path: Path, value: str | Path) -> Path
 
 def _prediction_paths(root: Path, metrics_path: Path, payload: dict[str, Any]) -> list[Path]:
     raw = payload.get("prediction_files", payload.get("prediction_file"))
-    values = [raw] if isinstance(raw, (str, Path)) else list(raw or [])
+    values = [raw] if isinstance(raw, str | Path) else list(raw or [])
     if not values:
         values = ["test_predictions.jsonl", "predictions.jsonl"]
     paths = [_resolve_run_file(root, metrics_path, value) for value in values]

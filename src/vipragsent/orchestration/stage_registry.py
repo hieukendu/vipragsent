@@ -217,7 +217,7 @@ def _production_generation_profile(context: RunContext) -> Mapping[str, Any] | l
         profile = Path(str(profile_path))
     if profile is None:
         profile = Path(context.run_root) / "profiling/generation_profile.json"
-    if isinstance(profile, (str, Path)):
+    if isinstance(profile, str | Path):
         path = Path(profile)
         if not path.is_absolute():
             path = context.root / path
@@ -226,9 +226,9 @@ def _production_generation_profile(context: RunContext) -> Mapping[str, Any] | l
                 loaded = json.loads(path.read_text(encoding="utf-8"))
             except (OSError, TypeError, ValueError, json.JSONDecodeError):
                 loaded = None
-            if isinstance(loaded, (Mapping, list)):
+            if isinstance(loaded, Mapping | list):
                 return loaded
-    if isinstance(profile, (Mapping, list)):
+    if isinstance(profile, Mapping | list):
         return profile
     return {
         "status": "PASS",
@@ -1348,7 +1348,7 @@ def _review_summary(context: RunContext, entry: RunEntry, state: Mapping[str, An
     atomic_write_json(run_root / "review_summary.json", summary)
     lines = ["# Sequential Run Review Summary", "", f"RUN_STATUS: {summary['RUN_STATUS']}", f"USER_REVIEW_STATUS: {summary['USER_REVIEW_STATUS']}", f"NEXT_RUN_ALLOWED: {summary['NEXT_RUN_ALLOWED']}", ""]
     for key in ("run_id", "research_question", "system_id", "execution_kind", "best_dev_metric", "checkpoint_path", "macro_pragmatic_f1", "artifact_paths", "artifact_sha256", "warnings", "blockers"):
-        lines.extend([f"## {key}", json.dumps(summary.get(key), ensure_ascii=False, sort_keys=True) if isinstance(summary.get(key), (dict, list)) else str(summary.get(key)), ""])
+        lines.extend([f"## {key}", json.dumps(summary.get(key), ensure_ascii=False, sort_keys=True) if isinstance(summary.get(key), dict | list) else str(summary.get(key)), ""])
     atomic_write_text(run_root / "review_summary.md", "\n".join(lines))
     return StageOutcome.passed(summary={"validation_status": "PASS", "review_summary_sha256": sha256_file(run_root / "review_summary.json")}, expected_files=("review_summary.json", "review_summary.md", "approval_status.json"))
 
