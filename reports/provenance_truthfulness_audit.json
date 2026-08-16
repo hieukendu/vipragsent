@@ -1,10 +1,10 @@
 {
-  "code_commit_at_audit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "code_commit_at_audit": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "cot_only_source": "judge_of_generated_reasoning",
   "executable_closure_evidence": [
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -29,7 +29,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -54,7 +54,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -79,7 +79,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -104,7 +104,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -129,7 +129,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -138,7 +138,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 10",
-      "fixture_input_sha256": "649AB4AD0838CF3D9767BFAC95B774A3FBB9A954CE35B3DE468F46EA9768E615",
+      "fixture_input_sha256": "1ED52595EBA92062AA8100790BF2FAD8F83BB01A323E92A48DDFAF01776D4D2F",
       "golden_input_sha256": null,
       "label": "Defect 10",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -150,11 +150,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_final_runtime_integration.py::test_generation_executor_trains_causally_and_records_invalid_parser_rows",
-      "test_source_sha256": "B6FA6D52A9738BDACA2EBD9A4B0100FBAAE013BD0C0490D84A44FB43A9C2A49D"
+      "test_source_sha256": "8C715FD718B586953268407888C88C62B469D6630517FCFA76FF1923613E1054"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -185,7 +185,7 @@
   "synthetic_closure_evidence": [
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -210,7 +210,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -235,7 +235,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -260,7 +260,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -285,7 +285,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -310,7 +310,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -319,7 +319,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 10",
-      "fixture_input_sha256": "649AB4AD0838CF3D9767BFAC95B774A3FBB9A954CE35B3DE468F46EA9768E615",
+      "fixture_input_sha256": "1ED52595EBA92062AA8100790BF2FAD8F83BB01A323E92A48DDFAF01776D4D2F",
       "golden_input_sha256": null,
       "label": "Defect 10",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -331,7 +331,7 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_final_runtime_integration.py::test_generation_executor_trains_causally_and_records_invalid_parser_rows",
-      "test_source_sha256": "B6FA6D52A9738BDACA2EBD9A4B0100FBAAE013BD0C0490D84A44FB43A9C2A49D"
+      "test_source_sha256": "8C715FD718B586953268407888C88C62B469D6630517FCFA76FF1923613E1054"
     }
   ]
 }

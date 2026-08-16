@@ -24,6 +24,7 @@ from ...runtime.device import (
     resolve_model_input_device,
     write_device_report,
 )
+from ...training.checkpoints import _is_serialized_nf4_metadata_key
 
 
 class GenerationProtocolConflict(RuntimeError):
@@ -32,6 +33,82 @@ class GenerationProtocolConflict(RuntimeError):
 
 class GenerationCheckpointError(RuntimeError):
     """Raised when a generation checkpoint cannot be trusted or loaded."""
+
+
+def _restore_optimizer_state(optimizer: torch.optim.Optimizer, state_payload: Mapping[str, Any]) -> str:
+    """Restore native or legacy nested bitsandbytes optimizer state strictly.
+
+    The archived q1a checkpoint was written by a bitsandbytes serializer that
+    wrapped each parameter's 8-bit buffers under
+    ``__bnb_optimizer_quant_state__``.  The installed bitsandbytes release
+    expects those buffers directly under ``state1``/``state2`` and otherwise
+    accepts the payload before failing on the next optimizer step.  Unpack the
+    known legacy representation explicitly while retaining native optimizer
+    loading for all other formats.
+    """
+    saved_groups = state_payload.get("param_groups")
+    saved_state = state_payload.get("state")
+    if not isinstance(saved_groups, list | tuple) or not isinstance(saved_state, Mapping):
+        raise GenerationCheckpointError("generation checkpoint optimizer state has an invalid structure")
+
+    current_groups = optimizer.param_groups
+    if len(current_groups) != len(saved_groups):
+        raise GenerationCheckpointError("generation checkpoint optimizer state has a different group count")
+
+    saved_param_ids: list[Any] = []
+    current_params: list[torch.Tensor] = []
+    for current_group, saved_group in zip(current_groups, saved_groups):
+        if not isinstance(saved_group, Mapping):
+            raise GenerationCheckpointError("generation checkpoint optimizer parameter group is not a mapping")
+        group_param_ids = saved_group.get("params")
+        group_params = current_group.get("params")
+        if not isinstance(group_param_ids, list | tuple) or not isinstance(group_params, list | tuple):
+            raise GenerationCheckpointError("generation checkpoint optimizer parameter group has invalid params")
+        if len(group_param_ids) != len(group_params):
+            raise GenerationCheckpointError(
+                "generation checkpoint optimizer parameter group does not match the current parameter count"
+            )
+        saved_param_ids.extend(group_param_ids)
+        current_params.extend(group_params)
+
+    mapped_entries: list[tuple[torch.Tensor, Mapping[str, Any]]] = []
+    for saved_id, parameter in zip(saved_param_ids, current_params):
+        entry = saved_state.get(saved_id)
+        if not isinstance(entry, Mapping):
+            raise GenerationCheckpointError(
+                f"generation checkpoint optimizer state is missing parameter entry {saved_id!r}"
+            )
+        mapped_entries.append((parameter, entry))
+
+    nested_flags = ["__bnb_optimizer_quant_state__" in entry for _, entry in mapped_entries]
+    if any(nested_flags):
+        if not all(nested_flags):
+            raise GenerationCheckpointError("generation checkpoint mixes native and nested optimizer state formats")
+
+        restored_states: list[tuple[torch.Tensor, dict[str, Any]]] = []
+        for parameter, entry in mapped_entries:
+            nested_state = entry.get("__bnb_optimizer_quant_state__")
+            if not isinstance(nested_state, Mapping) or not {"state1", "state2"}.issubset(nested_state):
+                raise GenerationCheckpointError(
+                    "generation checkpoint nested bitsandbytes optimizer state is incomplete"
+                )
+            restored: dict[str, Any] = {"step": entry.get("step", 0)}
+            for key, value in nested_state.items():
+                restored[key] = value.to(device=parameter.device) if isinstance(value, torch.Tensor) else value
+            restored_states.append((parameter, restored))
+
+        for current_group, saved_group in zip(current_groups, saved_groups):
+            current_group.update({key: value for key, value in saved_group.items() if key != "params"})
+        optimizer.state.clear()
+        for parameter, restored in restored_states:
+            optimizer.state[parameter] = restored
+        return "bnb_nested_quantized_migrated"
+
+    try:
+        optimizer.load_state_dict(dict(state_payload))
+    except (RuntimeError, ValueError, KeyError, TypeError) as exc:
+        raise GenerationCheckpointError(f"generation checkpoint failed optimizer-state load: {exc}") from exc
+    return "native"
 
 
 GENERATION_CHECKPOINT_SCHEMA_VERSION = 2
@@ -519,6 +596,9 @@ class ReasoningGenerationExecutor:
         """Write the canonical v2 generation checkpoint payload."""
         path = self.run_root / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
+        rng_state: dict[str, Any] = {"torch": torch.get_rng_state()}
+        if torch.cuda.is_available():
+            rng_state["cuda"] = torch.cuda.get_rng_state_all()
         payload = {
             "schema_version": GENERATION_CHECKPOINT_SCHEMA_VERSION,
             "model_state_dict": dict(self.model.state_dict()),
@@ -526,7 +606,7 @@ class ReasoningGenerationExecutor:
             "scheduler_state_dict": scheduler.state_dict() if scheduler is not None and hasattr(scheduler, "state_dict") else {},
             "loss_aggregator_state_dict": {},
             "run_state": {"epoch": epoch, "selection_metric": selection_metric},
-            "rng_state": {"torch": torch.get_rng_state()},
+            "rng_state": rng_state,
             "metadata": {
                 "executor_kind": "generation_trainable",
                 "seed": self.seed,
@@ -549,15 +629,27 @@ class ReasoningGenerationExecutor:
         *,
         expected_sha256: str | None = None,
         allow_legacy_fixture: bool = False,
+        optimizer: torch.optim.Optimizer | None = None,
+        scheduler: Any | None = None,
+        restore_rng: bool = False,
+        expected_metadata: Mapping[str, Any] | None = None,
+        allowed_metadata_mismatches: Iterable[str] = (),
+        expected_epoch: int | None = None,
     ) -> dict[str, Any]:
-        """Load a v2 checkpoint and reject silent or total key mismatches."""
+        """Load a v2 checkpoint and reject silent or total key mismatches.
+
+        Production resume callers may request optimizer/scheduler/RNG restoration
+        and exact metadata bindings.  Explicitly allowed metadata mismatches are
+        limited to missing/``NOT_PROVIDED`` values so a different binding can
+        never be silently accepted.
+        """
         checkpoint_path = Path(path)
         if not checkpoint_path.is_absolute():
             checkpoint_path = self.run_root / checkpoint_path
         if not checkpoint_path.exists():
             raise GenerationCheckpointError(f"generation checkpoint is missing: {checkpoint_path}")
         observed_hash = sha256_file(checkpoint_path)
-        if expected_sha256 and observed_hash != str(expected_sha256):
+        if expected_sha256 and observed_hash.casefold() != str(expected_sha256).casefold():
             raise GenerationCheckpointError(
                 f"generation checkpoint hash mismatch: expected {expected_sha256}, observed {observed_hash}"
             )
@@ -580,15 +672,42 @@ class ReasoningGenerationExecutor:
             )
         if not isinstance(state, Mapping) or not state:
             raise GenerationCheckpointError("generation checkpoint has no model state")
+        metadata = payload.get("metadata")
+        if not isinstance(metadata, Mapping):
+            metadata = {}
+        expected_metadata = dict(expected_metadata or {})
+        allowed_mismatches = {str(key) for key in allowed_metadata_mismatches}
+        metadata_mismatches: dict[str, dict[str, Any]] = {}
+        allowed_metadata_mismatch_keys: list[str] = []
+        for key, expected in expected_metadata.items():
+            observed = metadata.get(key)
+            if observed == expected:
+                continue
+            mismatch = {"expected": expected, "observed": observed}
+            metadata_mismatches[str(key)] = mismatch
+            if str(key) in allowed_mismatches and observed in (None, "", "NOT_PROVIDED"):
+                allowed_metadata_mismatch_keys.append(str(key))
+        disallowed_metadata_mismatches = sorted(set(metadata_mismatches) - set(allowed_metadata_mismatch_keys))
+        run_state = payload.get("run_state")
+        observed_epoch = run_state.get("epoch") if isinstance(run_state, Mapping) else None
         state = dict(state)
         model_keys = set(self.model.state_dict())
+        state_keys = set(state)
+        quantized_contract = any(
+            bool(getattr(module, "_vipragsent_quantized", False) or getattr(module, "_vipragsent_qlora_contract", None))
+            for module in self.model.modules()
+        )
+        ignored_quantized_metadata_keys = sorted(
+            key for key in state_keys - model_keys if quantized_contract and _is_serialized_nf4_metadata_key(key)
+        )
+        state = {key: value for key, value in state.items() if key not in ignored_quantized_metadata_keys}
         state_keys = set(state)
         matched = model_keys & state_keys
         missing = sorted(model_keys - state_keys)
         unexpected = sorted(state_keys - model_keys)
         match_ratio = len(matched) / len(model_keys) if model_keys else 0.0
         report = {
-            "status": "PASS" if not missing and not unexpected and matched else "FAIL",
+            "status": "PASS" if not missing and not unexpected and matched and not disallowed_metadata_mismatches else "FAIL",
             "schema_version": schema_version if schema_version is not None else 1,
             "legacy_fixture_migration": legacy_migration,
             "path": str(checkpoint_path),
@@ -599,6 +718,16 @@ class ReasoningGenerationExecutor:
             "match_ratio": match_ratio,
             "missing_keys": missing,
             "unexpected_keys": unexpected,
+            "ignored_quantized_metadata_keys": ignored_quantized_metadata_keys,
+            "checkpoint_epoch": observed_epoch,
+            "expected_epoch": expected_epoch,
+            "metadata_bindings": {key: metadata.get(key) for key in expected_metadata},
+            "metadata_mismatches": metadata_mismatches,
+            "allowed_metadata_mismatch_keys": allowed_metadata_mismatch_keys,
+            "disallowed_metadata_mismatch_keys": disallowed_metadata_mismatches,
+            "optimizer_state_present": bool(payload.get("optimizer_state_dict")),
+            "scheduler_state_present": bool(payload.get("scheduler_state_dict")),
+            "rng_state_present": isinstance(payload.get("rng_state"), Mapping),
         }
         self._write_checkpoint_load_report(report)
         if not matched:
@@ -607,10 +736,66 @@ class ReasoningGenerationExecutor:
             raise GenerationCheckpointError(
                 f"generation checkpoint key mismatch: missing={missing}, unexpected={unexpected}"
             )
+        if disallowed_metadata_mismatches:
+            raise GenerationCheckpointError(
+                "generation checkpoint metadata mismatch: "
+                + ", ".join(
+                    f"{key} expected={metadata_mismatches[key]['expected']!r} observed={metadata_mismatches[key]['observed']!r}"
+                    for key in disallowed_metadata_mismatches
+                )
+            )
+        if expected_epoch is not None and observed_epoch != expected_epoch:
+            raise GenerationCheckpointError(
+                f"generation checkpoint epoch mismatch: expected {expected_epoch}, observed {observed_epoch}"
+            )
         try:
-            self.model.load_state_dict(state, strict=True)
+            incompatible = self.model.load_state_dict(state, strict=False)
+            loaded_missing = sorted(incompatible.missing_keys)
+            loaded_unexpected = sorted(incompatible.unexpected_keys)
+            tolerated_loader_unexpected = sorted(
+                key for key in loaded_unexpected if quantized_contract and _is_serialized_nf4_metadata_key(key)
+            )
+            effective_loader_unexpected = sorted(set(loaded_unexpected) - set(tolerated_loader_unexpected))
+            if loaded_missing or effective_loader_unexpected:
+                raise GenerationCheckpointError(
+                    "generation checkpoint loader key mismatch: "
+                    f"missing={loaded_missing}, unexpected={effective_loader_unexpected}"
+                )
+            report["loader_tolerated_unexpected_keys"] = tolerated_loader_unexpected
         except (RuntimeError, ValueError) as exc:
             raise GenerationCheckpointError(f"generation checkpoint failed strict load: {exc}") from exc
+        if optimizer is not None:
+            optimizer_state = payload.get("optimizer_state_dict")
+            if not isinstance(optimizer_state, Mapping) or not optimizer_state:
+                raise GenerationCheckpointError("generation checkpoint has no optimizer state for a training resume")
+            report["optimizer_state_format"] = _restore_optimizer_state(optimizer, optimizer_state)
+        if scheduler is not None:
+            scheduler_state = payload.get("scheduler_state_dict")
+            if not isinstance(scheduler_state, Mapping) or not scheduler_state:
+                raise GenerationCheckpointError("generation checkpoint has no scheduler state for a training resume")
+            if not hasattr(scheduler, "load_state_dict"):
+                raise GenerationCheckpointError("training resume scheduler does not support state restoration")
+            try:
+                scheduler.load_state_dict(dict(scheduler_state))
+            except (RuntimeError, ValueError, KeyError, TypeError) as exc:
+                raise GenerationCheckpointError(f"generation checkpoint failed scheduler-state load: {exc}") from exc
+        if restore_rng:
+            rng_state = payload.get("rng_state")
+            if not isinstance(rng_state, Mapping) or not isinstance(rng_state.get("torch"), torch.Tensor):
+                raise GenerationCheckpointError("generation checkpoint has no torch RNG state for a training resume")
+            torch.set_rng_state(rng_state["torch"].detach().cpu())
+            cuda_rng_state = rng_state.get("cuda")
+            if cuda_rng_state is not None:
+                if not torch.cuda.is_available():
+                    raise GenerationCheckpointError("generation checkpoint contains CUDA RNG state but CUDA is unavailable")
+                try:
+                    torch.cuda.set_rng_state_all([item.detach().cpu() for item in cuda_rng_state])
+                except (RuntimeError, TypeError, ValueError) as exc:
+                    raise GenerationCheckpointError(f"generation checkpoint failed CUDA RNG-state load: {exc}") from exc
+            report["rng_restore"] = {"torch": True, "cuda": cuda_rng_state is not None}
+        report["optimizer_restored"] = optimizer is not None
+        report["scheduler_restored"] = scheduler is not None
+        self._write_checkpoint_load_report(report)
         return report
 
     def load_epoch_checkpoint(self, epoch: int, *, expected_sha256: str | None = None) -> dict[str, Any]:

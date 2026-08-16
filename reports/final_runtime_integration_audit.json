@@ -1,7 +1,7 @@
 {
   "CI_STATUS": "NOT_RUN",
   "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
-  "code_commit_at_audit": "edb6eff42fbc5ea5a292d27b7dfbc3fe420174b1",
+  "code_commit_at_audit": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "contract_reports": {
     "artifacts": {
       "checks": {
@@ -108,7 +108,7 @@
       "status": "PASS"
     },
     "rationale_promotion": {
-      "canonical_artifact_present": false,
+      "canonical_artifact_present": true,
       "canonical_path": "data/processed/rationales/approved_generated_rationales_train.jsonl",
       "checks": {
         "approval_gate": true,
@@ -367,8 +367,8 @@
     "PHASE15_RUNTIME_READY": true,
     "REAL_EXPERIMENT_READY": false,
     "SEQUENTIAL_RUNTIME_CODE_READY": true,
-    "SETUP_CODE_READY": true,
-    "approval_recorded": false,
+    "SETUP_CODE_READY": false,
+    "approval_recorded": true,
     "azure_request_made": false,
     "baseline_commit": "cb5cde04cd3e3c546d1b35711197a82b6d5bb254",
     "baseline_is_ancestor": true,
@@ -381,28 +381,26 @@
       "handoff_exists": true,
       "next_phase_ready": true,
       "phase15_evidence": {
-        "approval_basis": "standing_user_authorization_after_successful_audit",
-        "effective_batch_size": 32,
-        "gradient_accumulation_steps": 1,
+        "effective_batch_size": 16,
+        "gradient_accumulation_steps": 8,
         "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
         "hashes": {
-          "batch_probe_hash": "F8A81090A28195E0573987B28970382845C24A29C3F5FEEB6534210ABE731CE0",
-          "cache_manifest_hash": "71DF79A67A65B1EE472938D0DFF77297C0D77E20FEF1AF41E0013B1D384EFB0D",
-          "smoke_verification_hash": "A8F92BECA7F29131E72AEA1CBDDA7B02284D4F44385337263C70F25936E1D93B"
+          "batch_probe_hash": "5D5437A57B3879477004D0876262573A525D013E629C2530F232A1F27B6AF667",
+          "cache_manifest_hash": "40E475581B1F46DF24388182361D6BBEAC5BA1A554E536164781B864FA82D888",
+          "smoke_verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF"
         },
-        "local_snapshot": "data/model_cache/phobert_base",
-        "model_family": "phobert_base",
-        "model_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
-        "physical_batch": 32,
-        "repo_id": "vinai/phobert-base",
+        "local_snapshot": "data/model_cache/vistral_7b",
+        "model_family": "vistral_7b",
+        "model_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+        "physical_batch": 2,
+        "repo_id": "Viet-Mistral/Vistral-7B-Chat",
         "status_artifacts": {
-          "batch_status": "data/batch_probe_status/phobert_base.json",
+          "batch_status": "data/batch_probe_status/vistral_7b.json",
           "cache_manifest": "data/model_cache_manifest.json",
-          "cache_status": "data/model_cache_status/phobert_base.json",
-          "smoke_report": "data/model_smoke_report.json",
-          "smoke_status": "data/model_smoke_status/phobert_base.json"
+          "cache_status": "data/model_cache_status/vistral_7b.json",
+          "smoke_status": "data/model_smoke_status/vistral_7b.json"
         },
-        "tokenizer_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
+        "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
         "validation": {
           "cache": true,
           "physical_batch": true,
@@ -439,9 +437,9 @@
           "scripts",
           "tests"
         ],
-        "returncode": 0,
+        "returncode": 1,
         "stderr_tail": "",
-        "stdout_tail": "All checks passed!\n"
+        "stdout_tail": "d)\n168 |         if isinstance(value, (dict, list)):\n    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ UP038\n169 |             rendered = json.dumps(value, ensure_ascii=False, sort_keys=True)\n170 |         else:\n    |\n    = help: Convert to `X | Y`\n\nsrc/vipragsent/orchestration/stage_registry.py:1270:104: UP038 Use `X | Y` in `isinstance` call instead of `(X, Y)`\n     |\n1268 |     lines = [\"# Sequential Run Review Summary\", \"\", f\"RUN_STATUS: {summary['RUN_STATUS']}\", f\"USER_REVIEW_STATUS: {summary['USER_REVIEW_STATUS']}\", f\"NEXT_RUN_ALLOWED: {summary['NEXT_RUN_ALLOWED']}\", \"\"]\n1269 |     for key in (\"run_id\", \"research_question\", \"system_id\", \"execution_kind\", \"best_dev_metric\", \"checkpoint_path\", \"macro_pragmatic_f1\", \"artifact_paths\", \"artifact_sha256\", \"warnings\", \"blockers\"):\n1270 |         lines.extend([f\"## {key}\", json.dumps(summary.get(key), ensure_ascii=False, sort_keys=True) if isinstance(summary.get(key), (dict, list)) else str(summary.get(key)), \"\"])\n     |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ UP038\n1271 |     atomic_write_text(run_root / \"review_summary.md\", \"\\n\".join(lines))\n1272 |     return StageOutcome.passed(summary={\"validation_status\": \"PASS\", \"review_summary_sha256\": sha256_file(run_root / \"review_summary.json\")}, expected_files=(\"review_summary.json\", \"review_summary.md\", \"approval_status.json\"))\n     |\n     = help: Convert to `X | Y`\n\nsrc/vipragsent/runtime/device.py:161:8: UP038 Use `X | Y` in `isinstance` call instead of `(X, Y)`\n    |\n159 |             devices.update(_tensor_devices(item))\n160 |         return devices\n161 |     if isinstance(value, (list, tuple)):\n    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ UP038\n162 |         devices: set[torch.device] = set()\n163 |         for item in value:\n    |\n    = help: Convert to `X | Y`\n\nFound 13 errors.\nNo fixes available (13 hidden fixes can be enabled with the `--unsafe-fixes` option).\n"
       },
       {
         "command": [
@@ -454,7 +452,7 @@
         ],
         "returncode": 0,
         "stderr_tail": "",
-        "stdout_tail": "........................................................................ [ 38%]\n........................................................................ [ 76%]\n............................................                             [100%]\n"
+        "stdout_tail": "........................................................................ [ 33%]\n........................................................................ [ 67%]\n......................................................................   [100%]\n"
       },
       {
         "command": [
@@ -527,7 +525,7 @@
       "subagents_called": false,
       "valid": true
     },
-    "status": "PASS",
+    "status": "FAIL",
     "weights_downloaded": true
   },
   "safe_commands": [
@@ -553,9 +551,9 @@
         "scripts",
         "tests"
       ],
-      "returncode": 0,
+      "returncode": 1,
       "stderr_tail": "",
-      "stdout_tail": "All checks passed!\n"
+      "stdout_tail": "d)\n168 |         if isinstance(value, (dict, list)):\n    |            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ UP038\n169 |             rendered = json.dumps(value, ensure_ascii=False, sort_keys=True)\n170 |         else:\n    |\n    = help: Convert to `X | Y`\n\nsrc/vipragsent/orchestration/stage_registry.py:1270:104: UP038 Use `X | Y` in `isinstance` call instead of `(X, Y)`\n     |\n1268 |     lines = [\"# Sequential Run Review Summary\", \"\", f\"RUN_STATUS: {summary['RUN_STATUS']}\", f\"USER_REVIEW_STATUS: {summary['USER_REVIEW_STATUS']}\", f\"NEXT_RUN_ALLOWED: {summary['NEXT_RUN_ALLOWED']}\", \"\"]\n1269 |     for key in (\"run_id\", \"research_question\", \"system_id\", \"execution_kind\", \"best_dev_metric\", \"checkpoint_path\", \"macro_pragmatic_f1\", \"artifact_paths\", \"artifact_sha256\", \"warnings\", \"blockers\"):\n1270 |         lines.extend([f\"## {key}\", json.dumps(summary.get(key), ensure_ascii=False, sort_keys=True) if isinstance(summary.get(key), (dict, list)) else str(summary.get(key)), \"\"])\n     |                                                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ UP038\n1271 |     atomic_write_text(run_root / \"review_summary.md\", \"\\n\".join(lines))\n1272 |     return StageOutcome.passed(summary={\"validation_status\": \"PASS\", \"review_summary_sha256\": sha256_file(run_root / \"review_summary.json\")}, expected_files=(\"review_summary.json\", \"review_summary.md\", \"approval_status.json\"))\n     |\n     = help: Convert to `X | Y`\n\nsrc/vipragsent/runtime/device.py:161:8: UP038 Use `X | Y` in `isinstance` call instead of `(X, Y)`\n    |\n159 |             devices.update(_tensor_devices(item))\n160 |         return devices\n161 |     if isinstance(value, (list, tuple)):\n    |        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ UP038\n162 |         devices: set[torch.device] = set()\n163 |         for item in value:\n    |\n    = help: Convert to `X | Y`\n\nFound 13 errors.\nNo fixes available (13 hidden fixes can be enabled with the `--unsafe-fixes` option).\n"
     },
     {
       "command": [
@@ -568,7 +566,7 @@
       ],
       "returncode": 0,
       "stderr_tail": "",
-      "stdout_tail": "........................................................................ [ 38%]\n........................................................................ [ 76%]\n............................................                             [100%]\n"
+      "stdout_tail": "........................................................................ [ 33%]\n........................................................................ [ 67%]\n......................................................................   [100%]\n"
     },
     {
       "command": [
@@ -644,5 +642,5 @@
   },
   "snapshot_merge_reason": "readiness snapshot is not bound to the current code or a report-only descendant",
   "snapshot_merge_status": "SKIPPED_STALE",
-  "status": "PASS"
+  "status": "FAIL"
 }

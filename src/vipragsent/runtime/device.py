@@ -158,7 +158,7 @@ def _tensor_devices(value: Any) -> set[torch.device]:
         for item in value.values():
             devices.update(_tensor_devices(item))
         return devices
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         devices: set[torch.device] = set()
         for item in value:
             devices.update(_tensor_devices(item))

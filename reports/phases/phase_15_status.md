@@ -10,11 +10,10 @@
 - `data/model_cache_manifest.json`
 
 ## Files created
-- `data/batch_probe_status/sailor_7b.json`
+- `data/batch_probe_status/vistral_7b.json`
 - `data/model_cache_manifest.json`
-- `data/model_cache_status/sailor_7b.json`
-- `data/model_smoke_status/sailor_7b.json`
-- `data/model_smoke_report.json`
+- `data/model_cache_status/vistral_7b.json`
+- `data/model_smoke_status/vistral_7b.json`
 
 ## Tests run
 - `locked cache/revision validation`

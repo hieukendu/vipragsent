@@ -1,6 +1,8 @@
 {
   "actual_local_loads": true,
-  "blockers": [],
+  "blockers": [
+    "RuntimeError: Expected all tensors to be on the same device, but found at least two devices, cuda:0 and cpu! (when checking argument for argument mat1 in method wrapper_CUDA_addmm)"
+  ],
   "category": "smoke",
   "checks": {
     "cache_pass": true,
@@ -8,22 +10,13 @@
     "exact_revision": true,
     "local_snapshot": true,
     "pinned_revision": true,
-    "smoke_backward": true,
-    "smoke_base_freeze": true,
-    "smoke_finite_loss": true,
-    "smoke_forward": true,
-    "smoke_gradient_checkpointing": true,
-    "smoke_gradient_presence": true,
-    "smoke_lora_gradients": true,
     "smoke_model_load": true,
-    "smoke_nf4_double_quant": true,
-    "smoke_qlora_target_discovery": true,
     "smoke_tokenizer_load": true,
     "tokenizer_revision_pinned": true
   },
   "model_family": "sailor_7b",
   "revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
-  "status": "PASS",
+  "status": "BLOCKED",
   "tokenizer_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
-  "verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF"
+  "verification_hash": null
 }

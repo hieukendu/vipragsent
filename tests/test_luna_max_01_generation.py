@@ -10,12 +10,14 @@ import torch
 import yaml
 from torch import nn
 
+from vipragsent.constants import PRAGMATIC_LABELS
 from vipragsent.evaluation.reasoning_judge import ReasoningJudge
 from vipragsent.hashing import sha256_file
 from vipragsent.models.factory import build_production_model
 from vipragsent.orchestration.executors.generation import (
     GenerationCheckpointError,
     ReasoningGenerationExecutor,
+    _restore_optimizer_state,
 )
 
 
@@ -352,6 +354,84 @@ def test_generation_checkpoint_hash_mismatch_blocks(tmp_path: Path) -> None:
     digest = executor.write_checkpoint("checkpoints/best/model.pt")
     with pytest.raises(GenerationCheckpointError, match="hash mismatch"):
         executor.load_checkpoint(executor.run_root / "checkpoints/best/model.pt", expected_sha256="0" * len(digest))
+
+
+def test_generation_checkpoint_resume_restores_optimizer_scheduler_rng_and_bindings(tmp_path: Path) -> None:
+    root = _protocol_root(tmp_path)
+    judge = ReasoningJudge(
+        root,
+        transport=lambda **_: {"labels": {label: 0 for label in PRAGMATIC_LABELS}},
+        cache_root=root / "judge-cache",
+        sleep_fn=lambda _: None,
+    )
+    model = _FakeCausalModel()
+    executor = ReasoningGenerationExecutor(root, model=model, tokenizer=_TinyTokenizer(), judge=judge, run_root=root / "run", seed=20260521, config_hash="config", data_hash="data")
+    optimizer = torch.optim.AdamW(model.parameters(), lr=0.01)
+    scheduler = torch.optim.lr_scheduler.LambdaLR(optimizer, lambda _: 1.0)
+    executor.train_generation(
+        [{"input_ids": torch.tensor([[1, 2]]), "target_ids": torch.tensor([[3, 4]])}],
+        optimizer=optimizer,
+        scheduler=scheduler,
+    )
+    rng_before = torch.get_rng_state().clone()
+    digest = executor.write_checkpoint("checkpoints/resume/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=1, selection_metric=0.5)
+
+    restored_model = _FakeCausalModel()
+    restored_executor = ReasoningGenerationExecutor(root, model=restored_model, tokenizer=_TinyTokenizer(), judge=judge, run_root=root / "run", seed=20260521, config_hash="config", data_hash="data")
+    restored_optimizer = torch.optim.AdamW(restored_model.parameters(), lr=0.01)
+    restored_scheduler = torch.optim.lr_scheduler.LambdaLR(restored_optimizer, lambda _: 1.0)
+    torch.manual_seed(999)
+    report = restored_executor.load_checkpoint(
+        "checkpoints/resume/model.pt",
+        expected_sha256=digest,
+        optimizer=restored_optimizer,
+        scheduler=restored_scheduler,
+        restore_rng=True,
+        expected_metadata={"executor_kind": "generation_trainable", "seed": 20260521, "config_hash": "config", "data_hash": "data"},
+        expected_epoch=1,
+    )
+
+    assert report["status"] == "PASS"
+    assert report["optimizer_restored"] is True
+    assert report["scheduler_restored"] is True
+    assert report["rng_restore"]["torch"] is True
+    assert report["rng_restore"]["cuda"] is torch.cuda.is_available()
+    assert restored_scheduler.last_epoch == scheduler.last_epoch
+    assert restored_optimizer.state_dict()["state"]
+    assert torch.equal(torch.get_rng_state(), rng_before)
+
+
+def test_generation_checkpoint_migrates_nested_bnb_optimizer_state() -> None:
+    parameter = nn.Parameter(torch.ones(2))
+    optimizer = torch.optim.SGD([parameter], lr=0.1)
+    payload = {
+        "state": {
+            0: {
+                "step": 7,
+                "__bnb_optimizer_quant_state__": {
+                    "state1": torch.ones(2, dtype=torch.uint8),
+                    "state2": torch.zeros(2, dtype=torch.uint8),
+                },
+            }
+        },
+        "param_groups": [{"params": [0], "lr": 0.01}],
+    }
+
+    assert _restore_optimizer_state(optimizer, payload) == "bnb_nested_quantized_migrated"
+    assert optimizer.state[parameter]["step"] == 7
+    assert set(optimizer.state[parameter]) == {"step", "state1", "state2"}
+    assert optimizer.param_groups[0]["lr"] == 0.01
+
+
+def test_generation_checkpoint_metadata_mismatch_blocks_without_explicit_migration(tmp_path: Path) -> None:
+    executor = _executor(tmp_path)
+    digest = executor.write_checkpoint("checkpoints/best/model.pt")
+    with pytest.raises(GenerationCheckpointError, match="metadata mismatch"):
+        executor.load_checkpoint(
+            "checkpoints/best/model.pt",
+            expected_sha256=digest,
+            expected_metadata={"data_hash": "frozen-data"},
+        )
 
 
 def test_generation_test_stage_requires_freeze(tmp_path: Path) -> None:

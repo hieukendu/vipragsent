@@ -92,6 +92,12 @@
     },
     {
       "classification": "frozen_manifest_or_project_data",
+      "path": "data/manifests/approved_generated_rationales_train.json",
+      "recommendation": "retain under the existing project contract",
+      "sha256": "8E3347B5AD28082B478FE2E0F800D01AE4DF12DC08B356AD74BBF331A5507C8B"
+    },
+    {
+      "classification": "frozen_manifest_or_project_data",
       "path": "data/manifests/azure_deployment.json",
       "recommendation": "retain under the existing project contract",
       "sha256": "EFBFE66D4261087F187F82139C747F1A6FAE5B1A61F4907C05008718CC38CD39"
@@ -202,37 +208,37 @@
       "classification": "frozen_manifest_or_project_data",
       "path": "data/model_cache_manifest.json",
       "recommendation": "retain under the existing project contract",
-      "sha256": "81EA1EB526386614BAED8A8823E3378C745B23884D6005F0F1B90C9FA4334AC7"
+      "sha256": "8707EAE0E08F55DBDA05BAC6CED614D549F8BF710336883666EF26F69F0F0817"
     },
     {
       "classification": "frozen_manifest_or_project_data",
       "path": "data/model_cache_status/phobert_base.json",
       "recommendation": "retain under the existing project contract",
-      "sha256": "C68BA7B7F5DD329CA869DBD01939CB65BB1DF901E15C4E0695ED7B4D7E5879ED"
+      "sha256": "3CD9096148928D74B6C0D49529C3C765EE896101C5DA22E82891BBAAB4681372"
     },
     {
       "classification": "frozen_manifest_or_project_data",
       "path": "data/model_cache_status/sailor_7b.json",
       "recommendation": "retain under the existing project contract",
-      "sha256": "6E0BB09761A49311D85F358A40DC1DE66744C5BC3987BDF37AA0F3F935D091E7"
+      "sha256": "9D407D0FD274EC144579059FB219CE4F2C79025F78CC0A3B897EA81F53C809F4"
     },
     {
       "classification": "frozen_manifest_or_project_data",
       "path": "data/model_cache_status/vistral_7b.json",
       "recommendation": "retain under the existing project contract",
-      "sha256": "DF58AE037780F123D78F7CE41B2384E837BE9A223B6391F71ABFE7227E1C9B3C"
+      "sha256": "78411C2DE9E132E5503BAA63E4868D1AF4448F48F67BD47781171B83C680C711"
     },
     {
       "classification": "frozen_manifest_or_project_data",
       "path": "data/model_cache_status/xlmr_large.json",
       "recommendation": "retain under the existing project contract",
-      "sha256": "8A0ABBE1821143AE07BFB271794215541CDB71609E0DF64881D7144FFDA16EEE"
+      "sha256": "39B25B0DE4B76F7A18E5418587F83BA976BC16BF4FEFE8D0BB256A6ED9EB572A"
     },
     {
       "classification": "frozen_manifest_or_project_data",
       "path": "data/model_smoke_report.json",
       "recommendation": "retain under the existing project contract",
-      "sha256": "8587ABB347DDAE9B9E353624A4D9E13AB14F67F12015B262D93562431B603308"
+      "sha256": "00643206B762D6A91B0D4EF06467ADAE3C9A05593499D64F13FF75530DBBECAC"
     },
     {
       "classification": "frozen_manifest_or_project_data",
@@ -244,7 +250,7 @@
       "classification": "frozen_manifest_or_project_data",
       "path": "data/model_smoke_status/sailor_7b.json",
       "recommendation": "retain under the existing project contract",
-      "sha256": "B49453A4FC5B17B362309E0B66E312D23D392CF883EF3D95E89D2BA8D1FD6D3C"
+      "sha256": "7074D9DAC7CF57800F80D8427B60E7315B0990021972CD8D38CA2E0A332F50A7"
     },
     {
       "classification": "frozen_manifest_or_project_data",
@@ -335,6 +341,12 @@
       "path": "data/processed/q3_low_resource_sarcasm/budget_summary.csv",
       "recommendation": "retain under the existing project contract",
       "sha256": "7E5559AB86207A6EF63F4EFE17D47E615A5F48BAF1BCD457F812FABDAEA6B797"
+    },
+    {
+      "classification": "processed_text_input_restricted_review",
+      "path": "data/processed/rationales/approved_generated_rationales_train.jsonl",
+      "recommendation": "review index tracking; do not remove automatically: git rm --cached data/processed/rationales/approved_generated_rationales_train.jsonl",
+      "sha256": "B583AC45F4BC2FDFA41DA44376AB99585075CA3EBB1FC47BC3936D84B89B21D1"
     },
     {
       "classification": "processed_text_input_restricted_review",
@@ -668,5 +680,5 @@
   ],
   "history_rewrite_performed": false,
   "index_cleanup_performed": false,
-  "tracked_file_count": 110
+  "tracked_file_count": 112
 }

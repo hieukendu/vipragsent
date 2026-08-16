@@ -1,13 +1,22 @@
 {
   "checks": {
-    "no_direct_openai_endpoint_in_config": true,
-    "no_model_weights_in_runtime_dirs": true,
+    "no_full_run_state": true,
+    "no_model_weights_in_runtime_dirs": false,
     "no_secret_matches": true,
-    "no_tracked_bytecode": true,
     "no_tracked_env": true
   },
-  "runtime_weight_files": [],
+  "runtime_weight_files": [
+    "data/model_cache/phobert_base/pytorch_model.bin",
+    "data/model_cache/xlmr_large/model.safetensors",
+    "data/model_cache/xlmr_large/pytorch_model.bin",
+    "data/model_cache/sailor_7b/model.safetensors",
+    "data/model_cache/vistral_7b/model-00002-of-00002.safetensors",
+    "data/model_cache/vistral_7b/model-00001-of-00002.safetensors",
+    "data/model_cache/vistral_7b/pytorch_model-00002-of-00002.bin",
+    "data/model_cache/vistral_7b/pytorch_model-00001-of-00002.bin",
+    "results/runs/q1a_cot_only_vistral_20260521/checkpoints/epoch_1/model.pt",
+    "results/runs/q1a_cot_only_vistral_20260521/checkpoints/best/model.pt"
+  ],
   "secret_files": [],
-  "status": "PASS",
-  "tracked_bytecode_files": []
+  "status": "FAIL"
 }

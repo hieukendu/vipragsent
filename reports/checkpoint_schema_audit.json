@@ -10,14 +10,14 @@
     "metadata"
   ],
   "checkpoint_schema_version": 2,
-  "code_commit_at_audit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "code_commit_at_audit": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "legacy_fixture_compatibility": "explicit allow_legacy_fixture=True only",
   "missing_unexpected_key_policy": "strict preflight; only explicitly allow-listed keys may differ",
   "production_proof": false,
   "round_trip_evidence": [
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -26,7 +26,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 4",
-      "fixture_input_sha256": "7E9BE0110850B6A4408D2BA4E43EC090AF4CD2B7CD3EAB099DA068C1A4D19E9D",
+      "fixture_input_sha256": "5C8079D6291DDB06B1F46086C465D4698C2E8632FA56206A5CBDEDCAEE5EEA7F",
       "golden_input_sha256": null,
       "label": "Defect 4",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -38,11 +38,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_checkpoint_v2_round_trip",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -51,7 +51,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 4",
-      "fixture_input_sha256": "C4C9CE8C710D0A3910298897B4802769A556C6E8FA64E1F978F326E6054659C6",
+      "fixture_input_sha256": "998969F02C5F654FE1BBD45B37019BED64C8C89B9E6707935C72CE5E5F4E1891",
       "golden_input_sha256": null,
       "label": "Defect 4",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -63,11 +63,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_checkpoint_zero_matching_keys_fails",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -76,7 +76,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 4",
-      "fixture_input_sha256": "A4372D5D80A06A97DE23DFEA9673C9C997DC1231AAE2350F80E75E97ED2B24A1",
+      "fixture_input_sha256": "2E386C400E59E79F1CC295626B1ED264D04891AACCA630DA7DD045569D3E9A71",
       "golden_input_sha256": null,
       "label": "Defect 4",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -88,11 +88,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_checkpoint_load_report_written",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",

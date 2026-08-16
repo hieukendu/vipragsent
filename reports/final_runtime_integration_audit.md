@@ -1,11 +1,11 @@
 # Final runtime integration audit
 
-- Implementation status: `PASS`
-- Local code readiness: `PASS`
+- Implementation status: `FAIL`
+- Local code readiness: `FAIL`
 - Server runtime readiness: `NOT_RUN`
 - CI status/conclusion: `NOT_RUN/NOT_RUN`
-- Audited code commit: `edb6eff42fbc5ea5a292d27b7dfbc3fe420174b1`
-- Report generation parent SHA: `edb6eff42fbc5ea5a292d27b7dfbc3fe420174b1`
+- Audited code commit: `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`
+- Report generation parent SHA: `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`
 - Frozen data changed: `false`
 - Self-review: `0 rounds x 0 cycles`; consecutive clean cycles: `0`
 - Review source: `None`

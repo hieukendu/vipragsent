@@ -2,7 +2,7 @@
   "cache_retry_evidence": [
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -11,7 +11,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 8",
-      "fixture_input_sha256": "331EE719F6EF720AEA8D05F6311E6F06E1AC13EE1EC0E0C91A80161D98BC9168",
+      "fixture_input_sha256": "3C2CB70FBD5525410733FCD2C5CDFFC7D4983C936F4E06FCADD21E18515DE2BF",
       "golden_input_sha256": null,
       "label": "Defect 8",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -23,11 +23,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_azure.py::test_public_client_parses_nested_responses_payload_and_caches",
-      "test_source_sha256": "40DFA4951815F06752D2C13B139AA0D7C5DC1FE1AB6E57C760D0474F2B141D01"
+      "test_source_sha256": "D4DF09F339E3CAE19A5D2A982395C30C32B5E92F8B61117C8B2A6CD21BF63EDB"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -36,7 +36,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 8",
-      "fixture_input_sha256": "B736C1FAF43B1A6DF124DC0689ED68BB6E5ECCDA8393F9B0D6725815FB5F7319",
+      "fixture_input_sha256": "934282434436EF4F0B9CB9BA02151167D0E50DE6B976FB423BCD95120797145C",
       "golden_input_sha256": null,
       "label": "Defect 8",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -48,11 +48,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_azure.py::test_public_client_retries_payload_status_and_uses_retry_after",
-      "test_source_sha256": "40DFA4951815F06752D2C13B139AA0D7C5DC1FE1AB6E57C760D0474F2B141D01"
+      "test_source_sha256": "D4DF09F339E3CAE19A5D2A982395C30C32B5E92F8B61117C8B2A6CD21BF63EDB"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -61,7 +61,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 8",
-      "fixture_input_sha256": "A87CAA3213BD219661129632EC64CF943EEA05B4DF294309A87743076EA6C0D3",
+      "fixture_input_sha256": "1AD636B34AB3D2E728F52C8F3E8590385B83F17A7764321597070BB36720981B",
       "golden_input_sha256": null,
       "label": "Defect 8",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -73,11 +73,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_azure.py::test_public_client_caches_terminal_invalid_response_without_retry",
-      "test_source_sha256": "40DFA4951815F06752D2C13B139AA0D7C5DC1FE1AB6E57C760D0474F2B141D01"
+      "test_source_sha256": "D4DF09F339E3CAE19A5D2A982395C30C32B5E92F8B61117C8B2A6CD21BF63EDB"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -86,7 +86,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 8",
-      "fixture_input_sha256": "DD1A13BEA587CF6AC8105105CC8486869EF99AEBFBBF0A6E83E522AFFBE48BD5",
+      "fixture_input_sha256": "E3F37942509390E2DEF7A9D366B54FD1F9BF54A2F250646839E6DAF97CEB0EEE",
       "golden_input_sha256": null,
       "label": "Defect 8",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -98,10 +98,10 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_reasoning_judge_is_reasoning_only_strict_cached_and_transport_retrying",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     }
   ],
-  "code_commit_at_audit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "code_commit_at_audit": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "live_calls": false,
   "original_sentence_visible": false,
   "production_proof": false,
