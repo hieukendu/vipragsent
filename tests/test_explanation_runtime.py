@@ -155,7 +155,7 @@ def _approved_source_root(tmp_path: Path, checkpoint: Path, *, dataset_hash: str
         encoding="utf-8",
     )
     state_path = run_root / "state.json"
-    state_path.write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
+    state_path.write_text(json.dumps({"run_id": run_root.name, "run_status": "APPROVED", "approval_status": "APPROVED"}), encoding="utf-8")
     return tmp_path
 
 

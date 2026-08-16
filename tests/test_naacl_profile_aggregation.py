@@ -274,7 +274,7 @@ def test_q1b_fixture_chain_emits_predictor_provenance_into_retention_and_review(
     summary_path.write_text(json.dumps(summary), encoding="utf-8")
     checksums_path = source_root / "checksums.sha256"
     checksums_path.write_text("fixture checksum list\n", encoding="utf-8")
-    (source_root / "state.json").write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
+    (source_root / "state.json").write_text(json.dumps({"run_id": source_root.name, "run_status": "APPROVED", "approval_status": "APPROVED"}), encoding="utf-8")
     (source_root / "checkpoints/checkpoint_manifest.json").write_text(
         json.dumps(
             {

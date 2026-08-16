@@ -30,10 +30,25 @@ def validate_approval_record(
 
     root = Path(run_root)
     approval_path = root / "approval_status.json"
+    state_path = root / "state.json"
     summary_path = root / "review_summary.json"
     checksums_path = root / "checksums.sha256"
     errors: list[str] = []
     run_id = str(expected_run_id or root.name)
+    try:
+        state = json.loads(state_path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        errors.append(f"run state is unreadable: {exc}")
+        state = None
+    if not isinstance(state, Mapping):
+        errors.append("run state must be a JSON object")
+    else:
+        if state.get("run_id") != run_id:
+            errors.append("run state run_id does not match the source run")
+        if state.get("run_status") != "APPROVED":
+            errors.append("run state is not APPROVED")
+        if state.get("approval_status") != "APPROVED":
+            errors.append("run state approval_status is not APPROVED")
     try:
         approval = json.loads(approval_path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:

@@ -22,6 +22,7 @@ from ..evaluation.metrics import (
 )
 from ..hashing import sha256_file, sha256_json
 from ..manual import ERROR_ANALYSIS_COLUMNS
+from ..orchestration.approval import validate_approval_record
 from ..orchestration.provenance import validate_inference_provenance
 from ..statistics.bootstrap import (
     hierarchical_bootstrap,
@@ -536,10 +537,9 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
         if known_backbone and payload.get("backbone") != known_backbone:
             raise ValueError(f"Production run uses the wrong backbone for {payload['system']}: {path}")
         if not legacy_adapter:
-            approval_path = path.parent / "approval_status.json"
-            approval = json.loads(approval_path.read_text(encoding="utf-8")) if approval_path.exists() else {}
-            if approval.get("status") != "APPROVED":
-                raise ValueError(f"Production run is not explicitly APPROVED: {path}")
+            approval_errors = validate_approval_record(path.parent, expected_run_id=path.parent.name)
+            if approval_errors:
+                raise ValueError(f"Production run approval is incomplete: {path}: {'; '.join(approval_errors)}")
         prediction_paths = _prediction_paths(root, path, payload)
         records.append({"path": path, **payload, "seed": seed, "prediction_paths": prediction_paths, "legacy_fixture_adapter": legacy_adapter})
 

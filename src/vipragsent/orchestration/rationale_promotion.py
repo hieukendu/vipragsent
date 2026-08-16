@@ -2,12 +2,13 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import Iterable, Mapping
+from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
 from ..atomic import atomic_write_json, atomic_write_text
 from ..hashing import sha256_file, sha256_json
+from .approval import validate_approval_record
 from .review import validate_review_summary
 from .run_store import RunStore
 
@@ -94,20 +95,17 @@ def _validate_source(root: Path, source_run_id: str, train_ids: list[str]) -> tu
     state = _load(source_root / "state.json")
     if source_run_id != "azure_rationale_generation":
         raise ValueError("source run is not the locked Azure rationale-generation job")
-    if state.get("run_status") not in {"COMPLETED_PENDING_APPROVAL", "APPROVED"}:
-        raise ValueError("rationale source run is not completed pending approval or approved")
+    if state.get("run_status") != "APPROVED" or state.get("approval_status") != "APPROVED":
+        raise ValueError("rationale source run and approval state are not APPROVED")
     summary = _load(source_root / "review_summary.json")
     summary_errors = validate_review_summary(summary, completed=True)
     if summary_errors:
         raise ValueError("rationale review summary is not PASS: " + "; ".join(summary_errors))
     approval = _load(source_root / "approval_status.json")
-    if approval.get("status") != "APPROVED" or not isinstance(approval.get("record"), Mapping):
-        raise ValueError("rationale source approval is not APPROVED")
+    approval_errors = validate_approval_record(source_root, expected_run_id=source_run_id)
+    if approval_errors:
+        raise ValueError("rationale source approval is incomplete: " + "; ".join(approval_errors))
     record = dict(approval["record"])
-    if record.get("review_summary_sha256") != sha256_file(source_root / "review_summary.json"):
-        raise ValueError("rationale approval does not bind the current review summary")
-    if record.get("artifact_checksum_file_sha256") != sha256_file(source_root / "checksums.sha256"):
-        raise ValueError("rationale approval does not bind the current checksum file")
     context = type("PromotionContext", (), {"root": root, "entry": type("Entry", (), {"run_id": source_run_id, "is_azure": True})(), "fixture": False, "run_root": source_root})()
     checksum_errors = RunStore(context).validate_checksums()  # type: ignore[arg-type]
     if checksum_errors:

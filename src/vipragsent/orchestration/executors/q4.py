@@ -11,6 +11,7 @@ from ...constants import PRAGMATIC_LABELS
 from ...evaluation.production import evaluate_q4_seed
 from ...hashing import sha256_file, sha256_json
 from ...orchestration.status import RuntimeBlocked
+from ..approval import validate_approval_record
 
 
 def _load(path: Path) -> Any:
@@ -27,11 +28,16 @@ def _resolve_source(root: Path, entry: Mapping[str, Any]) -> tuple[Path, dict[st
         if requested_id and run_root.name != requested_id:
             continue
         approval_path = run_root / "approval_status.json"
-        if not approval_path.exists():
+        state_path = run_root / "state.json"
+        checksums_path = run_root / "checksums.sha256"
+        if not all(path.exists() for path in (approval_path, state_path, checksums_path)):
             continue
         summary = _load(summary_path)
         approval = _load(approval_path)
-        if approval.get("status") != "APPROVED":
+        state = _load(state_path)
+        if not isinstance(state, Mapping) or state.get("run_status") != "APPROVED" or state.get("approval_status") != "APPROVED":
+            continue
+        if validate_approval_record(run_root, expected_run_id=run_root.name):
             continue
         if str(summary.get("system_id")) != requested_system or str(summary.get("seed")) != requested_seed:
             continue

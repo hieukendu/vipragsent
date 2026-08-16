@@ -118,7 +118,7 @@ def test_q1b_no_fake_non_applicable_predictions(tmp_path: Path) -> None:
     summary.write_text(json.dumps({"system_id": "phobert_pol_single", "seed": 20260521, "reusable_checkpoint_key": "phobert_pol_single:20260521", "variant_fingerprint": "variant"}), encoding="utf-8")
     checksums = run_root / "checksums.sha256"
     checksums.write_text("checkpoint-entry\n", encoding="utf-8")
-    (run_root / "state.json").write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
+    (run_root / "state.json").write_text(json.dumps({"run_id": run_root.name, "run_status": "APPROVED", "approval_status": "APPROVED"}), encoding="utf-8")
     (run_root / "checkpoints/checkpoint_manifest.json").write_text(json.dumps({"best": "checkpoints/best/model.pt", "checkpoint_sha256": sha256_file(checkpoint), "variant_fingerprint": "variant"}), encoding="utf-8")
     _write_approved_status(run_root, summary, checksums)
     index = tmp_path / "results/approved_run_index.json"
@@ -142,7 +142,7 @@ def test_q1b_public_cli_resolves_source_without_injection(tmp_path: Path) -> Non
     summary.write_text(json.dumps({"system_id": "phobert_pol_single", "seed": 20260521, "reusable_checkpoint_key": "phobert_pol_single:20260521", "variant_fingerprint": "variant"}), encoding="utf-8")
     checksums = run_root / "checksums.sha256"
     checksums.write_text("checkpoint-entry\n", encoding="utf-8")
-    (run_root / "state.json").write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
+    (run_root / "state.json").write_text(json.dumps({"run_id": run_root.name, "run_status": "APPROVED", "approval_status": "APPROVED"}), encoding="utf-8")
     (run_root / "checkpoints/checkpoint_manifest.json").write_text(json.dumps({"best": "checkpoints/best/model.pt", "checkpoint_sha256": sha256_file(checkpoint), "variant_fingerprint": "variant"}), encoding="utf-8")
     _write_approved_status(run_root, summary, checksums)
     index = tmp_path / "results/approved_run_index.json"
