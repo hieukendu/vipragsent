@@ -497,13 +497,8 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
     if not run_root.exists():
         raise ValueError("Production result runs are missing")
     manifest_files = sorted(run_root.glob("*/run_manifest.json"))
-    legacy_adapter = False
     if not manifest_files:
-        # Fixture/migration adapter only: old system/seed trees are never accepted as production output.
-        manifest_files = sorted(run_root.glob("*/*/metrics.json"))
-        legacy_adapter = True
-    if not manifest_files:
-        raise ValueError("No production run manifests were found")
+        raise ValueError("No production run manifests were found; the legacy production adapter is disabled")
     records: list[dict[str, Any]] = []
     required = {
         "system", "backbone", "seed", "mode", "model_revision", "tokenizer_revision",
@@ -536,12 +531,11 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
         known_backbone = SYSTEM_BACKBONES.get(str(payload.get("system")))
         if known_backbone and payload.get("backbone") != known_backbone:
             raise ValueError(f"Production run uses the wrong backbone for {payload['system']}: {path}")
-        if not legacy_adapter:
-            approval_errors = validate_approval_record(path.parent, expected_run_id=path.parent.name)
-            if approval_errors:
-                raise ValueError(f"Production run approval is incomplete: {path}: {'; '.join(approval_errors)}")
+        approval_errors = validate_approval_record(path.parent, expected_run_id=path.parent.name)
+        if approval_errors:
+            raise ValueError(f"Production run approval is incomplete: {path}: {'; '.join(approval_errors)}")
         prediction_paths = _prediction_paths(root, path, payload)
-        records.append({"path": path, **payload, "seed": seed, "prediction_paths": prediction_paths, "legacy_fixture_adapter": legacy_adapter})
+        records.append({"path": path, **payload, "seed": seed, "prediction_paths": prediction_paths, "legacy_fixture_adapter": False})
 
     groups: dict[tuple[str, str, str], set[int]] = defaultdict(set)
     for record in records:

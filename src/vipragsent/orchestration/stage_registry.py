@@ -619,6 +619,30 @@ def _materialize_engine_outputs(context: RunContext, entry: RunEntry, state: Any
     return StageOutcome.passed(summary={"best_epoch": state.best_epoch, "best_dev_metric": state.best_metric, "checkpoint_path": _relative(best, run_root), "checkpoint_sha256": digest}, expected_files=("training/history.csv", "training/history.json", "checkpoints/best/model.pt", "checkpoints/latest/model.pt", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json"))
 
 
+def _validate_production_source_reference(context: RunContext, source_path: Path, source_run_id: object | None) -> str | None:
+    if context.fixture:
+        return None
+    runs_root = (context.root / "results/runs").resolve()
+    if source_run_id:
+        source_run_root = runs_root / str(source_run_id)
+    else:
+        try:
+            relative = source_path.resolve().relative_to(runs_root)
+        except ValueError:
+            return "production source dependencies must be inside an approved results/runs directory"
+        if not relative.parts:
+            return "production source dependency does not identify an approved run"
+        source_run_root = runs_root / relative.parts[0]
+    try:
+        source_path.resolve().relative_to(source_run_root.resolve())
+    except ValueError:
+        return "explicit source dependency does not belong to its declared approved run"
+    approval_errors = validate_approval_record(source_run_root, expected_run_id=source_run_root.name)
+    if approval_errors:
+        return "production source approval is incomplete: " + "; ".join(approval_errors)
+    return None
+
+
 def _reuse_or_extract(context: RunContext, entry: RunEntry) -> StageOutcome:
     run_root = Path(context.run_root)
     source = entry.raw.get("source_checkpoint_path") or entry.raw.get("source_checkpoint")
@@ -644,6 +668,9 @@ def _reuse_or_extract(context: RunContext, entry: RunEntry) -> StageOutcome:
         source_path = context.root / source_path
     if not source_path.exists():
         return StageOutcome.blocked(f"approved source dependency is missing: {source_path}")
+    source_error = _validate_production_source_reference(context, source_path, entry.raw.get("source_run_id"))
+    if source_error:
+        return StageOutcome.blocked(source_error)
     atomic_write_json(run_root / "checkpoint_reference.json", {"source": _relative(source_path, context.root), "source_sha256": sha256_file(source_path) if source_path.is_file() else "directory", "source_approval_required": True, "training_applicability": "NOT_APPLICABLE", "not_applicable_reason": "This inventory entry reuses an approved upstream checkpoint or prediction set."})
     if source_path.is_dir():
         for name in ("dev_predictions.jsonl", "test_predictions.jsonl"):

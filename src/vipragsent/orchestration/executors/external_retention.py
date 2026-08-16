@@ -69,7 +69,10 @@ def evaluate_external_retention_from_disk(
     *,
     output_root: str | Path,
     predictor: Callable[[str, NormalizedExternalExample], str] | None = None,
+    fixture_mode: bool = False,
 ) -> dict[str, Any]:
+    if predictor is not None and not fixture_mode:
+        raise RuntimeBlocked("Injected Q1b predictors are permitted only with explicit fixture_mode=True")
     root = Path(root)
     output_root = Path(output_root)
     if str(entry.get("research_question")) != "Q1b":
