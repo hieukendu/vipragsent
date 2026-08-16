@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "snapshot_at": "2026-08-16T15:07:31Z",
+  "source": "/root/vipragsent",
+  "access": {"local_repository":"AVAILABLE","live_process":"AVAILABLE_READ_ONLY","gpu_telemetry":"PARTIAL","github_remote":"AVAILABLE","huggingface":"AVAILABLE_READ_ONLY"},
+  "run_id": "q1a_cot_only_vistral_20260521",
+  "active_matching_processes": 0,
+  "runtime_pause": {
+    "status": "SAFELY_PAUSED",
+    "paused_at": "2026-08-16T10:37:10Z",
+    "completed_epoch": 2,
+    "next_epoch": 3,
+    "last_valid_checkpoint": "checkpoints/epoch_2/model.pt",
+    "checkpoint_sha256": "d3fe7e99bb0758e527c4967fe2a8502c722fce8d86cd7664ea776440a3b41a77",
+    "remote_verified": true
+  },
+  "top_level_state": {
+    "run_status": "RUNNING_STALE",
+    "approval_status": "PENDING_USER_APPROVAL",
+    "next_run_allowed": "NO",
+    "code_commit": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
+    "code_tree": "a670b1ca9af0a6921b2f0d7f194bfa29fe568c6d",
+    "source_fingerprint": "2daf51d98fa18b076a4020dada95dcbf8320304abcc0440b684a99291ec6500e",
+    "git_worktree_clean": false
+  },
+  "manifest_identity": {"code_commit":"a765b2bca625ff66cf97dc608eacb3a3c63553b5"},
+  "file_hashes": {
+    "state_json_sha256": "6d7cf6bd63af6529ae57394fc7c6ee18ecc4835a9b8f56889b49cec7118ee620",
+    "run_manifest_json_sha256": "611facbea938558b76cb0309f491501056e9626e9d185feb5e716f767bd4b5e9"
+  },
+  "worktree": {"status_count":78,"source_modified_count":9,"artifact_modified_or_untracked_count":69},
+  "reconciliation": {
+    "live_code_identity": "LIVE_CODE_IDENTITY_UNCERTAIN",
+    "state_conflict": "top-level historical pause says epoch_1/replay_epoch_2 while runtime_pause says epoch_2/next_epoch_3",
+    "decision": "preserve_epoch_2_evidence_but_block_identity_bound_reuse_or_resume",
+    "process_control_performed": false
+  }
+}

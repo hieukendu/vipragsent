@@ -144,3 +144,57 @@ wave2_acceptance:
     red_team_and_preexperiment: "26 passed cache-free"
     builder_full_cache_free: "263 passed"
   forbidden_actions_confirmed: [real_model_or_data_run, benchmark, Azure_call, HF_mutation, process_control]
+hf_reuse_audit:
+  status: READ_ONLY_CURRENT_METADATA_CAPTURED
+  as_of: 2026-08-16T14:26:19Z
+  report_json: reports/runtime_optimization/hf_reuse_audit.json
+  report_md: reports/runtime_optimization/hf_reuse_audit.md
+  repositories:
+    experiment_artifacts: 7afa8164aa5224688f430ee8e30283e72e462d77
+    phobert: 14097061c088f3deefe8ea6d9288d77755f36b5a
+    vistral7b: 1aadf557a77853cf19946a747f9fe5c40a8288b0
+    xlmr: d004da4621be813a1f3ce8ef3d171dce6102fbe2
+    sailor7b: 6af58b4c754d08f9d6316aef58c239bca60397ed
+  checkpoint_blob_downloads: 0
+  mutations: 0
+  global_decision: NO_AUTOMATIC_REUSE
+  blocker: LIVE_CODE_IDENTITY_UNCERTAIN_AND_APPROVAL_BINDINGS_INCOMPLETE
+wave3_acceptance:
+  status: WAVE3_ACCEPTED_FOR_MANAGER_INTEGRATION
+  sentinel_review: PASS
+  sentinel_review_md_sha256: 0cd49fb28505b992bde44826384375fe248e2842b7d25fee093f3a31daa4774d
+  sentinel_review_json_sha256: a7c62f20877e95d9d9bdbcb112106d60a06904ea3d093ce0918d76ac9d454d8d
+  reviewed_builder_heads:
+    azure: e728d8abea7265a0c25b5bff1cee3b752bd1aaa3
+    explanation: 54b56cbef13302a948e9aecbea60c3982f41a792
+    scheduler_estimator_initial: 9b100c85518d05987d9a1bbe8d246d3627c82484
+    scheduler_estimator_final: 0cec7982ca412b4fe1b9efc50dc6e07e7f5ba2ec
+  manager_integration_commits:
+    azure: fbd4a4c
+    explanation: 12a6616
+    scheduler_estimator_initial: d3886d1
+    scheduler_estimator_rework: b8394b3
+  tests:
+    azure: "11 passed cache-free"
+    explanation: "6 passed cache-free in independent review; Builder self-test 17 passed"
+    scheduler_estimator: "12 passed cache-free after rework"
+    total_independent_sentinel: "29 passed"
+  findings: []
+  forbidden_actions_confirmed: [real_model_or_data_run, benchmark, Azure_call, HF_mutation, process_control]
+final_validation:
+  status: PROJECTED_GATE_CONDITIONAL
+  final_validation_report: reports/runtime_optimization/final_validation.md
+  production_launch_readiness: reports/runtime_optimization/production_launch_readiness.md
+  rollback: reports/runtime_optimization/rollback.md
+  runtime_estimate_before: reports/runtime_optimization/runtime_estimate_before.json
+  runtime_estimate_after: reports/runtime_optimization/runtime_estimate_after.json
+  runtime_estimate_after_md: reports/runtime_optimization/runtime_estimate_after.md
+  second_live_snapshot_json: reports/runtime_optimization/live_state_snapshot_after.json
+  second_live_snapshot_sha256: ed1e6cdc08a92151a9665ce2e5835d3813d3fba399b5f2702dbfa445ee17aaa4
+  safe_cpu_mock_matrix: "292 passed in 4:36"
+  measured_gate_pass: false
+  remaining_blockers:
+    - LIVE_CODE_IDENTITY_UNCERTAIN
+    - production_worktree_dirty
+    - partial_gpu_telemetry
+    - real_profile_required_before_campaign_authorization
