@@ -24,7 +24,7 @@ Additional evidence:
 - Wave-3 independent Sentinel: 29 focused tests passed; scheduler re-review: 12 passed.
 - Python 3.11 compilation passed for all new runtime modules.
 - `git diff --check` passed for reviewed commits and reports.
-- Ruff/mypy were unavailable; no result is claimed for either.
+- Ruff 0.6.9 reports 13 pre-existing findings on `origin/main` and 19 additional style findings in the reviewed runtime modules; no auto-fix was applied after the implementation reviews. Mypy was not run.
 - No real model/data benchmark, training, evaluation, Azure request, HF mutation, process control, or secret-bearing environment dump occurred.
 
 ## Gate result
