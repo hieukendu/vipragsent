@@ -8,12 +8,12 @@ intended to be persisted by a caller that owns the durable storage boundary.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field, replace
-from enum import Enum
 import hashlib
 import json
-from typing import Any, Iterable, Mapping, Protocol, Sequence
-
+from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass, field, replace
+from enum import Enum
+from typing import Any, Protocol
 
 DEFAULT_RESOURCE_AWARE_ENABLED = False
 LEGACY_SCHEDULER_MODE = "sequential_review_gated"
@@ -233,7 +233,7 @@ JobSpec = StageSpec
 class StageRecord:
     stage_id: str
     status: StageStatus = StageStatus.PENDING
-    artifact: "ArtifactEvidence | None" = None
+    artifact: ArtifactEvidence | None = None
     safe_stop_requested: bool = False
     last_error: str | None = None
 

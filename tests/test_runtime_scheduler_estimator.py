@@ -13,8 +13,8 @@ from vipragsent.runtime.estimator import (
     estimate_runtime,
 )
 from vipragsent.runtime.scheduler import (
-    AuthorizationBinding,
     ArtifactEvidence,
+    AuthorizationBinding,
     CampaignState,
     DurableJournal,
     LeaseIdentity,
@@ -270,7 +270,7 @@ def test_estimator_has_exact_statuses_reconciliation_hashes_and_sensitivities() 
     assert report.source_hashes["inventory"] == "i"
     assert tuple(report.generation_sensitivity) == GENERATION_FACTORS
     assert all(isinstance(factor, float) for factor in report.generation_sensitivity)
-    assert report.generation_sensitivity[4.0] >= report.generation_sensitivity[1.0]
+    assert report.generation_sensitivity[4.0] <= report.generation_sensitivity[1.0]
     assert report.phobert_concurrency_sensitivity[2] is None
     assert report.reconciliation.changed_stage_count == 1
     assert report.remaining_wall_clock_minutes >= 0

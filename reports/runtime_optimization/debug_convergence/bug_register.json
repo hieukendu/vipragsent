@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "round": 0,
-  "as_of": "2026-08-16T16:20:01Z",
-  "manager_head": "16ff2b0f403eb694ed0c53d6808a5b441d903735",
-  "remote_head": "16ff2b0f403eb694ed0c53d6808a5b441d903735",
+  "as_of": "2026-08-16T16:27:30Z",
+  "manager_head": "183126ecf888c86c679da8fac9e66321617f1f20",
+  "remote_head": "c2e78c62ee51c7566629930b3b0a115920735f30",
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "pr": {
     "number": 10,
@@ -11,7 +11,7 @@
     "draft": true,
     "base": "main",
     "head": "codex/naacl-runtime-optimization",
-    "ci_run": 31957116632,
+    "ci_run": 31958375122,
     "ci_conclusion": "FAILURE",
     "ci_failed_step": "Ruff"
   },
@@ -20,7 +20,7 @@
       "bug_id": "BUG-KNOWN-001",
       "round_discovered": 0,
       "severity": "HIGH",
-      "status": "OPEN",
+      "status": "FIXED_PENDING_REVIEW",
       "confidence": "HIGH",
       "category": "scientific_correctness/profile_inventory",
       "files": [
@@ -36,18 +36,18 @@
       "minimal_reproduction": "Inspect q3.exclusions in configs/experiments/naacl_balanced_runtime_profile.yaml and run pytest -q tests/test_naacl_balanced_profile.py.",
       "evidence": ["V27 BUG-KNOWN-001", "configs/experiments/naacl_balanced_runtime_profile.yaml:99", "reports/runtime_optimization/naacl_balanced_profile.json:q3"],
       "root_cause_hypothesis": "The local balanced-cell reduction was applied to the total Q3 inventory, conflating local cells with non-local Azure comparison rows.",
-      "assigned_worker": null,
+      "assigned_worker": "LUNA_WORKER_SCIENCE_PROFILE",
       "dependencies": [],
-      "fix_commit": null,
-      "regression_tests": [],
+      "fix_commit": "c465b1f765ff71ef845a2407e196617c8232eaf4",
+      "regression_tests": ["PYTHONPATH=\"$PWD:$PWD/src\" python -m pytest -q -p no:cacheprovider tests/test_naacl_balanced_profile.py (16 passed)"],
       "reviewer_verdict": null,
-      "closure_evidence": null
+      "closure_evidence": "Profile validator now reports 36 local cells plus 4 retained Azure rows, with fail-closed checks for retained Azure inventory and no invented Azure seeds."
     },
     {
       "bug_id": "BUG-KNOWN-002",
       "round_discovered": 0,
       "severity": "HIGH",
-      "status": "OPEN",
+      "status": "FIXED_PENDING_REVIEW",
       "confidence": "HIGH",
       "category": "scheduler/resource_safety",
       "files": ["src/vipragsent/runtime/scheduler.py", "tests/test_runtime_scheduler_estimator.py"],
@@ -58,18 +58,18 @@
       "minimal_reproduction": "Run pytest -q tests/test_runtime_scheduler_estimator.py and inspect build_dry_run_plan with 7b, xlmr, and phobert stages.",
       "evidence": ["V27 BUG-KNOWN-002", "src/vipragsent/runtime/scheduler.py:ResourcePolicy.capacities", "tests/test_runtime_scheduler_estimator.py:89-112"],
       "root_cause_hypothesis": "The scheduler resource vector has separate GPU-family lanes but no shared GPU-allocation mutex.",
-      "assigned_worker": null,
+      "assigned_worker": "LUNA_WORKER_SCHEDULER_RESOURCES",
       "dependencies": [],
-      "fix_commit": null,
-      "regression_tests": [],
+      "fix_commit": "11a81af",
+      "regression_tests": ["PYTHONPATH=\"$PWD:$PWD/src\" python -m pytest -q -p no:cacheprovider tests/test_runtime_scheduler_estimator.py (21 passed in isolated worker)"],
       "reviewer_verdict": null,
-      "closure_evidence": null
+      "closure_evidence": "GPU-consuming stages now require the shared gpu_allocation resource; only the exact validated PhoBERT concurrency-two gate permits a pair, while CPU/Azure/I/O overlap remains allowed."
     },
     {
       "bug_id": "BUG-KNOWN-003",
       "round_discovered": 0,
       "severity": "HIGH",
-      "status": "OPEN",
+      "status": "FIXED_PENDING_REVIEW",
       "confidence": "HIGH",
       "category": "estimator_mathematics",
       "files": ["src/vipragsent/runtime/estimator.py", "tests/test_runtime_scheduler_estimator.py", "reports/runtime_optimization/runtime_estimate_after.json", "reports/runtime_optimization/runtime_estimate_after.md"],
@@ -80,12 +80,12 @@
       "minimal_reproduction": "Run pytest -q tests/test_runtime_scheduler_estimator.py::test_runtime_estimator_tracks_statuses_and_sensitivities and inspect generation_sensitivity[4.0] versus [1.0].",
       "evidence": ["V27 BUG-KNOWN-003", "src/vipragsent/runtime/estimator.py:201-204", "tests/test_runtime_scheduler_estimator.py:203-205"],
       "root_cause_hypothesis": "The implementation treats a speedup label as a duration multiplier and the regression oracle codifies that reversal.",
-      "assigned_worker": null,
+      "assigned_worker": "LUNA_WORKER_ESTIMATOR_CI",
       "dependencies": ["BUG-KNOWN-002"],
-      "fix_commit": null,
-      "regression_tests": [],
+      "fix_commit": "fe97f24",
+      "regression_tests": ["PYTHONPATH=\"$PWD:$PWD/src\" python -m pytest -q -p no:cacheprovider tests/test_estimator_speedup_v27.py (1 passed)", "Exact factors 1.0/1.5/2.0/2.5/3.0/4.0 produce 49/32.6667/24.5/19.6/16.3333/12.25 hours in the new regression test"],
       "reviewer_verdict": null,
-      "closure_evidence": null
+      "closure_evidence": "Generation durations are divided by the speedup factor; the V27 regression test asserts exact reference projections and non-increasing makespan."
     },
     {
       "bug_id": "BUG-KNOWN-004",
@@ -102,12 +102,12 @@
       "minimal_reproduction": "Run /root/vipragsent/.venv/bin/ruff check src scripts tests locally and inspect gh run view 31957116632 --log-failed.",
       "evidence": ["GitHub Actions run 31957116632", ".github/workflows/cpu-ci.yml:28", "local Ruff 0.6.9 output: 32 findings"],
       "root_cause_hypothesis": "The previous implementation wave introduced lint findings while the repository baseline already contained legacy findings under the exact CI command.",
-      "assigned_worker": null,
+      "assigned_worker": "LUNA_WORKER_ESTIMATOR_CI",
       "dependencies": [],
-      "fix_commit": null,
-      "regression_tests": [],
+      "fix_commit": "c71573a",
+      "regression_tests": ["Scoped Ruff passed for generation executor, explanation runtime, and estimator"],
       "reviewer_verdict": null,
-      "closure_evidence": null
+      "closure_evidence": "Partial only: residual Ruff findings remain in legacy/base files plus scheduler/profile/test files and require a separate hygiene commit before CI can close this bug."
     }
   ],
   "production_actions_taken": false,
