@@ -123,3 +123,24 @@ wave1_acceptance:
     - COT-M001: separate atomic checkpoint payload and sidecar; loader fails closed on missing/mismatched sidecar
     - PROFILE-M002: Azure Q3 exclusion is test/report protected but not standalone-validator enforced
   forbidden_actions_confirmed: [real_model_or_data_run, benchmark, Azure_call, HF_mutation, process_control]
+wave2_acceptance:
+  status: WAVE2_ACCEPTED_FOR_MANAGER_INTEGRATION
+  sentinel_review: PASS
+  sentinel_review_round: 2
+  sentinel_review_md_sha256: 9fe21043a869f067e484687cd2c52915c96572d2923d56b1b21630b4b9b492aa
+  sentinel_review_json_sha256: eff8f87c98a326bfb0acc9e465c5b0f49a67db67f52f05a503f3eeecdbc33b84
+  reviewed_builder_chain:
+    initial: 89c4d51
+    stage_wiring: 74586d5
+    final_rework: 6488e02
+    builder_final_full: 2cf464b7d63a9dd65777b04a00bc885684e8336e
+  manager_integration_head: 6488e02
+  accepted_medium_residuals:
+    - GEN-M001-R: independent epoch-checkpoint hash and source-root binding remain future hardening
+  accepted_low_residuals:
+    - GEN-L001: fixture-only stage adapters retain direct torch.save
+  tests:
+    generation_and_luna: "33 passed cache-free"
+    red_team_and_preexperiment: "26 passed cache-free"
+    builder_full_cache_free: "263 passed"
+  forbidden_actions_confirmed: [real_model_or_data_run, benchmark, Azure_call, HF_mutation, process_control]
