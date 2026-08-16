@@ -12,6 +12,7 @@ from ...evaluation.external_retention import NormalizedExternalExample, evaluate
 from ...evaluation.metrics import multiclass_macro_f1
 from ...hashing import sha256_file, sha256_json
 from ...orchestration.status import RuntimeBlocked
+from ..approval import validate_approval_record
 
 DATASET_KEYS = ("vsfc", "vsmec", "aivivn")
 MANIFEST_KEYS = {"vsfc": "uit_vsfc", "vsmec": "uit_vsmec", "aivivn": "aivivn_human_derived_3way"}
@@ -52,6 +53,9 @@ def _approved_source_fixture_compatibility(root: Path, entry: Mapping[str, Any])
     if len(candidates) != 1:
         raise RuntimeBlocked(f"Q1b requires exactly one approved upstream source for {requested_system}; found {len(candidates)}")
     source_root, summary, approval = candidates[0]
+    approval_errors = validate_approval_record(source_root, expected_run_id=source_root.name)
+    if approval_errors:
+        raise RuntimeBlocked("approved Q1b source has an incomplete approval record: " + "; ".join(approval_errors))
     if str(summary.get("USER_REVIEW_STATUS")) != "PENDING" or str(summary.get("NEXT_RUN_ALLOWED")) != "NO":
         raise RuntimeBlocked("approved Q1b source has invalid review-gate fields")
     return source_root, summary, approval
@@ -100,11 +104,12 @@ def evaluate_external_retention_from_disk(
         predictions = {dataset: {example.sample_id: str(factory.predict(dataset, example)) for example in examples} for dataset, examples in datasets.items() if dataset in applicable}
     else:
         source_root, source_summary, source_approval = _approved_source_fixture_compatibility(root, entry)
-        source_checkpoint_sha256 = str(source_summary.get("checkpoint_sha256", ""))
-        source_variant_fingerprint = str(source_summary.get("variant_fingerprint", ""))
+        source_identity = getattr(predictor, "source", None)
+        source_checkpoint_sha256 = str(source_summary.get("checkpoint_sha256") or getattr(source_identity, "checkpoint_sha256", ""))
+        source_variant_fingerprint = str(source_summary.get("variant_fingerprint") or getattr(source_identity, "variant_fingerprint", ""))
         applicable = set(DATASET_KEYS)
         predictions = {dataset: {example.sample_id: str(predictor(dataset, example)) for example in examples} for dataset, examples in datasets.items()}
-    predictor_provenance = factory.provenance() if factory is not None else {}
+    predictor_provenance = factory.provenance() if factory is not None else (dict(predictor.provenance()) if hasattr(predictor, "provenance") else {})
     producer_fields = {
         "producer_id": predictor_provenance.get("producer_id"),
         "producer_run_id": predictor_provenance.get("producer_run_id"),
@@ -122,7 +127,8 @@ def evaluate_external_retention_from_disk(
             source_seed=source_summary.get("seed"),
             external_manifest_hash=sha256_file(manifest_path),
             output_root=output_root,
-        ) | {"source_checkpoint_sha256": source_checkpoint_sha256, "source_variant_fingerprint": source_variant_fingerprint, **producer_fields}
+        ) | {"source_checkpoint_sha256": source_checkpoint_sha256, "source_variant_fingerprint": source_variant_fingerprint, "backward_calls": 0, "training_applicability": "NOT_APPLICABLE", **producer_fields}
+        atomic_write_json(output_root / "metrics/external_retention_metrics.json", result)
     else:
         partial_scores: dict[str, float] = {}
         for dataset in sorted(applicable):
@@ -133,7 +139,7 @@ def evaluate_external_retention_from_disk(
             partial_scores[f"{dataset}_macro_f1"] = multiclass_macro_f1(gold, pred, labels)
             filename = {"vsfc": "uit_vsfc_test_predictions.jsonl", "vsmec": "uit_vsmec_test_predictions.jsonl", "aivivn": "aivivn_test_predictions.jsonl"}[dataset]
             atomic_write_text(output_root / "predictions" / filename, "".join(json.dumps({"sample_id": row.sample_id, "text": row.text, "gold": row.label, "prediction": predictions[dataset][row.sample_id]}, ensure_ascii=False, sort_keys=True) + "\n" for row in datasets[dataset]))
-        result = {**partial_scores, "ord_f1": "NOT_APPLICABLE", "partial": True, "applicable_external_datasets": sorted(applicable), "source_checkpoint_id": str(source_summary.get("checkpoint_path") or entry.get("source_checkpoint_id") or source_summary.get("system_id")), "source_seed": source_summary.get("seed"), "source_checkpoint_sha256": source_checkpoint_sha256, "source_variant_fingerprint": source_variant_fingerprint, "external_finetuning": False, "external_manifest_hash": sha256_file(manifest_path), "optimizer_steps": 0, "train_loader_created": False, **producer_fields}
+        result = {**partial_scores, "ord_f1": "NOT_APPLICABLE", "partial": True, "applicable_external_datasets": sorted(applicable), "source_checkpoint_id": str(source_summary.get("checkpoint_path") or entry.get("source_checkpoint_id") or source_summary.get("system_id")), "source_seed": source_summary.get("seed"), "source_checkpoint_sha256": source_checkpoint_sha256, "source_variant_fingerprint": source_variant_fingerprint, "external_finetuning": False, "external_manifest_hash": sha256_file(manifest_path), "optimizer_steps": 0, "backward_calls": 0, "train_loader_created": False, "training_applicability": "NOT_APPLICABLE", **producer_fields}
         atomic_write_json(output_root / "metrics/partial_external_retention_metrics.json", result)
     external_manifest = {
         "status": "PASS",
@@ -148,10 +154,12 @@ def evaluate_external_retention_from_disk(
         "external_finetuning": False,
         "optimizer_steps": 0,
         "backward_calls": 0,
+        "train_loader_created": False,
+        "training_applicability": "NOT_APPLICABLE",
         "label_routing": {"vsfc": "polarity", "vsmec": "emotion", "aivivn": "polarity"},
         "applicable_external_datasets": sorted(applicable),
         "partial": applicable != set(DATASET_KEYS),
-        "predictor_factory": predictor_provenance if factory is not None else "fixture_injected_predictor_compatibility",
+        "predictor_factory": predictor_provenance if predictor_provenance else "fixture_injected_predictor_compatibility",
         **producer_fields,
     }
     atomic_write_json(output_root / "external/external_evaluation_manifest.json", external_manifest)

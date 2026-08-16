@@ -8,7 +8,29 @@
     "status": {"type": "string", "enum": ["PENDING_USER_APPROVAL", "APPROVED", "REJECTED"]},
     "approved_by": {"type": ["string", "null"]},
     "approved_at": {"type": ["string", "null"]},
-    "record": {"type": "object"}
+    "record": {
+      "type": "object",
+      "required": [
+        "run_id",
+        "decision",
+        "review_note",
+        "approved_or_rejected_by",
+        "timestamp",
+        "review_summary_sha256",
+        "artifact_checksum_file_sha256"
+      ],
+      "properties": {
+        "run_id": {"type": "string", "minLength": 1},
+        "decision": {"type": "string", "enum": ["approve", "reject"]},
+        "review_note": {"type": "string"},
+        "approved_or_rejected_by": {"type": "string", "minLength": 1},
+        "timestamp": {"type": "string", "minLength": 1},
+        "review_summary_sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+        "artifact_checksum_file_sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+        "code_commit": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": false
 }

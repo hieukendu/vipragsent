@@ -31,6 +31,7 @@ from ..runtime.device import (
     write_device_report,
 )
 from ..training.generation_checkpoint import is_real_dataset_hash
+from .approval import validate_approval_record
 from .executors.explanation_reuse import (
     ApprovedFullVistralSource,
     resolve_approved_full_vistral_source,
@@ -280,12 +281,13 @@ class SourceCheckpointIdentity:
             raise ExplanationRuntimeError("approved source approval bindings are incomplete")
         try:
             summary = _read_json(summary_path)
-            approval = _read_json(approval_path)
+            _read_json(approval_path)
             manifest = _read_json(manifest_path)
         except ExplanationRuntimeError as exc:
             raise ExplanationRuntimeError("approved source approval bindings are unreadable") from exc
-        if approval.get("status") != "APPROVED":
-            raise ExplanationRuntimeError("approved source does not have APPROVED status")
+        approval_errors = validate_approval_record(root, expected_run_id=root.name)
+        if approval_errors:
+            raise ExplanationRuntimeError("approved source approval record is incomplete: " + "; ".join(approval_errors))
         if str(summary.get("system_id")) != SOURCE_SYSTEM_ID or str(summary.get("seed")) != str(self.seed):
             raise ExplanationRuntimeError("approved source summary system or seed binding mismatch")
         expected_key = f"{SOURCE_SYSTEM_ID}:{self.seed}"
