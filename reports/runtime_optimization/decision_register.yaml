@@ -132,8 +132,10 @@ wave2_acceptance:
   status: WAVE2_ACCEPTED_FOR_MANAGER_INTEGRATION
   sentinel_review: PASS
   sentinel_review_round: 2
-  sentinel_review_md_sha256: 9fe21043a869f067e484687cd2c52915c96572d2923d56b1b21630b4b9b492aa
+  sentinel_review_md_sha256: ae4edbd93f959d4ef019ee04367cc6be1c9212416032cbbc3d548a41b9427780
   sentinel_review_json_sha256: eff8f87c98a326bfb0acc9e465c5b0f49a67db67f52f05a503f3eeecdbc33b84
+  digest_revalidated_at: 2026-08-16T19:18:12Z
+  digest_reacceptance: MANAGER_REACCEPTED_CURRENT_CHECKED_IN_BYTES
   reviewed_builder_chain:
     initial: 89c4d51
     stage_wiring: 74586d5
