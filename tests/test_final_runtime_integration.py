@@ -280,7 +280,7 @@ def test_q1b_disk_executor_reads_only_normalized_tests_and_records_no_training(t
         encoding="utf-8",
     )
     entry = {"research_question": "Q1b", "system_id": "source_system", "seed": 20260521, "external_finetuning": False}
-    result = evaluate_external_retention_from_disk(tmp_path, entry, output_root=tmp_path / "run", predictor=lambda dataset, _: "enjoyment" if dataset == "vsmec" else "positive")
+    result = evaluate_external_retention_from_disk(tmp_path, entry, output_root=tmp_path / "run", predictor=lambda dataset, _: "enjoyment" if dataset == "vsmec" else "positive", fixture_mode=True)
     assert result["external_finetuning"] is False
     assert result["optimizer_steps"] == 0
     assert result["train_loader_created"] is False

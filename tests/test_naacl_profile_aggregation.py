@@ -359,7 +359,7 @@ def test_q1b_fixture_chain_emits_predictor_provenance_into_retention_and_review(
         model=FixtureMultiTaskModel(),
         tokenizer=SimpleNamespace(encode=lambda *_args, **_kwargs: [1, 2]),
     )
-    result = evaluate_external_retention_from_disk(tmp_path, raw_entry, output_root=run_root, predictor=predictor)
+    result = evaluate_external_retention_from_disk(tmp_path, raw_entry, output_root=run_root, predictor=predictor, fixture_mode=True)
     review = build_review_summary(context, entry, state)
 
     assert result["producer_id"] == predictor.source.producer_id
