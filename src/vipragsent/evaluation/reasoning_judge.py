@@ -159,7 +159,7 @@ def _transport_error(response: Any) -> JudgeTransportError | None:
 
 
 def _retryable(exc: Exception) -> bool:
-    if isinstance(exc, (TimeoutError, ConnectionError)):
+    if isinstance(exc, TimeoutError | ConnectionError):
         return True
     if isinstance(exc, JudgeTransportError):
         return exc.status_code in RETRYABLE_STATUS_CODES

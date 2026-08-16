@@ -7,11 +7,10 @@
     "data/model_cache_manifest.json"
   ],
   "files_created": [
-    "data/batch_probe_status/sailor_7b.json",
+    "data/batch_probe_status/vistral_7b.json",
     "data/model_cache_manifest.json",
-    "data/model_cache_status/sailor_7b.json",
-    "data/model_smoke_status/sailor_7b.json",
-    "data/model_smoke_report.json"
+    "data/model_cache_status/vistral_7b.json",
+    "data/model_smoke_status/vistral_7b.json"
   ],
   "tests_run": [
     "locked cache/revision validation",
@@ -27,26 +26,25 @@
   "blockers": [],
   "next_phase_ready": true,
   "phase15_evidence": {
-    "model_family": "sailor_7b",
-    "repo_id": "sail/Sailor-7B",
-    "model_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
-    "tokenizer_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+    "model_family": "vistral_7b",
+    "repo_id": "Viet-Mistral/Vistral-7B-Chat",
+    "model_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+    "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
     "physical_batch": 2,
     "effective_batch_size": 16,
     "gradient_accumulation_steps": 8,
     "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
-    "local_snapshot": "data/model_cache/sailor_7b",
+    "local_snapshot": "data/model_cache/vistral_7b",
     "hashes": {
-      "cache_manifest_hash": "B5FD8414BEA7F873C3FBA5E2EE7D83F802133BC3CE8D7E8821293AA2DFBB288E",
+      "cache_manifest_hash": "40E475581B1F46DF24388182361D6BBEAC5BA1A554E536164781B864FA82D888",
       "smoke_verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF",
-      "batch_probe_hash": "B20AC2A75428AB658AAFD2BB4FFC15A6D502BECB551249EB2B144D4306408D7F"
+      "batch_probe_hash": "5D5437A57B3879477004D0876262573A525D013E629C2530F232A1F27B6AF667"
     },
     "status_artifacts": {
       "cache_manifest": "data/model_cache_manifest.json",
-      "cache_status": "data/model_cache_status/sailor_7b.json",
-      "smoke_status": "data/model_smoke_status/sailor_7b.json",
-      "batch_status": "data/batch_probe_status/sailor_7b.json",
-      "smoke_report": "data/model_smoke_report.json"
+      "cache_status": "data/model_cache_status/vistral_7b.json",
+      "smoke_status": "data/model_smoke_status/vistral_7b.json",
+      "batch_status": "data/batch_probe_status/vistral_7b.json"
     },
     "validation": {
       "cache": true,
@@ -54,5 +52,5 @@
       "physical_batch": true
     }
   },
-  "generated_at_utc": "2026-08-06T21:54:20.305041+00:00"
+  "generated_at_utc": "2026-08-14T03:24:03.828159+00:00"
 }

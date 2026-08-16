@@ -1,10 +1,10 @@
 {
   "checkpoint_reload_and_freeze": true,
-  "code_commit_at_audit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "code_commit_at_audit": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "evidence": [
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -13,7 +13,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 2",
-      "fixture_input_sha256": "3839B2B799E94457A5DE0D3FF5DB0FF9992AA0A6687D116F227B0B84C4BCD29F",
+      "fixture_input_sha256": "EF62DCA80902927C1E4E89857F5A06F1CADC74F22827C0B82261561DE336C2D6",
       "golden_input_sha256": null,
       "label": "Defect 2",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -25,11 +25,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_luna_max_01_generation.py::test_cot_factory_uses_causal_lm_loader",
-      "test_source_sha256": "C500AE4C0BD6E8B8814566BBD81353C3C346F950C57756A1A5643FC3B4F2FA2C"
+      "test_source_sha256": "AF3FF1DD5015E13E932D16477C90AA319589204234460C890A87523C7C096318"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -38,7 +38,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 2",
-      "fixture_input_sha256": "0F8C2BE12311D5B93416A0393B24712C79E962B5358B3F4D5EEB905233603C91",
+      "fixture_input_sha256": "668C7056771696AB16C19863B3D980F51C1A8CE76FF6BAFD70D9EE57C2CC5608",
       "golden_input_sha256": null,
       "label": "Defect 2",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -50,11 +50,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_luna_max_01_generation.py::test_cot_model_has_generate",
-      "test_source_sha256": "C500AE4C0BD6E8B8814566BBD81353C3C346F950C57756A1A5643FC3B4F2FA2C"
+      "test_source_sha256": "AF3FF1DD5015E13E932D16477C90AA319589204234460C890A87523C7C096318"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -63,7 +63,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 3",
-      "fixture_input_sha256": "5F682E21757A2DCFA0B2F3D86FA3C2C2F4421CDFBFB090CB3B406E9EE029781B",
+      "fixture_input_sha256": "664273DC1940EE1A2733E424C7F5CEB50AEA0CFD0EE53D1FEE7BC08F85308BEB",
       "golden_input_sha256": null,
       "label": "Defect 3",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -75,11 +75,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_luna_max_01_generation.py::test_generation_test_stage_loads_frozen_best_checkpoint",
-      "test_source_sha256": "C500AE4C0BD6E8B8814566BBD81353C3C346F950C57756A1A5643FC3B4F2FA2C"
+      "test_source_sha256": "AF3FF1DD5015E13E932D16477C90AA319589204234460C890A87523C7C096318"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",

@@ -756,6 +756,133 @@ def _production_reasoning_records(root: Path, tokenizer: Any, examples: list[Dat
     return records
 
 
+def _restore_generation_resume_boundary(
+    context: RunContext,
+    entry: RunEntry,
+    executor: ReasoningGenerationExecutor,
+    optimizer: torch.optim.Optimizer,
+    scheduler: Any,
+    *,
+    expected_metadata: Mapping[str, Any],
+    epoch1_metric: float,
+) -> dict[str, Any]:
+    """Restore the explicit paused generation boundary before new training.
+
+    The paused Vistral run predates the data-hash field in generation
+    checkpoints.  Its exact checkpoint hash and remote verification record are
+    therefore required before the narrowly-scoped legacy binding is accepted;
+    a new checkpoint with the current full metadata binding is written before
+    epoch 2 starts.
+    """
+    run_root = Path(context.run_root)
+    state = _load_mapping(run_root / "state.json")
+    pause = state.get("pause") if isinstance(state.get("pause"), Mapping) else {}
+    if pause.get("status") != "SAFELY_PAUSED" or pause.get("resume_mode") != "checkpoint_boundary":
+        raise GenerationCheckpointError("generation resume requires an explicit safely-paused checkpoint boundary")
+    checkpoint_name = str(pause.get("last_valid_checkpoint") or "")
+    expected_hash = str(pause.get("checkpoint_sha256") or "").lower()
+    if not checkpoint_name or not expected_hash:
+        raise GenerationCheckpointError("generation resume boundary is missing its checkpoint path or hash")
+    checkpoint_path = Path(checkpoint_name)
+    if not checkpoint_path.is_absolute():
+        checkpoint_path = run_root / checkpoint_path
+    if not checkpoint_path.exists():
+        raise GenerationCheckpointError(f"generation resume boundary is missing: {checkpoint_path}")
+    observed_hash = sha256_file(checkpoint_path).lower()
+    if observed_hash != expected_hash:
+        raise GenerationCheckpointError(
+            f"generation resume boundary hash mismatch: expected {expected_hash}, observed {observed_hash}"
+        )
+    backup = _load_mapping(context.root / "reports/vipragsent_safe_pause_backup.json")
+    verified_remote = any(
+        str(row.get("run_id")) == entry.run_id
+        and str(row.get("sha256", "")).lower() == expected_hash
+        and str(row.get("status")) == "REMOTE_VERIFIED"
+        for row in backup.get("model_checkpoints", [])
+        if isinstance(row, Mapping)
+    )
+    if not verified_remote:
+        raise GenerationCheckpointError("generation resume boundary is not covered by the verified safe-pause backup")
+    epoch_metrics = _load_mapping(run_root / "metrics/dev_reasoning_metrics_epoch_1.json")
+    metric_hash = str(epoch_metrics.get("checkpoint_sha256", "")).lower()
+    if metric_hash != expected_hash:
+        raise GenerationCheckpointError("epoch-1 dev metrics are not bound to the verified resume checkpoint")
+    checkpoint_report = executor.load_checkpoint(
+        checkpoint_path,
+        expected_sha256=expected_hash,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        restore_rng=True,
+        expected_metadata=expected_metadata,
+        allowed_metadata_mismatches=("data_hash",),
+        expected_epoch=1,
+    )
+    resume_checkpoint_name = checkpoint_name.replace("\\", "/")
+    resume_checkpoint_hash = expected_hash
+    migration_required = "data_hash" in checkpoint_report.get("allowed_metadata_mismatch_keys", [])
+    if migration_required:
+        resume_checkpoint_name = "checkpoints/resume/epoch_1/model.pt"
+        resume_checkpoint_hash = executor.write_checkpoint(
+            resume_checkpoint_name,
+            optimizer=optimizer,
+            scheduler=scheduler,
+            epoch=1,
+            selection_metric=epoch1_metric,
+            metadata={
+                "resume_boundary_source": checkpoint_name.replace("\\", "/"),
+                "resume_boundary_source_sha256": expected_hash,
+                "resume_boundary_migration": "legacy_checkpoint_missing_data_hash",
+            },
+        )
+        executor.load_checkpoint(
+            resume_checkpoint_name,
+            expected_sha256=resume_checkpoint_hash,
+            optimizer=optimizer,
+            scheduler=scheduler,
+            restore_rng=True,
+            expected_metadata=expected_metadata,
+            expected_epoch=1,
+        )
+    atomic_write_json(
+        run_root / "training/resume_boundary.json",
+        {
+            "status": "PASS",
+            "resume_mode": "checkpoint_boundary",
+            "source_checkpoint": checkpoint_name.replace("\\", "/"),
+            "source_checkpoint_sha256": expected_hash,
+            "remote_backup_verified": verified_remote,
+            "restored_epoch": 1,
+            "resume_starts_at_epoch": 2,
+            "optimizer_restored": bool(checkpoint_report.get("optimizer_restored")),
+            "scheduler_restored": bool(checkpoint_report.get("scheduler_restored")),
+            "rng_restored": checkpoint_report.get("rng_restore", {}),
+            "metadata_migration": migration_required,
+            "resume_checkpoint": resume_checkpoint_name,
+            "resume_checkpoint_sha256": resume_checkpoint_hash,
+        },
+    )
+    return {
+        "resume_epoch": 2,
+        "history": [
+            {
+                "epoch": 1.0,
+                "train_loss": None,
+                "optimizer_steps": None,
+                "micro_batches": None,
+                "physical_batch_size": None,
+                "gradient_accumulation_steps": None,
+                "dev_primary_macro_f1": epoch1_metric,
+                "checkpoint_sha256": expected_hash,
+                "history_status": "RESTORED_CHECKPOINT_BOUNDARY",
+            }
+        ],
+        "best_metric": epoch1_metric,
+        "best_epoch": 1,
+        "best_hash": resume_checkpoint_hash,
+        "best_path": resume_checkpoint_name,
+    }
+
+
 def _production_generation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
     if not generation_targets_available(context.root):
         return StageOutcome.blocked("generation reasoning protocol files are incomplete")
@@ -779,6 +906,7 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
 
     model, runtime_spec = build_production_model(family, "cot_only_vistral", local_snapshot=snapshot, execution_mode="production", selected_device=selected_device)
     tokenizer = create_tokenizer(family, revision=runtime_spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
+    bundle = load_vipragsent(context.root / "data/processed/vipragsent")
     runtime_status = read_family_status(context.root, family, "batch")
     resolved = resolve_training_config(entry, spec, root=context.root, runtime_status=runtime_status)
     if stage == "train_generation":
@@ -792,12 +920,11 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         run_root=context.run_root,
         seed=entry.seed,
         config_hash=resolved.config_hash,
-        data_hash=str(context.metadata.get("data_hash", "NOT_PROVIDED")),
+        data_hash=bundle.fingerprint,
         physical_batch_size=resolved.physical_batch_size,
         gradient_accumulation_steps=resolved.gradient_accumulation_steps,
         pad_token_id=getattr(tokenizer, "pad_token_id", None),
     )
-    bundle = load_vipragsent(context.root / "data/processed/vipragsent")
     prompt = (context.root / str(executor.protocol["generation_prompt_path"])).read_text(encoding="utf-8")
     if stage == "train_generation":
         train_records, source_report = build_cot_training_records(context.root, [{"sample_id": row.sample_id, "text": row.text} for row in bundle.train], tokenizer=tokenizer)
@@ -805,11 +932,45 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         steps_per_epoch = generation_optimizer_steps_per_epoch(len(train_records), resolved.physical_batch_size, resolved.gradient_accumulation_steps)
         scheduler, scheduler_summary = build_scheduler(optimizer, scheduler_name=resolved.scheduler, warmup_ratio=resolved.warmup_ratio, total_steps=steps_per_epoch * resolved.maximum_epochs)
         dev_records = _production_reasoning_records(context.root, tokenizer, bundle.dev, prompt)
+        expected_metadata = {
+            "executor_kind": "generation_trainable",
+            "seed": entry.seed,
+            "generation_protocol_id": executor.protocol["protocol_version"],
+            "generation_prompt_hash": executor.protocol["generation_prompt_hash"],
+            "config_hash": resolved.config_hash,
+            "data_hash": bundle.fingerprint,
+        }
         best_metric = float("-inf")
         best_epoch = 0
         best_hash = ""
-        history: list[dict[str, float]] = []
-        for epoch in range(1, resolved.maximum_epochs + 1):
+        best_path = "checkpoints/best/model.pt"
+        resume_epoch = 1
+        history: list[dict[str, Any]] = []
+        if context.metadata.get("resume"):
+            state = _load_mapping(Path(context.run_root) / "state.json")
+            pause = state.get("pause") if isinstance(state.get("pause"), Mapping) else {}
+            if pause.get("status") == "SAFELY_PAUSED" and pause.get("resume_mode") == "checkpoint_boundary":
+                try:
+                    restored = _restore_generation_resume_boundary(
+                        context,
+                        entry,
+                        executor,
+                        optimizer,
+                        scheduler,
+                        expected_metadata=expected_metadata,
+                        epoch1_metric=float(_load_mapping(Path(context.run_root) / "metrics/dev_reasoning_metrics_epoch_1.json")["primary_macro_f1"]),
+                    )
+                except (GenerationCheckpointError, KeyError, TypeError, ValueError) as exc:
+                    return StageOutcome.blocked(str(exc))
+                resume_epoch = int(restored["resume_epoch"])
+                history = list(restored["history"])
+                best_metric = float(restored["best_metric"])
+                best_epoch = int(restored["best_epoch"])
+                best_hash = str(restored["best_hash"])
+                best_path = str(restored["best_path"])
+                if resume_epoch > resolved.maximum_epochs:
+                    return StageOutcome.blocked("generation resume boundary is beyond the configured maximum epoch")
+        for epoch in range(resume_epoch, resolved.maximum_epochs + 1):
             history.extend(executor.train_generation(train_records, optimizer=optimizer, epochs=1, scheduler=scheduler, gradient_clipping=resolved.gradient_clipping, epoch_start=epoch))
             generated_dev = executor.generate_reasoning_split("dev", dev_records)
             gold_dev = {str(row["sample_id"]): row["gold"] for row in dev_records}
@@ -821,15 +982,46 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
                 best_metric = float(dev_metrics["primary_macro_f1"])
                 best_epoch = epoch
                 best_hash = executor.write_checkpoint("checkpoints/best/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=epoch, selection_metric=best_metric)
+                best_path = "checkpoints/best/model.pt"
             atomic_write_json(Path(context.run_root) / f"metrics/dev_reasoning_metrics_epoch_{epoch}.json", dev_metrics | {"checkpoint_sha256": epoch_checkpoint})
-        best_checkpoint = Path(context.run_root) / "checkpoints/best/model.pt"
+        if best_path != "checkpoints/best/model.pt":
+            try:
+                executor.load_checkpoint(
+                    best_path,
+                    expected_sha256=best_hash,
+                    optimizer=optimizer,
+                    scheduler=scheduler,
+                    restore_rng=True,
+                    expected_metadata=expected_metadata,
+                    expected_epoch=best_epoch,
+                )
+                best_hash = executor.write_checkpoint(
+                    "checkpoints/best/model.pt",
+                    optimizer=optimizer,
+                    scheduler=scheduler,
+                    epoch=best_epoch,
+                    selection_metric=best_metric,
+                    metadata={"selected_from_checkpoint": best_path},
+                )
+                best_path = "checkpoints/best/model.pt"
+            except GenerationCheckpointError as exc:
+                return StageOutcome.blocked(str(exc))
+        best_checkpoint = Path(context.run_root) / best_path
         try:
-            executor.load_checkpoint(best_checkpoint, expected_sha256=best_hash)
+            executor.load_checkpoint(
+                best_checkpoint,
+                expected_sha256=best_hash,
+                optimizer=optimizer,
+                scheduler=scheduler,
+                restore_rng=True,
+                expected_metadata=expected_metadata,
+                expected_epoch=best_epoch,
+            )
         except GenerationCheckpointError as exc:
             return StageOutcome.blocked(str(exc))
         executor.write_checkpoint("checkpoints/latest/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=best_epoch, selection_metric=best_metric)
         atomic_write_json(Path(context.run_root) / "training/history.json", history)
-        atomic_write_text(Path(context.run_root) / "training/history.csv", "epoch,train_loss,optimizer_steps,dev_primary_macro_f1\n" + "\n".join(f"{row.get('epoch')},{row.get('train_loss')},{row.get('optimizer_steps')},{row.get('dev_primary_macro_f1', '')}" for row in history) + "\n")
+        atomic_write_text(Path(context.run_root) / "training/history.csv", "epoch,train_loss,optimizer_steps,dev_primary_macro_f1\n" + "\n".join(f"{row.get('epoch')},{'' if row.get('train_loss') is None else row.get('train_loss')},{'' if row.get('optimizer_steps') is None else row.get('optimizer_steps')},{row.get('dev_primary_macro_f1', '')}" for row in history) + "\n")
         manifest = executor.write_checkpoint_manifest(best_epoch=best_epoch, selection_metric=best_metric, rationale_source_hash=str(source_report.get("source_sha256", "NOT_PROVIDED")))
         atomic_write_json(Path(context.run_root) / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": best_hash, "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_sha256": best_hash})
         atomic_write_json(Path(context.run_root) / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "best_epoch": best_epoch})
@@ -1267,7 +1459,7 @@ def _review_summary(context: RunContext, entry: RunEntry, state: Mapping[str, An
     atomic_write_json(run_root / "review_summary.json", summary)
     lines = ["# Sequential Run Review Summary", "", f"RUN_STATUS: {summary['RUN_STATUS']}", f"USER_REVIEW_STATUS: {summary['USER_REVIEW_STATUS']}", f"NEXT_RUN_ALLOWED: {summary['NEXT_RUN_ALLOWED']}", ""]
     for key in ("run_id", "research_question", "system_id", "execution_kind", "best_dev_metric", "checkpoint_path", "macro_pragmatic_f1", "artifact_paths", "artifact_sha256", "warnings", "blockers"):
-        lines.extend([f"## {key}", json.dumps(summary.get(key), ensure_ascii=False, sort_keys=True) if isinstance(summary.get(key), (dict, list)) else str(summary.get(key)), ""])
+        lines.extend([f"## {key}", json.dumps(summary.get(key), ensure_ascii=False, sort_keys=True) if isinstance(summary.get(key), dict | list) else str(summary.get(key)), ""])
     atomic_write_text(run_root / "review_summary.md", "\n".join(lines))
     return StageOutcome.passed(summary={"validation_status": "PASS", "review_summary_sha256": sha256_file(run_root / "review_summary.json")}, expected_files=("review_summary.json", "review_summary.md", "approval_status.json"))
 

@@ -1,10 +1,10 @@
 {
-  "code_commit_at_audit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "code_commit_at_audit": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "device_policy": "one selected device; batches move to model input device; no implicit sharding",
   "evidence": [
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -13,7 +13,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 5",
-      "fixture_input_sha256": "CB6DD5515FD37457738D0F73F0FFE3D31AE8F6CE1784566538B951C60F5824A8",
+      "fixture_input_sha256": "15DB072C824CD778A156C3692C7AF63921E18815327D4605AB382C87A4FC203E",
       "golden_input_sha256": null,
       "label": "Defect 5",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -25,11 +25,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_custom_executor_moves_batch_to_model_device",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -38,7 +38,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 5",
-      "fixture_input_sha256": "016F8F41E0D44BB87C28968577FCD64371042DB60781D75C67424EA3E3D241D5",
+      "fixture_input_sha256": "AEDAF4BC1E107A3699088907C64A9FCC0C7C3F87E817E1255752E4E3405475A4",
       "golden_input_sha256": null,
       "label": "Defect 5",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -50,11 +50,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_custom_executor_device_report",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",

@@ -2,7 +2,7 @@
   "NEXT_RUN_ALLOWED": "NO",
   "RUN_STATUS": "PASS",
   "USER_REVIEW_STATUS": "PENDING",
-  "code_commit_at_audit": "8a553c836317908bd5410b4aeeb47f9264bbedc1",
+  "code_commit_at_audit": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "defects_covered": [
     "Defect 1",
     "Defect 2",
@@ -18,7 +18,7 @@
   "evidence": [
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -43,7 +43,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -68,7 +68,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -93,7 +93,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -102,7 +102,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 2",
-      "fixture_input_sha256": "3839B2B799E94457A5DE0D3FF5DB0FF9992AA0A6687D116F227B0B84C4BCD29F",
+      "fixture_input_sha256": "EF62DCA80902927C1E4E89857F5A06F1CADC74F22827C0B82261561DE336C2D6",
       "golden_input_sha256": null,
       "label": "Defect 2",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -114,11 +114,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_luna_max_01_generation.py::test_cot_factory_uses_causal_lm_loader",
-      "test_source_sha256": "C500AE4C0BD6E8B8814566BBD81353C3C346F950C57756A1A5643FC3B4F2FA2C"
+      "test_source_sha256": "AF3FF1DD5015E13E932D16477C90AA319589204234460C890A87523C7C096318"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -127,7 +127,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 2",
-      "fixture_input_sha256": "0F8C2BE12311D5B93416A0393B24712C79E962B5358B3F4D5EEB905233603C91",
+      "fixture_input_sha256": "668C7056771696AB16C19863B3D980F51C1A8CE76FF6BAFD70D9EE57C2CC5608",
       "golden_input_sha256": null,
       "label": "Defect 2",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -139,11 +139,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_luna_max_01_generation.py::test_cot_model_has_generate",
-      "test_source_sha256": "C500AE4C0BD6E8B8814566BBD81353C3C346F950C57756A1A5643FC3B4F2FA2C"
+      "test_source_sha256": "AF3FF1DD5015E13E932D16477C90AA319589204234460C890A87523C7C096318"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -152,7 +152,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 3",
-      "fixture_input_sha256": "5F682E21757A2DCFA0B2F3D86FA3C2C2F4421CDFBFB090CB3B406E9EE029781B",
+      "fixture_input_sha256": "664273DC1940EE1A2733E424C7F5CEB50AEA0CFD0EE53D1FEE7BC08F85308BEB",
       "golden_input_sha256": null,
       "label": "Defect 3",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -164,11 +164,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_luna_max_01_generation.py::test_generation_test_stage_loads_frozen_best_checkpoint",
-      "test_source_sha256": "C500AE4C0BD6E8B8814566BBD81353C3C346F950C57756A1A5643FC3B4F2FA2C"
+      "test_source_sha256": "AF3FF1DD5015E13E932D16477C90AA319589204234460C890A87523C7C096318"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -193,7 +193,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -202,7 +202,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 4",
-      "fixture_input_sha256": "7E9BE0110850B6A4408D2BA4E43EC090AF4CD2B7CD3EAB099DA068C1A4D19E9D",
+      "fixture_input_sha256": "5C8079D6291DDB06B1F46086C465D4698C2E8632FA56206A5CBDEDCAEE5EEA7F",
       "golden_input_sha256": null,
       "label": "Defect 4",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -214,11 +214,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_checkpoint_v2_round_trip",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -227,7 +227,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 4",
-      "fixture_input_sha256": "C4C9CE8C710D0A3910298897B4802769A556C6E8FA64E1F978F326E6054659C6",
+      "fixture_input_sha256": "998969F02C5F654FE1BBD45B37019BED64C8C89B9E6707935C72CE5E5F4E1891",
       "golden_input_sha256": null,
       "label": "Defect 4",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -239,11 +239,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_checkpoint_zero_matching_keys_fails",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -252,7 +252,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 4",
-      "fixture_input_sha256": "A4372D5D80A06A97DE23DFEA9673C9C997DC1231AAE2350F80E75E97ED2B24A1",
+      "fixture_input_sha256": "2E386C400E59E79F1CC295626B1ED264D04891AACCA630DA7DD045569D3E9A71",
       "golden_input_sha256": null,
       "label": "Defect 4",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -264,11 +264,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_checkpoint_load_report_written",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -293,7 +293,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -302,7 +302,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 5",
-      "fixture_input_sha256": "CB6DD5515FD37457738D0F73F0FFE3D31AE8F6CE1784566538B951C60F5824A8",
+      "fixture_input_sha256": "15DB072C824CD778A156C3692C7AF63921E18815327D4605AB382C87A4FC203E",
       "golden_input_sha256": null,
       "label": "Defect 5",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -314,11 +314,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_custom_executor_moves_batch_to_model_device",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -327,7 +327,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 5",
-      "fixture_input_sha256": "016F8F41E0D44BB87C28968577FCD64371042DB60781D75C67424EA3E3D241D5",
+      "fixture_input_sha256": "AEDAF4BC1E107A3699088907C64A9FCC0C7C3F87E817E1255752E4E3405475A4",
       "golden_input_sha256": null,
       "label": "Defect 5",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -339,11 +339,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_checkpoint_device_contract.py::test_custom_executor_device_report",
-      "test_source_sha256": "0B298B2CBEB7CF52610BB8097F7E0FB788EA795D03523921EC79347A7E7EC86D"
+      "test_source_sha256": "51FE22A4B6EC14E2FC626B10C45CB1A74A08B8C8EE9FBA43F2F47A3957174E9A"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -368,7 +368,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -393,7 +393,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -418,7 +418,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -443,7 +443,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -468,7 +468,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -493,7 +493,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -518,7 +518,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -543,7 +543,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -568,7 +568,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -577,7 +577,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 8",
-      "fixture_input_sha256": "331EE719F6EF720AEA8D05F6311E6F06E1AC13EE1EC0E0C91A80161D98BC9168",
+      "fixture_input_sha256": "3C2CB70FBD5525410733FCD2C5CDFFC7D4983C936F4E06FCADD21E18515DE2BF",
       "golden_input_sha256": null,
       "label": "Defect 8",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -589,11 +589,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_azure.py::test_public_client_parses_nested_responses_payload_and_caches",
-      "test_source_sha256": "40DFA4951815F06752D2C13B139AA0D7C5DC1FE1AB6E57C760D0474F2B141D01"
+      "test_source_sha256": "D4DF09F339E3CAE19A5D2A982395C30C32B5E92F8B61117C8B2A6CD21BF63EDB"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -602,7 +602,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 8",
-      "fixture_input_sha256": "B736C1FAF43B1A6DF124DC0689ED68BB6E5ECCDA8393F9B0D6725815FB5F7319",
+      "fixture_input_sha256": "934282434436EF4F0B9CB9BA02151167D0E50DE6B976FB423BCD95120797145C",
       "golden_input_sha256": null,
       "label": "Defect 8",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -614,11 +614,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_azure.py::test_public_client_retries_payload_status_and_uses_retry_after",
-      "test_source_sha256": "40DFA4951815F06752D2C13B139AA0D7C5DC1FE1AB6E57C760D0474F2B141D01"
+      "test_source_sha256": "D4DF09F339E3CAE19A5D2A982395C30C32B5E92F8B61117C8B2A6CD21BF63EDB"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -627,7 +627,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 8",
-      "fixture_input_sha256": "A87CAA3213BD219661129632EC64CF943EEA05B4DF294309A87743076EA6C0D3",
+      "fixture_input_sha256": "1AD636B34AB3D2E728F52C8F3E8590385B83F17A7764321597070BB36720981B",
       "golden_input_sha256": null,
       "label": "Defect 8",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -639,11 +639,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_azure.py::test_public_client_caches_terminal_invalid_response_without_retry",
-      "test_source_sha256": "40DFA4951815F06752D2C13B139AA0D7C5DC1FE1AB6E57C760D0474F2B141D01"
+      "test_source_sha256": "D4DF09F339E3CAE19A5D2A982395C30C32B5E92F8B61117C8B2A6CD21BF63EDB"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -652,7 +652,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 8",
-      "fixture_input_sha256": "DD1A13BEA587CF6AC8105105CC8486869EF99AEBFBBF0A6E83E522AFFBE48BD5",
+      "fixture_input_sha256": "E3F37942509390E2DEF7A9D366B54FD1F9BF54A2F250646839E6DAF97CEB0EEE",
       "golden_input_sha256": null,
       "label": "Defect 8",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -664,11 +664,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_reasoning_judge_is_reasoning_only_strict_cached_and_transport_retrying",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -693,7 +693,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -718,7 +718,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -743,7 +743,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -768,7 +768,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -793,7 +793,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -802,7 +802,7 @@
         "--maxfail=1"
       ],
       "defect": "Defect 10",
-      "fixture_input_sha256": "649AB4AD0838CF3D9767BFAC95B774A3FBB9A954CE35B3DE468F46EA9768E615",
+      "fixture_input_sha256": "1ED52595EBA92062AA8100790BF2FAD8F83BB01A323E92A48DDFAF01776D4D2F",
       "golden_input_sha256": null,
       "label": "Defect 10",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -814,11 +814,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_final_runtime_integration.py::test_generation_executor_trains_causally_and_records_invalid_parser_rows",
-      "test_source_sha256": "B6FA6D52A9738BDACA2EBD9A4B0100FBAAE013BD0C0490D84A44FB43A9C2A49D"
+      "test_source_sha256": "8C715FD718B586953268407888C88C62B469D6630517FCFA76FF1923613E1054"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -843,7 +843,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -852,7 +852,7 @@
         "--maxfail=1"
       ],
       "defect": "synthetic_closure",
-      "fixture_input_sha256": "E0988449CFE4961D9BDDDD01409A0B85ABFBD5862FEEDC44384DBB8466C2B813",
+      "fixture_input_sha256": "5858EFE356C314F930C0A3AEFB44D5B4C7080BC785D1FBB20C36F38F925C703E",
       "golden_input_sha256": null,
       "label": "six_and_eight_component_bundles",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -864,11 +864,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_component_bundle_production_shape_covers_six_eight_split_alignment_and_resume",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -877,7 +877,7 @@
         "--maxfail=1"
       ],
       "defect": "synthetic_closure",
-      "fixture_input_sha256": "295F5981BE4CE5D4AEBA9C960C7E605C8ADEFE93BDDEED27DD95A7F54D021511",
+      "fixture_input_sha256": "E4755824906A40D862D6CF9E1AA96FEB3FD320916059C69430FB0A6127AEB31E",
       "golden_input_sha256": null,
       "label": "cot_only_generation",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -889,11 +889,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_cot_executor_trains_selects_on_dev_and_seals_test_until_after_selection",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -902,7 +902,7 @@
         "--maxfail=1"
       ],
       "defect": "synthetic_closure",
-      "fixture_input_sha256": "E705D4937ED8C2FAD6B0B3F0D6676D1E2DDFBD954D5D0DC487C1F990F240FE82",
+      "fixture_input_sha256": "BFAAE79796CE9D4B63413D692237334F079835951AA3E76658FFA041617F2779",
       "golden_input_sha256": null,
       "label": "explanation_only_reuse",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -914,11 +914,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_explanation_executor_reuses_source_and_uses_only_rationale_decoder",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -943,7 +943,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -968,7 +968,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -993,7 +993,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1002,7 +1002,7 @@
         "--maxfail=1"
       ],
       "defect": "synthetic_closure",
-      "fixture_input_sha256": "52EDC9D92E45D9E2C2DC8A995E1CE2F17120164066F0E6D130CE33308AD35F7B",
+      "fixture_input_sha256": "B20CDFEEC6C7D48355318A540E75E764EC5482AE515CDF654A1DD65C5FDFB0A7",
       "golden_input_sha256": null,
       "label": "reasoning_judge_retry_cache",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -1014,11 +1014,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_reasoning_judge_is_reasoning_only_strict_cached_and_transport_retrying",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1043,7 +1043,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1082,7 +1082,7 @@
   "production_shaped_synthetic_closure": [
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1107,7 +1107,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1116,7 +1116,7 @@
         "--maxfail=1"
       ],
       "defect": "synthetic_closure",
-      "fixture_input_sha256": "E0988449CFE4961D9BDDDD01409A0B85ABFBD5862FEEDC44384DBB8466C2B813",
+      "fixture_input_sha256": "5858EFE356C314F930C0A3AEFB44D5B4C7080BC785D1FBB20C36F38F925C703E",
       "golden_input_sha256": null,
       "label": "six_and_eight_component_bundles",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -1128,11 +1128,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_component_bundle_production_shape_covers_six_eight_split_alignment_and_resume",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1141,7 +1141,7 @@
         "--maxfail=1"
       ],
       "defect": "synthetic_closure",
-      "fixture_input_sha256": "295F5981BE4CE5D4AEBA9C960C7E605C8ADEFE93BDDEED27DD95A7F54D021511",
+      "fixture_input_sha256": "E4755824906A40D862D6CF9E1AA96FEB3FD320916059C69430FB0A6127AEB31E",
       "golden_input_sha256": null,
       "label": "cot_only_generation",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -1153,11 +1153,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_cot_executor_trains_selects_on_dev_and_seals_test_until_after_selection",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1166,7 +1166,7 @@
         "--maxfail=1"
       ],
       "defect": "synthetic_closure",
-      "fixture_input_sha256": "E705D4937ED8C2FAD6B0B3F0D6676D1E2DDFBD954D5D0DC487C1F990F240FE82",
+      "fixture_input_sha256": "BFAAE79796CE9D4B63413D692237334F079835951AA3E76658FFA041617F2779",
       "golden_input_sha256": null,
       "label": "explanation_only_reuse",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -1178,11 +1178,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_explanation_executor_reuses_source_and_uses_only_rationale_decoder",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1207,7 +1207,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1232,7 +1232,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1257,7 +1257,7 @@
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",
@@ -1266,7 +1266,7 @@
         "--maxfail=1"
       ],
       "defect": "synthetic_closure",
-      "fixture_input_sha256": "52EDC9D92E45D9E2C2DC8A995E1CE2F17120164066F0E6D130CE33308AD35F7B",
+      "fixture_input_sha256": "B20CDFEEC6C7D48355318A540E75E764EC5482AE515CDF654A1DD65C5FDFB0A7",
       "golden_input_sha256": null,
       "label": "reasoning_judge_retry_cache",
       "observed_output_sha256": "0E96274667747AED0B34481033A39D0A0A7B1C1A17EC0131738FC5AD2D1F4420",
@@ -1278,11 +1278,11 @@
       "stdout_tail": ".                                                                        [100%]\n",
       "synthetic": true,
       "test_name": "tests/test_preexperiment_closure.py::test_reasoning_judge_is_reasoning_only_strict_cached_and_transport_retrying",
-      "test_source_sha256": "4FFFB5AED696624E0B08ADEB4CF8FAB0D9DDB14E134EA64D9BD5A2B4F918C2DD"
+      "test_source_sha256": "E4BA25DB6974E2DB56419D95700F756FB526C320D9D107728AA9FA7C0396AEA1"
     },
     {
       "command": [
-        "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+        "/root/vipragsent/.venv/bin/python",
         "-m",
         "pytest",
         "-q",

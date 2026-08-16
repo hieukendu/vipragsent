@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "generated_at_utc": "2026-08-14T03:35:00Z",
+  "hf_token_status": "PRESENT",
+  "authentication_method": "huggingface_hub.HfApi(token=HF_TOKEN) with repository-root .env loaded using override=false",
+  "source_of_truth": "reports/vipragsent_safe_pause_backup.json",
+  "inspection_status": "PASS",
+  "repositories": [
+    {
+      "repo_id": "Thundergod2007/vipragsent-experiment-artifacts",
+      "repo_type": "model",
+      "authenticated_access": true,
+      "current_remote_sha": "7afa8164aa5224688f430ee8e30283e72e462d77",
+      "expected_backup_revision": "98806b8c41aa6d95f7e32f97d39e921e920dd62e",
+      "expected_revision_accessible": true,
+      "expected_revision_file_count": 8977,
+      "current_revision_file_count": 8979,
+      "local_path": "/root/vipragsent_hf_backup/vipragsent-experiment-artifacts-git",
+      "large_file_materialization": {
+        "status": "PASS",
+        "required_lfs_files": 1,
+        "real_files": 1,
+        "pointer_files": 0,
+        "incomplete_bytes": 0
+      },
+      "relevant_checkpoint_paths": [],
+      "relevant_artifact_paths": [
+        "server_20260808/results/runs/q1a_cot_only_vistral_20260521/"
+      ],
+      "inspection_status": "PASS",
+      "provenance_note": "The newer remote tip adds the verified 20260808T174018 safe-pause JSON/Markdown pair; the pinned revision remains the authoritative recovery source."
+    },
+    {
+      "repo_id": "Thundergod2007/vipragsent-phobert-checkpoints",
+      "repo_type": "model",
+      "authenticated_access": true,
+      "current_remote_sha": "14097061c088f3deefe8ea6d9288d77755f36b5a",
+      "expected_backup_revision": "14097061c088f3deefe8ea6d9288d77755f36b5a",
+      "expected_revision_accessible": true,
+      "expected_revision_file_count": 23,
+      "local_path": "/root/vipragsent_hf_backup/vipragsent-phobert-checkpoints-git",
+      "large_file_materialization": {
+        "status": "PASS_REQUIRED_FILES_MATERIALIZED",
+        "required_lfs_files": 21,
+        "real_files": 21,
+        "pointer_files": 0,
+        "transient_incomplete_bytes": 3890067357
+      },
+      "relevant_checkpoint_paths": [
+        "q1a_phobert_pragmatic_finetune_20260521/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_finetune_20260522/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_finetune_20260523/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260521/components/code_switching/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260521/components/idiom_figurative/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260521/components/implicit_sentiment/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260521/components/irony/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260521/components/mocking/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260521/components/sarcasm/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260522/components/code_switching/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260522/components/idiom_figurative/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260522/components/implicit_sentiment/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260522/components/irony/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260522/components/mocking/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260522/components/sarcasm/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260523/components/code_switching/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260523/components/idiom_figurative/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260523/components/implicit_sentiment/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260523/components/irony/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260523/components/mocking/checkpoints/best/model.pt",
+        "q1a_phobert_pragmatic_single_task_20260523/components/sarcasm/checkpoints/best/model.pt"
+      ],
+      "inspection_status": "PASS"
+    },
+    {
+      "repo_id": "Thundergod2007/vipragsent-vistral7b-checkpoints",
+      "repo_type": "model",
+      "authenticated_access": true,
+      "current_remote_sha": "77df04ee8d69ec8e9eba89136040ec1b3e6152ce",
+      "expected_backup_revision": "77df04ee8d69ec8e9eba89136040ec1b3e6152ce",
+      "expected_revision_accessible": true,
+      "expected_revision_file_count": 10,
+      "local_path": "/root/vipragsent_hf_backup/vipragsent-vistral7b-checkpoints-git",
+      "large_file_materialization": {
+        "status": "PASS_REQUIRED_FILES_MATERIALIZED",
+        "required_lfs_files": 8,
+        "real_files": 8,
+        "pointer_files": 0,
+        "manually_materialized_verified_epoch1": true,
+        "incomplete_bytes": 0
+      },
+      "relevant_checkpoint_paths": [
+        "q1a_cot_only_vistral_20260521/checkpoints/best/model.pt",
+        "q1a_cot_only_vistral_20260521/checkpoints/epoch_1/model.pt",
+        "q1a_vipragsent_no_auxiliary_vistral_20260521/checkpoints/best/model.pt",
+        "q1a_vipragsent_no_auxiliary_vistral_20260522/checkpoints/best/model.pt",
+        "q1a_vipragsent_no_auxiliary_vistral_20260523/checkpoints/best/model.pt",
+        "q1a_vistral_pragmatic_sft_20260521/checkpoints/best/model.pt",
+        "q1a_vistral_pragmatic_sft_20260522/checkpoints/best/model.pt",
+        "q1a_vistral_pragmatic_sft_20260523/checkpoints/best/model.pt"
+      ],
+      "inspection_status": "PASS"
+    },
+    {
+      "repo_id": "Thundergod2007/vipragsent-xlmr-checkpoints",
+      "repo_type": "model",
+      "authenticated_access": true,
+      "current_remote_sha": "d004da4621be813a1f3ce8ef3d171dce6102fbe2",
+      "expected_backup_revision": "d004da4621be813a1f3ce8ef3d171dce6102fbe2",
+      "expected_revision_accessible": true,
+      "expected_revision_file_count": 5,
+      "local_path": "/root/vipragsent_hf_backup/vipragsent-xlmr-checkpoints-git",
+      "large_file_materialization": {
+        "status": "PASS",
+        "required_lfs_files": 3,
+        "real_files": 3,
+        "pointer_files": 0,
+        "incomplete_bytes": 0
+      },
+      "relevant_checkpoint_paths": [
+        "q1a_xlmr_pragmatic_finetune_20260521/checkpoints/best/model.pt",
+        "q1a_xlmr_pragmatic_finetune_20260522/checkpoints/best/model.pt",
+        "q1a_xlmr_pragmatic_finetune_20260523/checkpoints/best/model.pt"
+      ],
+      "inspection_status": "PASS"
+    },
+    {
+      "repo_id": "Thundergod2007/vipragsent-sailor7b-checkpoints",
+      "repo_type": "model",
+      "authenticated_access": true,
+      "current_remote_sha": "6af58b4c754d08f9d6316aef58c239bca60397ed",
+      "expected_backup_revision": "6af58b4c754d08f9d6316aef58c239bca60397ed",
+      "expected_revision_accessible": true,
+      "expected_revision_file_count": 5,
+      "local_path": "/root/vipragsent_hf_backup/vipragsent-sailor7b-checkpoints-git",
+      "large_file_materialization": {
+        "status": "PASS",
+        "required_lfs_files": 3,
+        "real_files": 3,
+        "pointer_files": 0,
+        "incomplete_bytes": 0
+      },
+      "relevant_checkpoint_paths": [
+        "q1a_sailor_pragmatic_sft_20260521/checkpoints/best/model.pt",
+        "q1a_sailor_pragmatic_sft_20260522/checkpoints/best/model.pt",
+        "q1a_sailor_pragmatic_sft_20260523/checkpoints/best/model.pt"
+      ],
+      "inspection_status": "PASS"
+    }
+  ],
+  "required_gate": "AUTHENTICATED_HF_REPOSITORY_INSPECTION: PASS"
+}

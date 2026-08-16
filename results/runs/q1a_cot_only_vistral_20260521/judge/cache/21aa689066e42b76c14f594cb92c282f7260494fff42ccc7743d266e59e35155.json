@@ -1,0 +1,254 @@
+{
+  "cache_hit": false,
+  "cache_key": "21aa689066e42b76c14f594cb92c282f7260494fff42ccc7743d266e59e35155",
+  "content_filter": null,
+  "demonstration_manifest_hash": null,
+  "deployment": "gpt-4.1-mini",
+  "expected_model_family": "GPT-4.1-mini",
+  "expected_model_version": "2025-04-14",
+  "invalid_reason": null,
+  "invalid_stage": null,
+  "labels": {
+    "code_switching": 0,
+    "idiom_figurative": 0,
+    "implicit_sentiment": 1,
+    "irony": 0,
+    "mocking": 0,
+    "sarcasm": 0
+  },
+  "normalized_reasoning_sha256": "48bc7f5b327d4c560782d122b45d7befc38dee632b9b50213a6f89e4e03024ba",
+  "observed_model": "gpt-4.1-mini",
+  "observed_model_version": "2025-04-14",
+  "prompt_hash": "603C6FF7CE7CE6A2BE050B6A1E5F5C6484B06DA754D5D66DB594D2EDFCF1D9B4",
+  "raw_response": {
+    "background": false,
+    "completed_at": 1786187281.0,
+    "content_filters": [
+      {
+        "blocked": false,
+        "content_filter_offsets": {
+          "check_offset": 0,
+          "end_offset": 2013,
+          "start_offset": 0
+        },
+        "content_filter_raw": [],
+        "content_filter_results": {
+          "hate": {
+            "filtered": false,
+            "severity": "safe"
+          },
+          "jailbreak": {
+            "detected": false,
+            "filtered": false
+          },
+          "self_harm": {
+            "filtered": false,
+            "severity": "safe"
+          },
+          "sexual": {
+            "filtered": false,
+            "severity": "safe"
+          },
+          "violence": {
+            "filtered": false,
+            "severity": "safe"
+          }
+        },
+        "source_type": "prompt"
+      },
+      {
+        "blocked": false,
+        "content_filter_offsets": {
+          "check_offset": 0,
+          "end_offset": 98,
+          "start_offset": 0
+        },
+        "content_filter_raw": [],
+        "content_filter_results": {
+          "hate": {
+            "filtered": false,
+            "severity": "safe"
+          },
+          "protected_material_code": {
+            "detected": false,
+            "filtered": false
+          },
+          "protected_material_text": {
+            "detected": false,
+            "filtered": false
+          },
+          "self_harm": {
+            "filtered": false,
+            "severity": "safe"
+          },
+          "sexual": {
+            "filtered": false,
+            "severity": "safe"
+          },
+          "violence": {
+            "filtered": false,
+            "severity": "safe"
+          }
+        },
+        "source_type": "completion"
+      }
+    ],
+    "conversation": null,
+    "created_at": 1786187280.0,
+    "error": null,
+    "frequency_penalty": 0.0,
+    "id": "resp_045dbcf7def365dd006a770e1009b4819396dfa2c34dfb579d",
+    "incomplete_details": null,
+    "instructions": null,
+    "max_output_tokens": 128,
+    "max_tool_calls": null,
+    "metadata": {
+      "cache_key": "21aa689066e42b76c14f594cb92c282f7260494fff42ccc7743d266e59e35155",
+      "judge_protocol_id": "reasoning_judge_gpt41mini_zeroshot_v1",
+      "prompt_hash": "603C6FF7CE7CE6A2BE050B6A1E5F5C6484B06DA754D5D66DB594D2EDFCF1D9B4",
+      "request_id": "792d9c36d001ac0363b3c331",
+      "schema_hash": "DFDC228F14BA1BEA8072B35EFAB4EB38063302C5925373CD3C7B547F7C89FC6F"
+    },
+    "model": "gpt-4.1-mini",
+    "moderation": null,
+    "object": "response",
+    "output": [
+      {
+        "content": [
+          {
+            "annotations": [],
+            "logprobs": [],
+            "text": "{\"implicit_sentiment\":1,\"sarcasm\":0,\"irony\":0,\"idiom_figurative\":0,\"code_switching\":0,\"mocking\":0}",
+            "type": "output_text"
+          }
+        ],
+        "id": "msg_045dbcf7def365dd006a770e10895c81938aef31fa4730dc0a",
+        "phase": null,
+        "role": "assistant",
+        "status": "completed",
+        "type": "message"
+      }
+    ],
+    "parallel_tool_calls": true,
+    "presence_penalty": 0.0,
+    "previous_response_id": null,
+    "prompt": null,
+    "prompt_cache_key": null,
+    "prompt_cache_options": null,
+    "prompt_cache_retention": "in_memory",
+    "reasoning": {
+      "context": null,
+      "effort": null,
+      "generate_summary": null,
+      "mode": null,
+      "summary": null
+    },
+    "safety_identifier": null,
+    "service_tier": "default",
+    "status": "completed",
+    "store": true,
+    "temperature": 0.0,
+    "text": {
+      "format": {
+        "description": null,
+        "name": "vipragsent_reasoning_judge",
+        "schema_": {
+          "additionalProperties": false,
+          "properties": {
+            "code_switching": {
+              "enum": [
+                0,
+                1
+              ],
+              "type": "integer"
+            },
+            "idiom_figurative": {
+              "enum": [
+                0,
+                1
+              ],
+              "type": "integer"
+            },
+            "implicit_sentiment": {
+              "enum": [
+                0,
+                1
+              ],
+              "type": "integer"
+            },
+            "irony": {
+              "enum": [
+                0,
+                1
+              ],
+              "type": "integer"
+            },
+            "mocking": {
+              "enum": [
+                0,
+                1
+              ],
+              "type": "integer"
+            },
+            "sarcasm": {
+              "enum": [
+                0,
+                1
+              ],
+              "type": "integer"
+            }
+          },
+          "required": [
+            "implicit_sentiment",
+            "sarcasm",
+            "irony",
+            "idiom_figurative",
+            "code_switching",
+            "mocking"
+          ],
+          "title": "ViPragSent reasoning judge output",
+          "type": "object"
+        },
+        "strict": true,
+        "type": "json_schema"
+      },
+      "verbosity": "medium"
+    },
+    "tool_choice": "auto",
+    "tools": [],
+    "top_logprobs": 0,
+    "top_p": 1.0,
+    "truncation": "disabled",
+    "usage": {
+      "input_tokens": 512,
+      "input_tokens_details": {
+        "cache_write_tokens": null,
+        "cached_tokens": 0
+      },
+      "output_tokens": 38,
+      "output_tokens_details": {
+        "reasoning_tokens": 0
+      },
+      "total_tokens": 550
+    },
+    "user": null
+  },
+  "request_id": "resp_045dbcf7def365dd006a770e1009b4819396dfa2c34dfb579d",
+  "request_timestamp": "2026-08-08T11:08:01.516758+00:00",
+  "response_id": "resp_045dbcf7def365dd006a770e1009b4819396dfa2c34dfb579d",
+  "retry_count": 0,
+  "schema_hash": "DFDC228F14BA1BEA8072B35EFAB4EB38063302C5925373CD3C7B547F7C89FC6F",
+  "usage": {
+    "input_tokens": 512,
+    "input_tokens_details": {
+      "cache_write_tokens": null,
+      "cached_tokens": 0
+    },
+    "output_tokens": 38,
+    "output_tokens_details": {
+      "reasoning_tokens": 0
+    },
+    "total_tokens": 550
+  },
+  "valid": true
+}
