@@ -43,7 +43,6 @@ from .executors.generation import (
 from .generation_persistence import GenerationChunkStore
 from .provenance import expected_inference_provenance, validate_inference_provenance
 
-
 EXPLANATION_SYSTEM_ID = "explanation_only_vistral"
 SOURCE_SYSTEM_ID = "vipragsent_full_vistral"
 EXPLANATION_ENGINE_ID = "luna_explanation_engine"
@@ -119,7 +118,7 @@ class SharedInferenceIdentity:
                 raise ExplanationRuntimeError(f"explanation engine identity {field_name} is not frozen")
 
     @classmethod
-    def from_mapping(cls, value: Mapping[str, Any]) -> "SharedInferenceIdentity":
+    def from_mapping(cls, value: Mapping[str, Any]) -> SharedInferenceIdentity:
         aliases = {
             "engine": "engine_id",
             "engine_identity": "engine_id",
@@ -182,7 +181,7 @@ class SourceCheckpointIdentity:
             raise ExplanationRuntimeError("source checkpoint hash mismatch")
 
     @classmethod
-    def from_approved_source(cls, source: ApprovedFullVistralSource) -> "SourceCheckpointIdentity":
+    def from_approved_source(cls, source: ApprovedFullVistralSource) -> SourceCheckpointIdentity:
         return cls(
             seed=source.seed,
             checkpoint_path=source.checkpoint_path,
@@ -197,7 +196,7 @@ class SourceCheckpointIdentity:
         )
 
     @classmethod
-    def from_mapping(cls, value: Mapping[str, Any]) -> "SourceCheckpointIdentity":
+    def from_mapping(cls, value: Mapping[str, Any]) -> SourceCheckpointIdentity:
         nested = value.get("source_checkpoint")
         source = nested if isinstance(nested, Mapping) else value
         path = source.get("checkpoint_path", source.get("path"))

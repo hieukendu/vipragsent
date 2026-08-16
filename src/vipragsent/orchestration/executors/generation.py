@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import json
 import inspect
-from contextlib import contextmanager
+import json
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from contextlib import contextmanager
 from pathlib import Path
 from typing import Any
 
