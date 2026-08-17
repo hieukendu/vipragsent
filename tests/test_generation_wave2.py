@@ -82,7 +82,15 @@ def _protocol_root(tmp_path: Path) -> Path:
     return tmp_path
 
 
-def _executor(tmp_path: Path, model: nn.Module, *, profile: dict[str, object] | None = None) -> ReasoningGenerationExecutor:
+def _executor(
+    tmp_path: Path,
+    model: nn.Module,
+    *,
+    profile: dict[str, object] | None = None,
+    data_hash: str = "NOT_PROVIDED",
+    config_hash: str = "NOT_PROVIDED",
+    code_identity: str | None = None,
+) -> ReasoningGenerationExecutor:
     root = _protocol_root(tmp_path)
     judge = ReasoningJudge(
         root,
@@ -98,6 +106,9 @@ def _executor(tmp_path: Path, model: nn.Module, *, profile: dict[str, object] | 
         run_root=root / "run",
         fixture_mode=True,
         generation_profile=profile,
+        data_hash=data_hash,
+        config_hash=config_hash,
+        code_identity=code_identity,
     )
 
 
@@ -182,10 +193,78 @@ def test_committed_chunk_rejects_changed_rows(tmp_path: Path) -> None:
     manifest = json.loads((executor.run_root / "reasoning/dev_chunks_manifest.json").read_text(encoding="utf-8"))
     assert manifest["complete"] is True
     assert len(manifest["chunks"]) == 1
+    assert manifest["generation_contract"]["input_record_digest"]
+    assert manifest["generation_contract"]["record_order_digest"]
+
+
+@pytest.mark.parametrize(
+    ("first_kwargs", "second_kwargs", "match"),
+    [
+        ({"data_hash": "A" * 64}, {"data_hash": "B" * 64}, "contract identity mismatch"),
+        ({"config_hash": "config-a"}, {"config_hash": "config-b"}, "contract identity mismatch"),
+        ({"code_identity": "code-a"}, {"code_identity": "code-b"}, "contract identity mismatch"),
+    ],
+)
+def test_generation_resume_rejects_changed_data_config_or_code(
+    tmp_path: Path,
+    first_kwargs: dict[str, object],
+    second_kwargs: dict[str, object],
+    match: str,
+) -> None:
+    first = _executor(tmp_path, _BatchFixtureModel(), **first_kwargs)
+    first.generate_reasoning_split("dev", _records()[:2])
+    second = _executor(tmp_path, _BatchFixtureModel(), **second_kwargs)
+    with pytest.raises(GenerationPersistenceError, match=match):
+        second.generate_reasoning_split("dev", _records()[:2])
+
+
+def test_generation_resume_rejects_changed_model_state(tmp_path: Path) -> None:
+    first = _executor(tmp_path, _BatchFixtureModel())
+    first.generate_reasoning_split("dev", _records()[:2])
+    changed_model = _BatchFixtureModel()
+    with torch.no_grad():
+        changed_model.anchor.fill_(2)
+    second = _executor(tmp_path, changed_model)
+    with pytest.raises(GenerationPersistenceError, match="contract identity mismatch"):
+        second.generate_reasoning_split("dev", _records()[:2])
+
+
+def test_generation_resume_rejects_changed_record_order(tmp_path: Path) -> None:
+    first = _executor(tmp_path, _BatchFixtureModel())
+    records = _records()[:2]
+    first.generate_reasoning_split("dev", records)
+    second = _executor(tmp_path, _BatchFixtureModel())
+    with pytest.raises(GenerationPersistenceError, match="input identity mismatch"):
+        second.generate_reasoning_split("dev", list(reversed(records)))
+
+
+def test_model_state_identity_is_cached_across_generation_splits(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import vipragsent.orchestration.executors.generation as generation_module
+
+    calls = 0
+    original = generation_module._model_state_identity
+
+    def counted(model: nn.Module) -> dict[str, str]:
+        nonlocal calls
+        calls += 1
+        return original(model)
+
+    monkeypatch.setattr(generation_module, "_model_state_identity", counted)
+    executor = _executor(tmp_path, _BatchFixtureModel())
+    executor.generate_reasoning_split("dev", _records()[:2])
+    executor.generate_reasoning_split("test", _records()[:2])
+    assert calls == 1
+
+
+def test_generation_store_requires_contract_outside_explicit_fixture_or_legacy_mode(tmp_path: Path) -> None:
+    with pytest.raises(GenerationPersistenceError, match="canonical generation contract"):
+        GenerationChunkStore(tmp_path / "production", "dev", ["a"])
+    GenerationChunkStore(tmp_path / "fixture", "dev", ["a"], fixture_mode=True)
+    GenerationChunkStore(tmp_path / "legacy", "dev", ["a"], legacy_mode=True)
 
 
 def test_chunk_commit_is_idempotent_and_rejects_rewrites(tmp_path: Path) -> None:
-    store = GenerationChunkStore(tmp_path, "dev", ["a"])
+    store = GenerationChunkStore(tmp_path, "dev", ["a"], fixture_mode=True)
     row = {"sample_id": "a", "generated_reasoning": "stable"}
     first = store.commit([row])
     assert store.commit([row]) == first

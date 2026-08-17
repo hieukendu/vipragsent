@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import inspect
 import json
+import hashlib
 import math
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import contextmanager
@@ -19,7 +20,7 @@ from ...evaluation.reasoning_judge import (
     load_reasoning_protocol,
     validate_reasoning_protocol_files,
 )
-from ...hashing import sha256_file
+from ...hashing import sha256_file, sha256_json
 from ...models.generation import parse_cot_generation_record
 from ...runtime.device import (
     assert_runtime_device_contract,
@@ -34,6 +35,7 @@ from ...training.generation_checkpoint import (
     save_generation_checkpoint,
 )
 from ..generation_persistence import GenerationChunkStore, GenerationPersistenceError
+from ..run_store import git_commit, git_source_fingerprint
 
 
 class GenerationProtocolConflict(RuntimeError):
@@ -193,6 +195,40 @@ def _stable_artifact_identity(
         revision = str(identity.get("revision", "local"))
         identity["identity"] = f"{repository}@{revision}"
     return identity
+
+
+def _canonical_generation_value(value: Any) -> Any:
+    """Convert tensor-backed records into deterministic JSON identity data."""
+    if isinstance(value, torch.Tensor):
+        tensor = value.detach().cpu()
+        return {
+            "dtype": str(tensor.dtype),
+            "shape": list(tensor.shape),
+            "values": tensor.tolist(),
+        }
+    if isinstance(value, Mapping):
+        return {str(key): _canonical_generation_value(item) for key, item in value.items()}
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return [_canonical_generation_value(item) for item in value]
+    if value is None or isinstance(value, (str, int, float, bool)):
+        return value
+    raise GenerationPersistenceError(f"generation input record contains a non-canonical value: {type(value).__name__}")
+
+
+def _model_state_identity(model: torch.nn.Module) -> dict[str, str]:
+    """Hash the effective model state without relying on object identity."""
+    digest = hashlib.sha256()
+    for name, value in sorted(model.state_dict().items()):
+        digest.update(name.encode("utf-8"))
+        digest.update(b"\0")
+        if isinstance(value, torch.Tensor):
+            tensor = value.detach().cpu().contiguous()
+            digest.update(str(tensor.dtype).encode("ascii"))
+            digest.update(json.dumps(list(tensor.shape), separators=(",", ":")).encode("ascii"))
+            digest.update(tensor.view(torch.uint8).numpy().tobytes())
+        else:
+            digest.update(sha256_json(_canonical_generation_value(value)).encode("ascii"))
+    return {"model_state_sha256": digest.hexdigest().upper()}
 
 
 class GenerationExecutor:
@@ -429,6 +465,11 @@ class ReasoningGenerationExecutor:
         pad_token_id: int | None = None,
         generation_profile: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None = None,
         generation_batch_size: int | None = None,
+        source_identity: Mapping[str, Any] | str | None = None,
+        code_identity: Mapping[str, Any] | str | None = None,
+        checkpoint_identity: Mapping[str, Any] | str | None = None,
+        system_identity: Mapping[str, Any] | str | None = None,
+        budget: str | int | None = None,
     ) -> None:
         self.root = Path(root)
         self.run_root = Path(run_root) if run_root is not None else self.root
@@ -441,6 +482,11 @@ class ReasoningGenerationExecutor:
         self.dataset_identity = str(dataset_identity or self.data_hash)
         self.production_provenance_required = bool(production_provenance_required)
         self.fixture_mode = bool(fixture_mode)
+        self.source_identity = dict(source_identity) if isinstance(source_identity, Mapping) else source_identity
+        self.code_identity = dict(code_identity) if isinstance(code_identity, Mapping) else code_identity
+        self.checkpoint_identity = dict(checkpoint_identity) if isinstance(checkpoint_identity, Mapping) else checkpoint_identity
+        self.system_identity = dict(system_identity) if isinstance(system_identity, Mapping) else system_identity
+        self.budget = budget
         model_config = getattr(model, "config", None)
         self.model_artifact_identity = _stable_artifact_identity(
             model,
@@ -470,6 +516,88 @@ class ReasoningGenerationExecutor:
         if validation["status"] != "PASS":
             raise ValueError("reasoning protocol is not validated")
         self.run_root.mkdir(parents=True, exist_ok=True)
+        self._loaded_checkpoint_identity: dict[str, str] | None = None
+        self._model_state_identity_cache: dict[str, str] | None = None
+
+    def _run_manifest(self) -> dict[str, Any]:
+        path = self.run_root / "run_manifest.json"
+        if not path.exists():
+            return {}
+        try:
+            value = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise GenerationPersistenceError(f"invalid generation run manifest: {path}") from exc
+        if not isinstance(value, Mapping):
+            raise GenerationPersistenceError("generation run manifest must be a JSON object")
+        return dict(value)
+
+    @staticmethod
+    def _identity_value(value: Mapping[str, Any] | str | None, fallback: Any) -> Any:
+        if value is not None:
+            return value
+        return fallback
+
+    def _generation_contract(self, split: str, records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+        run_manifest = self._run_manifest()
+        sample_ids = [str(record["sample_id"]) for record in records]
+        canonical_records = [_canonical_generation_value(dict(record)) for record in records]
+        if self.code_identity is None:
+            self.code_identity = {
+                "commit": str(run_manifest.get("code_commit") or git_commit(self.root)),
+                "source_fingerprint": str(run_manifest.get("source_fingerprint") or git_source_fingerprint(self.root)),
+            }
+        if self.source_identity is None:
+            self.source_identity = {
+                "run_id": str(run_manifest.get("run_id") or ("fixture" if self.fixture_mode else "")),
+                "source": str(
+                    run_manifest.get("source_checkpoint_id")
+                    or run_manifest.get("source_system_id")
+                    or self.dataset_identity
+                    or ("generation_input" if self.fixture_mode else "")
+                ),
+            }
+        system_identity = self._identity_value(
+            self.system_identity,
+            run_manifest.get("system_id") or run_manifest.get("system") or ("fixture_generation" if self.fixture_mode else None),
+        )
+        budget = self.budget if self.budget is not None else run_manifest.get("budget", "NOT_APPLICABLE")
+        if budget in (None, ""):
+            budget = "NOT_APPLICABLE"
+        if self.checkpoint_identity is not None:
+            checkpoint_identity = self.checkpoint_identity
+        elif self._loaded_checkpoint_identity is not None:
+            checkpoint_identity = self._loaded_checkpoint_identity
+        else:
+            if self._model_state_identity_cache is None:
+                self._model_state_identity_cache = _model_state_identity(self.model)
+            checkpoint_identity = self._model_state_identity_cache
+        protocol_identity = {
+            "protocol_id": str(self.protocol["protocol_version"]),
+            "protocol_hash": sha256_json(self.protocol),
+            "generation_prompt_hash": str(self.protocol["generation_prompt_hash"]),
+            "decoding": _canonical_generation_value(self.protocol["decoding"]),
+        }
+        return {
+            "contract_version": GenerationChunkStore.GENERATION_CONTRACT_VERSION,
+            "source_identity": _canonical_generation_value(self.source_identity),
+            "code_identity": _canonical_generation_value(self.code_identity),
+            "model_identity": _canonical_generation_value(self.model_artifact_identity),
+            "tokenizer_identity": _canonical_generation_value(self.tokenizer_artifact_identity),
+            "checkpoint_identity": _canonical_generation_value(checkpoint_identity),
+            "config_identity": {
+                "config_hash": str(self.config_hash),
+                "protocol": protocol_identity,
+                "generation_profile": _canonical_generation_value(self.generation_profile),
+            },
+            "dataset_identity": str(self.dataset_identity),
+            "split": str(split),
+            "data_hash": str(self.data_hash),
+            "input_record_digest": sha256_json(canonical_records),
+            "record_order_digest": sha256_json(sample_ids),
+            "seed": self.seed,
+            "system_identity": _canonical_generation_value(system_identity),
+            "budget": _canonical_generation_value(budget),
+        }
 
     def _prepare_device_batch(self, batch: Mapping[str, Any]) -> dict[str, Any]:
         moved = move_batch_to_model_device(batch, self.model, device=self.device)
@@ -630,7 +758,13 @@ class ReasoningGenerationExecutor:
         rows = [dict(record) for record in records]
         output_root = Path(artifact_root) if artifact_root is not None else self.run_root
         sample_ids = [str(record["sample_id"]) for record in rows]
-        store = GenerationChunkStore(output_root, split, sample_ids)
+        store = GenerationChunkStore(
+            output_root,
+            split,
+            sample_ids,
+            generation_contract=self._generation_contract(split, rows),
+            fixture_mode=self.fixture_mode,
+        )
         committed = store.committed_rows() if resume else []
         committed_ids = {str(row["sample_id"]) for row in committed}
         pending = [record for record in rows if str(record["sample_id"]) not in committed_ids]
@@ -800,6 +934,11 @@ class ReasoningGenerationExecutor:
         usable = [dict(record) for record in records if record.get("input_ids") is not None and record.get("target_ids") is not None]
         if not usable:
             raise ValueError("generation training requires approved non-empty rationale records")
+        # A training step changes the effective checkpoint identity.  Clear
+        # only the derived cache; an explicit caller-supplied identity remains
+        # authoritative for fixture/controlled paths.
+        self._loaded_checkpoint_identity = None
+        self._model_state_identity_cache = None
         self._last_data_order = self._record_order(usable)
         batches = [
             self._collate_training_records(usable[start:start + self.physical_batch_size])
@@ -1008,6 +1147,7 @@ class ReasoningGenerationExecutor:
             "run_state": dict(loaded.run_state),
             "provenance": loaded.manifest.provenance if loaded.manifest is not None else None,
         })
+        self._loaded_checkpoint_identity = {"checkpoint_sha256": observed_hash}
         return report
 
     def load_epoch_checkpoint(
