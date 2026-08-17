@@ -148,6 +148,32 @@ def _relative_run_path(run_root: str | Path, path: str | Path) -> str:
     return resolved.relative_to(root).as_posix()
 
 
+def _relative_pointer_path(run_root: str | Path, path: str | Path) -> str:
+    """Normalize a pointer path without resolving an in-root symlink.
+
+    Canonical epoch aliases are intentionally symlinks when a historical
+    payload is migrated.  Resolving the alias here would turn
+    ``epoch_0002`` back into the legacy ``epoch_2`` spelling and make the
+    canonical-only pointer contract reject the migration.  The resolved
+    target is still checked by ``_run_root_path`` so an alias cannot escape
+    the run root.
+    """
+    root = Path(run_root).resolve()
+    candidate = Path(path)
+    if candidate.is_absolute():
+        try:
+            relative = candidate.relative_to(root)
+        except ValueError as exc:
+            raise GenerationCheckpointError("generation checkpoint path is outside the run root") from exc
+    else:
+        relative = candidate
+    normalized = relative.as_posix()
+    if not normalized or Path(normalized).is_absolute():
+        raise GenerationCheckpointError("generation checkpoint pointer path must be relative to the run root")
+    _run_root_path(root, normalized)
+    return normalized
+
+
 def _pointer_path(run_root: str | Path, kind: str) -> Path:
     if kind not in GENERATION_CHECKPOINT_POINTER_KINDS:
         raise GenerationCheckpointError(f"unsupported generation checkpoint pointer kind: {kind}")
@@ -429,11 +455,14 @@ def _validate_pointer_target(
     expected_selection_metric_name: str | None = None,
     expected_selection_metric_value: float | None = None,
 ) -> tuple[Path, GenerationCheckpointManifest, int]:
-    relative = _relative_run_path(run_root, path)
+    # Preserve the lexical canonical path when it is a symlink to a legacy
+    # payload; resolving it here would erase the zero padding required by the
+    # V30 pointer contract.
+    relative = _relative_pointer_path(run_root, path)
     epoch = _epoch_from_checkpoint_path(relative, canonical_only=True)
     if expected_epoch is not None and epoch != _positive_epoch(expected_epoch, field="pointer epoch"):
         raise GenerationCheckpointError("generation checkpoint pointer epoch disagrees with its path")
-    checkpoint_path = _run_root_path(run_root, relative)
+    checkpoint_path = Path(run_root).resolve() / relative
     if not checkpoint_path.is_file():
         raise GenerationCheckpointError(f"generation checkpoint pointer target is missing: {relative}")
     observed_hash = _sha256(sha256_file(checkpoint_path), field="checkpoint_sha256")
@@ -504,7 +533,9 @@ def write_generation_checkpoint_pointer(
         metric = sidecar_metric
     pointer = {
         "schema_version": GENERATION_CHECKPOINT_POINTER_SCHEMA_VERSION,
-        "path": checkpoint_path.relative_to(Path(run_root).resolve()).as_posix(),
+        # Keep the canonical lexical path, even when its payload is a
+        # symlink to a legacy checkpoint during V30 migration.
+        "path": _relative_pointer_path(run_root, path),
         "epoch": epoch,
         "checkpoint_sha256": _sha256(manifest.checkpoint_sha256, field="checkpoint_sha256"),
         "provenance_sha256": _sha256(manifest.provenance_sha256, field="provenance_sha256"),
@@ -637,7 +668,7 @@ def read_generation_checkpoint_pointer(
         raise GenerationCheckpointError(f"generation checkpoint {kind} pointer epoch disagrees with its path")
     return {
         "schema_version": schema_version,
-        "path": checkpoint_path.relative_to(Path(run_root).resolve()).as_posix(),
+        "path": relative,
         "epoch": epoch,
         "checkpoint_sha256": checkpoint_sha256,
         "provenance_sha256": provenance_sha256,

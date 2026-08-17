@@ -230,6 +230,41 @@ def test_executor_resolves_latest_best_and_rolls_back_without_copying(tmp_path: 
     assert canonical_payloads == ["checkpoints/epoch_0001/model.pt", "checkpoints/epoch_0002/model.pt"]
 
 
+def test_pointer_preserves_canonical_name_for_migrated_symlink(tmp_path: Path) -> None:
+    run_root = tmp_path / "run"
+    legacy = run_root / "checkpoints/epoch_2/model.pt"
+    manifest = save_generation_checkpoint(
+        legacy,
+        nn.Linear(2, 1),
+        None,
+        None,
+        {"epoch": 2, "selection_metric": 0.8, "data_order": []},
+        _provenance(),
+        fixture_mode=True,
+        epoch=2,
+        variant_fingerprint="variant-v1",
+        selection_metric_name=GENERATION_SELECTION_METRIC_NAME,
+        selection_metric_value=0.8,
+    )
+    canonical = run_root / canonical_generation_epoch_path(2)
+    canonical.parent.mkdir(parents=True, exist_ok=True)
+    canonical.symlink_to(Path("../epoch_2/model.pt"))
+    canonical.with_suffix(canonical.suffix + ".manifest.json").write_bytes(
+        (legacy.with_suffix(legacy.suffix + ".manifest.json")).read_bytes()
+    )
+
+    pointer = write_generation_checkpoint_pointer(
+        run_root,
+        "latest",
+        canonical_generation_epoch_path(2),
+        selection_metric_value=manifest.selection_metric_value,
+        variant_fingerprint="variant-v1",
+    )
+
+    assert pointer["path"] == canonical_generation_epoch_path(2)
+    assert read_generation_checkpoint_pointer(run_root, "latest")["path"] == canonical_generation_epoch_path(2)
+
+
 def test_checkpoint_manifest_carries_pointer_provenance_and_export_identity(tmp_path: Path) -> None:
     executor = _executor(tmp_path)
     executor.write_epoch_checkpoint(1, selection_metric=0.75)
