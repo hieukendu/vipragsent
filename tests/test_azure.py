@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -25,6 +26,49 @@ from vipragsent.azure.schemas import (
 from vipragsent.data.loaders import load_vipragsent
 from vipragsent.orchestration.contracts import RunContext, RunEntry
 from vipragsent.orchestration.stage_registry import _azure_execute
+
+
+@pytest.mark.parametrize("value", [math.nan, math.inf, -math.inf])
+def test_azure_safety_spend_ceiling_requires_finite_value(value: float) -> None:
+    with pytest.raises(ValueError, match="finite"):
+        AzureSafetyCeilings(max_verified_spend_usd=value)
+    with pytest.raises(ValueError, match="finite"):
+        AzureSafetyCeilings.from_mapping({"max_spend_usd": value})
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "max_logical_requests",
+        "max_transport_attempts",
+        "max_input_tokens",
+        "max_output_tokens",
+        "max_total_tokens",
+        "max_concurrency",
+    ],
+)
+def test_azure_safety_positive_integer_ceilings_are_strict(field_name: str) -> None:
+    for value in (True, 1.5, math.nan, math.inf, 0, -1):
+        with pytest.raises(ValueError):
+            AzureSafetyCeilings(**{field_name: value})
+        with pytest.raises(ValueError):
+            AzureSafetyCeilings.from_mapping({field_name: value})
+
+
+@pytest.mark.parametrize("field_name", ["max_retry_per_request", "max_retries_per_request"])
+def test_azure_safety_retry_integer_ceilings_are_strict(field_name: str) -> None:
+    for value in (True, 1.5, math.nan, math.inf, -1):
+        with pytest.raises(ValueError):
+            AzureSafetyCeilings(**{field_name: value})
+        with pytest.raises(ValueError):
+            AzureSafetyCeilings.from_mapping({field_name: value})
+
+
+def test_azure_safety_valid_mapping_keeps_integral_float_ceilings() -> None:
+    safety = AzureSafetyCeilings.from_mapping({"max_requests": 2.0, "max_spend_usd": 0.0, "max_retries_per_request": 0.0})
+    assert safety.max_logical_requests == 2
+    assert safety.max_verified_spend_usd == 0.0
+    assert safety.retry_ceiling == 0
 
 
 def test_azure_settings_reject_direct_openai_endpoint() -> None:
@@ -348,6 +392,75 @@ def test_cache_ignores_non_object_json_records(tmp_path: Path) -> None:
     cache.path_for("corrupt").write_text("[]", encoding="utf-8")
 
     assert cache.get("corrupt", expected_model_family="GPT-4.1-mini", expected_model_version="2025-04-14") is None
+
+
+def test_cache_rejects_record_with_mismatched_embedded_key(tmp_path: Path) -> None:
+    cache = AzureCache(tmp_path / "cache")
+    cache.path_for("requested").write_text(
+        json.dumps(
+            {
+                "cache_key": "poisoned",
+                "valid": True,
+                "observed_model": "GPT-4.1-mini",
+                "observed_model_version": "2025-04-14",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    assert cache.get("requested", expected_model_family="GPT-4.1-mini", expected_model_version="2025-04-14") is None
+
+
+@pytest.mark.parametrize("identity_field", ["prompt_hash", "schema_hash", "input_payload_hash", "deployment"])
+def test_client_rejects_cache_record_with_mismatched_request_identity(tmp_path: Path, identity_field: str) -> None:
+    calls = 0
+
+    def transport(**_: object) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        return _nested_response(_structured_labels(), response_id=f"resp_{calls}")
+
+    settings = AzureSettings("https://fixture.azure.com", "https://fixture.azure.com/openai/v1/", "dep", None, "api_key", "secret")
+    cache = AzureCache(tmp_path / "cache")
+    client = AzureResponsesClient(settings, transport=transport, cache=cache)
+    kwargs = {"prompt": "identity", "task": "all", "schema": {"strict": True, "schema": strict_label_schema()}, "max_output_tokens": 32}
+    first = client.create_structured(**kwargs)
+    path = cache.path_for(str(first["cache_key"]))
+    record = json.loads(path.read_text(encoding="utf-8"))
+    record[identity_field] = "poisoned"
+    record["request_identity"][identity_field] = "poisoned"
+    path.write_text(json.dumps(record), encoding="utf-8")
+
+    second = client.create_structured(**kwargs)
+
+    assert second["cache_hit"] is False
+    assert calls == 2
+
+
+def test_cache_preserves_legacy_record_with_existing_flat_identity(tmp_path: Path) -> None:
+    cache = AzureCache(tmp_path / "cache")
+    record = {
+        "cache_key": "legacy",
+        "valid": True,
+        "observed_model": "gpt-4.1-mini",
+        "observed_model_version": "2025-04-14",
+        "prompt_hash": "prompt",
+        "schema_hash": "schema",
+        "deployment": "dep",
+    }
+    cache.put("legacy", record)
+
+    assert cache.get(
+        "legacy",
+        expected_model_family="GPT-4.1-mini",
+        expected_model_version="2025-04-14",
+        expected_request_identity={
+            "prompt_hash": "prompt",
+            "schema_hash": "schema",
+            "input_payload_hash": "newer-field",
+            "deployment": "dep",
+        },
+    ) == record
 
 
 def test_pragmatic_demo_manifest_has_eight_unique_train_examples() -> None:
