@@ -391,7 +391,10 @@ def test_order_resume_finalization_and_batch_parity(tmp_path: Path) -> None:
 
     batch_root = tmp_path / "batch"
     batch_identity = _identity()
-    batch_config = ExplanationOnlyConfig(identity=batch_identity, generation_profile={"status": "PASS", "selected_batch_size": 2, "profiled": True})
+    batch_config = ExplanationOnlyConfig(
+        identity=batch_identity,
+        generation_profile={"status": "PASS", "selected_batch_size": 2, "profiled": True, "approved": True, "contention_status": "CLEAN"},
+    )
     batched_request = _request(batch_root, checkpoint, config=batch_config, batch_size=2)
     batched = ExplanationOnlyRuntime(_TinyFullModel(), _Tokenizer(), batched_request, run_root=batch_root)
     batched_rows = batched.generate_reasoning_split("dev", records)
