@@ -11,7 +11,7 @@ from typing import Any
 import yaml
 
 from ..atomic import atomic_write_json, atomic_write_text
-from ..azure.client import AzureCache, AzureResponsesClient, AzureSettings
+from ..azure.client import AzureCache, AzureResponsesClient, AzureSafetyCeilings, AzureSettings
 from ..constants import PRAGMATIC_LABELS
 from ..hashing import sha256_file
 from .metrics import binary_macro_f1
@@ -159,7 +159,7 @@ def _transport_error(response: Any) -> JudgeTransportError | None:
 
 
 def _retryable(exc: Exception) -> bool:
-    if isinstance(exc, (TimeoutError, ConnectionError)):
+    if isinstance(exc, TimeoutError | ConnectionError):
         return True
     if isinstance(exc, JudgeTransportError):
         return exc.status_code in RETRYABLE_STATUS_CODES
@@ -270,7 +270,16 @@ class ReasoningJudge:
                         metadata=kwargs.get("metadata", {}),
                     )
 
-                client = AzureResponsesClient(settings, transport=fixture_transport, cache=AzureCache(self.cache_root))
+                # An injected transport is an explicit fixture boundary.  It
+                # may omit provider usage metadata, so account the reserved
+                # ceiling conservatively instead of weakening the public
+                # production client's fail-closed default.
+                client = AzureResponsesClient(
+                    settings,
+                    transport=fixture_transport,
+                    cache=AzureCache(self.cache_root),
+                    safety=AzureSafetyCeilings(allow_unknown_spend=True),
+                )
             else:
                 settings = AzureSettings.from_env()
                 client = AzureResponsesClient(settings, cache=AzureCache(self.cache_root))

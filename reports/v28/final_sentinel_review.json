@@ -1,0 +1,127 @@
+{
+  "schema_version": 2,
+  "spec_version": "V28",
+  "spec_sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
+  "pr": 10,
+  "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
+  "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "status": "CLOSED_BY_V30_DESCENDANT_REPAIR",
+  "final_pass": true,
+  "completion_percent": 100,
+  "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+  "historical_review": {
+    "reviewer": "Kant",
+    "reviewed_head": "0430fbd57e881346e139385f2ee409beb56ccf2a",
+    "status": "FAIL",
+    "findings": [
+      "SENTINEL-001",
+      "SENTINEL-002",
+      "SENTINEL-003",
+      "SENTINEL-004",
+      "SENTINEL-005"
+    ]
+  },
+  "repair_wave": {
+    "SENTINEL-001": "historical repair evidence retained; V30 auxiliary correction requires a fresh exact-head revalidation",
+    "SENTINEL-002": "fixed in generation/explanation provenance contract",
+    "SENTINEL-003": "fixed in bounded async/sync Azure safety ledgers",
+    "SENTINEL-004": "fixed by excluding retryable failures from cache reuse",
+    "SENTINEL-005": "fixed by enforced profile/report exclusion parity",
+    "F-002": "fixed by finite spend and strict integer ceiling validation in sync/async Azure safety configs",
+    "F-003": "fixed by embedded cache-key and request-identity validation in the sync Azure cache"
+  },
+  "local_evidence": {
+    "broad_cpu_mock_only": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
+    "impacted_regressions": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS",
+    "git_diff_check": "PASS",
+    "v30_descendant": {
+      "r5_focused_tests": "11 passed",
+      "focused_tests": "172 passed",
+      "cpu_mock_suite": "PASS",
+      "ruff": "PASS",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    }
+  },
+  "remote_ci": {
+    "head_sha": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "run_id": 31988858252,
+    "job_id": 95268598734,
+    "status": "COMPLETED",
+    "conclusion": "SUCCESS",
+    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31988858252",
+    "v30_descendant": {
+      "workflow": "cpu-ci",
+      "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "run_id": 31999651740,
+      "job_id": 95297452139,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+    },
+    "v30_parent_report_head": {
+      "head_sha": "3334d98575f373eaa12f64cbf336748f531ccc66",
+      "run_id": 32000485665,
+      "job_id": 95299724029,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32000485665"
+    }
+  },
+  "safety": {
+    "production_actions_taken": false,
+    "azure_requests": false,
+    "huggingface_mutation": false,
+    "model_download": false,
+    "process_control": false,
+    "merge": false
+  },
+  "next_state": "CLOSED_BY_V30_DESCENDANT_REPAIR",
+  "descendant_closure": {
+    "version": "V30",
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "status": "FINAL_PASS",
+    "ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "run_id": 32001664211,
+      "job_id": 95303031902,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
+    },
+    "sentinel": {
+      "status": "PASS",
+      "reviewed_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "reviewer": "Independent exact-head V30 Sentinel"
+    },
+    "final_pass": true,
+    "report_head_ci": {
+      "head_sha": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "run_id": 32002103939,
+      "job_id": 95304262130,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32002103939"
+    }
+  },
+  "final_closure": {
+    "status": "FINAL_PASS",
+    "historical_review_status": "FAIL_PRESERVED",
+    "historical_findings_preserved": true,
+    "protocol_changed": false
+  },
+  "auxiliary_correction": {
+    "id": "R5",
+    "status": "PASS",
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "focused_tests": "11 passed",
+    "required_revalidation": false
+  }
+}

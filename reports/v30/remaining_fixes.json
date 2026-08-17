@@ -1,0 +1,199 @@
+{
+  "schema_version": 1,
+  "spec_version": "V30",
+  "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
+  "pr": 10,
+  "base_branch": "main",
+  "exact_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+  "status": "FINAL_PASS",
+  "final_pass": true,
+  "overall_completion_percent": 100,
+  "completion_basis": "R1-R5 are implemented and validated. The corrected workload-by-topology ETA is bound to the exact source implementation head, source-head CI and reviewed report-head CI are green, and the independent Sentinel evidence is PASS with no blockers.",
+  "gates": {
+    "R1_transactional_reconcile": "PASS",
+    "R2_checkpoint_hash_once_and_source_receipt": "PASS",
+    "R3_checkpoint_dedup_pointers": "PASS",
+    "R4_exact_reuse_resume": "PASS",
+    "R5_checkpoint_hash_deduplication": "PASS",
+    "targeted_tests": "PASS",
+    "cpu_mock_suite": "PASS",
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS",
+    "exact_head_ci": "PASS",
+    "sentinel": "PASS",
+    "v28_v29_closure": "PASS",
+    "pull_request": "OPEN_UNMERGED"
+  },
+  "remaining_fixes": [
+    {
+      "id": "R1",
+      "title": "Transactional generation-manifest reconciliation",
+      "status": "PASS",
+      "files": [
+        "src/vipragsent/orchestration/generation_persistence.py",
+        "tests/test_generation_wave2.py"
+      ],
+      "summary": "Manifest reconciliation validates only an appended delta, publishes candidate state only after complete validation, and rejects non-prefix or corrupt external changes without partially mutating the in-memory store.",
+      "runtime_effect": "Removes repeated historical JSONL validation from normal commits while retaining a final O(K) integrity check and O(delta) external reconciliation."
+    },
+    {
+      "id": "R2",
+      "title": "One-time validated explanation source identity",
+      "status": "PASS",
+      "files": [
+        "src/vipragsent/orchestration/executors/explanation_reuse.py",
+        "src/vipragsent/orchestration/explanation_runtime.py",
+        "src/vipragsent/orchestration/stage_registry.py",
+        "tests/test_explanation_source_receipt.py"
+      ],
+      "summary": "Production explanation resolution writes and validates a source receipt after one physical checkpoint verification; later artifact-only stages validate the receipt signature and metadata without rehashing or loading the checkpoint payload.",
+      "runtime_effect": "Removes repeated multi-GB checkpoint hashing from artifact-only explanation stages and keeps the source boundary fail-closed."
+    },
+    {
+      "id": "R3",
+      "title": "Canonical checkpoint files with tiny selection pointers",
+      "status": "PASS",
+      "files": [
+        "src/vipragsent/training/generation_checkpoint.py",
+        "src/vipragsent/orchestration/executors/generation.py",
+        "tests/test_generation_checkpoint_pointers.py"
+      ],
+      "summary": "Modern checkpoint writes use immutable canonical epoch files plus atomic latest/best JSON pointers with exact path, epoch, SHA, sidecar, provenance, variant, and metric validation; legacy paths remain readable.",
+      "runtime_effect": "Avoids duplicate large latest/best checkpoint copies while preserving resume, rollback, approval, and export semantics."
+    },
+    {
+      "id": "R4",
+      "title": "Exact artifact reuse and resume classification",
+      "status": "PASS",
+      "files": [
+        "src/vipragsent/runtime/artifact_reuse.py",
+        "tests/test_artifact_reuse.py"
+      ],
+      "summary": "Reuse decisions require exact binding across system, run, seed, checkpoint, config, dataset, model, tokenizer, code, source, approval, epoch, and checkpoint kind; paused work can resume, while uncertain or conflicting bindings block.",
+      "runtime_effect": "Prevents false reuse and gives no time credit unless the complete provenance binding is exact."
+    },
+    {
+      "id": "R5",
+      "title": "One physical checkpoint hash per validation boundary",
+      "status": "PASS",
+      "files": [
+        "src/vipragsent/training/generation_checkpoint.py",
+        "src/vipragsent/orchestration/executors/generation.py",
+        "tests/test_generation_checkpoint_pointers.py"
+      ],
+      "summary": "Observed checkpoint SHA-256 is carried from save, pointer validation, and pointer-based load into downstream manifest validation; corrupt and mismatched content remains fail-closed.",
+      "runtime_effect": "Avoids duplicate multi-GB checkpoint hashing within save-sidecar verification, pointer validation, and pointer-based load boundaries."
+    }
+  ],
+  "frozen_workload": {
+    "profile": "configs/experiments/naacl_balanced_runtime_profile.yaml",
+    "profile_id": "LUNA_NAACL_PROFILE",
+    "retained_rows": 80,
+    "q3_local_rows": 36,
+    "q3_azure_rows": 4,
+    "q2_rows": 18,
+    "q1b_evaluation_only_rows": 22,
+    "training_applicable_rows_or_units": 54,
+    "generation_rows": 40,
+    "q1b_optimizer_steps": 0,
+    "excluded_q3_systems": [
+      "xlmr_pragmatic_finetune"
+    ],
+    "excluded_q3_budgets": [
+      64,
+      256
+    ]
+  },
+  "v30_reuse_credit": {
+    "exact_reuse_count": 0,
+    "exact_resume_count": 0,
+    "persisted_blocked_count": 0,
+    "saved_time_credit_hours": 0,
+    "basis": "The balanced profile is policy-only, default-off, execution-prohibited, and contains no persisted V30 run receipts. Historical blocked rows are not converted into V30 status or savings."
+  },
+  "scientific_invariants": {
+    "protocol_changed": false,
+    "test_access_changed": false,
+    "q3_local_cartesian_product_preserved": true,
+    "q3_seedless_azure_rows_preserved": true,
+    "q1b_remains_evaluation_only": true,
+    "q1b_requires_exact_approved_source": true,
+    "dev_selects_test_reports": true,
+    "real_execution_taken": false
+  },
+  "evidence_inputs": {
+    "balanced_profile_sha256": "7e9a812c62483181f2d72a4abeea524e63ca5ea9ba2a1b7f2a9d075f0dadefcf",
+    "balanced_profile_report_sha256": "5fd4f39ad3daa6a9b78ad5dd0a804a22f5e119edf7a8e7d63a6095daa57dd9db",
+    "historical_runtime_anchor_report_sha256": "19716836e17c215de9b4c811b60785278cc4cfe5055e93ab87c353ddf7894a9f"
+  },
+  "pending_validation": null,
+  "final_validation": {
+    "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "source_head_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "run_id": 32001664211,
+      "job_id": 95303031902,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
+    },
+    "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+    "report_head_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "run_id": 32002103939,
+      "job_id": 95304262130,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32002103939"
+    },
+    "independent_sentinel": {
+      "status": "PASS",
+      "reviewer": "Independent exact-head V30 Sentinel",
+      "reviewed_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "findings": {
+        "R1_R4": "PASS",
+        "R5_hash_deduplication": "PASS",
+        "corrected_eta": "PASS",
+        "scientific_protocol": "PASS",
+        "tests_static_ci": "PASS",
+        "v28_v29_closure": "PASS",
+        "pull_request": "OPEN_UNMERGED"
+      },
+      "blockers": []
+    },
+    "auxiliary_correction": "R5",
+    "final_report_head_semantics": "The reviewed report head is the last report-only evidence head before this final dossier update; the source implementation head is unchanged and is the exact code-validation binding. The PR head and its post-update CI are verified separately in the delivery record."
+  },
+  "pull_request": {
+    "url": "https://github.com/hieukendu/vipragsent/pull/10",
+    "state": "OPEN",
+    "merged": false,
+    "duplicate_pr": false
+  },
+  "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "validation": {
+    "focused_checkpoint_hash_tests": "11 passed",
+    "focused_regression_suite": "172 passed",
+    "permitted_cpu_mock_suite": "PASS",
+    "source_static_checks": "PASS",
+    "prior_parent_ci": {
+      "head_sha": "3334d98575f373eaa12f64cbf336748f531ccc66",
+      "run_id": 32000485665,
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32000485665"
+    }
+  },
+  "report_binding": {
+    "exact_source_head_semantics": "Source implementation head after auxiliary R5 correction; source-head CI and independent Sentinel evidence are green for this SHA.",
+    "parent_report_head": "3334d98575f373eaa12f64cbf336748f531ccc66",
+    "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+    "source_head_ci": "PASS",
+    "report_head_ci": "PASS",
+    "final_report_is_report_only_descendant": true
+  }
+}

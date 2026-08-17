@@ -1,0 +1,113 @@
+{
+  "schema_version": 1,
+  "spec_version": "V30",
+  "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
+  "pr": 10,
+  "base_branch": "main",
+  "status": "FINAL_PASS",
+  "final_pass": true,
+  "completion_percent": 100,
+  "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+  "independent_sentinel": {
+    "status": "PASS",
+    "reviewer": "Independent exact-head V30 Sentinel",
+    "reviewed_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+    "findings": {
+      "R1_transactional_reconcile": "PASS",
+      "R2_validated_source_receipt": "PASS",
+      "R3_canonical_checkpoint_pointers": "PASS",
+      "R4_exact_reuse_resume_blocked": "PASS",
+      "R5_one_hash_per_validation_boundary": "PASS",
+      "corrected_bottom_up_eta": "PASS",
+      "scientific_protocol": "PASS",
+      "tests_and_static_validation": "PASS",
+      "v28_v29_descendant_closure": "PASS",
+      "pull_request": "OPEN_UNMERGED"
+    },
+    "blockers": []
+  },
+  "local_validation": {
+    "r5_focused_tests": "11 passed",
+    "focused_regression_suite": "172 passed",
+    "permitted_cpu_mock_suite": "PASS",
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "remote_validation": {
+    "source_head_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "run_id": 32001664211,
+      "job_id": 95303031902,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
+    },
+    "reviewed_report_head_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "run_id": 32002103939,
+      "job_id": 95304262130,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32002103939"
+    }
+  },
+  "eta": {
+    "raw_central_hours": 303.65,
+    "raw_conservative_hours": 469.8,
+    "central_after_hours": 283.65,
+    "central_after_days": 11.82,
+    "conservative_hours": 647.8,
+    "conservative_days": 26.99,
+    "modeled_savings_hours": 20,
+    "exact_reuse_resume_blocked_credit_hours": 0,
+    "under_30_days": true,
+    "measured_speedup_credit_hours": 0,
+    "methodology": "bottom_up_topology_specific_unit_costs; heuristic engineering estimate; not measured runtime proof",
+    "historical_reasoning_anchor_included": false,
+    "q2_no_multitask_units": 24,
+    "q1b_optimizer_steps": 0,
+    "azure_separate_from_local_gpu": true
+  },
+  "scientific_invariants": {
+    "protocol_changed": false,
+    "test_access_changed": false,
+    "q3_local_cartesian_product_preserved": true,
+    "q3_seedless_azure_rows_preserved": true,
+    "q1b_remains_evaluation_only": true,
+    "q1b_requires_exact_approved_source": true,
+    "dev_selects_test_reports": true,
+    "real_execution_taken": false
+  },
+  "safety": {
+    "production_training": false,
+    "gpu_workload": false,
+    "live_azure": false,
+    "model_download": false,
+    "huggingface_mutation": false,
+    "test_data_profiling": false,
+    "process_control": false,
+    "merge": false
+  },
+  "historical_parent_evidence": {
+    "parent_report_head": "3334d98575f373eaa12f64cbf336748f531ccc66",
+    "parent_ci_run": 32000485665,
+    "status": "HISTORICAL_SUPERSEDED_BY_AUXILIARY_R5"
+  },
+  "report_binding": {
+    "source_head_is_code_validation_binding": true,
+    "reviewed_report_head_is_report_only_evidence_head": true,
+    "final_dossier_is_report_only_descendant": true,
+    "exact_source_head_ci_required_and_green": true
+  },
+  "closure": {
+    "v28": "CLOSED_BY_V30_DESCENDANT_REPAIR",
+    "v29": "FINAL_PASS_V30_DESCENDANT_CLOSURE",
+    "v29_historical_p2": "PRESERVED_AS_DEFERRED; RESOLVED_BY_V30_R3",
+    "status": "FINAL_PASS"
+  }
+}

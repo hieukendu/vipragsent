@@ -1,0 +1,5 @@
+# Critical files reviewed
+
+Read-only source review covered the clean-base generation executor, stage registry, checkpoint I/O, run store, reasoning judge, training config, and CI workflow. The clean-base source identity is commit `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`; no source edit is asserted. The production path `/root/vipragsent` has dirty source changes in exporter, Azure client, preprocessing, reasoning judge, aggregation, generation, sequential orchestration, stage registry, device runtime, and tests.
+
+The dirty production worktree and absent paused process make any loaded-code claim unsafe. The run state records tree `a670b1ca9af0a6921b2f0d7f194bfa29fe568c6d` and source fingerprint `2daf51d98fa18b076a4020dada95dcbf8320304abcc0440b684a99291ec6500e`, while `run_manifest.json` records code commit `a765b2bca625ff66cf97dc608eacb3a3c63553b5`; this is an explicit provenance conflict. Future Builders must record exact file hashes in their own review and use fresh worktrees at the clean commit. This audit wrote only the report directory.

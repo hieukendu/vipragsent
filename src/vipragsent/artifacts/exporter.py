@@ -22,6 +22,7 @@ from ..evaluation.metrics import (
 )
 from ..hashing import sha256_file, sha256_json
 from ..manual import ERROR_ANALYSIS_COLUMNS
+from ..orchestration.approval import validate_approval_record
 from ..orchestration.provenance import validate_inference_provenance
 from ..statistics.bootstrap import (
     hierarchical_bootstrap,
@@ -451,7 +452,7 @@ def _resolve_run_file(root: Path, metrics_path: Path, value: str | Path) -> Path
 
 def _prediction_paths(root: Path, metrics_path: Path, payload: dict[str, Any]) -> list[Path]:
     raw = payload.get("prediction_files", payload.get("prediction_file"))
-    values = [raw] if isinstance(raw, (str, Path)) else list(raw or [])
+    values = [raw] if isinstance(raw, str | Path) else list(raw or [])
     if not values:
         values = ["test_predictions.jsonl", "predictions.jsonl"]
     paths = [_resolve_run_file(root, metrics_path, value) for value in values]
@@ -496,13 +497,8 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
     if not run_root.exists():
         raise ValueError("Production result runs are missing")
     manifest_files = sorted(run_root.glob("*/run_manifest.json"))
-    legacy_adapter = False
     if not manifest_files:
-        # Fixture/migration adapter only: old system/seed trees are never accepted as production output.
-        manifest_files = sorted(run_root.glob("*/*/metrics.json"))
-        legacy_adapter = True
-    if not manifest_files:
-        raise ValueError("No production run manifests were found")
+        raise ValueError("No production run manifests were found; the legacy production adapter is disabled")
     records: list[dict[str, Any]] = []
     required = {
         "system", "backbone", "seed", "mode", "model_revision", "tokenizer_revision",
@@ -535,13 +531,11 @@ def _read_production_runs(root: Path) -> list[dict[str, Any]]:
         known_backbone = SYSTEM_BACKBONES.get(str(payload.get("system")))
         if known_backbone and payload.get("backbone") != known_backbone:
             raise ValueError(f"Production run uses the wrong backbone for {payload['system']}: {path}")
-        if not legacy_adapter:
-            approval_path = path.parent / "approval_status.json"
-            approval = json.loads(approval_path.read_text(encoding="utf-8")) if approval_path.exists() else {}
-            if approval.get("status") != "APPROVED":
-                raise ValueError(f"Production run is not explicitly APPROVED: {path}")
+        approval_errors = validate_approval_record(path.parent, expected_run_id=path.parent.name)
+        if approval_errors:
+            raise ValueError(f"Production run approval is incomplete: {path}: {'; '.join(approval_errors)}")
         prediction_paths = _prediction_paths(root, path, payload)
-        records.append({"path": path, **payload, "seed": seed, "prediction_paths": prediction_paths, "legacy_fixture_adapter": legacy_adapter})
+        records.append({"path": path, **payload, "seed": seed, "prediction_paths": prediction_paths, "legacy_fixture_adapter": False})
 
     groups: dict[tuple[str, str, str], set[int]] = defaultdict(set)
     for record in records:

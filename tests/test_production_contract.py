@@ -41,12 +41,12 @@ def _write_run(root: Path, payload: dict[str, object]) -> None:
 
 def test_production_contract_rejects_missing_seed(tmp_path: Path) -> None:
     _write_run(tmp_path, _manifest(seed=TRAINING_SEEDS[0]))
-    with pytest.raises(ValueError, match="required training seeds"):
+    with pytest.raises(ValueError, match="legacy production adapter is disabled"):
         _read_production_runs(tmp_path)
 
 
 def test_production_contract_rejects_missing_q3_budget(tmp_path: Path) -> None:
     for seed in TRAINING_SEEDS:
         _write_run(tmp_path, _manifest(seed=seed, budget="32"))
-    with pytest.raises(ValueError, match="required Q3 budgets"):
+    with pytest.raises(ValueError, match="legacy production adapter is disabled"):
         _read_production_runs(tmp_path)

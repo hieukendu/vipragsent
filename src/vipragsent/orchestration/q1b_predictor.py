@@ -19,9 +19,11 @@ from ..runtime.device import (
     write_device_report,
 )
 from ..training.checkpoints import infer_required_head_prefixes, load_checkpoint
+from .approval import validate_approval_record
 from .q1b_dependencies import (
     Q1B_MATRIX_KEY_BY_SYSTEM,
     q1b_dependency_graph_is_available,
+    q1b_source_sha256,
     resolve_q1b_producer,
 )
 
@@ -45,7 +47,9 @@ class Q1BSource:
     variant_fingerprint: str
     producer_id: str = ""
     producer_run_id: str = ""
+    producer_kind: str = ""
     dependency_graph_sha256: str = ""
+    dependency_source_sha256: str = ""
 
     def as_dict(self, root: Path) -> dict[str, Any]:
         return {
@@ -63,7 +67,9 @@ class Q1BSource:
             "variant_fingerprint": self.variant_fingerprint,
             "producer_id": self.producer_id,
             "producer_run_id": self.producer_run_id,
+            "producer_kind": self.producer_kind,
             "dependency_graph_sha256": self.dependency_graph_sha256,
+            "dependency_source_sha256": self.dependency_source_sha256,
         }
 
 
@@ -104,9 +110,11 @@ def resolve_exact_q1b_source(root: str | Path, entry: Mapping[str, Any]) -> Q1BS
     seed = entry.get("seed")
     producer: dict[str, Any] = {}
     graph_hash = ""
+    source_hash = ""
     if q1b_dependency_graph_is_available(root):
         producer = resolve_q1b_producer(root, entry)
         graph_hash = str(producer.get("graph_sha256", ""))
+        source_hash = str(producer.get("source_sha256", ""))
     checkpoint_key = str(entry.get("source_checkpoint_id") or entry.get("reusable_checkpoint_key") or f"{matrix['checkpoint_key']}:{seed}")
     graph_edge = producer.get("edge", {})
     graph_checkpoint_key = str(graph_edge.get("expected_checkpoint_key", ""))
@@ -134,16 +142,16 @@ def resolve_exact_q1b_source(root: str | Path, entry: Mapping[str, Any]) -> Q1BS
         checksums_path = run_root / "checksums.sha256"
         if not all(path.exists() for path in (summary_path, approval_path, state_path, manifest_path, checksums_path)):
             continue
-        summary, approval, state, manifest = (_load(summary_path), _load(approval_path), _load(state_path), _load(manifest_path))
+        summary, state, manifest = (_load(summary_path), _load(state_path), _load(manifest_path))
         if str(summary.get("system_id")) != system_id or str(summary.get("seed")) != str(seed):
             continue
-        if str(summary.get("reusable_checkpoint_key")) != checkpoint_key or approval.get("status") != "APPROVED":
+        if str(summary.get("reusable_checkpoint_key")) != checkpoint_key:
             continue
-        if state.get("run_status") not in {"COMPLETED_PENDING_APPROVAL", "APPROVED"}:
+        if state.get("run_status") != "APPROVED" or state.get("approval_status") != "APPROVED":
             continue
         summary_hash = sha256_file(summary_path)
         checksum_hash = sha256_file(checksums_path)
-        if approval.get("review_summary_sha256") != summary_hash or approval.get("artifact_checksum_file_sha256") != checksum_hash:
+        if validate_approval_record(run_root, expected_run_id=run_id):
             continue
         checkpoint_value = manifest.get("best") or manifest.get("checkpoint_path")
         checkpoint_path = run_root / str(checkpoint_value or "")
@@ -164,7 +172,9 @@ def resolve_exact_q1b_source(root: str | Path, entry: Mapping[str, Any]) -> Q1BS
             source,
             producer_id=str(graph_edge.get("producer_id", "")),
             producer_run_id=str(graph_edge.get("producer_run_id", "")),
+            producer_kind=str(graph_edge.get("producer_kind", "")),
             dependency_graph_sha256=graph_hash,
+            dependency_source_sha256=source_hash or q1b_source_sha256(root),
         )
     return source
 
@@ -192,6 +202,10 @@ class DiskBackedQ1BPredictor:
         if system_id == "phobert_emo_single":
             return task == "emotion"
         return True
+
+    def __call__(self, dataset: str, example: Any) -> str:
+        """Expose the predictor as the callable expected by retention evaluation."""
+        return self.predict(dataset, example)
 
     def _load(self) -> None:
         if self._loaded:
@@ -279,4 +293,29 @@ class DiskBackedQ1BPredictor:
         return (POLARITY_LABELS if task == "polarity" else EMOTION_LABELS)[index]
 
     def provenance(self) -> dict[str, Any]:
-        return {"source": self.source.as_dict(self.root), "producer": {"producer_id": self.source.producer_id, "producer_run_id": self.source.producer_run_id, "dependency_graph_sha256": self.source.dependency_graph_sha256}, "matrix": {"key": self.matrix_key, **self.matrix}, "applicable_datasets": list(self.applicable_datasets), "external_finetuning": False, "optimizer_steps": 0, "backward_calls": 0, "predictor_factory": "disk_backed_q1b_v2"}
+        return {
+            "source": self.source.as_dict(self.root),
+            "producer": {
+                "producer_id": self.source.producer_id,
+                "producer_run_id": self.source.producer_run_id,
+                "producer_kind": self.source.producer_kind,
+                "checkpoint_key": self.source.checkpoint_key,
+                "source_seed": self.source.seed,
+                "dependency_graph_sha256": self.source.dependency_graph_sha256,
+                "dependency_source_sha256": self.source.dependency_source_sha256,
+            },
+            "producer_id": self.source.producer_id,
+            "producer_run_id": self.source.producer_run_id,
+            "producer_kind": self.source.producer_kind,
+            "checkpoint_key": self.source.checkpoint_key,
+            "source_seed": self.source.seed,
+            "dependency_graph_sha256": self.source.dependency_graph_sha256,
+            "dependency_source_sha256": self.source.dependency_source_sha256,
+            "matrix": {"key": self.matrix_key, **self.matrix},
+            "applicable_datasets": list(self.applicable_datasets),
+            "external_finetuning": False,
+            "train_loader_created": False,
+            "optimizer_steps": 0,
+            "backward_calls": 0,
+            "predictor_factory": "disk_backed_q1b_v2",
+        }

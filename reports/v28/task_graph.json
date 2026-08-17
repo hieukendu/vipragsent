@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "goal_id": "VIPRAGSENT_V28",
+  "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
+  "current_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "nodes": [
+    {
+      "task_id": "V28-DISCOVERY",
+      "priority": "P0",
+      "component": "repository/remote/runtime",
+      "description": "Freeze repository, main, PR, worktree, process, checkpoint, artifact, environment, CI, and protocol baseline.",
+      "dependencies": [],
+      "write_scope": "reports/v28/baseline.*",
+      "read_scope": "repository, GitHub, runtime state",
+      "runtime_resource": "CPU/read-only",
+      "risk": "stale-state misclassification",
+      "acceptance_tests": [
+        "baseline fields reconciled against live evidence"
+      ],
+      "assigned_worker": "Manager",
+      "state": "COMPLETED"
+    },
+    {
+      "task_id": "V28-RECONCILE",
+      "priority": "P0/P1",
+      "component": "protocol/provenance/inventory",
+      "description": "Reconcile scientific protocol, exact inventory, checkpoint identity, reuse/resume gates, and existing convergence artifacts.",
+      "dependencies": [
+        "V28-DISCOVERY"
+      ],
+      "write_scope": "reports/v28/task_graph.json, reports/v28/ownership_matrix.md",
+      "read_scope": "configs/experiments, reports/runtime_optimization, results/runs",
+      "runtime_resource": "CPU/read-only",
+      "risk": "protocol drift or stale evidence",
+      "acceptance_tests": [
+        "profile validator",
+        "inventory/provenance audits",
+        "exact hash comparison"
+      ],
+      "assigned_worker": "Manager plus prior bounded workers",
+      "state": "COMPLETED_WITH_CONDITIONAL_GATES"
+    },
+    {
+      "task_id": "V28-EXACT-HEAD-VALIDATION",
+      "priority": "P1",
+      "component": "tests/CI",
+      "description": "Validate the exact current PR head with targeted and broad CPU/mock suites, compile, lint, and current-head CI.",
+      "dependencies": [
+        "V28-DISCOVERY"
+      ],
+      "write_scope": "none",
+      "read_scope": "current PR checkout",
+      "runtime_resource": "CPU/mock only",
+      "risk": "report-only head divergence",
+      "acceptance_tests": [
+        "389 CPU/mock tests pass",
+        "65 Azure/cache/ceiling regressions pass",
+        "targeted suite pass",
+        "compileall",
+        "Ruff",
+        "git diff --check",
+        "exact code-head cpu-ci run 31988858252"
+      ],
+      "assigned_worker": "Manager",
+      "state": "COMPLETED"
+    },
+    {
+      "task_id": "V28-FINAL-SENTINEL",
+      "priority": "P0/P1",
+      "component": "whole-repository adversarial review",
+      "description": "Fresh independent review of exact current PR head and all applicable V28 completion gates.",
+      "dependencies": [
+        "V28-RECONCILE",
+        "V28-EXACT-HEAD-VALIDATION"
+      ],
+      "write_scope": "reports/v28/final_sentinel_review.*",
+      "read_scope": "whole relevant repository, PR, CI, reports",
+      "runtime_resource": "read-only",
+      "risk": "missed actionable defect or invalid completion claim",
+      "acceptance_tests": [
+        "structured findings with reproduction and severity",
+        "PASS only with no actionable correctness finding"
+      ],
+      "assigned_worker": "Kant (independent Sentinel)",
+      "state": "HISTORICAL_FAIL_PRESERVED; V30_DESCENDANT_FINAL_PASS"
+    },
+    {
+      "task_id": "V28-FIX-AND-REVIEW",
+      "priority": "P0/P1",
+      "component": "finding-driven repair",
+      "description": "For every actionable Sentinel finding, reproduce, assign a bounded Worker, fix root cause, test, integrate, and re-review.",
+      "dependencies": [
+        "V28-FINAL-SENTINEL"
+      ],
+      "write_scope": "finding-specific files only",
+      "read_scope": "finding-specific modules and tests",
+      "runtime_resource": "bounded CPU/mock unless explicitly gated",
+      "risk": "symptom patch or ownership collision",
+      "acceptance_tests": [
+        "targeted regression",
+        "impacted integration",
+        "fresh Sentinel review"
+      ],
+      "assigned_worker": "Manager assigns after findings",
+      "state": "INTEGRATED; HISTORICAL_FINDINGS_FIXED; V30_DESCENDANT_FINAL_PASS"
+    },
+    {
+      "task_id": "V28-PR-CONVERGENCE",
+      "priority": "P1",
+      "component": "GitHub delivery",
+      "description": "Keep PR description/evidence bound to exact final head, confirm current-head CI and review state, and do not merge.",
+      "dependencies": [
+        "V28-FINAL-SENTINEL",
+        "V28-FIX-AND-REVIEW"
+      ],
+      "write_scope": "reports/v28/final_validation.*, PR metadata if needed",
+      "read_scope": "GitHub PR #10 and exact final head",
+      "runtime_resource": "read-only/CPU",
+      "risk": "stale CI or report binding",
+      "acceptance_tests": [
+        "PR head equals tested/reviewed SHA",
+        "CI green",
+        "no blocking threads",
+        "required PR evidence present"
+      ],
+      "assigned_worker": "Manager",
+      "state": "V30_DESCENDANT_FINAL_PASS"
+    }
+  ],
+  "auxiliary_correction": {
+    "id": "R5",
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "status": "PASS",
+    "focused_tests": "11 passed",
+    "source_head_ci": "cpu-ci run 32001664211/job 95303031902 success",
+    "report_head_ci": "cpu-ci run 32002103939/job 95304262130 success",
+    "sentinel": "PASS"
+  }
+}

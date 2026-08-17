@@ -1,0 +1,23 @@
+{
+  "schema_version": 2,
+  "review": "LUNA_SENTINEL",
+  "wave": "WAVE_0",
+  "round": 2,
+  "decision": "PASS",
+  "pass_rule": "zero open CRITICAL or HIGH findings",
+  "prompt": {"version":"V26","sha256_claimed":"457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0","independently_recomputed":false,"status":"consistent claim; prompt bytes/source location absent from bundle"},
+  "identity": {"base_commit":"fb40c91a7c39ac575db2bd71d9957f0e89069b3e","production_head":"fb40c91a7c39ac575db2bd71d9957f0e89069b3e","runtime_opt_head":"fb40c91a7c39ac575db2bd71d9957f0e89069b3e","runtime_opt_source_changes":false,"runtime_opt_contains_only_intentional_audit_reports":true,"fresh_builder_worktree_required":true,"production_worktree_dirty":true,"live_code_identity":"LIVE_CODE_IDENTITY_UNCERTAIN","identity_conflict_preserved":true,"reuse_status":"BLOCKED_PENDING_RECONCILIATION"},
+  "safety": {"production_source_edited":false,"production_run_started":false,"benchmark_run":false,"azure_mutation":false,"hf_mutation":false,"process_control":false,"recursive_agents_spawned":false},
+  "provenance_verified_in_bundle": {"checkpoint_local_path":"results/runs/q1a_cot_only_vistral_20260521/checkpoints/epoch_2/model.pt","checkpoint_bytes":4942818023,"checkpoint_sha256":"d3fe7e99bb0758e527c4967fe2a8502c722fce8d86cd7664ea776440a3b41a77","hf_repo":"Thundergod2007/vipragsent-vistral7b-checkpoints","hf_path":"q1a_cot_only_vistral_20260521/checkpoints/epoch_2/model.pt","hf_revision":"1aadf557a77853cf19946a747f9fe5c40a8288b0","state_code_tree":"a670b1ca9af0a6921b2f0d7f194bfa29fe568c6d","state_source_fingerprint":"2daf51d98fa18b076a4020dada95dcbf8320304abcc0440b684a99291ec6500e","run_manifest_code_commit":"a765b2bca625ff66cf97dc608eacb3a3c63553b5","model_revision":"d331b64e61b935cc43c2b3010ae9fb4fde599b45","tokenizer_revision":"d331b64e61b935cc43c2b3010ae9fb4fde599b45","config_hash":"3F6AF966D078AF57CC8989269380B2DD1C44D2402540AD21E9B5C419A8743642","data_hash":"B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9","processed_fingerprint":"7C39BEEBC462D1F9076F5DF1565E924BD884263D5503F23398BD83A6BF4205EB"},
+  "findings": [
+    {"id":"H-001","severity":"HIGH","status":"CLOSED","reason":"Clean commit is distinguished from report-bearing worktree; fresh Builder worktrees are required."},
+    {"id":"H-002","severity":"HIGH","status":"CLOSED","reason":"Exact provenance and the unresolved state-vs-manifest conflict are recorded; reuse remains blocked and identity is not overstated."},
+    {"id":"M-001","severity":"MEDIUM","status":"OPEN","blocking":false,"summary":"Prompt bytes or trusted source location are absent, so the supplied SHA cannot be independently recomputed from the bundle."},
+    {"id":"M-002","severity":"MEDIUM","status":"CLOSED","reason":"Exact checkpoint local/HF paths, bytes, hashes, revision, and read-only verification are recorded."},
+    {"id":"M-003","severity":"MEDIUM","status":"CLOSED","reason":"Baseline remains non-measured and opportunity gates now specify roles, risks, prerequisites, and fixture/mock acceptance conditions."},
+    {"id":"M-004","severity":"MEDIUM","status":"CLOSED","reason":"Ledger now records activation, ownership, inputs/outputs, serialized dependencies, shared contracts, and acceptance criteria."},
+    {"id":"L-001","severity":"LOW","status":"OPEN","blocking":false,"summary":"Evidence timestamps/source IDs are still absent for environment and partial telemetry facts."}
+  ],
+  "acceptance": {"open_critical":0,"open_high":0,"open_medium":1,"open_low":1,"wave0_accepted":true,"scope_limit":"Manager gate only; identity-bound reuse, implementation, and measurement remain gated."},
+  "reviewed_paths": ["/root/vipragsent-runtime-opt/reports/runtime_optimization","/root/vipragsent","/root/vipragsent-runtime-opt"]
+}

@@ -1,0 +1,268 @@
+{
+  "schema_version": 2,
+  "spec_version": "V30",
+  "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
+  "status": "FINAL_PASS",
+  "final_pass": true,
+  "estimate_kind": "HEURISTIC ENGINEERING ESTIMATE — NOT A MEASURED RUNTIME PROOF",
+  "exact_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+  "methodology": "estimated wall clock = sum of topology-specific workload-unit costs + unavoidable serial overhead - exact reuse/resume credit - eliminated redundant I/O - safe dependency overlap. Unit costs are planning assumptions derived from model family, executor kind, optimizer-step topology, and split structure; no runtime benchmark or profiling campaign was run.",
+  "frozen_workload_counts": {
+    "retained_rows_total": 80,
+    "q3_local_rows": 36,
+    "q3_azure_rows": 4,
+    "q2_rows": 18,
+    "q1b_evaluation_only_rows": 22,
+    "q3_trainable_cells": 36,
+    "q2_trainable_rows": 18,
+    "q2_optimizer_units": 39,
+    "q1b_optimizer_steps": 0,
+    "actual_retained_autoregressive_reasoning_generation_rows": 0,
+    "exact_reuse_count": 0,
+    "exact_resume_count": 0,
+    "blocked_reuse_count": 0
+  },
+  "workload_breakdown": [
+    {
+      "research_question": "Q3",
+      "system_id": "phobert_pragmatic_finetune",
+      "model_family": "phobert_base",
+      "executor_kind": "single_model_trainable",
+      "train_vs_evaluation": "train",
+      "inference_topology": "classification_only; rationale_inference=false",
+      "cells": 12,
+      "training_records_per_cell": 7998,
+      "epochs": 10,
+      "effective_batch_size": 32,
+      "gradient_accumulation_steps": 1,
+      "optimizer_steps_per_cell": 2500,
+      "central_unit_hours": 1,
+      "conservative_unit_hours": 1.5,
+      "central_hours": 12,
+      "conservative_hours": 18,
+      "local_gpu_server": true
+    },
+    {
+      "research_question": "Q3",
+      "system_id": "vistral_pragmatic_sft",
+      "model_family": "vistral_7b",
+      "executor_kind": "single_model_trainable",
+      "train_vs_evaluation": "train",
+      "inference_topology": "classification_only; rationale_inference=false",
+      "cells": 12,
+      "training_records_per_cell": 7998,
+      "epochs": 3,
+      "effective_batch_size": 16,
+      "physical_batch_size": 2,
+      "gradient_accumulation_steps": 8,
+      "optimizer_steps_per_cell": 1500,
+      "central_unit_hours": 8,
+      "conservative_unit_hours": 12,
+      "central_hours": 96,
+      "conservative_hours": 144,
+      "local_gpu_server": true
+    },
+    {
+      "research_question": "Q3",
+      "system_id": "vipragsent_full_vistral",
+      "model_family": "vistral_7b",
+      "executor_kind": "single_model_trainable",
+      "train_vs_evaluation": "train",
+      "inference_topology": "multitask_classification_plus_rationale_training; rationale_inference=false",
+      "cells": 12,
+      "training_records_per_cell": 7998,
+      "epochs": 3,
+      "effective_batch_size": 16,
+      "physical_batch_size": 2,
+      "gradient_accumulation_steps": 8,
+      "optimizer_steps_per_cell": 1500,
+      "central_unit_hours": 11,
+      "conservative_unit_hours": 16,
+      "central_hours": 132,
+      "conservative_hours": 192,
+      "local_gpu_server": true
+    },
+    {
+      "research_question": "Q2",
+      "topology": "single_joint_model",
+      "variants": [
+        "full",
+        "no_emotion_auxiliary",
+        "no_polarity_auxiliary",
+        "no_rationale",
+        "no_uncertainty_weighting"
+      ],
+      "seeds": 3,
+      "cells": 15,
+      "model_family": "phobert_base",
+      "executor_kind": "single_model_trainable",
+      "optimizer_steps_per_cell": 2500,
+      "central_unit_hours": 1,
+      "conservative_unit_hours": 1.5,
+      "central_hours": 15,
+      "conservative_hours": 22.5,
+      "local_gpu_server": true
+    },
+    {
+      "research_question": "Q2",
+      "topology": "independent_checkpoint_bundle",
+      "variants": [
+        "no_multitask"
+      ],
+      "components_per_seed": 8,
+      "seeds": 3,
+      "optimizer_units": 24,
+      "model_family": "phobert_base",
+      "executor_kind": "independent_checkpoint_bundle",
+      "optimizer_steps_per_component": 2500,
+      "central_unit_hours": 0.75,
+      "conservative_unit_hours": 1.25,
+      "central_hours": 18,
+      "conservative_hours": 30,
+      "local_gpu_server": true
+    },
+    {
+      "research_question": "Q1b",
+      "topology": "evaluation_only",
+      "seeded_consumers": 21,
+      "azure_consumers": 1,
+      "optimizer_steps": 0,
+      "central_seeded_evaluation_hours": 3.15,
+      "conservative_seeded_evaluation_hours": 6.3,
+      "central_azure_external_hours": 0.5,
+      "conservative_azure_external_hours": 1,
+      "local_gpu_server": "evaluation_only_only",
+      "training_cost_claimed": false
+    },
+    {
+      "research_question": "Q3",
+      "system_id": "azure_gpt41_mini_8shot",
+      "topology": "external_evaluation_only",
+      "rows": 4,
+      "optimizer_steps": 0,
+      "central_azure_external_hours": 3,
+      "conservative_azure_external_hours": 8,
+      "local_gpu_server": false,
+      "training_cost_claimed": false
+    }
+  ],
+  "historical_anchors": [
+    {
+      "id": "historical_vistral_autoregressive_reasoning_dev",
+      "approximate_hours": 49,
+      "scope": "1,999-example Vistral autoregressive reasoning-generation DEV run",
+      "included_in_frozen_v30_estimate": false,
+      "reason": "No retained V30 Q3 row has rationale_inference=true or uses the generation_trainable executor; retained Q3 paths are classification/multitask training. The anchor is therefore not transferable to these cells."
+    }
+  ],
+  "assumptions": {
+    "training_step_topology": "Q3/Q2 step counts use 7,998 training records, locked epochs, effective batches, and gradient accumulation from configs/runtime/training.yaml.",
+    "phobert_unit_costs": "1.0h central/1.5h conservative for 2,500-step single joint cells; 0.75h/1.25h for each no_multitask component. These are engineering assumptions, not measurements.",
+    "vistral_unit_costs": "8.0h/12.0h for 1,500-step pragmatic SFT cells and 11.0h/16.0h for 1,500-step full multitask+rationale-training cells; rationale inference remains disabled.",
+    "q1b": "Q1b consumers are evaluation-only, optimizer_steps=0; no Q1b training cost is included.",
+    "azure": "Azure rows are external latency only and are not placed on the local GPU critical path.",
+    "reuse_resume": "Exact REUSE, RESUME, and persisted BLOCKED counts are zero; no time credit is claimed.",
+    "no_benchmark": "All unit costs and overlap/contingency values are heuristic planning assumptions; no production, GPU benchmark, TEST access, live Azure call, model download, or HF mutation occurred."
+  },
+  "raw_central_hours_before_optimization": 303.65,
+  "raw_conservative_hours_before_optimization": 469.8,
+  "estimated_saved_hours_by_optimization": {
+    "checkpoint_hash_deduplication": 1,
+    "canonical_pointer_copy_deduplication": 1,
+    "safe_dependency_overlap": 18,
+    "exact_reuse_resume": 0,
+    "total_modeled_savings": 20
+  },
+  "conservative_uncertainty_contingency_hours": 180,
+  "central_estimate_hours": 283.65,
+  "central_estimate_days": 11.82,
+  "conservative_estimate_hours": 647.8,
+  "conservative_estimate_days": 26.99,
+  "local_gpu_server_days": {
+    "central": 11.51,
+    "conservative": 17.2
+  },
+  "azure_external_contribution_days": {
+    "central": 0.15,
+    "conservative": 0.38
+  },
+  "before_optimization_estimate_hours": 303.65,
+  "before_optimization_estimate_days": 12.65,
+  "after_optimization_estimate_hours": 283.65,
+  "after_optimization_estimate_days": 11.82,
+  "critical_path": [
+    "12 full ViPragSent Vistral multitask+rationale-training Q3 cells and 12 Vistral pragmatic SFT Q3 cells on one constrained local GPU allocation",
+    "per-cell DEV selection and checkpoint freeze before downstream TEST",
+    "Q2 single-joint and eight-component no_multitask PhoBERT bundles",
+    "Q1b evaluation fanout and four Azure comparison rows can overlap only where dependency-safe"
+  ],
+  "largest_bottleneck": "The 24 retained local Vistral 7B classification/multitask training cells, not autoregressive reasoning generation, dominate the local GPU path.",
+  "measured_speedup_credit_hours": 0,
+  "exact_reuse_or_resume_credit_hours": 0,
+  "under_30_days": true,
+  "feasibility": "CENTRAL_AND_CONSERVATIVE_ESTIMATES_FIT_WITHIN_30_DAYS_UNDER_EXPLICIT_HEURISTIC_UNIT_COSTS; NOT A MEASURED_RUNTIME_PROOF",
+  "scientific_invariants": {
+    "protocol_changed": false,
+    "test_access_changed": false,
+    "q3_local_cartesian_product_preserved": true,
+    "q3_seedless_azure_rows_preserved": true,
+    "q1b_remains_evaluation_only": true,
+    "q1b_requires_exact_approved_source": true,
+    "dev_selects_test_reports": true,
+    "real_execution_taken": false
+  },
+  "critical_path_accounting": {
+    "local_gpu_training_and_evaluation_hours_central": 276.15,
+    "local_gpu_training_and_evaluation_hours_conservative": 412.8,
+    "azure_external_hours_central": 3.5,
+    "azure_external_hours_conservative": 9,
+    "serial_overhead_hours_central": 24,
+    "serial_overhead_hours_conservative": 48,
+    "safe_overlap_credit_hours_central": 18,
+    "uncertainty_contingency_hours_conservative": 180
+  },
+  "limitations": [
+    "This is a HEURISTIC ENGINEERING ESTIMATE, NOT A MEASURED RUNTIME PROOF.",
+    "No matching real-model training timing or profiling campaign was run.",
+    "The historical 49-hour anchor is excluded because its topology is autoregressive reasoning generation and the retained V30 Q3 paths are not.",
+    "No exact reuse/resume/blocked credit is claimed.",
+    "Actual queueing, hardware availability, sequence lengths, early stopping, and Azure latency can change the result.",
+    "Recalculate after authorized throughput telemetry or a changed execution profile."
+  ],
+  "pending_validation": null,
+  "final_validation": {
+    "source_head_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "run_id": 32001664211,
+      "job_id": 95303031902,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
+    },
+    "report_head_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "run_id": 32002103939,
+      "job_id": 95304262130,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32002103939"
+    },
+    "independent_sentinel": {
+      "status": "PASS",
+      "reviewer": "Independent exact-head V30 Sentinel",
+      "reviewed_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "blockers": []
+    },
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "final_report_head_semantics": "The reviewed report head is the last report-only evidence head before this final dossier update; the source implementation head is unchanged and is the exact code-validation binding."
+  },
+  "report_binding": {
+    "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "parent_report_head": "3334d98575f373eaa12f64cbf336748f531ccc66",
+    "report_is_not_final_until_exact_head_ci_and_sentinel": true
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "as_of": "2026-08-16T14:26:19Z",
+  "mode": "read_only_metadata_audit",
+  "full_checkpoint_blobs_downloaded": false,
+  "mutation_performed": false,
+  "repositories": [
+    {
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "revision": "7afa8164aa5224688f430ee8e30283e72e462d77",
+      "last_modified": "2026-08-08T17:40:47Z",
+      "file_count": 8979,
+      "scope": "server_20260808 artifact snapshot; no model checkpoint blobs",
+      "checkpoint_or_artifact_evidence": [
+        {"path":"server_20260808/PROJECT_STATE.json","size":1573,"sha256":null,"blob_id":"2dc767d21a5858f729458c0096fe2f1a64f11dfe","sha256_status":"not_exposed_by_HF_metadata"},
+        {"path":"server_20260808/reports/vipragsent_safe_pause_backup.json","size":null,"sha256":null,"blob_id":null,"sha256_status":"not_exposed_by_HF_metadata"},
+        {"path":"server_20260808/reports/active_job_supervisor_heartbeat.json","size":null,"sha256":null,"blob_id":null,"sha256_status":"not_exposed_by_HF_metadata"}
+      ],
+      "approval_state": "observed_remote_only",
+      "resume_eligibility": "BLOCKED_PENDING_LIVE_CODE_IDENTITY_RECONCILIATION",
+      "config_hash": null,
+      "dataset_hash": null,
+      "model_revision": null,
+      "tokenizer_revision": null
+    },
+    {
+      "repo": "Thundergod2007/vipragsent-phobert-checkpoints",
+      "revision": "14097061c088f3deefe8ea6d9288d77755f36b5a",
+      "last_modified": "2026-08-08T17:34:31Z",
+      "file_count": 23,
+      "checkpoint_paths": [
+        {"path":"q1a_phobert_pragmatic_finetune_20260521/checkpoints/best/model.pt","sha256":"03f9a5a028578b54b9af792ae2d137693ee015a67db301114b397e9b8bd0cbdc","bytes":1613241834},
+        {"path":"q1a_phobert_pragmatic_finetune_20260522/checkpoints/best/model.pt","sha256":"7824eb4f042a14429925ad86f35802c96b58e90c05ee336171044eea27dee9d1","bytes":1613241962},
+        {"path":"q1a_phobert_pragmatic_finetune_20260523/checkpoints/best/model.pt","sha256":"3267cc2799fe2bce1adec8632da0a2ae3f1426cc0ff2a0102f203232af53d39a","bytes":1613241962},
+        {"path":"q1a_phobert_pragmatic_single_task_20260521/components/code_switching/checkpoints/best/model.pt","sha256":"ed32a57eb03722bc1aaaaf0100db434e43ea1f9ec5dba3601a25b1a804af932b","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260521/components/idiom_figurative/checkpoints/best/model.pt","sha256":"c9a71d9a6b01a0d4e26ec9747a32d1297b9e8c87f342c192d6dd01891b60834a","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260521/components/implicit_sentiment/checkpoints/best/model.pt","sha256":"b5783e62daf6b542cc8959426a14e46b17bf8dec3615e930f00385341bae5003","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260521/components/irony/checkpoints/best/model.pt","sha256":"ccd46fafe7b5adda5f6dcf203e46ac726c636a3422ef849517799dc8dc200ffb","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260521/components/mocking/checkpoints/best/model.pt","sha256":"736dbf6b11534b8320018b0900c824b2d74e0720533958aa05fed43e2ac6ed56","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260521/components/sarcasm/checkpoints/best/model.pt","sha256":"7fc537a3d984bd2dc70f8e9b352733420749cf4bd21bd47221b06d040135c6a4","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260522/components/code_switching/checkpoints/best/model.pt","sha256":"a28c992e05df01548ed912d72e8aecf0c885487f2df1be06ccc02c2df43957bb","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260522/components/idiom_figurative/checkpoints/best/model.pt","sha256":"e3a18b7f81e39ba8aa366d7d9f5979f96eb378180b61b48c960fc8f9d097f012","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260522/components/implicit_sentiment/checkpoints/best/model.pt","sha256":"227b3fb8c019fa77c0817249932f4564188e7ae59e91d65b708f1ddfd5c71105","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260522/components/irony/checkpoints/best/model.pt","sha256":"c3e7a3f4e056ebc768a69a15908089202fd1ea6f45bf68f336ddafbf5ce223ef","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260522/components/mocking/checkpoints/best/model.pt","sha256":"22a807ab6d5c8a7929c094145f736227c911869f922da2fa8add762b636aaaed","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260522/components/sarcasm/checkpoints/best/model.pt","sha256":"30cab74daaab9f1fed8856b92553f492cc59905a5bf2f73c092aa80343533d98","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260523/components/code_switching/checkpoints/best/model.pt","sha256":"ea7f68097a4a916d22410e57eaeca6fafcd93e4b8abc7040c4ae86c81ac4bda4","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260523/components/idiom_figurative/checkpoints/best/model.pt","sha256":"94d8dbff6c98b9098fd4d4380761815e8f1fc4b61425d097d8f25d337ddb6a95","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260523/components/implicit_sentiment/checkpoints/best/model.pt","sha256":"cbd120a1d22963a1b06057bf36683d1bf773c4b1501934702406a2ebdba84672","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260523/components/irony/checkpoints/best/model.pt","sha256":"13a36a164fe6444cb019c9a4914969ee687eff784d8d989a8d93976c8c4291fa","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260523/components/mocking/checkpoints/best/model.pt","sha256":"ba07ca84617079a4df6a0f7d4b3ee4d6b72682da01e4a5388810ed05d68cc143","bytes":1613111701},
+        {"path":"q1a_phobert_pragmatic_single_task_20260523/components/sarcasm/checkpoints/best/model.pt","sha256":"8d521d5a02a3466f7604d3befda067adebf3369ba862a5023310dac7314b9125","bytes":1613111701}
+      ],
+      "approval_state": "observed_remote_only",
+      "resume_eligibility": "BLOCKED_PENDING_CONFIG_DATA_MODEL_TOKENIZER_BINDING",
+      "config_hash": null,
+      "dataset_hash": null,
+      "model_revision": null,
+      "tokenizer_revision": null
+    },
+    {
+      "repo": "Thundergod2007/vipragsent-vistral7b-checkpoints",
+      "revision": "1aadf557a77853cf19946a747f9fe5c40a8288b0",
+      "last_modified": "2026-08-16T10:44:08Z",
+      "file_count": 11,
+      "checkpoint_paths": [
+        {"path":"q1a_cot_only_vistral_20260521/checkpoints/best/model.pt","sha256":"27f81249de067555827099334acb999f009d0d5970df333e855be231f36fc7c0","bytes":4942159972},
+        {"path":"q1a_cot_only_vistral_20260521/checkpoints/epoch_1/model.pt","sha256":"27f81249de067555827099334acb999f009d0d5970df333e855be231f36fc7c0","bytes":4942159972},
+        {"path":"q1a_cot_only_vistral_20260521/checkpoints/epoch_2/model.pt","sha256":"d3fe7e99bb0758e527c4967fe2a8502c722fce8d86cd7664ea776440a3b41a77","bytes":4942818023},
+        {"path":"q1a_vipragsent_no_auxiliary_vistral_20260521/checkpoints/best/model.pt","sha256":"78360dda9efb2a925da616047b25c2dc9852af93436c9bd5c0988e6df39f89ba","bytes":4313881224},
+        {"path":"q1a_vipragsent_no_auxiliary_vistral_20260522/checkpoints/best/model.pt","sha256":"608e88704983b7c2291e933a7b85ba1a79b457803797828c38bba57466291f74","bytes":4313881288},
+        {"path":"q1a_vipragsent_no_auxiliary_vistral_20260523/checkpoints/best/model.pt","sha256":"64958cff3a21210dcdb0e3084cbd25541d22dcd56de35b9416bd3735e04f0fac","bytes":4313881352},
+        {"path":"q1a_vistral_pragmatic_sft_20260521/checkpoints/best/model.pt","sha256":"5129514951b1d137256ef60b09b11c9f283e73cc35f376af0b5271b2c9478a70","bytes":4313875610},
+        {"path":"q1a_vistral_pragmatic_sft_20260522/checkpoints/best/model.pt","sha256":"c341b4ec539ed4340d3194a88c2aab048e3232805dd74ce51695487bb8affcd4","bytes":4313875674},
+        {"path":"q1a_vistral_pragmatic_sft_20260523/checkpoints/best/model.pt","sha256":"f528e18fc8da1bf9a3c9b3d35073936bd7d21f39884a53f686f5571a326f5f72","bytes":4313875802}
+      ],
+      "approval_state": "epoch_2_remote_verified_read_only_but_run_identity_uncertain",
+      "resume_eligibility": "BLOCKED_PENDING_LIVE_CODE_IDENTITY_RECONCILIATION",
+      "config_hash": "3F6AF966D078AF57CC8989269380B2DD1C44D2402540AD21E9B5C419A8743642",
+      "dataset_hash": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+      "model_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+      "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45"
+    },
+    {
+      "repo": "Thundergod2007/vipragsent-xlmr-checkpoints",
+      "revision": "d004da4621be813a1f3ce8ef3d171dce6102fbe2",
+      "last_modified": "2026-08-08T16:32:50Z",
+      "file_count": 5,
+      "checkpoint_paths": [
+        {"path":"q1a_xlmr_pragmatic_finetune_20260521/checkpoints/best/model.pt","sha256":"743d0df325f6313f038fa53ab0f5be03a94f496a2b2d30caa1f7b09087c9aabb","bytes":6706720214},
+        {"path":"q1a_xlmr_pragmatic_finetune_20260522/checkpoints/best/model.pt","sha256":"324f416164096fda9e095c63810153667a480a21499816a7d159d7b6d434be92","bytes":6706720342},
+        {"path":"q1a_xlmr_pragmatic_finetune_20260523/checkpoints/best/model.pt","sha256":"680662efae10721c217d9de12b635ad523e34960c7aa6fe02d41ad8d95e5a5e4","bytes":6706720342}
+      ],
+      "approval_state": "observed_remote_only",
+      "resume_eligibility": "BLOCKED_PENDING_CONFIG_DATA_MODEL_TOKENIZER_BINDING",
+      "config_hash": null,
+      "dataset_hash": null,
+      "model_revision": null,
+      "tokenizer_revision": null
+    },
+    {
+      "repo": "Thundergod2007/vipragsent-sailor7b-checkpoints",
+      "revision": "6af58b4c754d08f9d6316aef58c239bca60397ed",
+      "last_modified": "2026-08-08T16:24:57Z",
+      "file_count": 5,
+      "checkpoint_paths": [
+        {"path":"q1a_sailor_pragmatic_sft_20260521/checkpoints/best/model.pt","sha256":"282d13dea3883b4b483f9845e2e2e675f2c54198f011f92efdfdbcfaee45804b","bytes":5934727186},
+        {"path":"q1a_sailor_pragmatic_sft_20260522/checkpoints/best/model.pt","sha256":"248363853004584fbf944d60212760d61178299882c7a11c12426d920364e135","bytes":5934727314},
+        {"path":"q1a_sailor_pragmatic_sft_20260523/checkpoints/best/model.pt","sha256":"1c49ea2a60937d652e3136ab28b07f312b27696f71c786a1788ad7e328f5fdfd","bytes":5934727314}
+      ],
+      "approval_state": "observed_remote_only",
+      "resume_eligibility": "BLOCKED_PENDING_CONFIG_DATA_MODEL_TOKENIZER_BINDING",
+      "config_hash": null,
+      "dataset_hash": null,
+      "model_revision": null,
+      "tokenizer_revision": null
+    }
+  ],
+  "global_decision": "NO_AUTOMATIC_REUSE",
+  "reason": "HF revisions and blob hashes are read-only evidence; code/data identity, approval state, and run binding must be independently proven before a future scheduler may promote REUSE or RESUME."
+}

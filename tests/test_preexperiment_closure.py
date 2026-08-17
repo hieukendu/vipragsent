@@ -195,7 +195,7 @@ def test_cot_executor_trains_selects_on_dev_and_seals_test_until_after_selection
 
     judge = ReasoningJudge(tmp_path, transport=transport, cache_root=tmp_path / "judge-cache", sleep_fn=lambda _: None)
     model = _TinyCausal()
-    executor = ReasoningGenerationExecutor(tmp_path, model=model, tokenizer=_TinyTokenizer(), judge=judge, run_root=tmp_path / "run", seed=20260521)
+    executor = ReasoningGenerationExecutor(tmp_path, model=model, tokenizer=_TinyTokenizer(), judge=judge, run_root=tmp_path / "run", seed=20260521, fixture_mode=True)
     train = [{"input_ids": torch.tensor([[1]]), "target_ids": torch.tensor([[3]])}]
     dev = [{"sample_id": "dev-1", "input_ids": torch.tensor([[1]]), "gold": _labels(1)}]
     test = [{"sample_id": "test-1", "input_ids": torch.tensor([[1]]), "gold": _labels(1)}]
@@ -240,7 +240,7 @@ def test_explanation_executor_reuses_source_and_uses_only_rationale_decoder(tmp_
     model = _TinyFullModel()
     tokenizer = SimpleNamespace(bos_token_id=1, eos_token_id=2, decode=lambda ids, **_: "decoder rationale")
     judge = ReasoningJudge(tmp_path, transport=lambda **_: {"labels": _labels(1)}, cache_root=tmp_path / "judge-cache", sleep_fn=lambda _: None)
-    executor = ExplanationReuseExecutor(tmp_path, model=model, tokenizer=tokenizer, judge=judge, run_root=tmp_path / "run", source=source)
+    executor = ExplanationReuseExecutor(tmp_path, model=model, tokenizer=tokenizer, judge=judge, run_root=tmp_path / "run", source=source, fixture_mode=True)
     provenance = executor.write_source_provenance()
     rows = executor.generate_reasoning_split("dev", [{"sample_id": "d1", "input_ids": torch.zeros(1, 4, dtype=torch.long), "attention_mask": torch.ones(1, 4, dtype=torch.long)}])
     metrics = executor.judge_and_write("dev", rows, {"d1": _labels(1)})
@@ -309,11 +309,30 @@ def test_q1b_factory_routing_and_same_seed_composition(tmp_path: Path) -> None:
     checksums = run_root / "checksums.sha256"
     checksums.write_text("checkpoint-entry\n", encoding="utf-8")
     state = run_root / "state.json"
-    state.write_text(json.dumps({"run_status": "APPROVED"}), encoding="utf-8")
+    state.write_text(json.dumps({"run_id": run_root.name, "run_status": "APPROVED", "approval_status": "APPROVED"}), encoding="utf-8")
     manifest = run_root / "checkpoints/checkpoint_manifest.json"
     manifest.write_text(json.dumps({"best": "checkpoints/best/model.pt", "checkpoint_sha256": sha256_file(checkpoint), "variant_fingerprint": "variant"}), encoding="utf-8")
     approval = run_root / "approval_status.json"
-    approval.write_text(json.dumps({"status": "APPROVED", "review_summary_sha256": sha256_file(summary_path), "artifact_checksum_file_sha256": sha256_file(checksums)}), encoding="utf-8")
+    approval.write_text(
+        json.dumps(
+            {
+                "run_id": run_root.name,
+                "status": "APPROVED",
+                "approved_by": "fixture-reviewer",
+                "approved_at": "2026-08-16T00:00:00Z",
+                "record": {
+                    "run_id": run_root.name,
+                    "decision": "approve",
+                    "review_note": "fixture approval",
+                    "approved_or_rejected_by": "fixture-reviewer",
+                    "timestamp": "2026-08-16T00:00:00Z",
+                    "review_summary_sha256": sha256_file(summary_path),
+                    "artifact_checksum_file_sha256": sha256_file(checksums),
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
     (tmp_path / "results").mkdir(exist_ok=True)
     (tmp_path / "results/approved_run_index.json").write_text(json.dumps({"runs": [{"system": "phobert_pol_single", "seed": 20260521, "run_id": "source"}]}), encoding="utf-8")
     entry = {"system_id": "phobert_pol_single", "seed": 20260521, "backbone": "phobert_base"}
