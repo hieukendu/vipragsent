@@ -109,23 +109,45 @@ class GenerationChunkStore:
             raise GenerationPersistenceError("generation contract identity mismatch")
 
     @staticmethod
-    def _production_contract_missing(value: Any) -> bool:
+    def _production_contract_missing(
+        value: Any,
+        *,
+        allow_optional_config_values: bool = False,
+        _root: bool = True,
+    ) -> bool:
+        """Find missing sentinels anywhere in a production identity value.
+
+        Identity mappings are recursive.  ``config_identity`` also contains
+        optional configuration fields such as an absent batch profile, so
+        those nested ``None``/empty mappings remain valid while its required
+        top-level value is still checked.
+        """
         if value is None:
-            return True
+            return not (allow_optional_config_values and not _root)
         if isinstance(value, str):
             return value.strip().upper() in {"", "NONE", "NULL", "UNKNOWN", "NOT_PROVIDED", "NOT PROVIDED"}
         if isinstance(value, Mapping):
             if not value:
-                return True
-            if set(value) == {"identity"} and str(value["identity"]).strip().lower().endswith("@local"):
+                return _root or not allow_optional_config_values
+            if "identity" in value and str(value["identity"]).strip().lower().endswith("@local"):
                 return True
             return any(
-                GenerationChunkStore._production_contract_missing(item)
+                GenerationChunkStore._production_contract_missing(
+                    item,
+                    allow_optional_config_values=allow_optional_config_values,
+                    _root=False,
+                )
                 for item in value.values()
-                if not isinstance(item, Mapping)
             )
         if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-            return any(GenerationChunkStore._production_contract_missing(item) for item in value)
+            return any(
+                GenerationChunkStore._production_contract_missing(
+                    item,
+                    allow_optional_config_values=allow_optional_config_values,
+                    _root=False,
+                )
+                for item in value
+            )
         return False
 
     def _validate_production_contract(self) -> None:
@@ -134,7 +156,10 @@ class GenerationChunkStore:
         for field in self._CONTRACT_FIELDS:
             if field == "budget" and self.generation_contract[field] == "NOT_APPLICABLE":
                 continue
-            if self._production_contract_missing(self.generation_contract[field]):
+            if self._production_contract_missing(
+                self.generation_contract[field],
+                allow_optional_config_values=field == "config_identity",
+            ):
                 raise GenerationPersistenceError(f"production generation contract identity is missing: {field}")
         data_hash = str(self.generation_contract["data_hash"]).strip().upper()
         if not re.fullmatch(r"[0-9A-F]{64}", data_hash):
