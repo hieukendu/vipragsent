@@ -5,7 +5,7 @@
   "pr": 10,
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
-  "status": "EVIDENCE_REFRESHED_PENDING_FINAL_EXACT_HEAD_SENTINEL",
+  "status": "V30_DESCENDANT_CLOSURE_PENDING_EXACT_HEAD_CI_AND_SENTINEL",
   "final_pass": false,
   "historical_review": {
     "reviewer": "Kant",
@@ -39,5 +39,19 @@
     "process_control": false,
     "merge": false
   },
-  "next_state": "FINAL_EXACT_HEAD_SENTINEL_REVIEW"
+  "next_state": "V30_DRAFT_EXACT_HEAD_CI_AND_SENTINEL",
+  "descendant_closure": {
+    "version": "V30",
+    "source_head": "f438a61a078e713cfa94c5624b6b0e19b719651e",
+    "status": "PENDING_EXACT_HEAD_CI_AND_SENTINEL",
+    "ci": {
+      "status": "PENDING",
+      "head_sha": "f438a61a078e713cfa94c5624b6b0e19b719651e"
+    },
+    "sentinel": {
+      "status": "PENDING",
+      "head_sha": "f438a61a078e713cfa94c5624b6b0e19b719651e"
+    },
+    "final_pass": false
+  }
 }

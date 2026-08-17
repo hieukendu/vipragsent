@@ -48,6 +48,16 @@ claimed as implemented in V29.
 No production training, GPU workload, live Azure request, model download, Hugging Face mutation,
 TEST-data profiling, process-control action, or merge was performed.
 
+## V30 descendant-closure draft
+
+The V29 implementation evidence above remains historical. Its stale
+FINAL_REPORT_HEAD_CI_RETRY_PENDING state is superseded by a descendant closure
+entry bound to
+f438a61a078e713cfa94c5624b6b0e19b719651e. V30 exact-head CI and the
+independent affected-scope Sentinel are still PENDING, so this report does
+not claim final_pass: true. The final closure must be rebound if the report
+commit changes the source head.
+
 ## Frozen protocol checks
 
 Q3 remains 36 retained local rows plus four seedless Azure rows; XLM-R and budgets 64/256 remain

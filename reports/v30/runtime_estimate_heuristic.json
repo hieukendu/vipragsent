@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "spec_version": "V30",
+  "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
+  "status": "DRAFT_PENDING_EXACT_HEAD_CI_AND_SENTINEL",
+  "estimate_kind": "HEURISTIC_ENGINEERING_ESTIMATE_NOT_MEASURED_RUNTIME_PROOF",
+  "exact_source_head": "f438a61a078e713cfa94c5624b6b0e19b719651e",
+  "frozen_workload_counts": {
+    "retained_rows_total": 80,
+    "q3_local_rows": 36,
+    "q3_azure_rows": 4,
+    "q2_rows": 18,
+    "q1b_evaluation_only_rows": 22,
+    "training_applicable_rows_or_units": 54,
+    "remaining_train_cells": 54,
+    "remaining_generation_cells": 40,
+    "q1b_optimizer_steps": 0,
+    "exact_reuse_count": 0,
+    "exact_resume_count": 0,
+    "blocked_reuse_count": 0
+  },
+  "historical_anchor_used": true,
+  "historical_anchor_scope": "Approximately 49 hours for the historical 1,999-example Vistral DEV split, used only as a rough 7B generation anchor; it is not a V30 measurement or proof of any cell's runtime.",
+  "assumptions": {
+    "training": "The 24 retained local 7B Q3 cells dominate the critical path. The 12 PhoBERT Q3 rows plus 18 Q2 rows are modeled as 30 smaller training-applicable units at approximately 2 hours each. Q1b contributes evaluation only and no optimizer work.",
+    "generation": "The 24 local 7B Q3 cells use the 49-hour historical anchor. Central batching and removal of per-record overhead are modeled as approximately a 1.34x effective improvement, below the theoretical batch ceiling and not measured.",
+    "storage_throughput": "Checkpoint I/O is modeled at a conservative sustained 100-200 MB/s range for approximately 4-5 GB 7B artifacts. Full-file hash and duplicate-copy savings are rounded at campaign level and are not observed timings.",
+    "batching_efficiency": "No perfect linear scaling is assumed; padding, decode, memory pressure, and scheduler overhead consume part of the theoretical gain.",
+    "scheduler_overlap": "Only independent CPU aggregation, I/O finalization, and limited smaller-model work may overlap. Concurrent 7B jobs on one constrained allocation and DEV-dependent overlap are not credited.",
+    "reuse_resume": "No exact V30 source/run receipts exist in the policy-only profile, so REUSE, RESUME, and BLOCKED rows all receive zero saved-time credit.",
+    "uncertainty": "The conservative case keeps the historical 7B anchor near its old behavior, gives no unmeasured reuse credit, and adds campaign-level uncertainty for serialized gates, queueing, and incomplete telemetry."
+  },
+  "before_optimization_estimate_hours": 1336,
+  "before_optimization_estimate_days": 55.7,
+  "after_optimization_estimate_hours": 970,
+  "after_optimization_estimate_days": 40.4,
+  "central_estimate_days": 40.4,
+  "conservative_estimate_hours": 1523,
+  "conservative_estimate_days": 63.5,
+  "estimated_saved_hours_by": {
+    "generation_batching": 300,
+    "persistence_complexity": 40,
+    "checkpoint_hashing": 1,
+    "checkpoint_copy_dedup": 1,
+    "artifact_reuse": 0,
+    "scheduler_overlap": 24,
+    "total_modeled_savings": 366
+  },
+  "arithmetic": {
+    "critical_7b_proxy_hours": "24 cells * 49 hours = 1176 hours",
+    "smaller_training_proxy_hours": "30 units * 2 hours = 60 hours",
+    "azure_and_q1b_evaluation_proxy_hours": "4 Azure rows + 22 Q1b consumers, modeled at 2 hours each = 52 hours",
+    "serial_gate_and_qa_proxy_hours": 48,
+    "before_total_hours": "1176 + 60 + 52 + 48 = 1336 hours",
+    "central_after_total_hours": "1336 - (300 + 40 + 1 + 1 + 0 + 24) = 970 hours",
+    "conservative_method": "1523 hours is a rounded campaign-level contingency case that does not rely on exact reuse/resume credit or unvalidated concurrency."
+  },
+  "critical_path": [
+    "24 retained local 7B Q3 training/generation cells",
+    "DEV judging and generation persistence",
+    "DEV selection and freeze",
+    "later TEST evaluation and export"
+  ],
+  "largest_remaining_bottleneck": "The 24 retained local 7B Q3 cells, anchored by the historical approximately 49-hour Vistral DEV split, dominate wall-clock time.",
+  "measured_speedup_credit_hours": 0,
+  "exact_reuse_or_resume_credit_hours": 0,
+  "under_30_days": false,
+  "feasibility": "NO_FURTHER_SAFE_OPTIMIZATION_WITHOUT_CHANGING_THE_ACCEPTED_SCIENTIFIC_EXPERIMENT",
+  "limitations": [
+    "No real-model benchmark or profiling campaign was run.",
+    "No live Azure request was made.",
+    "The central savings are conditional engineering estimates, not measured speedups.",
+    "The estimate must be recalculated if authorized throughput or queue telemetry changes."
+  ],
+  "pending_validation": {
+    "exact_head_ci": "PENDING",
+    "independent_sentinel": "PENDING",
+    "final_head_rebinding_required": true
+  }
+}
