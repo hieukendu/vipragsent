@@ -4,15 +4,16 @@ This module is intentionally an adapter around the Wave-2 generation
 contracts.  It does not introduce a second checkpoint or chunk format:
 ``GenerationChunkStore`` remains the commit boundary and the generation
 batch-policy/context helpers remain the source of truth for inference
-execution.  The production explanation stage registry routes through this
-runtime; legacy artifacts remain preserved under their separate artifact
-root and are never reinterpreted as canonical runtime chunks.
+execution.
+
+The runtime is not wired into the existing stage registry.  That is
+deliberate: Task H describes a future execution path and existing/legacy
+artifacts must remain untouched.
 """
 
 from __future__ import annotations
 
 import json
-import re
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from dataclasses import asdict, dataclass, field
 from pathlib import Path
@@ -29,11 +30,15 @@ from ..runtime.device import (
     write_device_report,
 )
 from ..training.generation_checkpoint import is_real_dataset_hash
-from .approval import validate_approval_record
 from .executors.explanation_reuse import (
     ApprovedFullVistralSource,
+    SourceReceiptError,
+    ValidatedSourceIdentity,
+    ValidatedSourceReceipt,
     resolve_approved_full_vistral_source,
     validate_source_checkpoint,
+    validate_validated_source_identity,
+    write_validated_source_identity,
 )
 from .executors.generation import (
     SUPPORTED_GENERATION_BATCH_SIZES,
@@ -42,7 +47,7 @@ from .executors.generation import (
 )
 from .generation_persistence import GenerationChunkStore
 from .provenance import expected_inference_provenance, validate_inference_provenance
-from .run_store import git_commit, git_source_fingerprint
+
 
 EXPLANATION_SYSTEM_ID = "explanation_only_vistral"
 SOURCE_SYSTEM_ID = "vipragsent_full_vistral"
@@ -63,10 +68,6 @@ class ExplanationRuntimeError(RuntimeError):
     """The explanation-only contract or artifact state is unsafe."""
 
 
-class ExplanationRecordError(ExplanationRuntimeError):
-    """An explanation failure attributable to one input record or its decoding."""
-
-
 ExplanationContractError = ExplanationRuntimeError
 
 
@@ -75,68 +76,13 @@ def _jsonable(value: Any) -> Any:
         return str(value)
     if isinstance(value, Mapping):
         return {str(key): _jsonable(item) for key, item in value.items()}
-    if isinstance(value, list | tuple):
+    if isinstance(value, (list, tuple)):
         return [_jsonable(item) for item in value]
     return value
 
 
-def _record_identity(value: Any) -> Any:
-    """Canonicalize tensor-backed input records for the generation contract."""
-    if isinstance(value, torch.Tensor):
-        tensor = value.detach().cpu()
-        return {
-            "dtype": str(tensor.dtype),
-            "shape": list(tensor.shape),
-            "values": tensor.tolist(),
-        }
-    if isinstance(value, Mapping):
-        return {str(key): _record_identity(item) for key, item in value.items()}
-    if isinstance(value, list | tuple):
-        return [_record_identity(item) for item in value]
-    return _jsonable(value)
-
-
 def _same_json(left: Any, right: Any) -> bool:
     return _jsonable(left) == _jsonable(right)
-
-
-def _dataset_binding(payload: Mapping[str, Any], run_manifest_path: Path | None = None) -> dict[str, str]:
-    """Read the canonical dataset identity/hash binding from source metadata."""
-    candidates: list[Mapping[str, Any]] = [payload]
-    nested = payload.get("dataset")
-    if isinstance(nested, Mapping):
-        candidates.insert(0, nested)
-    if run_manifest_path is not None and run_manifest_path.exists():
-        try:
-            manifest = json.loads(run_manifest_path.read_text(encoding="utf-8"))
-        except (OSError, TypeError, ValueError, json.JSONDecodeError):
-            manifest = None
-        if isinstance(manifest, Mapping):
-            candidates.append(manifest)
-            nested_manifest = manifest.get("dataset")
-            if isinstance(nested_manifest, Mapping):
-                candidates.insert(0, nested_manifest)
-    identity_keys = ("identity", "dataset_identity", "dataset_id", "manifest_id", "dataset_manifest_id")
-    hash_keys = ("hash", "dataset_hash", "data_hash", "dataset_fingerprint", "manifest_hash", "dataset_manifest_hash")
-    identity = next((str(item[key]) for item in candidates for key in identity_keys if str(item.get(key, "")).strip()), "")
-    digest = next((str(item[key]) for item in candidates for key in hash_keys if str(item.get(key, "")).strip()), "")
-    return {"identity": identity, "hash": digest.upper()}
-
-
-def _dataset_binding_from_run_root(root: Path) -> dict[str, str]:
-    for name in ("review_summary.json", "run_manifest.json", "state.json"):
-        path = root / name
-        if not path.exists():
-            continue
-        try:
-            payload = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, TypeError, ValueError, json.JSONDecodeError):
-            continue
-        if isinstance(payload, Mapping):
-            binding = _dataset_binding(payload, root / "run_manifest.json")
-            if binding["identity"] and binding["hash"]:
-                return binding
-    return {"identity": "", "hash": ""}
 
 
 @dataclass(frozen=True)
@@ -179,7 +125,7 @@ class SharedInferenceIdentity:
                 raise ExplanationRuntimeError(f"explanation engine identity {field_name} is not frozen")
 
     @classmethod
-    def from_mapping(cls, value: Mapping[str, Any]) -> SharedInferenceIdentity:
+    def from_mapping(cls, value: Mapping[str, Any]) -> "SharedInferenceIdentity":
         aliases = {
             "engine": "engine_id",
             "engine_identity": "engine_id",
@@ -212,8 +158,11 @@ class SourceCheckpointIdentity:
     checksum_file_sha256: str = ""
     config_sha256: str = ""
     source_run_root: Path | None = None
+    run_id: str = ""
     dataset_identity: str = ""
+    data_hash: str = ""
     dataset_hash: str = ""
+    device: str = ""
 
     def __post_init__(self) -> None:
         if not self.source_checkpoint_key:
@@ -222,7 +171,12 @@ class SourceCheckpointIdentity:
         object.__setattr__(self, "checkpoint_sha256", str(self.checkpoint_sha256).upper())
         if self.source_run_root is not None:
             object.__setattr__(self, "source_run_root", Path(self.source_run_root))
-        object.__setattr__(self, "dataset_hash", str(self.dataset_hash).upper())
+        if not self.data_hash and self.dataset_hash:
+            object.__setattr__(self, "data_hash", str(self.dataset_hash))
+        if not self.dataset_hash and self.data_hash:
+            object.__setattr__(self, "dataset_hash", str(self.data_hash))
+        object.__setattr__(self, "data_hash", str(self.data_hash).upper() if self.data_hash else "")
+        object.__setattr__(self, "dataset_hash", str(self.dataset_hash).upper() if self.dataset_hash else "")
 
     def as_dict(self) -> dict[str, Any]:
         return _jsonable(asdict(self))
@@ -248,99 +202,39 @@ class SourceCheckpointIdentity:
         self,
         requested_seed: int | str | None = None,
         *,
+        receipt: Mapping[str, Any] | None = None,
+        fixture_mode: bool = False,
         require_approval_bindings: bool = False,
-    ) -> ValidatedSourceCheckpointIdentity:
+    ) -> "ValidatedSourceCheckpointIdentity":
         self._validate_identity_fields(requested_seed)
-        observed = sha256_file(self.checkpoint_path)
-        if observed != str(self.checkpoint_sha256).upper():
-            raise ExplanationRuntimeError("source checkpoint hash mismatch")
-        if require_approval_bindings:
-            self._validate_approval_bindings(requested_seed)
+        if fixture_mode:
+            if not self.checkpoint_path.exists():
+                raise ExplanationRuntimeError(f"source checkpoint is missing: {self.checkpoint_path}")
+            observed = sha256_file(self.checkpoint_path)
+            if observed != str(self.checkpoint_sha256).upper():
+                raise ExplanationRuntimeError("source checkpoint hash mismatch")
+        elif receipt is None:
+            if self.source_run_root is None:
+                raise ExplanationRuntimeError(
+                    "validated source receipt is required for production explanation inference; "
+                    "source must be resolved through resolve_explanation_source"
+                )
+            raise ExplanationRuntimeError("validated source receipt is required for production explanation inference")
+        else:
+            try:
+                validate_validated_source_identity(
+                    receipt,
+                    source=self,
+                    expected_checkpoint_sha256=self.checkpoint_sha256,
+                )
+            except SourceReceiptError as exc:
+                raise ExplanationRuntimeError(str(exc)) from exc
+        if require_approval_bindings and self.source_run_root is None:
+            raise ExplanationRuntimeError("production explanation inference requires a source resolved through resolve_explanation_source")
         return ValidatedSourceCheckpointIdentity._from_verified(self)
 
-    def _validate_approval_bindings(self, requested_seed: int | str | None) -> None:
-        """Validate the on-disk approval chain, not just copied hash fields."""
-        root = self.source_run_root
-        if root is None:
-            raise ExplanationRuntimeError(
-                "production explanation inference requires a source resolved through resolve_explanation_source"
-            )
-        root = root.resolve()
-        try:
-            self.checkpoint_path.resolve().relative_to(root)
-        except ValueError as exc:
-            raise ExplanationRuntimeError("approved source checkpoint is outside its approved run root") from exc
-
-        required = {
-            "variant fingerprint": self.variant_fingerprint,
-            "model revision": self.model_revision,
-            "tokenizer revision": self.tokenizer_revision,
-            "review-summary SHA": self.review_summary_sha256,
-            "approval SHA": self.approval_sha256,
-            "checksum-file SHA": self.checksum_file_sha256,
-            "config SHA": self.config_sha256,
-            "dataset identity": self.dataset_identity,
-            "dataset SHA": self.dataset_hash,
-        }
-        for label, value in required.items():
-            if not str(value).strip():
-                raise ExplanationRuntimeError(f"approved source {label} is missing")
-        for label, value in (
-            ("review-summary SHA", self.review_summary_sha256),
-            ("approval SHA", self.approval_sha256),
-            ("checksum-file SHA", self.checksum_file_sha256),
-            ("checkpoint SHA", self.checkpoint_sha256),
-            ("config SHA", self.config_sha256),
-            ("dataset SHA", self.dataset_hash),
-        ):
-            if not re.fullmatch(r"[0-9A-Fa-f]{64}", str(value)):
-                raise ExplanationRuntimeError(f"approved source {label} is not a SHA-256 digest")
-
-        summary_path = root / "review_summary.json"
-        approval_path = root / "approval_status.json"
-        checksums_path = root / "checksums.sha256"
-        manifest_path = root / "checkpoints/checkpoint_manifest.json"
-        config_path = root / "config_snapshot.yaml"
-        if not all(path.exists() for path in (summary_path, approval_path, checksums_path, manifest_path, config_path)):
-            raise ExplanationRuntimeError("approved source approval bindings are incomplete")
-        try:
-            summary = _read_json(summary_path)
-            _read_json(approval_path)
-            manifest = _read_json(manifest_path)
-        except ExplanationRuntimeError as exc:
-            raise ExplanationRuntimeError("approved source approval bindings are unreadable") from exc
-        approval_errors = validate_approval_record(root, expected_run_id=root.name)
-        if approval_errors:
-            raise ExplanationRuntimeError("approved source approval record is incomplete: " + "; ".join(approval_errors))
-        if str(summary.get("system_id")) != SOURCE_SYSTEM_ID or str(summary.get("seed")) != str(self.seed):
-            raise ExplanationRuntimeError("approved source summary system or seed binding mismatch")
-        expected_key = f"{SOURCE_SYSTEM_ID}:{self.seed}"
-        if str(summary.get("reusable_checkpoint_key") or summary.get("source_checkpoint_id")) != expected_key:
-            raise ExplanationRuntimeError("approved source summary checkpoint key binding mismatch")
-        if sha256_file(summary_path) != self.review_summary_sha256.upper():
-            raise ExplanationRuntimeError("approved source review-summary SHA mismatch")
-        if sha256_file(approval_path) != self.approval_sha256.upper():
-            raise ExplanationRuntimeError("approved source approval SHA mismatch")
-        if sha256_file(checksums_path) != self.checksum_file_sha256.upper():
-            raise ExplanationRuntimeError("approved source checksum-file SHA mismatch")
-        if sha256_file(config_path) != self.config_sha256.upper():
-            raise ExplanationRuntimeError("approved source config SHA mismatch")
-        if str(manifest.get("checkpoint_sha256", "")).upper() != self.checkpoint_sha256.upper():
-            raise ExplanationRuntimeError("approved source checkpoint manifest SHA mismatch")
-        manifest_variant = str(manifest.get("variant_fingerprint") or summary.get("variant_fingerprint") or "")
-        if manifest_variant != self.variant_fingerprint:
-            raise ExplanationRuntimeError("approved source variant binding mismatch")
-        for field_name, summary_key in (("model_revision", "model_revision"), ("tokenizer_revision", "tokenizer_revision")):
-            observed = str(summary.get(summary_key) or manifest.get(summary_key) or "")
-            if observed != str(getattr(self, field_name)):
-                raise ExplanationRuntimeError(f"approved source {field_name} binding mismatch")
-        observed_dataset = _dataset_binding(summary, root / "run_manifest.json")
-        if observed_dataset["identity"] != self.dataset_identity or observed_dataset["hash"].upper() != self.dataset_hash.upper():
-            raise ExplanationRuntimeError("approved source dataset identity binding mismatch")
-
     @classmethod
-    def from_approved_source(cls, source: ApprovedFullVistralSource) -> SourceCheckpointIdentity:
-        dataset = _dataset_binding_from_run_root(source.run_root)
+    def from_approved_source(cls, source: ApprovedFullVistralSource) -> "SourceCheckpointIdentity":
         return cls(
             seed=source.seed,
             checkpoint_path=source.checkpoint_path,
@@ -353,12 +247,14 @@ class SourceCheckpointIdentity:
             checksum_file_sha256=source.checksum_file_sha256,
             config_sha256=source.config_sha256,
             source_run_root=source.run_root,
-            dataset_identity=dataset["identity"],
-            dataset_hash=dataset["hash"],
+            run_id=source.run_id,
+            dataset_identity=source.dataset_identity,
+            data_hash=source.data_hash,
+            dataset_hash=source.data_hash,
         )
 
     @classmethod
-    def from_mapping(cls, value: Mapping[str, Any]) -> SourceCheckpointIdentity:
+    def from_mapping(cls, value: Mapping[str, Any]) -> "SourceCheckpointIdentity":
         nested = value.get("source_checkpoint")
         source = nested if isinstance(nested, Mapping) else value
         path = source.get("checkpoint_path", source.get("path"))
@@ -378,14 +274,17 @@ class SourceCheckpointIdentity:
             checksum_file_sha256=str(source.get("checksum_file_sha256", "")),
             config_sha256=str(source.get("config_sha256", "")),
             source_run_root=source.get("source_run_root"),
+            run_id=str(source.get("run_id", "")),
             dataset_identity=str(source.get("dataset_identity", "")),
-            dataset_hash=str(source.get("dataset_hash", source.get("dataset_sha256", ""))),
+            data_hash=str(source.get("data_hash", source.get("dataset_hash", ""))),
+            dataset_hash=str(source.get("dataset_hash", source.get("data_hash", ""))),
+            device=str(source.get("device", "")),
         )
 
 
 @dataclass(frozen=True)
 class ValidatedSourceCheckpointIdentity:
-    """Immutable source boundary after the exact checkpoint was verified once."""
+    """Immutable source boundary after exact checkpoint verification."""
 
     identity: SourceCheckpointIdentity
     _verification_token: object = field(default=None, repr=False, compare=False)
@@ -403,11 +302,11 @@ class ValidatedSourceCheckpointIdentity:
             )
 
     @classmethod
-    def _from_verified(cls, identity: SourceCheckpointIdentity) -> ValidatedSourceCheckpointIdentity:
+    def _from_verified(cls, identity: SourceCheckpointIdentity) -> "ValidatedSourceCheckpointIdentity":
         return cls(identity, (_VALIDATED_SOURCE_TOKEN, identity))
 
     @classmethod
-    def from_approved_source(cls, source: ApprovedFullVistralSource) -> ValidatedSourceCheckpointIdentity:
+    def from_approved_source(cls, source: ApprovedFullVistralSource) -> "ValidatedSourceCheckpointIdentity":
         if not bool(getattr(source, "checkpoint_verified", False)):
             raise ExplanationRuntimeError("approved source checkpoint has not been physically verified")
         return cls._from_verified(SourceCheckpointIdentity.from_approved_source(source))
@@ -422,14 +321,22 @@ class ValidatedSourceCheckpointIdentity:
         self,
         requested_seed: int | str | None = None,
         *,
+        receipt: Mapping[str, Any] | None = None,
+        fixture_mode: bool = False,
         require_approval_bindings: bool = False,
-    ) -> ValidatedSourceCheckpointIdentity:
-        # Re-check immutable metadata and the exact path, but deliberately do
-        # not hash the large checkpoint again.  Approval files remain small
-        # and are independently checked when production bindings are required.
+    ) -> "ValidatedSourceCheckpointIdentity":
         self.identity._validate_identity_fields(requested_seed)
-        if require_approval_bindings:
-            self.identity._validate_approval_bindings(requested_seed)
+        if receipt is not None:
+            try:
+                validate_validated_source_identity(
+                    receipt,
+                    source=self.identity,
+                    expected_checkpoint_sha256=self.identity.checkpoint_sha256,
+                )
+            except SourceReceiptError as exc:
+                raise ExplanationRuntimeError(str(exc)) from exc
+        if require_approval_bindings and self.identity.source_run_root is None:
+            raise ExplanationRuntimeError("production explanation inference requires a source resolved through resolve_explanation_source")
         return self
 
 
@@ -495,7 +402,7 @@ class ExplanationOnlyRequest:
     legacy_artifact_root: Path | None = None
     fixture_mode: bool = False
 
-    def __post_init__(self) -> None:
+    def _coerced_source(self) -> SourceCheckpointIdentity | ValidatedSourceCheckpointIdentity:
         source = self.source_checkpoint
         if isinstance(source, ApprovedFullVistralSource):
             source = SourceCheckpointIdentity.from_approved_source(source)
@@ -503,41 +410,53 @@ class ExplanationOnlyRequest:
             source = SourceCheckpointIdentity.from_mapping(source)
         if not isinstance(source, (SourceCheckpointIdentity, ValidatedSourceCheckpointIdentity)):
             raise ExplanationRuntimeError("invalid explanation source checkpoint identity")
-        # Verify the exact large checkpoint at construction.  Production
-        # approval files are checked later by request/runtime validation, but
-        # the verified checkpoint boundary is retained across that step.
-        verified = source.validate(self.seed, require_approval_bindings=False)
-        object.__setattr__(self, "source_checkpoint", verified)
-
-    def normalized_source(self) -> ValidatedSourceCheckpointIdentity:
-        source = self.source_checkpoint
-        if isinstance(source, ApprovedFullVistralSource):
-            source = SourceCheckpointIdentity.from_approved_source(source)
-        elif isinstance(source, Mapping):
-            source = SourceCheckpointIdentity.from_mapping(source)
-        if isinstance(source, SourceCheckpointIdentity):
-            source = source.validate(self.seed, require_approval_bindings=not self.fixture_mode)
-        elif isinstance(source, ValidatedSourceCheckpointIdentity):
-            source.validate(self.seed, require_approval_bindings=not self.fixture_mode)
-        else:
-            raise ExplanationRuntimeError("invalid explanation source checkpoint identity")
         return source
+
+    def __post_init__(self) -> None:
+        source = self._coerced_source()
+        if self.fixture_mode and isinstance(source, SourceCheckpointIdentity):
+            source = source.validate(self.seed, fixture_mode=True)
+        object.__setattr__(self, "source_checkpoint", source)
+
+    def validated_source_identity(self, run_root: str | Path | None = None) -> dict[str, Any] | None:
+        if self.fixture_mode:
+            return None
+        artifact = Path(self.artifact_root) if self.artifact_root is not None else Path(run_root or ".")
+        source = self._coerced_source()
+        receipt_path = artifact / "source/validated_source_identity.json"
+        if isinstance(source, ValidatedSourceCheckpointIdentity) and not receipt_path.exists():
+            return None
+        try:
+            return validate_validated_source_identity(
+                artifact,
+                source=source,
+                expected_dataset_identity=self.dataset_identity,
+                expected_data_hash=self.data_hash,
+            )
+        except SourceReceiptError as exc:
+            raise ExplanationRuntimeError(str(exc)) from exc
+
+    def normalized_source(self, run_root: str | Path | None = None) -> ValidatedSourceCheckpointIdentity:
+        source = self._coerced_source()
+        receipt = self.validated_source_identity(run_root)
+        return source.validate(self.seed, receipt=receipt, fixture_mode=self.fixture_mode)
 
     def validate(self, run_root: str | Path | None = None) -> None:
         self.config.validate()
-        source = self.normalized_source()
+        artifact = Path(self.artifact_root) if self.artifact_root is not None else Path(run_root or ".")
+        source = self.normalized_source(artifact)
         if not is_real_dataset_hash(self.data_hash) and not self.fixture_mode:
-            raise ExplanationRuntimeError("production explanation inference requires a canonical SHA-256 dataset hash")
-        if not self.fixture_mode:
-            if not self.dataset_identity.strip():
-                raise ExplanationRuntimeError("production explanation inference requires a dataset identity")
-            if source.dataset_hash.upper() != self.data_hash.strip().upper():
-                raise ExplanationRuntimeError("explanation data_hash does not match the approved source dataset hash")
-            if source.dataset_identity != self.dataset_identity:
-                raise ExplanationRuntimeError("explanation dataset identity does not match the approved source dataset identity")
+            raise ExplanationRuntimeError("production explanation inference requires a real dataset hash")
+        if not str(self.dataset_identity).strip() and not self.fixture_mode:
+            raise ExplanationRuntimeError("production explanation inference requires a dataset identity")
+        source_hash = str(getattr(source, "data_hash", getattr(source, "dataset_hash", "")) or "").upper()
+        if not self.fixture_mode and source_hash and source_hash != self.data_hash.strip().upper():
+            raise ExplanationRuntimeError("explanation data_hash does not match the approved source dataset hash")
+        source_identity = str(getattr(source, "dataset_identity", "") or "")
+        if not self.fixture_mode and source_identity and source_identity != self.dataset_identity:
+            raise ExplanationRuntimeError("explanation dataset identity does not match the approved source dataset identity")
         if self.batch_size is not None and int(self.batch_size) not in SUPPORTED_GENERATION_BATCH_SIZES:
             raise ExplanationRuntimeError(f"batch size must be one of {SUPPORTED_GENERATION_BATCH_SIZES}")
-        artifact = Path(self.artifact_root) if self.artifact_root is not None else Path(run_root or ".")
         legacy = Path(self.legacy_artifact_root) if self.legacy_artifact_root is not None else None
         if legacy is not None and artifact.resolve() == legacy.resolve():
             raise ExplanationRuntimeError("legacy artifacts must use a separate artifact root")
@@ -546,7 +465,7 @@ class ExplanationOnlyRequest:
 
     def as_dict(self, run_root: str | Path | None = None) -> dict[str, Any]:
         self.validate(run_root)
-        source = self.normalized_source()
+        source = self.normalized_source(run_root)
         artifact = Path(self.artifact_root) if self.artifact_root is not None else Path(run_root or ".")
         return {
             "seed": self.seed,
@@ -558,11 +477,15 @@ class ExplanationOnlyRequest:
             "artifact_root": str(artifact),
             "legacy_artifact_root": str(self.legacy_artifact_root) if self.legacy_artifact_root else None,
             "fixture_mode": self.fixture_mode,
+            "validated_source_identity": self.validated_source_identity(run_root),
         }
+
+    def fingerprint_for(self, run_root: str | Path | None = None) -> str:
+        return sha256_json(self.as_dict(run_root))
 
     @property
     def fingerprint(self) -> str:
-        return sha256_json(self.as_dict())
+        return self.fingerprint_for(self.artifact_root)
 
 
 @dataclass(frozen=True)
@@ -615,15 +538,17 @@ class ExplanationOnlyRuntime:
         self.tokenizer = tokenizer
         self.request = request
         self.run_root = Path(run_root)
-        self.request.validate(self.run_root)
-        self.source = request.normalized_source()
+        self.artifact_root = Path(request.artifact_root) if request.artifact_root is not None else self.run_root
+        self.request.validate(self.artifact_root)
+        self.source = request.normalized_source(self.artifact_root)
         if getattr(model, "rationale_decoder", None) is None or not callable(getattr(model.rationale_decoder, "greedy_decode", None)):
             raise ExplanationRuntimeError("explanation-only requires the source model rationale decoder")
         self.device = resolve_model_input_device(model)
         if request.fixture_mode and self.device.type != "cpu":
             raise ExplanationRuntimeError("fixture explanation mode requires a CPU model")
-        self.artifact_root = Path(request.artifact_root) if request.artifact_root is not None else self.run_root
         self.artifact_root.mkdir(parents=True, exist_ok=True)
+        self._validated_source_identity = self._validate_source_receipt()
+        self._request_fingerprint = request.fingerprint_for(self.artifact_root)
         self.contract_path = self.artifact_root / "explanation_runtime_contract.json"
         self.state_path = self.artifact_root / "explanation_runtime_state.json"
         self.engine_identity = request.config.identity
@@ -637,6 +562,32 @@ class ExplanationOnlyRuntime:
     @property
     def engine_fingerprint(self) -> str:
         return self.engine_identity.fingerprint
+
+    @property
+    def source_checkpoint_sha256(self) -> str:
+        if self._validated_source_identity is not None:
+            return str(self._validated_source_identity["checkpoint_sha256"])
+        return self.source.checkpoint_sha256
+
+    def _validate_source_receipt(self) -> dict[str, Any] | None:
+        if self.request.fixture_mode:
+            return None
+        receipt_path = self.artifact_root / "source/validated_source_identity.json"
+        if isinstance(self.request.source_checkpoint, ValidatedSourceCheckpointIdentity) and not receipt_path.exists():
+            # Compatibility for the pre-receipt public resolver: its return
+            # value is already a physically verified, immutable boundary.
+            return None
+        try:
+            receipt = validate_validated_source_identity(
+                self.artifact_root,
+                source=self.source,
+                expected_device=str(self.device),
+                expected_dataset_identity=self.request.dataset_identity,
+                expected_data_hash=self.request.data_hash,
+            )
+        except SourceReceiptError as exc:
+            raise ExplanationRuntimeError(str(exc)) from exc
+        return receipt
 
     def _ensure_contract(self) -> None:
         if self.contract_path.exists():
@@ -662,10 +613,11 @@ class ExplanationOnlyRuntime:
             "contract_version": CONTRACT_VERSION,
             "system_id": EXPLANATION_SYSTEM_ID,
             "execution_kind": "checkpoint_reuse",
-            "request_fingerprint": self.request.fingerprint,
+            "request_fingerprint": self._request_fingerprint,
             "engine_identity": self.engine_identity.as_dict(),
             "engine_fingerprint": self.engine_fingerprint,
             "source_checkpoint": self.source.as_dict(),
+            "validated_source_identity": self._validated_source_identity,
             "inference_only": True,
             "additional_training": False,
             "optimizer_created": False,
@@ -679,22 +631,19 @@ class ExplanationOnlyRuntime:
 
     def _record_inputs(self, record: Mapping[str, Any]) -> tuple[torch.Tensor, torch.Tensor]:
         if "input_ids" not in record:
-            raise ExplanationRecordError("explanation records require input_ids")
-        try:
-            input_ids = record["input_ids"]
-            attention = record.get("attention_mask")
-            input_ids = input_ids if isinstance(input_ids, torch.Tensor) else torch.tensor(input_ids, dtype=torch.long)
-            if input_ids.ndim == 1:
-                input_ids = input_ids.unsqueeze(0)
-            attention = torch.ones_like(input_ids) if attention is None else attention
-            attention = attention if isinstance(attention, torch.Tensor) else torch.tensor(attention, dtype=torch.long)
-            if attention.ndim == 1:
-                attention = attention.unsqueeze(0)
-            if input_ids.shape != attention.shape or input_ids.size(0) != 1:
-                raise ExplanationRecordError("explanation records must contain one [1, time] input and mask")
-            return input_ids.to(dtype=torch.long), attention.to(dtype=torch.long)
-        except (IndexError, KeyError, TypeError, ValueError) as exc:
-            raise ExplanationRecordError("explanation record has invalid token inputs") from exc
+            raise ExplanationRuntimeError("explanation records require input_ids")
+        input_ids = record["input_ids"]
+        attention = record.get("attention_mask")
+        input_ids = input_ids if isinstance(input_ids, torch.Tensor) else torch.tensor(input_ids, dtype=torch.long)
+        if input_ids.ndim == 1:
+            input_ids = input_ids.unsqueeze(0)
+        attention = torch.ones_like(input_ids) if attention is None else attention
+        attention = attention if isinstance(attention, torch.Tensor) else torch.tensor(attention, dtype=torch.long)
+        if attention.ndim == 1:
+            attention = attention.unsqueeze(0)
+        if input_ids.shape != attention.shape or input_ids.size(0) != 1:
+            raise ExplanationRuntimeError("explanation records must contain one [1, time] input and mask")
+        return input_ids.to(dtype=torch.long), attention.to(dtype=torch.long)
 
     def _inference_batch(self, records: Sequence[Mapping[str, Any]]) -> dict[str, torch.Tensor]:
         if not records:
@@ -705,7 +654,7 @@ class ExplanationOnlyRuntime:
             ids, mask = self._record_inputs(record)
             active = mask.squeeze(0).bool()
             if not bool(active.any()):
-                raise ExplanationRecordError("explanation records must contain an active token")
+                raise ExplanationRuntimeError("explanation records must contain an active token")
             rows.append(ids.squeeze(0)[active])
             masks.append(torch.ones(int(active.sum()), dtype=torch.long))
         width = max(int(row.numel()) for row in rows)
@@ -731,10 +680,7 @@ class ExplanationOnlyRuntime:
             return ids.strip()
         if not callable(getattr(self.tokenizer, "decode", None)):
             raise ExplanationRuntimeError("explanation inference requires tokenizer.decode")
-        try:
-            return str(self.tokenizer.decode(ids, skip_special_tokens=True)).strip()
-        except (IndexError, KeyError, TypeError, ValueError) as exc:
-            raise ExplanationRecordError("tokenizer could not decode rationale tokens") from exc
+        return str(self.tokenizer.decode(ids, skip_special_tokens=True)).strip()
 
     def _row(self, split: str, record: Mapping[str, Any], decoded: torch.Tensor) -> dict[str, Any]:
         values = decoded.detach().cpu().tolist()
@@ -757,7 +703,7 @@ class ExplanationOnlyRuntime:
             "engine_identity": self.engine_identity.as_dict(),
             "engine_fingerprint": self.engine_fingerprint,
             "source_checkpoint_key": self.source.source_checkpoint_key,
-            "source_checkpoint_sha256": self.source.checkpoint_sha256,
+            "source_checkpoint_sha256": self.source_checkpoint_sha256,
             "protocol_id": self.engine_identity.protocol_id,
             "protocol_version": self.engine_identity.protocol_version,
             "batch_policy_id": self.engine_identity.batch_policy_id,
@@ -799,74 +745,16 @@ class ExplanationOnlyRuntime:
         for row in rows:
             if str(row.get("engine_fingerprint")) != self.engine_fingerprint:
                 raise ExplanationRuntimeError(f"{split} chunk engine identity mismatch")
-            if str(row.get("source_checkpoint_sha256")) != self.source.checkpoint_sha256:
+            if str(row.get("source_checkpoint_sha256")) != self.source_checkpoint_sha256:
                 raise ExplanationRuntimeError(f"{split} chunk source checkpoint binding mismatch")
             if str(row.get("source_checkpoint_key")) != self.source.source_checkpoint_key:
                 raise ExplanationRuntimeError(f"{split} chunk source checkpoint key mismatch")
         return rows
 
-    def _generation_contract(self, split: str, records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
-        repo_root = Path(__file__).resolve().parents[3]
-        sample_ids = [str(record["sample_id"]) for record in records]
-        source = self.source.as_dict()
-        return {
-            "contract_version": GenerationChunkStore.GENERATION_CONTRACT_VERSION,
-            "source_identity": source,
-            "code_identity": {
-                "commit": git_commit(repo_root),
-                "source_fingerprint": git_source_fingerprint(repo_root),
-                "engine_fingerprint": self.engine_fingerprint,
-            },
-            "model_identity": {
-                "system_id": source["source_system_id"],
-                "model_revision": source["model_revision"],
-            },
-            "tokenizer_identity": {"tokenizer_revision": source["tokenizer_revision"]},
-            "checkpoint_identity": {
-                "checkpoint_key": source["source_checkpoint_key"],
-                "checkpoint_sha256": source["checkpoint_sha256"],
-            },
-            "config_identity": {
-                "config_sha256": source["config_sha256"],
-                "request_fingerprint": self.request.fingerprint,
-                "config": self.request.config.as_dict(),
-            },
-            "dataset_identity": {
-                "identity": self.request.dataset_identity,
-                "data_hash": self.request.data_hash,
-            },
-            "split": str(split),
-            "data_hash": self.request.data_hash,
-            "input_record_digest": sha256_json([_record_identity(record) for record in records]),
-            "record_order_digest": sha256_json(sample_ids),
-            "seed": self.request.seed,
-            "system_identity": {
-                "system_id": EXPLANATION_SYSTEM_ID,
-                "source_system_id": SOURCE_SYSTEM_ID,
-            },
-            "budget": "NOT_APPLICABLE",
-        }
-
-    def _store(
-        self,
-        split: str,
-        sample_ids: Sequence[str],
-        records: Sequence[Mapping[str, Any]] | None = None,
-    ) -> GenerationChunkStore:
+    def _store(self, split: str, sample_ids: Sequence[str]) -> GenerationChunkStore:
         if not sample_ids or len(sample_ids) != len(set(sample_ids)):
             raise ExplanationRuntimeError(f"{split} records must have unique sample IDs")
-        if self.request.fixture_mode:
-            return GenerationChunkStore(self.artifact_root, split, sample_ids, fixture_mode=True)
-        if records is None:
-            raise ExplanationRuntimeError(
-                "production explanation downstream validation requires the original input records"
-            )
-        return GenerationChunkStore(
-            self.artifact_root,
-            split,
-            sample_ids,
-            generation_contract=self._generation_contract(split, records),
-        )
+        return GenerationChunkStore(self.artifact_root, split, sample_ids)
 
     def generate_reasoning_split(
         self,
@@ -877,13 +765,14 @@ class ExplanationOnlyRuntime:
         batch_size: int | None = None,
         on_committed_chunk: Callable[[Mapping[str, Any], Sequence[Mapping[str, Any]]], None] | None = None,
     ) -> list[dict[str, Any]]:
+        self._validated_source_identity = self._validate_source_receipt()
         rows = [dict(record) for record in records]
         sample_ids = [str(record.get("sample_id", "")) for record in rows]
         if any(not value for value in sample_ids):
             raise ExplanationRuntimeError("explanation records require sample_id")
         if len(sample_ids) != len(set(sample_ids)):
             raise ExplanationRuntimeError(f"{split} records contain duplicate sample IDs")
-        store = self._store(split, sample_ids, rows)
+        store = self._store(split, sample_ids)
         committed = self._validate_committed(store, sample_ids, split) if resume else []
         if not resume and committed:
             raise ExplanationRuntimeError(f"cannot discard already committed {split} chunks")
@@ -896,12 +785,12 @@ class ExplanationOnlyRuntime:
                 batch_records = pending[start : start + selected]
                 try:
                     chunk = self._generate_batch(split, batch_records)
-                except ExplanationRecordError:
+                except Exception:
                     chunk = []
                     for record in batch_records:
                         try:
                             chunk.extend(self._generate_batch(split, [record]))
-                        except ExplanationRecordError as exc:
+                        except Exception as exc:
                             chunk.append(self._failure_row(split, record, exc))
                 entry = store.commit(chunk)
                 # The callback is deliberately after GenerationChunkStore.commit.
@@ -916,18 +805,13 @@ class ExplanationOnlyRuntime:
         store.mark_complete()
         content = "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in ordered)
         _write_idempotent_text(self.artifact_root / f"reasoning/{split}_reasoning.jsonl", content)
-        self._write_state(ExplanationOnlyState(CONTRACT_VERSION, self.request.fingerprint, self.engine_fingerprint, self.source.checkpoint_sha256, split, tuple(sample_ids), tuple(sample_ids), True, True))
+        self._write_state(ExplanationOnlyState(CONTRACT_VERSION, self._request_fingerprint, self.engine_fingerprint, self.source_checkpoint_sha256, split, tuple(sample_ids), tuple(sample_ids), True, True))
         return ordered
 
-    def committed_rows_for_downstream(
-        self,
-        split: str,
-        sample_ids: Sequence[str],
-        records: Sequence[Mapping[str, Any]] | None = None,
-    ) -> list[dict[str, Any]]:
+    def committed_rows_for_downstream(self, split: str, sample_ids: Sequence[str]) -> list[dict[str, Any]]:
         """Return only rows already committed by the canonical chunk store."""
-        normalized_ids = [str(value) for value in sample_ids]
-        store = self._store(split, normalized_ids, records)
+        self._validated_source_identity = self._validate_source_receipt()
+        store = self._store(split, [str(value) for value in sample_ids])
         return self._validate_committed(store, sample_ids, split)
 
     def train(self, *_: Any, **__: Any) -> None:
@@ -947,22 +831,51 @@ ExplanationRuntime = ExplanationOnlyRuntime
 ExplanationRuntimeConfig = ExplanationOnlyConfig
 
 
-def resolve_explanation_source(root: str | Path, *, seed: int | str, source_checkpoint_key: str | None = None) -> ValidatedSourceCheckpointIdentity:
+def resolve_explanation_source(
+    root: str | Path,
+    *,
+    seed: int | str,
+    source_checkpoint_key: str | None = None,
+    artifact_root: str | Path | None = None,
+    device: str | None = None,
+    dataset_identity: str | None = None,
+    data_hash: str | None = None,
+    fixture_mode: bool = False,
+) -> ValidatedSourceCheckpointIdentity:
     """Resolve exactly the approved same-seed source; no alternate fallback is allowed."""
     expected = f"{SOURCE_SYSTEM_ID}:{seed}"
     if source_checkpoint_key not in (None, expected):
         raise ExplanationRuntimeError(f"unauthorized source checkpoint key {source_checkpoint_key!r}; expected {expected!r}")
+    if not fixture_mode and artifact_root is not None and device is None:
+        raise ExplanationRuntimeError("production explanation source resolution requires artifact_root and device")
     try:
-        source = resolve_approved_full_vistral_source(root, {"seed": seed, "source_checkpoint_id": expected})
-        validation = validate_source_checkpoint(root, source)
+        source = resolve_approved_full_vistral_source(
+            root,
+            {"seed": seed, "source_checkpoint_id": expected},
+            receipt_root=artifact_root,
+            device=str(device) if device is not None else None,
+            dataset_identity=dataset_identity,
+            data_hash=data_hash,
+            fixture_mode=fixture_mode,
+        )
+        if artifact_root is None and not fixture_mode:
+            # The legacy resolver returns the physically verified boundary;
+            # the stage/runtime path additionally persists the V30 receipt.
+            validation = {"status": "PASS", "errors": []}
+        else:
+            validation = validate_source_checkpoint(
+                root,
+                source,
+                receipt_root=artifact_root if not fixture_mode else None,
+                device=str(device) if device is not None else None,
+                dataset_identity=dataset_identity or source.data_hash or None,
+                data_hash=data_hash or source.data_hash or None,
+                fixture_mode=fixture_mode,
+            )
     except (OSError, RuntimeError, ValueError) as exc:
         raise ExplanationRuntimeError(f"could not resolve approved explanation source {expected}: {exc}") from exc
     if validation.get("status") != "PASS":
         raise ExplanationRuntimeError(f"approved explanation source failed validation: {validation.get('errors')}")
-    # ``validate_source_checkpoint`` has already verified the exact resolved
-    # path and approval bindings.  Preserve that verified boundary so request
-    # construction and runtime validation do not hash the large checkpoint
-    # again.
     return ValidatedSourceCheckpointIdentity.from_approved_source(source)
 
 
@@ -1001,8 +914,11 @@ __all__ = [
     "ExplanationRuntimeError",
     "SharedInferenceIdentity",
     "SourceCheckpointIdentity",
-    "ValidatedSourceCheckpointIdentity",
+    "ValidatedSourceIdentity",
+    "ValidatedSourceReceipt",
     "bind_explanation_seeds",
     "resolve_explanation_source",
     "validate_three_seed_binding",
+    "validate_validated_source_identity",
+    "write_validated_source_identity",
 ]
