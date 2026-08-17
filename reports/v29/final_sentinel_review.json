@@ -5,7 +5,7 @@
   "pr": 10,
   "base_branch": "main",
   "source_implementation_head": "9f540f3043c85cd60ea6c8706175d1bb44bcae0e",
-  "status": "FINAL_REPORT_HEAD_CI_RETRY_PENDING",
+  "status": "V30_DESCENDANT_CLOSURE_PENDING_EXACT_HEAD_CI_AND_SENTINEL",
   "final_pass": false,
   "findings": {
     "P0-1": "PASS",
@@ -57,6 +57,20 @@
     "status": "DEFERRED",
     "reason": "A pointer-manifest redesign would cross best selection, latest resume, rollback, approval provenance, and artifact export; no safe real-model validation was authorized in this code-only wave.",
     "future_acceptance": "Immutable canonical epoch files, atomic best/latest pointers with exact path/epoch/SHA, resume/rollback/artifact regressions, and separately authorized profiling."
+  },
+  "descendant_closure": {
+    "version": "V30",
+    "source_head": "f438a61a078e713cfa94c5624b6b0e19b719651e",
+    "status": "PENDING_EXACT_HEAD_CI_AND_SENTINEL",
+    "ci": {
+      "status": "PENDING",
+      "head_sha": "f438a61a078e713cfa94c5624b6b0e19b719651e"
+    },
+    "sentinel": {
+      "status": "PENDING",
+      "head_sha": "f438a61a078e713cfa94c5624b6b0e19b719651e"
+    },
+    "final_pass": false
   },
   "safety": {
     "production_training": false,
