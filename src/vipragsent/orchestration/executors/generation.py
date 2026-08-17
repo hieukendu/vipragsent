@@ -224,6 +224,63 @@ def _select_generation_profile_batch(
     return selected, baseline_ok
 
 
+def _not_eligible_generation_profile_candidate(
+    batch_size: int,
+    *,
+    blocked_by_batch_size: int,
+    reason: str,
+) -> dict[str, Any]:
+    """Record a higher batch that was intentionally not physically probed."""
+    return {
+        "batch_size": int(batch_size),
+        "status": "NOT_ELIGIBLE",
+        "error": None,
+        "probe_attempted": False,
+        "not_eligible_reason": str(reason),
+        "blocked_by_batch_size": int(blocked_by_batch_size),
+        "elapsed_seconds": 0.0,
+        "elapsed_time_seconds": 0.0,
+        "throughput_samples_per_second": 0.0,
+        "samples_per_second": 0.0,
+        "output_sha256": None,
+        "equivalent_to_batch_one": None,
+        "deterministic_equivalence": None,
+        "cuda_error": None,
+        "contention_status": "NOT_PROBED",
+        "contention_evidence": None,
+        "memory_before": None,
+        "memory_after": None,
+        "peak_allocated_bytes": None,
+        "peak_reserved_bytes": None,
+        "total_visible_vram_bytes": None,
+        "free_vram_before_probe": None,
+        "free_vram_after_probe": None,
+        "memory_headroom_bytes": None,
+        "required_memory_headroom_bytes": None,
+        "memory_safe": False,
+        "memory_error": None,
+        "accepted_for_selection": False,
+    }
+
+
+def _generation_profile_may_probe_higher_batch(
+    candidate_reports: list[dict[str, Any]],
+    *,
+    lower_batch_size: int,
+) -> tuple[bool, str | None]:
+    """Gate a physical higher-batch probe on the immediately lower candidate."""
+    _select_generation_profile_batch(candidate_reports)
+    lower = next(
+        (item for item in candidate_reports if int(item["batch_size"]) == int(lower_batch_size)),
+        None,
+    )
+    if lower is None:
+        return False, "LOWER_BATCH_RESULT_MISSING"
+    if lower.get("accepted_for_selection") is not True:
+        return False, "LOWER_BATCH_NOT_ACCEPTED"
+    return True, None
+
+
 def _unwrap_generation_profile(profile: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None) -> Mapping[str, Any] | None:
     if profile is None:
         return None
@@ -1196,6 +1253,21 @@ class ReasoningGenerationExecutor:
         contention_observations: list[dict[str, Any]] = []
         with reversible_inference_context(self.model):
             for candidate in candidates:
+                if candidate in (2, 4):
+                    lower_batch_size = 1 if candidate == 2 else 2
+                    may_probe, reason = _generation_profile_may_probe_higher_batch(
+                        candidate_reports,
+                        lower_batch_size=lower_batch_size,
+                    )
+                    if not may_probe:
+                        candidate_reports.append(
+                            _not_eligible_generation_profile_candidate(
+                                candidate,
+                                blocked_by_batch_size=lower_batch_size,
+                                reason=reason or "LOWER_BATCH_NOT_ACCEPTED",
+                            )
+                        )
+                        continue
                 peak_memory_error: str | None = None
                 if self.device.type == "cuda":
                     try:
@@ -1258,6 +1330,7 @@ class ReasoningGenerationExecutor:
                         "batch_size": candidate,
                         "status": "PASS" if error is None else "FAIL",
                         "error": error,
+                        "probe_attempted": True,
                         "elapsed_seconds": elapsed,
                         "elapsed_time_seconds": elapsed,
                         "throughput_samples_per_second": throughput,

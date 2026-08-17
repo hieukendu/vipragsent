@@ -19,6 +19,7 @@ from vipragsent.orchestration.executors.generation import (
     ReasoningGenerationExecutor,
     _classify_generation_contention,
     _generation_memory_evidence,
+    _generation_profile_may_probe_higher_batch,
     _select_generation_profile_batch,
     reversible_inference_context,
     select_generation_batch_size,
@@ -48,6 +49,17 @@ class _BatchDependentFixtureModel(_BatchFixtureModel):
         if input_ids.size(0) > 1:
             generated[:, -3] += 1
         return generated
+
+
+class _BatchTwoFailureMustNotProbeFourModel(_BatchFixtureModel):
+    def generate(self, *, input_ids: torch.Tensor, attention_mask: torch.Tensor, **kwargs: object) -> torch.Tensor:
+        batch_size = int(input_ids.size(0))
+        if batch_size == 2:
+            self.generate_calls.append((batch_size, attention_mask.detach().cpu().clone()))
+            raise RuntimeError("CUDA out of memory")
+        if batch_size == 4:
+            raise AssertionError("batch 4 must not be physically probed after batch 2 rejection")
+        return super().generate(input_ids=input_ids, attention_mask=attention_mask, **kwargs)
 
 
 class _ModelWideRuntimeErrorModel(_BatchFixtureModel):
@@ -236,6 +248,39 @@ def test_generation_profile_rejected_batch_two_blocks_batch_four_shortcut() -> N
     assert reports[2]["materially_beneficial"] is False
 
 
+def test_generation_profile_accepted_batch_two_allows_batch_four_probe() -> None:
+    reports = [_profile_candidate(1, 1.00), _profile_candidate(2, 1.30)]
+    may_probe, reason = _generation_profile_may_probe_higher_batch(reports, lower_batch_size=2)
+    assert may_probe is True
+    assert reason is None
+
+
+@pytest.mark.parametrize(
+    ("candidate", "expected_reason"),
+    [
+        (_profile_candidate(2, 1.30, status="FAIL", memory_safe=False), "LOWER_BATCH_NOT_ACCEPTED"),
+        (_profile_candidate(2, 1.30, memory_safe=False), "LOWER_BATCH_NOT_ACCEPTED"),
+        (_profile_candidate(2, 1.30, equivalent=False), "LOWER_BATCH_NOT_ACCEPTED"),
+        (_profile_candidate(2, 1.04), "LOWER_BATCH_NOT_ACCEPTED"),
+    ],
+)
+def test_generation_profile_rejected_batch_two_disallows_batch_four_probe(
+    candidate: dict[str, object],
+    expected_reason: str,
+) -> None:
+    reports = [_profile_candidate(1, 1.00), candidate]
+    may_probe, reason = _generation_profile_may_probe_higher_batch(reports, lower_batch_size=2)
+    assert may_probe is False
+    assert reason == expected_reason
+
+
+def test_generation_profile_invalid_batch_one_disallows_higher_probe() -> None:
+    reports = [_profile_candidate(1, 0.0, status="FAIL", memory_safe=False)]
+    may_probe, reason = _generation_profile_may_probe_higher_batch(reports, lower_batch_size=1)
+    assert may_probe is False
+    assert reason == "LOWER_BATCH_NOT_ACCEPTED"
+
+
 def test_generation_profile_memory_evidence_requires_conservative_headroom() -> None:
     total = 20 * (1024**3)
     evidence = _generation_memory_evidence(
@@ -305,7 +350,26 @@ def test_generation_profile_rejects_deterministic_mismatch(tmp_path: Path) -> No
     profile = executor.profile_generation_batches("dev", _records()[:2], sample_count=2)
     assert profile["selected_batch_size"] == 1
     assert profile["candidate_results"][1]["equivalent_to_batch_one"] is False
-    assert profile["candidate_results"][2]["equivalent_to_batch_one"] is False
+    assert profile["candidate_results"][2]["status"] == "NOT_ELIGIBLE"
+    assert profile["candidate_results"][2]["probe_attempted"] is False
+
+
+def test_generation_profile_does_not_probe_batch_four_after_batch_two_failure(tmp_path: Path) -> None:
+    model = _BatchTwoFailureMustNotProbeFourModel()
+    executor = _executor(tmp_path, model)
+    profile = executor.profile_generation_batches("dev", _records(), sample_count=4)
+    candidate_results = {int(row["batch_size"]): row for row in profile["candidate_results"]}
+
+    assert profile["candidate_batch_sizes"] == [1, 2, 4]
+    assert profile["selected_batch_size"] == 1
+    assert candidate_results[1]["status"] == "PASS"
+    assert candidate_results[2]["status"] == "FAIL"
+    assert candidate_results[4]["status"] == "NOT_ELIGIBLE"
+    assert candidate_results[4]["probe_attempted"] is False
+    assert candidate_results[4]["not_eligible_reason"] == "LOWER_BATCH_NOT_ACCEPTED"
+    assert candidate_results[4]["blocked_by_batch_size"] == 2
+    assert candidate_results[4]["contention_status"] == "NOT_PROBED"
+    assert not any(batch_size == 4 for batch_size, _ in model.generate_calls)
 
 
 def test_reversible_inference_context_restores_training_and_cache(tmp_path: Path) -> None:
