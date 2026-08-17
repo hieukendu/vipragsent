@@ -4,11 +4,13 @@ import json
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
 import torch
 
 import vipragsent.data.tokenizers as tokenizers
 import vipragsent.models.factory as model_factory
 import vipragsent.orchestration.stage_registry as stage_registry
+from vipragsent.constants import PRAGMATIC_LABELS
 from vipragsent.data.loaders import DatasetExample
 from vipragsent.hashing import sha256_file, sha256_json
 from vipragsent.orchestration.contracts import RunContext, RunEntry, StageOutcome
@@ -163,3 +165,85 @@ def test_explanation_registry_routes_reasoning_stage_to_explanation_handler(monk
 
     assert outcome.status == "PASS"
     assert calls == ["generate_dev_reasoning_from_rationale_decoder"]
+
+
+def test_existing_generation_judge_and_metrics_do_not_load_large_model(monkeypatch, tmp_path: Path) -> None:
+    entry = RunEntry.from_mapping(
+        {
+            "run_id": "q1a_cot_only_vistral_20260521",
+            "research_question": "Q1a",
+            "system_id": "cot_only_vistral",
+            "display_name": "COT",
+            "variant": "cot_only",
+            "backbone": "vistral_7b",
+            "seed": 20260521,
+            "execution_kind": "generation",
+        }
+    )
+    run_root = tmp_path / "run"
+    (run_root / "reasoning").mkdir(parents=True)
+    (run_root / "reasoning/dev_reasoning.jsonl").write_text(json.dumps({"sample_id": "dev-1", "generated_reasoning": "reason"}) + "\n", encoding="utf-8")
+    (run_root / "predictions").mkdir()
+    (run_root / "predictions/test_predictions.jsonl").write_text(json.dumps({"sample_id": "test-1", "predictions": {}}) + "\n", encoding="utf-8")
+
+    class _Judge:
+        judge_protocol_id = "judge-v1"
+        prompt_hash = "prompt-hash"
+        schema_hash = "schema-hash"
+        diagnostics = {}
+
+        def __init__(self, *_args, **_kwargs):
+            pass
+
+        def judge(self, _reasoning):
+            return {"valid": True, "labels": {}, "raw_response": "{}"}
+
+        def write_artifacts(self, *_args, **_kwargs):
+            return None
+
+    monkeypatch.setattr(stage_registry, "ReasoningJudge", _Judge)
+    monkeypatch.setattr(stage_registry, "generation_targets_available", lambda *_args: True)
+    monkeypatch.setattr(stage_registry, "_selected_dev_artifacts_reusable", lambda *_args: False)
+    monkeypatch.setattr(stage_registry, "load_vipragsent", lambda *_args: SimpleNamespace(dev=[DatasetExample("dev-1", "text", {label: 0 for label in PRAGMATIC_LABELS}, "dev")], test=[]))
+    monkeypatch.setattr(stage_registry, "build_reasoning_prediction_row", lambda *args, **kwargs: {"sample_id": args[0]})
+    monkeypatch.setattr(stage_registry, "compute_reasoning_metrics", lambda *_args, **_kwargs: {"primary_macro_f1": 0.0})
+
+    def forbidden_model(*_args, **_kwargs):
+        raise AssertionError("existing judge/metric stages must not load the large model")
+
+    monkeypatch.setattr(model_factory, "build_production_model", forbidden_model)
+    context = RunContext(tmp_path, entry, run_root=run_root, metadata={"data_hash": "A" * 64})
+    for stage in ("judge_dev_reasoning", "compute_test_reasoning_metrics"):
+        outcome = stage_registry._production_generation_stage(context, entry, stage)
+        assert outcome.status == "PASS", outcome
+
+
+def test_generation_inference_still_attempts_model_loading(monkeypatch, tmp_path: Path) -> None:
+    entry = RunEntry.from_mapping(
+        {
+            "run_id": "q1a_cot_only_vistral_20260521",
+            "research_question": "Q1a",
+            "system_id": "cot_only_vistral",
+            "display_name": "COT",
+            "variant": "cot_only",
+            "backbone": "vistral_7b",
+            "seed": 20260521,
+            "execution_kind": "generation",
+        }
+    )
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    entry_spec = SimpleNamespace(model_family="vistral_7b")
+    monkeypatch.setattr(stage_registry, "generation_targets_available", lambda *_args: True)
+    monkeypatch.setattr(stage_registry, "_execution_spec", lambda *_args: entry_spec)
+    monkeypatch.setattr(stage_registry, "_resolve_production_device", lambda *_args: ("cpu", None))
+    monkeypatch.setattr(stage_registry, "read_family_status", lambda *_args: {"local_path": str(tmp_path / "snapshot")})
+    monkeypatch.setattr(stage_registry, "resolve_local_snapshot", lambda *_args: tmp_path / "snapshot")
+
+    def forbidden_model(*_args, **_kwargs):
+        raise AssertionError("generation inference must attempt model loading")
+
+    monkeypatch.setattr(model_factory, "build_production_model", forbidden_model)
+    context = RunContext(tmp_path, entry, run_root=run_root, metadata={"data_hash": "A" * 64})
+    with pytest.raises(AssertionError, match="must attempt model loading"):
+        stage_registry._production_generation_stage(context, entry, "generate_dev_reasoning")

@@ -188,6 +188,40 @@ def test_runtime_is_inference_only_and_does_not_call_full_forward(tmp_path: Path
         runtime.create_optimizer()
 
 
+def test_verified_source_boundary_hashes_checkpoint_once_across_request_and_runtime(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import vipragsent.orchestration.explanation_runtime as explanation_module
+
+    checkpoint = tmp_path / "source.pt"
+    checkpoint.write_bytes(b"approved-source")
+    original_sha256_file = explanation_module.sha256_file
+    expected_hash = original_sha256_file(checkpoint)
+    checkpoint_hash_calls = 0
+
+    def counted_sha256_file(path: Path) -> str:
+        nonlocal checkpoint_hash_calls
+        if Path(path) == checkpoint:
+            checkpoint_hash_calls += 1
+        return original_sha256_file(path)
+
+    monkeypatch.setattr(explanation_module, "sha256_file", counted_sha256_file)
+    request = ExplanationOnlyRequest(
+        seed=20260521,
+        source_checkpoint=SourceCheckpointIdentity(20260521, checkpoint, expected_hash, variant_fingerprint="full-v1"),
+        config=ExplanationOnlyConfig(identity=_identity()),
+        data_hash="fixture-data",
+        dataset_identity="fixture",
+        artifact_root=tmp_path / "run",
+        fixture_mode=True,
+    )
+    _ = request.fingerprint
+    runtime = ExplanationOnlyRuntime(_TinyFullModel(), _Tokenizer(), request, run_root=tmp_path / "run")
+    _ = runtime.request.as_dict()
+    assert checkpoint_hash_calls == 1
+
+
 def test_model_wide_runtime_error_propagates_without_complete_manifest_or_jsonl(tmp_path: Path) -> None:
     checkpoint = tmp_path / "source.pt"
     checkpoint.write_bytes(b"approved-source")

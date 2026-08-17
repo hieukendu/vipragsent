@@ -363,6 +363,11 @@ class LeaseIdentity:
         if self.pid <= 0:
             raise SchedulerInvariantError("lease pid must be positive")
 
+    @property
+    def owner_key(self) -> tuple[str, str, str, str, int, str]:
+        """Return the immutable ownership fields, excluding heartbeat state."""
+        return (self.campaign_id, self.run_id, self.stage_id, self.host, self.pid, self.instance_id)
+
 
 @dataclass(frozen=True, slots=True)
 class Lease:
@@ -385,7 +390,7 @@ class LeaseDecision:
 def acquire_lease(existing: Lease | None, identity: LeaseIdentity, *, now: float, ttl: float = 900.0, heartbeat_timeout: float = 300.0) -> LeaseDecision:
     if ttl <= 0 or heartbeat_timeout <= 0:
         raise SchedulerInvariantError("lease TTL and heartbeat timeout must be positive")
-    candidate = Lease(identity, now, now + ttl)
+    candidate = Lease(replace(identity, heartbeat=now), now, now + ttl)
     if existing is None:
         return LeaseDecision(True, candidate, "ACQUIRED")
     if not existing.stale(now=now, heartbeat_timeout=heartbeat_timeout):
@@ -394,11 +399,14 @@ def acquire_lease(existing: Lease | None, identity: LeaseIdentity, *, now: float
 
 
 def renew_lease(lease: Lease, identity: LeaseIdentity, *, now: float, ttl: float = 900.0) -> Lease:
-    if lease.identity != identity:
+    if ttl <= 0:
+        raise SchedulerInvariantError("lease TTL must be positive")
+    if lease.identity.owner_key != identity.owner_key:
         raise SchedulerInvariantError("only the exact campaign/run/stage/host/PID/instance owner may renew")
     if now < lease.acquired_at:
         raise SchedulerInvariantError("lease renewal cannot move backward in time")
-    return Lease(identity, lease.acquired_at, now + ttl)
+    renewed_identity = replace(identity, heartbeat=now)
+    return Lease(renewed_identity, lease.acquired_at, now + ttl)
 
 
 @dataclass(frozen=True, slots=True)

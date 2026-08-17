@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+from dataclasses import replace
 from pathlib import Path
 
 import pytest
@@ -219,6 +220,29 @@ def test_lease_identity_lock_ownership_and_stale_recovery() -> None:
     assert acquire_lock(lock.lock, "campaign-lock", right).reason == "LOCK_OWNERSHIP_CONFLICT"
     assert release_lock(lock.lock, right).reason == "LOCK_OWNERSHIP_CONFLICT"
     assert release_lock(lock.lock, left).reason == "LOCK_RELEASED"
+
+
+def test_lease_renewal_advances_only_mutable_heartbeat_state() -> None:
+    original = LeaseIdentity("campaign", "run", "stage", "host", 101, "instance", 0)
+    acquired = acquire_lease(None, original, now=10, ttl=5, heartbeat_timeout=2)
+    renewed = renew_lease(acquired.lease, replace(original, heartbeat=999), now=12, ttl=7)
+    assert renewed.identity.owner_key == original.owner_key
+    assert renewed.identity.heartbeat == 12
+    assert renewed.acquired_at == 10
+    assert renewed.expires_at == 19
+    assert not renewed.stale(now=13, heartbeat_timeout=2)
+
+    for field, value in (
+        ("campaign_id", "other-campaign"),
+        ("run_id", "other-run"),
+        ("stage_id", "other-stage"),
+        ("host", "other-host"),
+        ("pid", 202),
+        ("instance_id", "other-instance"),
+    ):
+        candidate = replace(original, heartbeat=999, **{field: value})
+        with pytest.raises(SchedulerInvariantError):
+            renew_lease(acquired.lease, candidate, now=12)
 
 
 def test_artifact_validation_precedes_retry_and_storage_is_fail_closed() -> None:

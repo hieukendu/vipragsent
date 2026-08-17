@@ -9,6 +9,7 @@ hashes agree exactly.
 from __future__ import annotations
 
 import json
+import re
 from collections.abc import Mapping
 from dataclasses import dataclass, replace
 from enum import StrEnum
@@ -27,6 +28,7 @@ IDENTITY_FIELDS = ("model", "tokenizer", "config", "data", "source", "live_code_
 HASH_FIELDS = tuple(f"{name}_hash" for name in IDENTITY_FIELDS)
 APPROVED_FIELDS = IDENTITY_FIELDS + HASH_FIELDS
 LIVE_CODE_IDENTITY_UNCERTAIN = "LIVE_CODE_IDENTITY_UNCERTAIN"
+_SHA256_RE = re.compile(r"^[0-9A-Fa-f]{64}$")
 
 
 def canonical_hash(value: Any) -> str:
@@ -59,6 +61,12 @@ def _schema_issues(metadata: Mapping[str, Any], side: str) -> list[str]:
             issues.append(f"{name.removesuffix('_hash').upper()}_HASH_ABSENT")
         else:
             issues.append(f"{name.upper()}_IDENTITY_ABSENT")
+    for name in HASH_FIELDS:
+        value = metadata.get(name)
+        if name in metadata and not _is_uncertain(value) and not isinstance(value, str | bytes):
+            issues.append(f"INVALID_SHA256:{side}:{name}")
+        elif name in metadata and not _is_uncertain(value) and not _SHA256_RE.fullmatch(str(value)):
+            issues.append(f"INVALID_SHA256:{side}:{name}")
     return issues
 
 
@@ -113,6 +121,11 @@ def decide_reuse(
         local = local_metadata[name]
         remote = remote_metadata[name]
         if _is_uncertain(local) or _is_uncertain(remote):
+            continue
+        if name in HASH_FIELDS and (
+            not _SHA256_RE.fullmatch(str(local))
+            or not _SHA256_RE.fullmatch(str(remote))
+        ):
             continue
         if local != remote:
             mismatched.append(name)

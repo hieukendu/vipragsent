@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import pytest
+
 from vipragsent.runtime.artifact_reuse import (
     LIVE_CODE_IDENTITY_UNCERTAIN,
     ReuseDecision,
@@ -18,17 +20,17 @@ from vipragsent.runtime.artifact_reuse import (
 def _metadata() -> dict[str, str]:
     return {
         "model": "model@sha256:model",
-        "model_hash": "digest:model",
+        "model_hash": "1" * 64,
         "tokenizer": "tokenizer@sha256:tokenizer",
-        "tokenizer_hash": "digest:tokenizer",
+        "tokenizer_hash": "2" * 64,
         "config": "config@sha256:config",
-        "config_hash": "digest:config",
+        "config_hash": "3" * 64,
         "data": "data@sha256:data",
-        "data_hash": "digest:data",
+        "data_hash": "4" * 64,
         "source": "source-run-001",
-        "source_hash": "digest:source",
+        "source_hash": "5" * 64,
         "live_code_identity": "git:abc123",
-        "live_code_identity_hash": "digest:code",
+        "live_code_identity_hash": "6" * 64,
     }
 
 
@@ -71,7 +73,7 @@ def test_missing_digest_is_blocked() -> None:
 def test_changed_live_code_identity_is_invalid() -> None:
     remote = _metadata() | {
         "live_code_identity": "git:def456",
-        "live_code_identity_hash": "digest:other-code",
+        "live_code_identity_hash": "7" * 64,
     }
     result = decide_reuse(_metadata(), remote)
     assert result.status is ReuseStatus.INVALID
@@ -80,11 +82,31 @@ def test_changed_live_code_identity_is_invalid() -> None:
 
 
 def test_changed_digest_is_invalid() -> None:
-    remote = _metadata() | {"data_hash": "digest:other-data"}
+    remote = _metadata() | {"data_hash": "7" * 64}
     result = decide_reuse(_metadata(), remote)
     assert result.status is ReuseStatus.INVALID
     assert "data_hash" in result.mismatched_fields
     assert "DIGEST_MISMATCH:data_hash" in result.reasons
+
+
+@pytest.mark.parametrize(
+    "malformed",
+    ("digest:model", "a" * 63, "a" * 65, "g" * 64),
+)
+def test_malformed_equal_sha256_fields_are_blocked(malformed: str) -> None:
+    metadata = _metadata() | {"model_hash": malformed}
+    result = decide_reuse(metadata, dict(metadata))
+    assert result.status is ReuseStatus.BLOCKED
+    assert "INVALID_SHA256:local:model_hash" in result.reasons
+    assert "INVALID_SHA256:remote:model_hash" in result.reasons
+
+
+def test_exact_sha256_fields_are_verified_and_different_valid_fields_are_invalid() -> None:
+    valid = decide_reuse(_metadata(), _metadata())
+    assert valid.status is ReuseStatus.VERIFIED
+    invalid = decide_reuse(_metadata(), _metadata() | {"model_hash": "7" * 64})
+    assert invalid.status is ReuseStatus.INVALID
+    assert "model_hash" in invalid.mismatched_fields
 
 
 def test_extra_provenance_field_is_blocked() -> None:
