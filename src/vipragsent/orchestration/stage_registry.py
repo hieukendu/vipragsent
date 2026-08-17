@@ -1602,7 +1602,14 @@ def _azure_execute(context: RunContext, entry: RunEntry) -> StageOutcome:
             rows = [{"sample_id": f"fixture_{entry.run_id}_{index}", "split": "test", "system_id": entry.system_id, "seed": entry.seed, "gold": {}, "probabilities": {}, "predictions": {}, "invalid_status": False, "failure_reason": None} for index in range(4)]
             atomic_write_text(run_root / "predictions/test_predictions.jsonl", "".join(json.dumps(row, sort_keys=True) + "\n" for row in rows))
         return StageOutcome.passed(summary={"azure_request_count": 4, "azure_input_tokens": 0, "azure_output_tokens": 0, "azure_cache_hits": 0, "azure_cache_misses": 4}, expected_files=_azure_required_files(entry))
-    from ..azure.client import AzureCache, AzureResponsesClient, AzureSettings
+    from ..azure.client import (
+        AzureCache,
+        AzureResponsesClient,
+        AzureSafetyBudgetError,
+        AzureSafetyCeilings,
+        AzureSafetyLedger,
+        AzureSettings,
+    )
     from ..azure.prompts import validate_task_demo_manifest
     from ..data.loaders import read_csv
 
@@ -1613,27 +1620,49 @@ def _azure_execute(context: RunContext, entry: RunEntry) -> StageOutcome:
     transport = context.metadata.get("azure_transport")
     if transport is not None and not callable(transport):
         return StageOutcome.failed("injected azure_transport must be callable")
-    client = AzureResponsesClient(settings, transport=transport, cache=AzureCache(run_root / "azure/cache"))
+    safety_payload = context.metadata.get("azure_safety_ceilings")
+    if safety_payload is not None and not isinstance(safety_payload, Mapping):
+        return StageOutcome.failed("azure_safety_ceilings must be a mapping")
+    safety_values = dict(safety_payload or {})
+    # Production artifact validation requires locally verified spend.  A
+    # caller may opt into an explicit UNKNOWN result only for non-production
+    # diagnostics; this boundary remains fail-closed by default.
+    safety_values.setdefault("allow_unknown_spend", False)
+    try:
+        safety = AzureSafetyCeilings.from_mapping(safety_values)
+    except (TypeError, ValueError) as exc:
+        return StageOutcome.blocked(f"invalid Azure safety ceilings: {exc}")
+    client = AzureResponsesClient(settings, transport=transport, cache=AzureCache(run_root / "azure/cache"), safety=safety, safety_ledger=AzureSafetyLedger(safety))
     task = str(entry.task or "pragmatic")
     if entry.variant == "rationale_generation":
         input_path = context.root / "data/processed/rationales/azure_rationale_input_train.jsonl"
         if not input_path.exists():
             return StageOutcome.blocked("rationale input manifest is missing")
         inputs = [json.loads(line) for line in input_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+        try:
+            client.preflight_logical_requests(len(inputs))
+        except AzureSafetyBudgetError as exc:
+            return StageOutcome.blocked(str(exc))
         schema = {"strict": True, "schema": __import__("vipragsent.azure.schemas", fromlist=["strict_rationale_schema"]).strict_rationale_schema()}
         records, failures, usage = [], [], []
-        for item in inputs:
+        for index, item in enumerate(inputs):
             try:
                 result = client.create_structured(prompt=f"Generate a rationale for this Vietnamese comment:\n{item['comment']}", task="rationale", schema=schema, max_output_tokens=256, sample_id=str(item["sample_id"]), input_payload=item)
                 _persist_azure_usage_record(run_root, sample_id=str(item["sample_id"]), result=result)
                 records.append({"sample_id": item["sample_id"], "rationale_target": result["labels"]["rationale"], **{key: result.get(key) for key in ("prompt_hash", "schema_hash", "response_id", "deployment", "observed_model", "observed_model_version", "usage")}})
                 usage.append({**dict(result.get("usage", {})), "retry_count": result.get("retry_count", 0), "cache_hit": result.get("cache_hit", False)})
+            except AzureSafetyBudgetError as exc:
+                failures.append({"sample_id": item.get("sample_id"), "status": "SAFETY_BUDGET_EXCEEDED", "error": str(exc)})
+                failures.extend({"sample_id": remainder.get("sample_id"), "status": "NOT_ATTEMPTED_AFTER_SAFETY_STOP", "error": str(exc)} for remainder in inputs[index + 1 :])
+                break
             except Exception as exc:
                 failures.append({"sample_id": item.get("sample_id"), "status": "FAILED", "error": str(exc)})
         atomic_write_text(run_root / "azure/rationale.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in records))
         atomic_write_json(run_root / "azure/rationale_failures.json", failures)
         _write_azure_manifests(run_root, entry, len(inputs), len(records), len(failures), usage, settings, synthetic=False, failures=failures)
-        return StageOutcome.passed(summary={"azure_request_count": len(inputs), "azure_invalid_output_rate": len(failures) / len(inputs) if inputs else 0.0}, expected_files=tuple(_azure_required_files(entry)))
+        if failures:
+            return StageOutcome.failed(f"Azure execution rejected {len(failures)} of {len(inputs)} requests")
+        return StageOutcome.passed(summary={"azure_request_count": len(inputs), "azure_invalid_output_rate": 0.0}, expected_files=tuple(_azure_required_files(entry)))
     prompt_manifest = _azure_prompt_manifest(context.root, entry)
     validate_task_demo_manifest(prompt_manifest, "pragmatic" if task == "sarcasm" else task)
     rows = read_csv(context.root / "data/processed/vipragsent/test.csv")
@@ -1644,7 +1673,11 @@ def _azure_execute(context: RunContext, entry: RunEntry) -> StageOutcome:
     prompt_task = "pragmatic" if task == "sarcasm" else task
     schema = {"strict": True, "schema": __import__("vipragsent.azure.schemas", fromlist=["strict_label_schema"]).strict_label_schema(prompt_task)}
     records, failures, usage = [], [], []
-    for row in rows:
+    try:
+        client.preflight_logical_requests(len(rows))
+    except AzureSafetyBudgetError as exc:
+        return StageOutcome.blocked(str(exc))
+    for index, row in enumerate(rows):
         prompt = _render_azure_prompt(prompt_task, str(row.get("text", "")), demonstrations, schema)
         try:
             result = client.create_structured(prompt=prompt, task=prompt_task, schema=schema, max_output_tokens=128 if prompt_task == "pragmatic" else 32, sample_id=str(row["sample_id"]), input_payload=row)
@@ -1652,11 +1685,17 @@ def _azure_execute(context: RunContext, entry: RunEntry) -> StageOutcome:
             labels = result["labels"]
             records.append({"sample_id": row["sample_id"], "split": "test", "system_id": entry.system_id, "seed": entry.seed, "gold": {key: row[key] for key in labels if key in row}, "predictions": labels, "probabilities": {}, "invalid_status": False, "failure_reason": None})
             usage.append({**dict(result.get("usage", {})), "retry_count": result.get("retry_count", 0), "cache_hit": result.get("cache_hit", False)})
+        except AzureSafetyBudgetError as exc:
+            failures.append({"sample_id": row.get("sample_id"), "status": "SAFETY_BUDGET_EXCEEDED", "error": str(exc)})
+            failures.extend({"sample_id": remainder.get("sample_id"), "status": "NOT_ATTEMPTED_AFTER_SAFETY_STOP", "error": str(exc)} for remainder in rows[index + 1 :])
+            break
         except Exception as exc:
             failures.append({"sample_id": row.get("sample_id"), "status": "INVALID", "error": str(exc)})
     atomic_write_text(run_root / "predictions/test_predictions.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in records))
     _write_azure_manifests(run_root, entry, len(rows), len(records), len(failures), usage, settings, synthetic=False, failures=failures)
-    return StageOutcome.passed(summary={"azure_request_count": len(rows), "azure_invalid_output_rate": len(failures) / len(rows) if rows else 0.0}, expected_files=tuple(_azure_required_files(entry)))
+    if failures:
+        return StageOutcome.failed(f"Azure execution rejected {len(failures)} of {len(rows)} requests")
+    return StageOutcome.passed(summary={"azure_request_count": len(rows), "azure_invalid_output_rate": 0.0}, expected_files=tuple(_azure_required_files(entry)))
 
 
 def _azure_validate(context: RunContext, entry: RunEntry) -> StageOutcome:

@@ -25,6 +25,7 @@ from ..atomic import atomic_write_json, exclusive_lock
 from ..constants import PRAGMATIC_LABELS
 from ..evaluation.reasoning_judge import load_reasoning_protocol, validate_judge_labels
 from ..hashing import sha256_json
+from ..profiling import azure_successful_usage_cost
 
 JUDGE_LABELS = tuple(PRAGMATIC_LABELS)
 LOCKED_MODEL = "gpt-4.1-mini"
@@ -159,15 +160,29 @@ class QuotaConfig:
 
 @dataclass(frozen=True, slots=True)
 class BudgetConfig:
-    """Finite safety budgets.  ``None`` is allowed only for opt-out fields."""
+    """Finite safety budgets; caller limits remain upper bounds, never overrides."""
 
     max_logical_items: int = 100_000
     max_requests: int = 500_000
     max_tokens: int = 50_000_000
+    max_input_tokens: int = 50_000_000
+    max_output_tokens: int = 50_000_000
+    max_total_tokens: int = 50_000_000
+    max_concurrency: int = 32
+    max_verified_spend_usd: float = 100.0
+    allow_unknown_spend: bool = True
 
     def __post_init__(self) -> None:
-        if self.max_logical_items <= 0 or self.max_requests <= 0 or self.max_tokens <= 0:
+        if any(isinstance(value, bool) or int(value) <= 0 for value in (self.max_logical_items, self.max_requests, self.max_tokens, self.max_input_tokens, self.max_output_tokens, self.max_concurrency)):
             raise ValueError("all judge budgets must be positive")
+        if isinstance(self.max_total_tokens, bool) or self.max_total_tokens <= 0:
+            raise ValueError("max_total_tokens must be positive")
+        if self.max_verified_spend_usd < 0:
+            raise ValueError("max_verified_spend_usd must be non-negative")
+
+    @property
+    def total_token_limit(self) -> int:
+        return min(self.max_tokens, self.max_total_tokens)
 
 
 @dataclass(frozen=True, slots=True)
@@ -184,6 +199,7 @@ class JudgeResult:
     input_tokens: int
     output_tokens: int
     quota_wait_seconds: float = 0.0
+    spend_status: str = "UNKNOWN"
 
     @property
     def accepted(self) -> bool:
@@ -202,6 +218,7 @@ class JudgeResult:
             "input_tokens": self.input_tokens,
             "output_tokens": self.output_tokens,
             "quota_wait_seconds": self.quota_wait_seconds,
+            "spend_status": self.spend_status,
         }
 
 
@@ -235,6 +252,8 @@ class FileJudgeCache:
         except (OSError, ValueError):
             return None
         if not isinstance(record, Mapping) or record.get("cache_key") != key:
+            return None
+        if record.get("cacheable") is False or record.get("failure_kind") == "retryable_transport":
             return None
         if any(record.get(name) != value for name, value in contract.items()):
             return None
@@ -374,12 +393,24 @@ def _usage(response: Any) -> tuple[int, int]:
     return max(0, input_tokens), max(0, output_tokens)
 
 
+@dataclass(frozen=True)
+class _RequestReservation:
+    input_estimate: int
+    output_ceiling: int
+
+
 @dataclass
 class _BudgetLedger:
     config: BudgetConfig
     logical_items: int = 0
     requests: int = 0
-    estimated_tokens: int = 0
+    input_tokens: int = 0
+    output_tokens: int = 0
+    total_tokens: int = 0
+    verified_spend_usd: float = 0.0
+    unknown_spend_count: int = 0
+    reserved_input: int = 0
+    reserved_output: int = 0
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
 
     async def reserve_logical(self) -> bool:
@@ -389,13 +420,57 @@ class _BudgetLedger:
             self.logical_items += 1
             return True
 
-    async def reserve_request(self, estimated_tokens: int) -> bool:
+    async def reserve_request(self, estimated_tokens: int, output_ceiling: int) -> _RequestReservation | None:
         async with self.lock:
-            if self.requests >= self.config.max_requests or self.estimated_tokens + estimated_tokens > self.config.max_tokens:
-                return False
+            estimate = max(0, int(estimated_tokens))
+            output = max(0, int(output_ceiling))
+            if self.requests >= self.config.max_requests:
+                return None
+            if self.input_tokens + self.reserved_input + estimate > self.config.max_input_tokens:
+                return None
+            if self.output_tokens + self.reserved_output + output > self.config.max_output_tokens:
+                return None
+            if self.total_tokens + self.reserved_input + self.reserved_output + estimate + output > self.config.total_token_limit:
+                return None
             self.requests += 1
-            self.estimated_tokens += max(0, estimated_tokens)
-            return True
+            self.reserved_input += estimate
+            self.reserved_output += output
+            return _RequestReservation(estimate, output)
+
+    async def cancel_request(self, reservation: _RequestReservation) -> None:
+        async with self.lock:
+            self.reserved_input = max(0, self.reserved_input - reservation.input_estimate)
+            self.reserved_output = max(0, self.reserved_output - reservation.output_ceiling)
+
+    async def commit_request(self, reservation: _RequestReservation, usage: Mapping[str, Any]) -> str:
+        cost = azure_successful_usage_cost(usage)
+        input_tokens = cost.get("input_tokens")
+        output_tokens = cost.get("output_tokens")
+        async with self.lock:
+            self.reserved_input = max(0, self.reserved_input - reservation.input_estimate)
+            self.reserved_output = max(0, self.reserved_output - reservation.output_ceiling)
+            if input_tokens is None or output_tokens is None or cost.get("request_cost_usd") is None:
+                self.unknown_spend_count += 1
+                if not self.config.allow_unknown_spend:
+                    raise BudgetExhausted("actual usage has unknown spend")
+                return "UNKNOWN"
+            input_tokens = int(input_tokens)
+            output_tokens = int(output_tokens)
+            total_tokens = input_tokens + output_tokens
+            if self.input_tokens + input_tokens > self.config.max_input_tokens:
+                raise BudgetExhausted("actual input tokens exceed budget")
+            if self.output_tokens + output_tokens > self.config.max_output_tokens:
+                raise BudgetExhausted("actual output tokens exceed budget")
+            if self.total_tokens + total_tokens > self.config.total_token_limit:
+                raise BudgetExhausted("actual total tokens exceed budget")
+            spend = float(cost["request_cost_usd"])
+            if self.verified_spend_usd + spend > self.config.max_verified_spend_usd:
+                raise BudgetExhausted("actual verified spend exceeds budget")
+            self.input_tokens += input_tokens
+            self.output_tokens += output_tokens
+            self.total_tokens += total_tokens
+            self.verified_spend_usd += spend
+            return "VERIFIED"
 
 
 class AsyncJudgePipeline:
@@ -522,7 +597,7 @@ class AsyncJudgePipeline:
             labels = validate_judge_labels(labels)
         # Historical attempts/usage belong to the cache producer; a cache hit
         # contributes no new request or token telemetry for this run.
-        return JudgeResult(ordinal, commit.identity, "ok" if valid else "failed", valid, labels, True, 0, 0, cached.get("failure_reason"), 0, 0)
+        return JudgeResult(ordinal, commit.identity, "ok" if valid else "failed", valid, labels, True, 0, 0, cached.get("failure_reason"), 0, 0, 0.0, str(cached.get("spend_status", "UNKNOWN")))
 
     async def _judge_one(self, ordinal: int, commit: JudgeCommit, ledger: _BudgetLedger) -> JudgeResult:
         normalized = normalize_reasoning(commit.reasoning)
@@ -532,7 +607,7 @@ class AsyncJudgePipeline:
             if cached is not None:
                 return self._result_from_cache(ordinal, commit, cached)
             if not normalized:
-                record = {"valid": False, "labels": None, "failure_reason": "empty_reasoning", "attempts": 0, "retry_count": 0, "input_tokens": 0, "output_tokens": 0}
+                record = {"valid": False, "labels": None, "failure_reason": "empty_reasoning", "attempts": 0, "retry_count": 0, "input_tokens": 0, "output_tokens": 0, "cacheable": True, "failure_kind": "terminal_semantic", "spend_status": "VERIFIED"}
                 self._cache_put(key, normalized, record, commit.judge_identity)
                 return self._result_from_cache(ordinal, commit, record)
             prompt = self._render(normalized)
@@ -542,10 +617,12 @@ class AsyncJudgePipeline:
             quota_wait = 0.0
             input_tokens = 0
             output_tokens = 0
+            spend_status = "UNKNOWN"
             last_error: Exception | None = None
             payload = self._payload(prompt)
             for attempt in range(self.retry.maximum_total_attempts):
-                if not await ledger.reserve_request(estimated_tokens):
+                reservation = await ledger.reserve_request(estimated_tokens, int(payload["max_output_tokens"]))
+                if reservation is None:
                     return JudgeResult(ordinal, commit.identity, "failed", False, None, False, attempts, retries, "request_or_token_budget_exhausted", input_tokens, output_tokens, quota_wait)
                 try:
                     quota_wait += await self.quota.acquire(estimated_tokens)
@@ -554,18 +631,33 @@ class AsyncJudgePipeline:
                     transport_error = _transport_error(response)
                     if transport_error is not None:
                         raise transport_error
-                    labels = _parse_labels(response)
                     input_tokens, output_tokens = _usage(response)
-                    record = {"valid": True, "labels": labels, "failure_reason": None, "attempts": attempts, "retry_count": retries, "input_tokens": input_tokens, "output_tokens": output_tokens}
+                    spend_status = await ledger.commit_request(reservation, response.get("usage", {}) if isinstance(response, Mapping) else {})
+                    reservation = None
+                    labels = _parse_labels(response)
+                    record = {"valid": True, "labels": labels, "failure_reason": None, "attempts": attempts, "retry_count": retries, "input_tokens": input_tokens, "output_tokens": output_tokens, "cacheable": True, "failure_kind": None, "spend_status": spend_status}
                     self._cache_put(key, normalized, record, commit.judge_identity)
-                    return JudgeResult(ordinal, commit.identity, "ok", True, labels, False, attempts, retries, None, input_tokens, output_tokens, quota_wait)
+                    return JudgeResult(ordinal, commit.identity, "ok", True, labels, False, attempts, retries, None, input_tokens, output_tokens, quota_wait, spend_status)
                 except JudgeSemanticError as exc:
+                    if reservation is not None:
+                        await ledger.cancel_request(reservation)
+                        reservation = None
                     attempts = max(attempts, 1)
                     last_error = exc
                     break
+                except BudgetExhausted as exc:
+                    # Actual usage is authoritative; never retry or cache an
+                    # over-budget response, even when the estimate admitted it.
+                    reservation = None
+                    attempts = max(attempts, 1)
+                    return JudgeResult(ordinal, commit.identity, "failed", False, None, False, attempts, retries, str(exc), input_tokens, output_tokens, quota_wait)
                 except QuotaExceeded as exc:
+                    await ledger.cancel_request(reservation)
+                    reservation = None
                     return JudgeResult(ordinal, commit.identity, "failed", False, None, False, attempts, retries, str(exc), input_tokens, output_tokens, quota_wait)
                 except Exception as exc:  # transport errors are terminal after bounded retries
+                    await ledger.cancel_request(reservation)
+                    reservation = None
                     attempts = max(attempts, 1)
                     last_error = exc
                     if not _retryable(exc) or attempt + 1 >= self.retry.maximum_total_attempts:
@@ -576,8 +668,9 @@ class AsyncJudgePipeline:
                         delay = self.retry.fallback_delays_seconds[min(attempt, len(self.retry.fallback_delays_seconds) - 1)]
                     await _maybe_await(self.sleep(min(self.retry.maximum_delay_seconds, delay)))
             reason = str(last_error or "judge request failed")
-            record = {"valid": False, "labels": None, "failure_reason": reason, "attempts": attempts, "retry_count": retries, "input_tokens": input_tokens, "output_tokens": output_tokens}
-            self._cache_put(key, normalized, record, commit.judge_identity)
+            record = {"valid": False, "labels": None, "failure_reason": reason, "attempts": attempts, "retry_count": retries, "input_tokens": input_tokens, "output_tokens": output_tokens, "cacheable": True, "failure_kind": "terminal_semantic" if isinstance(last_error, JudgeSemanticError) else "terminal_transport", "spend_status": spend_status}
+            if last_error is None or not _retryable(last_error):
+                self._cache_put(key, normalized, record, commit.judge_identity)
             return JudgeResult(ordinal, commit.identity, "failed", False, None, False, attempts, retries, reason, input_tokens, output_tokens, quota_wait)
 
     @staticmethod
@@ -595,7 +688,7 @@ class AsyncJudgePipeline:
         results: dict[int, JudgeResult] = {}
         latest: dict[tuple[str, str, str], str] = {}
         stopped_reason: str | None = None
-        worker_count = min(self.max_inflight, self.max_committed_unjudged)
+        worker_count = min(self.max_inflight, self.max_committed_unjudged, self.budget.max_concurrency)
 
         async def produce() -> None:
             nonlocal stopped_reason
