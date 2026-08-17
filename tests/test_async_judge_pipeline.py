@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import json
+import math
 from pathlib import Path
 
 import pytest
@@ -36,6 +37,55 @@ def _fixture_budget(**kwargs: object) -> BudgetConfig:
     """Explicitly permit legacy no-usage mock responses in fixture tests."""
 
     return BudgetConfig(allow_unknown_spend=True, **kwargs)
+
+
+@pytest.mark.parametrize("value", [math.nan, math.inf, -math.inf])
+def test_async_budget_spend_ceiling_requires_finite_value(value: float) -> None:
+    with pytest.raises(ValueError, match="finite"):
+        BudgetConfig(max_verified_spend_usd=value)
+    with pytest.raises(ValueError, match="finite"):
+        BudgetConfig.from_mapping({"max_verified_spend_usd": value})
+
+
+@pytest.mark.parametrize(
+    "field_name",
+    [
+        "max_logical_items",
+        "max_requests",
+        "max_tokens",
+        "max_input_tokens",
+        "max_output_tokens",
+        "max_total_tokens",
+        "max_concurrency",
+    ],
+)
+def test_async_budget_positive_integer_ceilings_are_strict(field_name: str) -> None:
+    for value in (True, 1.5, math.nan, math.inf, 0, -1):
+        with pytest.raises(ValueError):
+            BudgetConfig(**{field_name: value})
+        with pytest.raises(ValueError):
+            BudgetConfig.from_mapping({field_name: value})
+
+
+@pytest.mark.parametrize("field_name", ["max_retry_per_request", "max_retries_per_request"])
+def test_async_budget_retry_integer_ceilings_are_strict(field_name: str) -> None:
+    for value in (True, 1.5, math.nan, math.inf, -1):
+        with pytest.raises(ValueError):
+            BudgetConfig(**{field_name: value})
+        with pytest.raises(ValueError):
+            BudgetConfig.from_mapping({field_name: value})
+
+
+def test_async_budget_valid_mapping_keeps_integral_float_ceilings() -> None:
+    budget = BudgetConfig.from_mapping({"max_total_tokens": 2048.0, "max_verified_spend_usd": 0.0, "max_retry_per_request": 0.0})
+    assert budget.max_total_tokens == 2048
+    assert budget.max_verified_spend_usd == 0.0
+    assert budget.retry_ceiling == 0
+
+
+def test_async_pipeline_rejects_nonfinite_budget_mapping() -> None:
+    with pytest.raises(ValueError, match="finite"):
+        AsyncJudgePipeline(ROOT, transport=lambda _payload: {"labels": _labels()}, budget={"max_verified_spend_usd": math.inf})
 
 
 def test_cache_is_sample_independent_and_persisted(tmp_path: Path) -> None:

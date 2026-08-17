@@ -12,6 +12,7 @@ import asyncio
 import hashlib
 import inspect
 import json
+import math
 import time
 import unicodedata
 from collections import deque
@@ -34,6 +35,35 @@ LOCKED_MODEL_VERSION = "2025-04-14"
 LOCKED_TEMPERATURE = 0
 LOCKED_MAX_ATTEMPTS = 5
 RETRYABLE_STATUS_CODES = frozenset({408, 429, 500, 502, 503, 504})
+
+
+def _coerce_integer_ceiling(value: Any, field_name: str, *, minimum: int) -> int:
+    if isinstance(value, bool):
+        raise ValueError(f"{field_name} must be a finite integer")
+    if isinstance(value, float) and (not math.isfinite(value) or not value.is_integer()):
+        raise ValueError(f"{field_name} must be a finite integer")
+    try:
+        normalized = int(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"{field_name} must be a finite integer") from exc
+    if normalized != value:
+        raise ValueError(f"{field_name} must be a finite integer")
+    if normalized < minimum:
+        requirement = "positive" if minimum > 0 else "non-negative"
+        raise ValueError(f"{field_name} must be {requirement}")
+    return normalized
+
+
+def _coerce_finite_nonnegative(value: Any, field_name: str) -> float:
+    if isinstance(value, bool):
+        raise ValueError(f"{field_name} must be a finite non-negative number")
+    try:
+        normalized = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"{field_name} must be a finite non-negative number") from exc
+    if not math.isfinite(normalized) or normalized < 0:
+        raise ValueError(f"{field_name} must be a finite non-negative number")
+    return normalized
 
 
 class JudgeTransport(Protocol):
@@ -204,15 +234,22 @@ class BudgetConfig:
     max_retries_per_request: int | None = None
 
     def __post_init__(self) -> None:
-        if any(isinstance(value, bool) or int(value) <= 0 for value in (self.max_logical_items, self.max_requests, self.max_tokens, self.max_input_tokens, self.max_output_tokens, self.max_concurrency)):
-            raise ValueError("all judge budgets must be positive")
-        if isinstance(self.max_total_tokens, bool) or self.max_total_tokens <= 0:
-            raise ValueError("max_total_tokens must be positive")
-        if self.max_verified_spend_usd < 0:
-            raise ValueError("max_verified_spend_usd must be non-negative")
-        for value in (self.max_retry_per_request, self.max_retries_per_request):
-            if value is not None and (isinstance(value, bool) or int(value) < 0):
-                raise ValueError("per-request retry ceilings must be non-negative")
+        for field_name in (
+            "max_logical_items",
+            "max_requests",
+            "max_tokens",
+            "max_input_tokens",
+            "max_output_tokens",
+            "max_total_tokens",
+            "max_concurrency",
+        ):
+            value = _coerce_integer_ceiling(getattr(self, field_name), field_name, minimum=1)
+            object.__setattr__(self, field_name, value)
+        object.__setattr__(self, "max_verified_spend_usd", _coerce_finite_nonnegative(self.max_verified_spend_usd, "max_verified_spend_usd"))
+        for field_name in ("max_retry_per_request", "max_retries_per_request"):
+            value = getattr(self, field_name)
+            if value is not None:
+                object.__setattr__(self, field_name, _coerce_integer_ceiling(value, field_name, minimum=0))
 
     @property
     def total_token_limit(self) -> int:

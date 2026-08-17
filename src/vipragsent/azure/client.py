@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
 import threading
@@ -20,6 +21,35 @@ from .schemas import validate_rationale_output, validate_structured_output
 RETRYABLE_STATUS_CODES = frozenset({408, 429, 500, 502, 503, 504})
 AZURE_TRANSPORT_TIMEOUT_SECONDS = 300.0
 _MISSING = object()
+
+
+def _coerce_integer_ceiling(value: Any, field_name: str, *, minimum: int) -> int:
+    if isinstance(value, bool):
+        raise ValueError(f"{field_name} must be a finite integer")
+    if isinstance(value, float) and (not math.isfinite(value) or not value.is_integer()):
+        raise ValueError(f"{field_name} must be a finite integer")
+    try:
+        normalized = int(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"{field_name} must be a finite integer") from exc
+    if normalized != value:
+        raise ValueError(f"{field_name} must be a finite integer")
+    if normalized < minimum:
+        requirement = "positive" if minimum > 0 else "non-negative"
+        raise ValueError(f"{field_name} must be {requirement}")
+    return normalized
+
+
+def _coerce_finite_nonnegative(value: Any, field_name: str) -> float:
+    if isinstance(value, bool):
+        raise ValueError(f"{field_name} must be a finite non-negative number")
+    try:
+        normalized = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"{field_name} must be a finite non-negative number") from exc
+    if not math.isfinite(normalized) or normalized < 0:
+        raise ValueError(f"{field_name} must be a finite non-negative number")
+    return normalized
 
 
 @dataclass(frozen=True)
@@ -204,21 +234,21 @@ class AzureSafetyCeilings:
     max_retries_per_request: int | None = None
 
     def __post_init__(self) -> None:
-        integer_fields = (
-            self.max_logical_requests,
-            self.max_transport_attempts,
-            self.max_input_tokens,
-            self.max_output_tokens,
-            self.max_total_tokens,
-            self.max_concurrency,
-        )
-        if any(isinstance(value, bool) or int(value) <= 0 for value in integer_fields):
-            raise ValueError("Azure safety ceilings must be positive")
-        if float(self.max_verified_spend_usd) < 0:
-            raise ValueError("max_verified_spend_usd must be non-negative")
-        for value in (self.max_retry_per_request, self.max_retries_per_request):
-            if value is not None and (isinstance(value, bool) or int(value) < 0):
-                raise ValueError("per-request retry ceilings must be non-negative")
+        for field_name in (
+            "max_logical_requests",
+            "max_transport_attempts",
+            "max_input_tokens",
+            "max_output_tokens",
+            "max_total_tokens",
+            "max_concurrency",
+        ):
+            value = _coerce_integer_ceiling(getattr(self, field_name), field_name, minimum=1)
+            object.__setattr__(self, field_name, value)
+        object.__setattr__(self, "max_verified_spend_usd", _coerce_finite_nonnegative(self.max_verified_spend_usd, "max_verified_spend_usd"))
+        for field_name in ("max_retry_per_request", "max_retries_per_request"):
+            value = getattr(self, field_name)
+            if value is not None:
+                object.__setattr__(self, field_name, _coerce_integer_ceiling(value, field_name, minimum=0))
 
     @property
     def retry_ceiling(self) -> int:
@@ -628,7 +658,14 @@ class AzureCache:
     def path_for(self, key: str) -> Path:
         return self.root / f"{key}.json"
 
-    def get(self, key: str, *, expected_model_family: str, expected_model_version: str) -> dict[str, Any] | None:
+    def get(
+        self,
+        key: str,
+        *,
+        expected_model_family: str,
+        expected_model_version: str,
+        expected_request_identity: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
         path = self.path_for(key)
         if not path.exists():
             return None
@@ -637,6 +674,8 @@ class AzureCache:
         except (OSError, ValueError):
             return None
         if not isinstance(record, Mapping):
+            return None
+        if record.get("cache_key") != key:
             return None
         if record.get("cacheable") is False or record.get("failure_kind") == "retryable_transport":
             return None
@@ -651,6 +690,20 @@ class AzureCache:
             return None
         if expected_model_family.casefold() not in observed_model.casefold() or observed_version != expected_model_version:
             return None
+        if expected_request_identity is not None:
+            expected_identity = dict(expected_request_identity)
+            persisted_identity = record.get("request_identity")
+            if persisted_identity is not None:
+                if not isinstance(persisted_identity, Mapping):
+                    return None
+                if any(persisted_identity.get(name, _MISSING) != value for name, value in expected_identity.items()):
+                    return None
+            # These fields predate the complete request_identity object.  A
+            # legacy record may omit newer fields, but an embedded field must
+            # never contradict the request that is about to be reused.
+            for field_name in ("prompt_hash", "schema_hash", "input_payload_hash", "deployment"):
+                if field_name in expected_identity and field_name in record and record[field_name] != expected_identity[field_name]:
+                    return None
         return record
 
     def put(self, key: str, record: Mapping[str, Any]) -> Path:
@@ -711,6 +764,7 @@ class AzureResponsesClient:
         prompt_hash: str,
         schema_hash: str,
         demonstration_manifest_hash: str | None,
+        request_identity: Mapping[str, Any],
         request_id: str,
         retry_count: int,
         cache_key: str | None,
@@ -738,6 +792,8 @@ class AzureResponsesClient:
             "prompt_hash": prompt_hash,
             "schema_hash": schema_hash,
             "demonstration_manifest_hash": demonstration_manifest_hash,
+            "input_payload_hash": request_identity.get("input_payload_hash"),
+            "request_identity": dict(request_identity),
             "request_timestamp": datetime.now(UTC).isoformat(),
             "retry_count": retry_count,
             "usage": _normalize_usage(payload.get("usage", {})),
@@ -746,10 +802,21 @@ class AzureResponsesClient:
             "cache_hit": False,
         }
 
-    def _cache_get(self, key: str | None, *, expected_version: str) -> dict[str, Any] | None:
+    def _cache_get(
+        self,
+        key: str | None,
+        *,
+        expected_version: str,
+        expected_request_identity: Mapping[str, Any],
+    ) -> dict[str, Any] | None:
         if key is None or self.cache is None:
             return None
-        cached = self.cache.get(key, expected_model_family=self.settings.model_family, expected_model_version=expected_version)
+        cached = self.cache.get(
+            key,
+            expected_model_family=self.settings.model_family,
+            expected_model_version=expected_version,
+            expected_request_identity=expected_request_identity,
+        )
         return dict(cached) | {"cache_hit": True, "retry_count": cached.get("retry_count", 0)} if cached is not None else None
 
     def _cache_put(self, key: str | None, record: Mapping[str, Any]) -> None:
@@ -848,7 +915,7 @@ class AzureResponsesClient:
             "cache_identity": dict(cache_identity or {}),
         }
         resolved_cache_key = cache_key or (self.cache.key(identity) if self.cache else None)
-        cached = self._cache_get(resolved_cache_key, expected_version=expected_version)
+        cached = self._cache_get(resolved_cache_key, expected_version=expected_version, expected_request_identity=identity)
         if cached is not None:
             return cached
         transport = self.transport or self._default_transport
@@ -888,7 +955,7 @@ class AzureResponsesClient:
                     raise AzureStructuredOutputError(f"Azure response model mismatch: {observed_model}", payload=payload)
                 if observed_version and observed_version != expected_version:
                     raise AzureStructuredOutputError(f"Azure response version mismatch: {observed_version}", payload=payload)
-                record = self._record(labels=labels, payload=payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=True) | safety_usage | {"cacheable": True, "failure_kind": None}
+                record = self._record(labels=labels, payload=payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_identity=identity, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=True) | safety_usage | {"cacheable": True, "failure_kind": None}
                 self._cache_put(resolved_cache_key, record)
                 return record
             except AzureSafetyBudgetError:
@@ -896,7 +963,7 @@ class AzureResponsesClient:
             except AzureStructuredOutputError as exc:
                 if not return_invalid:
                     raise
-                record = self._record(labels=None, payload=exc.payload or last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage=terminal_invalid_stage, invalid_reason=str(exc), content_filter=exc.content_filter) | {"cacheable": True, "failure_kind": "terminal_semantic"}
+                record = self._record(labels=None, payload=exc.payload or last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_identity=identity, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage=terminal_invalid_stage, invalid_reason=str(exc), content_filter=exc.content_filter) | {"cacheable": True, "failure_kind": "terminal_semantic"}
                 self._cache_put(resolved_cache_key, record)
                 return record
             except Exception as exc:
@@ -906,7 +973,7 @@ class AzureResponsesClient:
                 if not _is_retryable(exc):
                     if not return_invalid:
                         raise
-                    record = self._record(labels=None, payload=last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage="judge_request", invalid_reason=str(exc)) | {"cacheable": True, "failure_kind": "terminal_transport"}
+                    record = self._record(labels=None, payload=last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_identity=identity, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage="judge_request", invalid_reason=str(exc)) | {"cacheable": True, "failure_kind": "terminal_transport"}
                     self._cache_put(resolved_cache_key, record)
                     return record
                 last_error = exc
@@ -916,7 +983,7 @@ class AzureResponsesClient:
                 delay = _retry_after(exc)
                 sleep(min(60.0, delay if delay is not None else (2, 4, 8, 16)[min(attempt, 3)]))
         if return_invalid:
-            record = self._record(labels=None, payload=last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage="judge_request", invalid_reason=str(last_error or "unknown Azure error"))
+            record = self._record(labels=None, payload=last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_identity=identity, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage="judge_request", invalid_reason=str(last_error or "unknown Azure error"))
             if last_error is not None and not _is_retryable(last_error):
                 self._cache_put(resolved_cache_key, record | {"cacheable": True, "failure_kind": "terminal_transport"})
             return record
