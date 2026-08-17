@@ -325,6 +325,11 @@ def _apply_generation_profile(executor: ReasoningGenerationExecutor, profile: Ma
         raise GenerationCheckpointError("generation profile candidate batches must be exactly 1, 2, and 4")
     if not profile.get("checkpoint_sha256"):
         raise GenerationCheckpointError("generation profile is missing its checkpoint SHA")
+    contention_status = profile.get("contention_status")
+    if contention_status is not None and str(contention_status).upper() != "CLEAN":
+        raise GenerationCheckpointError("generation profile is not approval-quality under GPU contention")
+    if selected > 1 and profile.get("approved") is not True:
+        raise GenerationCheckpointError("higher generation batch requires approval-quality profile evidence")
     executor.generation_profile = dict(profile)
     executor.generation_batch_size = selected
 
