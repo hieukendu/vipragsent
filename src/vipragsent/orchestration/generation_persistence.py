@@ -68,10 +68,10 @@ class GenerationChunkStore:
         self._validate_production_contract()
         self._manifest = self._load_or_create_manifest()
         self._manifest_revision = self._manifest_revision_for(self._manifest)
+        self._manifest_signature = self._file_signature(self.manifest_path)
         self._committed_rows_cache: list[dict[str, Any]] = []
         self._committed_sample_ids_cache: set[str] = set()
         self._chunk_entries_by_ids: dict[tuple[str, ...], dict[str, Any]] = {}
-        self._chunk_file_signatures: dict[Path, tuple[int, int, int, int]] = {}
         self._next_chunk_index = 0
         self._initialize_committed_state()
 
@@ -190,6 +190,7 @@ class GenerationChunkStore:
         if not isinstance(chunks, list):
             raise GenerationPersistenceError("generation chunk manifest has invalid chunks")
         indexes: set[int] = set()
+        ordered_indexes: list[int] = []
         for item in chunks:
             if not isinstance(item, Mapping) or not str(item.get("path", "")) or not str(item.get("sha256", "")):
                 raise GenerationPersistenceError("generation chunk manifest contains an invalid chunk entry")
@@ -200,8 +201,11 @@ class GenerationChunkStore:
             if index < 0 or index in indexes:
                 raise GenerationPersistenceError("generation chunk manifest contains duplicate or invalid chunk indexes")
             indexes.add(index)
+            ordered_indexes.append(index)
             if not isinstance(item.get("sample_ids", []), list):
                 raise GenerationPersistenceError("generation chunk manifest contains invalid sample IDs")
+        if ordered_indexes != list(range(len(indexes))):
+            raise GenerationPersistenceError("generation chunk manifest indexes must be contiguous and ordered")
         return dict(manifest)
 
     def _read_manifest(self) -> dict[str, Any]:
@@ -242,13 +246,14 @@ class GenerationChunkStore:
 
     def _write_manifest(self) -> None:
         atomic_write_json(self.manifest_path, self._manifest)
+        self._manifest_signature = self._file_signature(self.manifest_path)
 
     @staticmethod
     def _file_signature(path: Path) -> tuple[int, int, int, int]:
         try:
             stat = path.stat()
         except OSError as exc:
-            raise GenerationPersistenceError(f"generation chunk is missing: {path}") from exc
+            raise GenerationPersistenceError(f"generation manifest is missing: {path}") from exc
         return (int(stat.st_dev), int(stat.st_ino), int(stat.st_size), int(stat.st_mtime_ns))
 
     def _validate_chunk_entry(
@@ -256,35 +261,31 @@ class GenerationChunkStore:
         item: Mapping[str, Any],
         *,
         seen: set[str],
-        read_rows: bool = True,
     ) -> list[dict[str, Any]]:
         manifest_contract_sha = self._manifest.get("generation_contract_sha256")
         if manifest_contract_sha is not None and str(item.get("generation_contract_sha256", "")) != str(manifest_contract_sha):
             raise GenerationPersistenceError("generation chunk contract identity is invalid")
         path = self.root / str(item["path"])
-        if read_rows:
-            chunk_rows = self._read_rows(path)
-            if sha256_json(chunk_rows) != str(item["sha256"]):
-                raise GenerationPersistenceError(f"generation chunk is missing or corrupt: {path}")
-        else:
-            self._file_signature(path)
-            chunk_rows = []
+        chunk_rows = self._read_rows(path)
+        if any(not isinstance(row, Mapping) for row in chunk_rows):
+            raise GenerationPersistenceError(f"generation chunk contains a non-object row: {path}")
+        if sha256_json(chunk_rows) != str(item["sha256"]):
+            raise GenerationPersistenceError(f"generation chunk is missing or corrupt: {path}")
         expected_chunk_ids = [str(value) for value in item.get("sample_ids", [])]
-        if read_rows:
-            observed_ids = [str(row.get("sample_id", "")) for row in chunk_rows]
-            try:
-                expected_row_count = int(item.get("row_count", len(chunk_rows)))
-            except (TypeError, ValueError) as exc:
-                raise GenerationPersistenceError("generation chunk row count is invalid") from exc
-            if (
-                observed_ids != expected_chunk_ids
-                or len(chunk_rows) != expected_row_count
-                or len(observed_ids) != len(set(observed_ids))
-                or not set(observed_ids) <= set(self.sample_ids)
-                or seen.intersection(observed_ids)
-            ):
-                raise GenerationPersistenceError("generation chunk ordering or sample identity is invalid")
-            seen.update(observed_ids)
+        observed_ids = [str(row.get("sample_id", "")) for row in chunk_rows]
+        try:
+            expected_row_count = int(item.get("row_count", len(chunk_rows)))
+        except (TypeError, ValueError) as exc:
+            raise GenerationPersistenceError("generation chunk row count is invalid") from exc
+        if (
+            observed_ids != expected_chunk_ids
+            or len(chunk_rows) != expected_row_count
+            or len(observed_ids) != len(set(observed_ids))
+            or not set(observed_ids) <= set(self.sample_ids)
+            or seen.intersection(observed_ids)
+        ):
+            raise GenerationPersistenceError("generation chunk ordering or sample identity is invalid")
+        seen.update(observed_ids)
         return chunk_rows
 
     def _register_chunk(self, item: Mapping[str, Any], rows: Sequence[Mapping[str, Any]]) -> None:
@@ -295,25 +296,30 @@ class GenerationChunkStore:
         self._chunk_entries_by_ids[ids] = entry
         self._committed_rows_cache.extend(dict(row) for row in rows)
         self._committed_sample_ids_cache.update(ids)
-        path = self.root / str(entry["path"])
-        self._chunk_file_signatures[path] = self._file_signature(path)
         self._next_chunk_index = max(self._next_chunk_index, int(entry["index"]) + 1)
+
+    def _validate_next_sample_order(self, ids: Sequence[str], *, offset: int | None = None) -> None:
+        if offset is None:
+            offset = len(self._committed_rows_cache)
+        expected = self.sample_ids[offset:offset + len(ids)]
+        if list(ids) != expected:
+            raise GenerationPersistenceError("generation chunks must preserve exact sample record ordering")
 
     def _initialize_committed_state(self) -> None:
         seen: set[str] = set()
         for item in sorted(self._manifest.get("chunks", []), key=lambda value: int(value["index"])):
             rows = self._validate_chunk_entry(item, seen=seen)
+            self._validate_next_sample_order([str(value) for value in item.get("sample_ids", [])])
             self._register_chunk(item, rows)
 
-    def _assert_cached_chunks_unchanged(self) -> None:
-        for path, signature in self._chunk_file_signatures.items():
-            if self._file_signature(path) != signature:
-                raise GenerationPersistenceError(f"generation chunk changed after validation: {path}")
-
     def _reconcile_manifest_under_lock(self) -> None:
+        current_signature = self._file_signature(self.manifest_path)
+        if current_signature == self._manifest_signature:
+            return
         manifest = self._read_manifest()
-        if self._manifest_revision == self._manifest_revision_for(manifest):
-            self._assert_cached_chunks_unchanged()
+        manifest_revision = self._manifest_revision_for(manifest)
+        if self._manifest_revision == manifest_revision:
+            self._manifest_signature = current_signature
             return
         current_chunks = list(self._manifest.get("chunks", []))
         observed_chunks = list(manifest.get("chunks", []))
@@ -322,17 +328,22 @@ class GenerationChunkStore:
         self._manifest = manifest
         seen = set(self._committed_sample_ids_cache)
         for item in observed_chunks[len(current_chunks):]:
-            if int(item["index"]) < self._next_chunk_index:
+            if int(item["index"]) != self._next_chunk_index:
                 raise GenerationPersistenceError("generation manifest appended a non-monotonic chunk index")
             rows = self._validate_chunk_entry(item, seen=seen)
+            self._validate_next_sample_order([str(value) for value in item.get("sample_ids", [])])
             self._register_chunk(item, rows)
-        self._manifest_revision = self._manifest_revision_for(manifest)
-        self._assert_cached_chunks_unchanged()
+        self._manifest_revision = manifest_revision
+        self._manifest_signature = current_signature
 
     def _validate_all_cached_chunks(self) -> None:
         seen: set[str] = set()
+        offset = 0
         for item in sorted(self._manifest.get("chunks", []), key=lambda value: int(value["index"])):
             self._validate_chunk_entry(item, seen=seen)
+            ids = [str(value) for value in item.get("sample_ids", [])]
+            self._validate_next_sample_order(ids, offset=offset)
+            offset += len(ids)
 
     def committed_rows(self) -> list[dict[str, Any]]:
         return [dict(row) for row in self._committed_rows_cache]
@@ -363,6 +374,7 @@ class GenerationChunkStore:
                 return dict(existing)
             if self._committed_sample_ids_cache.intersection(ids):
                 raise GenerationPersistenceError("generation chunk would duplicate committed sample work")
+            self._validate_next_sample_order(ids)
             index = self.next_index()
             relative_path = (Path("reasoning") / f"{self.split}_chunks" / f"chunk_{index:06d}.jsonl").as_posix()
             path = self.root / relative_path

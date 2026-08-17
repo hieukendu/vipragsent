@@ -17,6 +17,7 @@ from vipragsent.orchestration.explanation_runtime import (
     ExplanationRuntimeError,
     SharedInferenceIdentity,
     SourceCheckpointIdentity,
+    ValidatedSourceCheckpointIdentity,
     resolve_explanation_source,
     validate_three_seed_binding,
 )
@@ -222,6 +223,14 @@ def test_verified_source_boundary_hashes_checkpoint_once_across_request_and_runt
     assert checkpoint_hash_calls == 1
 
 
+def test_validated_source_boundary_cannot_be_constructed_without_verification(tmp_path: Path) -> None:
+    checkpoint = tmp_path / "source.pt"
+    checkpoint.write_bytes(b"approved-source")
+    identity = SourceCheckpointIdentity(20260521, checkpoint, sha256_file(checkpoint), variant_fingerprint="full-v1")
+    with pytest.raises(ExplanationRuntimeError, match="physically verified"):
+        ValidatedSourceCheckpointIdentity(identity)
+
+
 def test_model_wide_runtime_error_propagates_without_complete_manifest_or_jsonl(tmp_path: Path) -> None:
     checkpoint = tmp_path / "source.pt"
     checkpoint.write_bytes(b"approved-source")
@@ -283,7 +292,9 @@ def test_source_checkpoint_mismatch_and_unauthorized_fallback_are_rejected(tmp_p
         )
 
 
-def test_production_rejects_probe_source_but_accepts_resolved_approved_source(tmp_path: Path) -> None:
+def test_production_rejects_probe_source_but_accepts_resolved_approved_source(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    import vipragsent.orchestration.executors.explanation_reuse as reuse_module
+
     checkpoint = tmp_path / "probe.pt"
     checkpoint.write_bytes(b"same-file-hash-is-not-approval")
     data_hash = "B" * 64
@@ -317,6 +328,17 @@ def test_production_rejects_probe_source_but_accepts_resolved_approved_source(tm
         )
 
     root = _approved_source_root(tmp_path / "approved", checkpoint, dataset_hash=data_hash)
+    resolved_checkpoint = root / "results/runs/approved-full-vistral/checkpoints/best.pt"
+    original_sha256_file = reuse_module.sha256_file
+    checkpoint_hash_calls = 0
+
+    def counted_sha256_file(path: Path) -> str:
+        nonlocal checkpoint_hash_calls
+        if Path(path) == resolved_checkpoint:
+            checkpoint_hash_calls += 1
+        return original_sha256_file(path)
+
+    monkeypatch.setattr(reuse_module, "sha256_file", counted_sha256_file)
     approved = resolve_explanation_source(root, seed=20260521)
     runtime = ExplanationOnlyRuntime(
         _TinyFullModel(),
@@ -332,6 +354,8 @@ def test_production_rejects_probe_source_but_accepts_resolved_approved_source(tm
         run_root=root / "explanation",
     )
     assert runtime.source.source_checkpoint_key == "vipragsent_full_vistral:20260521"
+    _ = runtime.request.fingerprint
+    assert checkpoint_hash_calls == 1
 
 
 def test_engine_identity_is_bound_and_changed_engine_cannot_resume(tmp_path: Path) -> None:
