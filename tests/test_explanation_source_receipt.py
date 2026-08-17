@@ -10,8 +10,7 @@ import pytest
 import torch
 from torch import nn
 
-from vipragsent.orchestration import explanation_runtime
-from vipragsent.orchestration import stage_registry
+from vipragsent.orchestration import explanation_runtime, stage_registry
 from vipragsent.orchestration.contracts import RunContext, RunEntry
 from vipragsent.orchestration.executors import explanation_reuse
 from vipragsent.orchestration.executors.explanation_reuse import (
@@ -238,7 +237,7 @@ def test_mutated_or_replaced_checkpoint_is_rejected_without_rehashing(
 ) -> None:
     checkpoint, entry = _approved_source_fixture(tmp_path)
     receipt_root = tmp_path / "explanation-run"
-    source = resolve_approved_full_vistral_source(tmp_path, entry, receipt_root=receipt_root, device="cpu")
+    resolve_approved_full_vistral_source(tmp_path, entry, receipt_root=receipt_root, device="cpu")
     calls = 0
     original_hash = explanation_reuse.sha256_file
 

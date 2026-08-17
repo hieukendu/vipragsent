@@ -8,7 +8,10 @@ from typing import Any
 import yaml
 
 from ..hashing import sha256_file, sha256_json
-from ..training.generation_checkpoint import GenerationCheckpointError, read_generation_checkpoint_pointer
+from ..training.generation_checkpoint import (
+    GenerationCheckpointError,
+    read_generation_checkpoint_pointer,
+)
 from .contracts import ExecutionKind, RunContext, RunEntry
 from .provenance import expected_inference_provenance, validate_inference_provenance
 from .q1b_dependencies import (

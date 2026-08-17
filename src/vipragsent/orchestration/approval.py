@@ -9,7 +9,10 @@ from typing import Any
 
 from ..atomic import atomic_write_json
 from ..hashing import sha256_file
-from ..training.generation_checkpoint import GenerationCheckpointError, read_generation_checkpoint_pointer
+from ..training.generation_checkpoint import (
+    GenerationCheckpointError,
+    read_generation_checkpoint_pointer,
+)
 from .contracts import RunStatus
 from .review import validate_review_summary
 from .run_store import RunStore, git_commit
