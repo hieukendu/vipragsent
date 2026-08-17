@@ -44,6 +44,7 @@ from .executors.generation import (
 )
 from .generation_persistence import GenerationChunkStore
 from .provenance import expected_inference_provenance, validate_inference_provenance
+from .run_store import git_commit, git_source_fingerprint
 
 EXPLANATION_SYSTEM_ID = "explanation_only_vistral"
 SOURCE_SYSTEM_ID = "vipragsent_full_vistral"
@@ -74,6 +75,22 @@ def _jsonable(value: Any) -> Any:
     if isinstance(value, list | tuple):
         return [_jsonable(item) for item in value]
     return value
+
+
+def _record_identity(value: Any) -> Any:
+    """Canonicalize tensor-backed input records for the generation contract."""
+    if isinstance(value, torch.Tensor):
+        tensor = value.detach().cpu()
+        return {
+            "dtype": str(tensor.dtype),
+            "shape": list(tensor.shape),
+            "values": tensor.tolist(),
+        }
+    if isinstance(value, Mapping):
+        return {str(key): _record_identity(item) for key, item in value.items()}
+    if isinstance(value, list | tuple):
+        return [_record_identity(item) for item in value]
+    return _jsonable(value)
 
 
 def _same_json(left: Any, right: Any) -> bool:
@@ -706,10 +723,68 @@ class ExplanationOnlyRuntime:
                 raise ExplanationRuntimeError(f"{split} chunk source checkpoint key mismatch")
         return rows
 
-    def _store(self, split: str, sample_ids: Sequence[str]) -> GenerationChunkStore:
+    def _generation_contract(self, split: str, records: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
+        repo_root = Path(__file__).resolve().parents[3]
+        sample_ids = [str(record["sample_id"]) for record in records]
+        source = self.source.as_dict()
+        return {
+            "contract_version": GenerationChunkStore.GENERATION_CONTRACT_VERSION,
+            "source_identity": source,
+            "code_identity": {
+                "commit": git_commit(repo_root),
+                "source_fingerprint": git_source_fingerprint(repo_root),
+                "engine_fingerprint": self.engine_fingerprint,
+            },
+            "model_identity": {
+                "system_id": source["source_system_id"],
+                "model_revision": source["model_revision"],
+            },
+            "tokenizer_identity": {"tokenizer_revision": source["tokenizer_revision"]},
+            "checkpoint_identity": {
+                "checkpoint_key": source["source_checkpoint_key"],
+                "checkpoint_sha256": source["checkpoint_sha256"],
+            },
+            "config_identity": {
+                "config_sha256": source["config_sha256"],
+                "request_fingerprint": self.request.fingerprint,
+                "config": self.request.config.as_dict(),
+            },
+            "dataset_identity": {
+                "identity": self.request.dataset_identity,
+                "data_hash": self.request.data_hash,
+            },
+            "split": str(split),
+            "data_hash": self.request.data_hash,
+            "input_record_digest": sha256_json([_record_identity(record) for record in records]),
+            "record_order_digest": sha256_json(sample_ids),
+            "seed": self.request.seed,
+            "system_identity": {
+                "system_id": EXPLANATION_SYSTEM_ID,
+                "source_system_id": SOURCE_SYSTEM_ID,
+            },
+            "budget": "NOT_APPLICABLE",
+        }
+
+    def _store(
+        self,
+        split: str,
+        sample_ids: Sequence[str],
+        records: Sequence[Mapping[str, Any]] | None = None,
+    ) -> GenerationChunkStore:
         if not sample_ids or len(sample_ids) != len(set(sample_ids)):
             raise ExplanationRuntimeError(f"{split} records must have unique sample IDs")
-        return GenerationChunkStore(self.artifact_root, split, sample_ids)
+        if self.request.fixture_mode:
+            return GenerationChunkStore(self.artifact_root, split, sample_ids, fixture_mode=True)
+        if records is None:
+            raise ExplanationRuntimeError(
+                "production explanation downstream validation requires the original input records"
+            )
+        return GenerationChunkStore(
+            self.artifact_root,
+            split,
+            sample_ids,
+            generation_contract=self._generation_contract(split, records),
+        )
 
     def generate_reasoning_split(
         self,
@@ -726,7 +801,7 @@ class ExplanationOnlyRuntime:
             raise ExplanationRuntimeError("explanation records require sample_id")
         if len(sample_ids) != len(set(sample_ids)):
             raise ExplanationRuntimeError(f"{split} records contain duplicate sample IDs")
-        store = self._store(split, sample_ids)
+        store = self._store(split, sample_ids, rows)
         committed = self._validate_committed(store, sample_ids, split) if resume else []
         if not resume and committed:
             raise ExplanationRuntimeError(f"cannot discard already committed {split} chunks")
@@ -762,9 +837,15 @@ class ExplanationOnlyRuntime:
         self._write_state(ExplanationOnlyState(CONTRACT_VERSION, self.request.fingerprint, self.engine_fingerprint, self.source.checkpoint_sha256, split, tuple(sample_ids), tuple(sample_ids), True, True))
         return ordered
 
-    def committed_rows_for_downstream(self, split: str, sample_ids: Sequence[str]) -> list[dict[str, Any]]:
+    def committed_rows_for_downstream(
+        self,
+        split: str,
+        sample_ids: Sequence[str],
+        records: Sequence[Mapping[str, Any]] | None = None,
+    ) -> list[dict[str, Any]]:
         """Return only rows already committed by the canonical chunk store."""
-        store = self._store(split, [str(value) for value in sample_ids])
+        normalized_ids = [str(value) for value in sample_ids]
+        store = self._store(split, normalized_ids, records)
         return self._validate_committed(store, sample_ids, split)
 
     def train(self, *_: Any, **__: Any) -> None:

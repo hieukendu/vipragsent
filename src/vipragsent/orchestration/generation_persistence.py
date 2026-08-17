@@ -124,7 +124,7 @@ class GenerationChunkStore:
                 for item in value.values()
                 if not isinstance(item, Mapping)
             )
-        if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
             return any(GenerationChunkStore._production_contract_missing(item) for item in value)
         return False
 
