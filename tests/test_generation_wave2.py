@@ -278,6 +278,50 @@ def test_model_state_identity_is_cached_across_generation_splits(tmp_path: Path,
     assert calls == 1
 
 
+def test_training_epoch_generation_binds_to_persisted_checkpoint_without_live_hash(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import vipragsent.orchestration.executors.generation as generation_module
+
+    executor = _executor(tmp_path, _BatchFixtureModel())
+    observed_contracts: dict[str, dict[str, object]] = {}
+
+    def forbidden_live_hash(_: nn.Module) -> dict[str, str]:
+        raise AssertionError("DEV generation must use the canonical checkpoint identity")
+
+    monkeypatch.setattr(generation_module, "_model_state_identity", forbidden_live_hash)
+    model = executor.model
+    train = [{"sample_id": "train", "input_ids": torch.tensor([[1, 2]]), "target_ids": torch.tensor([[3, 4]])}]
+    dev = [{"sample_id": "dev", "input_ids": torch.tensor([[1, 2]]), "gold": {}}]
+    test = [{"sample_id": "test", "input_ids": torch.tensor([[1, 2]]), "gold": {}}]
+
+    monkeypatch.setattr(
+        executor,
+        "train_generation",
+        lambda *_, epoch_start=1, **__: [{"epoch": float(epoch_start), "train_loss": 0.0}],
+    )
+
+    def generate(split: str, records: list[dict[str, object]], **__: object) -> list[dict[str, object]]:
+        observed_contracts[split] = executor._generation_contract(split, records)
+        return [{"sample_id": str(records[0]["sample_id"]), "generation_status": "PASS", "generated_reasoning": split}]
+
+    monkeypatch.setattr(executor, "generate_reasoning_split", generate)
+    monkeypatch.setattr(executor, "judge_reasoning_split", lambda _split, rows, _gold, **__: (list(rows), []))
+    monkeypatch.setattr(executor, "compute_split_metrics", lambda split, _rows, **__: {"primary_macro_f1": 0.5 if split == "dev" else 0.0})
+
+    executor.run_cot(
+        train_records=train,
+        dev_records=dev,
+        test_records=test,
+        optimizer=torch.optim.SGD(model.parameters(), lr=0.01),
+        epochs=1,
+    )
+
+    epoch_checkpoint = executor.run_root / "checkpoints/epoch_1/model.pt"
+    assert observed_contracts["dev"]["checkpoint_identity"] == {"checkpoint_sha256": sha256_file(epoch_checkpoint)}
+
+
 def test_generation_store_requires_contract_outside_explicit_fixture_or_legacy_mode(tmp_path: Path) -> None:
     with pytest.raises(GenerationPersistenceError, match="canonical generation contract"):
         GenerationChunkStore(tmp_path / "production", "dev", ["a"])
@@ -324,3 +368,40 @@ def test_chunk_commit_is_idempotent_and_rejects_rewrites(tmp_path: Path) -> None
     assert store.commit([row]) == first
     with pytest.raises(GenerationPersistenceError, match="rewrite"):
         store.commit([{**row, "generated_reasoning": "changed"}])
+
+
+def test_generation_chunk_store_keeps_committed_state_in_memory(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    reads: list[Path] = []
+    original_read_rows = GenerationChunkStore._read_rows
+
+    def counted_read_rows(path: Path) -> list[dict[str, object]]:
+        reads.append(path)
+        return original_read_rows(path)
+
+    monkeypatch.setattr(GenerationChunkStore, "_read_rows", staticmethod(counted_read_rows))
+    sample_ids = [f"sample-{index}" for index in range(12)]
+    store = GenerationChunkStore(tmp_path, "dev", sample_ids, fixture_mode=True)
+    for sample_id in sample_ids:
+        store.commit([{"sample_id": sample_id, "generated_reasoning": sample_id}])
+        assert store.committed_sample_ids() >= {sample_id}
+
+    # A normal writer validates no historical JSONL chunk again during a
+    # commit or state query.  Completion performs the one permitted final
+    # full validation of all persisted chunks.
+    assert reads == []
+    assert [row["sample_id"] for row in store.committed_rows()] == sample_ids
+    store.mark_complete()
+    assert len(reads) == len(sample_ids)
+
+
+def test_generation_chunk_store_reconciles_only_external_append_and_detects_mutation(tmp_path: Path) -> None:
+    first = GenerationChunkStore(tmp_path, "dev", ["a", "b"], fixture_mode=True)
+    second = GenerationChunkStore(tmp_path, "dev", ["a", "b"], fixture_mode=True)
+    first.commit([{"sample_id": "a", "generated_reasoning": "a"}])
+    second.commit([{"sample_id": "b", "generated_reasoning": "b"}])
+    assert second.committed_sample_ids() == {"a", "b"}
+
+    chunk_path = tmp_path / "reasoning/dev_chunks/chunk_000000.jsonl"
+    chunk_path.write_text('{"generated_reasoning":"tampered","sample_id":"a"}\n', encoding="utf-8")
+    with pytest.raises(GenerationPersistenceError, match="changed after validation"):
+        second.commit([{"sample_id": "a", "generated_reasoning": "a"}])

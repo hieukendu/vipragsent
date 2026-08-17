@@ -521,6 +521,7 @@ class ReasoningGenerationExecutor:
             raise ValueError("reasoning protocol is not validated")
         self.run_root.mkdir(parents=True, exist_ok=True)
         self._loaded_checkpoint_identity: dict[str, str] | None = None
+        self._canonical_checkpoint_identity: dict[str, str] | None = None
         self._model_state_identity_cache: dict[str, str] | None = None
 
     def _run_manifest(self) -> dict[str, Any]:
@@ -571,6 +572,8 @@ class ReasoningGenerationExecutor:
             checkpoint_identity = self.checkpoint_identity
         elif self._loaded_checkpoint_identity is not None:
             checkpoint_identity = self._loaded_checkpoint_identity
+        elif self._canonical_checkpoint_identity is not None:
+            checkpoint_identity = self._canonical_checkpoint_identity
         else:
             if self._model_state_identity_cache is None:
                 self._model_state_identity_cache = _model_state_identity(self.model)
@@ -951,6 +954,7 @@ class ReasoningGenerationExecutor:
         # only the derived cache; an explicit caller-supplied identity remains
         # authoritative for fixture/controlled paths.
         self._loaded_checkpoint_identity = None
+        self._canonical_checkpoint_identity = None
         self._model_state_identity_cache = None
         self._last_data_order = self._record_order(usable)
         batches = [
@@ -1091,7 +1095,9 @@ class ReasoningGenerationExecutor:
             production_provenance_required=self.production_provenance_required,
             fixture_mode=self.fixture_mode,
         )
-        return manifest.checkpoint_sha256
+        checkpoint_sha256 = str(manifest.checkpoint_sha256).upper()
+        self._canonical_checkpoint_identity = {"checkpoint_sha256": checkpoint_sha256}
+        return checkpoint_sha256
 
     def _write_checkpoint_load_report(self, report: Mapping[str, Any]) -> None:
         atomic_write_json(self.run_root / "checkpoints/load_report.json", dict(report))
@@ -1161,6 +1167,7 @@ class ReasoningGenerationExecutor:
             "provenance": loaded.manifest.provenance if loaded.manifest is not None else None,
         })
         self._loaded_checkpoint_identity = {"checkpoint_sha256": observed_hash}
+        self._canonical_checkpoint_identity = None
         return report
 
     def load_epoch_checkpoint(
@@ -1411,6 +1418,17 @@ class ReasoningGenerationExecutor:
             history = self.train_generation(train_rows, optimizer=optimizer, scheduler=scheduler, epochs=1, epoch_start=epoch)
             all_history.extend(history)
             epoch_root = self.run_root / "epochs" / f"epoch_{epoch}"
+            # Persist and verify the canonical post-training checkpoint before
+            # any DEV inference.  Generation contracts then bind to this
+            # immutable checkpoint digest instead of re-hashing live weights.
+            self.write_checkpoint(
+                f"checkpoints/epoch_{epoch}/model.pt",
+                optimizer=optimizer,
+                scheduler=scheduler,
+                epoch=epoch,
+                selection_metric=None,
+                data_order=train_order,
+            )
             generation_kwargs = {"artifact_root": epoch_root} if "artifact_root" in inspect.signature(self.generate_reasoning_split).parameters else {}
             generated_dev = self.generate_reasoning_split("dev", dev_rows, **generation_kwargs)
             judge_kwargs = {"artifact_root": epoch_root} if "artifact_root" in inspect.signature(self.judge_reasoning_split).parameters else {}
@@ -1419,14 +1437,6 @@ class ReasoningGenerationExecutor:
             dev_metrics = self.compute_split_metrics("dev", dev_predictions, **metrics_kwargs)
             latest_epoch = epoch
             latest_metric = float(dev_metrics["primary_macro_f1"])
-            self.write_checkpoint(
-                f"checkpoints/epoch_{epoch}/model.pt",
-                optimizer=optimizer,
-                scheduler=scheduler,
-                epoch=epoch,
-                selection_metric=float(dev_metrics["primary_macro_f1"]),
-                data_order=train_order,
-            )
             if float(dev_metrics["primary_macro_f1"]) > best_metric:
                 best_metric = float(dev_metrics["primary_macro_f1"])
                 best_epoch = epoch

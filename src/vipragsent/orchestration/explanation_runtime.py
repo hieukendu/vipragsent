@@ -226,12 +226,7 @@ class SourceCheckpointIdentity:
     def as_dict(self) -> dict[str, Any]:
         return _jsonable(asdict(self))
 
-    def validate(
-        self,
-        requested_seed: int | str | None = None,
-        *,
-        require_approval_bindings: bool = False,
-    ) -> None:
+    def _validate_identity_fields(self, requested_seed: int | str | None = None) -> None:
         if self.source_system_id != SOURCE_SYSTEM_ID:
             raise ExplanationRuntimeError("explanation-only requires a full Vistral source checkpoint")
         if requested_seed is not None and str(self.seed) != str(requested_seed):
@@ -247,11 +242,20 @@ class SourceCheckpointIdentity:
             raise ExplanationRuntimeError("source checkpoint hash is missing")
         if not self.checkpoint_path.exists():
             raise ExplanationRuntimeError(f"source checkpoint is missing: {self.checkpoint_path}")
+
+    def validate(
+        self,
+        requested_seed: int | str | None = None,
+        *,
+        require_approval_bindings: bool = False,
+    ) -> ValidatedSourceCheckpointIdentity:
+        self._validate_identity_fields(requested_seed)
         observed = sha256_file(self.checkpoint_path)
         if observed != str(self.checkpoint_sha256).upper():
             raise ExplanationRuntimeError("source checkpoint hash mismatch")
         if require_approval_bindings:
             self._validate_approval_bindings(requested_seed)
+        return ValidatedSourceCheckpointIdentity(self)
 
     def _validate_approval_bindings(self, requested_seed: int | str | None) -> None:
         """Validate the on-disk approval chain, not just copied hash fields."""
@@ -379,6 +383,33 @@ class SourceCheckpointIdentity:
 
 
 @dataclass(frozen=True)
+class ValidatedSourceCheckpointIdentity:
+    """Immutable source boundary after the exact checkpoint was verified once."""
+
+    identity: SourceCheckpointIdentity
+
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self.identity, name)
+
+    def as_dict(self) -> dict[str, Any]:
+        return self.identity.as_dict()
+
+    def validate(
+        self,
+        requested_seed: int | str | None = None,
+        *,
+        require_approval_bindings: bool = False,
+    ) -> ValidatedSourceCheckpointIdentity:
+        # Re-check immutable metadata and the exact path, but deliberately do
+        # not hash the large checkpoint again.  Approval files remain small
+        # and are independently checked when production bindings are required.
+        self.identity._validate_identity_fields(requested_seed)
+        if require_approval_bindings:
+            self.identity._validate_approval_bindings(requested_seed)
+        return self
+
+
+@dataclass(frozen=True)
 class ExplanationOnlyConfig:
     """Explicit immutable inference contract; there is no training field."""
 
@@ -431,7 +462,7 @@ class ExplanationOnlyRequest:
     """One seed's fully bound, inference-only request."""
 
     seed: int | str
-    source_checkpoint: SourceCheckpointIdentity | ApprovedFullVistralSource | Mapping[str, Any]
+    source_checkpoint: SourceCheckpointIdentity | ValidatedSourceCheckpointIdentity | ApprovedFullVistralSource | Mapping[str, Any]
     config: ExplanationOnlyConfig = field(default_factory=ExplanationOnlyConfig)
     data_hash: str = ""
     dataset_identity: str = ""
@@ -440,13 +471,32 @@ class ExplanationOnlyRequest:
     legacy_artifact_root: Path | None = None
     fixture_mode: bool = False
 
-    def normalized_source(self) -> SourceCheckpointIdentity:
+    def __post_init__(self) -> None:
         source = self.source_checkpoint
         if isinstance(source, ApprovedFullVistralSource):
             source = SourceCheckpointIdentity.from_approved_source(source)
         elif isinstance(source, Mapping):
             source = SourceCheckpointIdentity.from_mapping(source)
-        source.validate(self.seed, require_approval_bindings=not self.fixture_mode)
+        if not isinstance(source, (SourceCheckpointIdentity, ValidatedSourceCheckpointIdentity)):
+            raise ExplanationRuntimeError("invalid explanation source checkpoint identity")
+        # Verify the exact large checkpoint at construction.  Production
+        # approval files are checked later by request/runtime validation, but
+        # the verified checkpoint boundary is retained across that step.
+        verified = source.validate(self.seed, require_approval_bindings=False)
+        object.__setattr__(self, "source_checkpoint", verified)
+
+    def normalized_source(self) -> ValidatedSourceCheckpointIdentity:
+        source = self.source_checkpoint
+        if isinstance(source, ApprovedFullVistralSource):
+            source = SourceCheckpointIdentity.from_approved_source(source)
+        elif isinstance(source, Mapping):
+            source = SourceCheckpointIdentity.from_mapping(source)
+        if isinstance(source, SourceCheckpointIdentity):
+            source = source.validate(self.seed, require_approval_bindings=not self.fixture_mode)
+        elif isinstance(source, ValidatedSourceCheckpointIdentity):
+            source.validate(self.seed, require_approval_bindings=not self.fixture_mode)
+        else:
+            raise ExplanationRuntimeError("invalid explanation source checkpoint identity")
         return source
 
     def validate(self, run_root: str | Path | None = None) -> None:
@@ -873,7 +923,7 @@ ExplanationRuntime = ExplanationOnlyRuntime
 ExplanationRuntimeConfig = ExplanationOnlyConfig
 
 
-def resolve_explanation_source(root: str | Path, *, seed: int | str, source_checkpoint_key: str | None = None) -> SourceCheckpointIdentity:
+def resolve_explanation_source(root: str | Path, *, seed: int | str, source_checkpoint_key: str | None = None) -> ValidatedSourceCheckpointIdentity:
     """Resolve exactly the approved same-seed source; no alternate fallback is allowed."""
     expected = f"{SOURCE_SYSTEM_ID}:{seed}"
     if source_checkpoint_key not in (None, expected):
@@ -885,7 +935,11 @@ def resolve_explanation_source(root: str | Path, *, seed: int | str, source_chec
         raise ExplanationRuntimeError(f"could not resolve approved explanation source {expected}: {exc}") from exc
     if validation.get("status") != "PASS":
         raise ExplanationRuntimeError(f"approved explanation source failed validation: {validation.get('errors')}")
-    return SourceCheckpointIdentity.from_approved_source(source)
+    # ``validate_source_checkpoint`` has already verified the exact resolved
+    # path and approval bindings.  Preserve that verified boundary so request
+    # construction and runtime validation do not hash the large checkpoint
+    # again.
+    return ValidatedSourceCheckpointIdentity(SourceCheckpointIdentity.from_approved_source(source))
 
 
 def validate_three_seed_binding(requests: Sequence[ExplanationOnlyRequest]) -> str:
@@ -923,6 +977,7 @@ __all__ = [
     "ExplanationRuntimeError",
     "SharedInferenceIdentity",
     "SourceCheckpointIdentity",
+    "ValidatedSourceCheckpointIdentity",
     "bind_explanation_seeds",
     "resolve_explanation_source",
     "validate_three_seed_binding",

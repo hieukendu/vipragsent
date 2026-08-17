@@ -38,6 +38,7 @@ class ApprovedFullVistralSource:
     seed: int | str
     model_revision: str
     tokenizer_revision: str
+    checkpoint_verified: bool = False
 
     def as_dict(self, root: Path) -> dict[str, Any]:
         return {
@@ -132,7 +133,7 @@ def resolve_approved_full_vistral_source(root: str | Path, entry: Mapping[str, A
         tokenizer_revision = str(summary.get("tokenizer_revision") or manifest.get("tokenizer_revision") or "")
         if entry.get("model_revision") not in (None, "", model_revision) or entry.get("tokenizer_revision") not in (None, "", tokenizer_revision):
             continue
-        matched.append(ApprovedFullVistralSource(str(run_root.name), run_root, checkpoint_path, checkpoint_hash, summary_hash, sha256_file(approval_path), checksum_hash, config_hash, variant_fingerprint, seed, model_revision, tokenizer_revision))
+        matched.append(ApprovedFullVistralSource(str(run_root.name), run_root, checkpoint_path, checkpoint_hash, summary_hash, sha256_file(approval_path), checksum_hash, config_hash, variant_fingerprint, seed, model_revision, tokenizer_revision, True))
     if len(matched) != 1:
         raise RuntimeError(f"exactly one approved full Vistral source is required for {expected_key}; found {len(matched)}")
     return matched[0]
@@ -142,7 +143,9 @@ def validate_source_checkpoint(root: str | Path, source: ApprovedFullVistralSour
     root = Path(root)
     manifest = _load(source.run_root / "checkpoints/checkpoint_manifest.json")
     errors: list[str] = []
-    if not source.checkpoint_path.exists() or sha256_file(source.checkpoint_path) != source.checkpoint_sha256:
+    if not source.checkpoint_path.exists():
+        errors.append("source checkpoint hash mismatch")
+    elif not source.checkpoint_verified and sha256_file(source.checkpoint_path) != source.checkpoint_sha256:
         errors.append("source checkpoint hash mismatch")
     if manifest.get("checkpoint_sha256") != source.checkpoint_sha256:
         errors.append("checkpoint manifest hash binding mismatch")

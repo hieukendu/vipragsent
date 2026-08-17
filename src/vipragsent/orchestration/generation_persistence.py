@@ -67,6 +67,13 @@ class GenerationChunkStore:
         self.chunk_root.mkdir(parents=True, exist_ok=True)
         self._validate_production_contract()
         self._manifest = self._load_or_create_manifest()
+        self._manifest_revision = self._manifest_revision_for(self._manifest)
+        self._committed_rows_cache: list[dict[str, Any]] = []
+        self._committed_sample_ids_cache: set[str] = set()
+        self._chunk_entries_by_ids: dict[tuple[str, ...], dict[str, Any]] = {}
+        self._chunk_file_signatures: dict[Path, tuple[int, int, int, int]] = {}
+        self._next_chunk_index = 0
+        self._initialize_committed_state()
 
     @classmethod
     def _normalize_contract(cls, value: Mapping[str, Any] | None) -> dict[str, Any] | None:
@@ -165,6 +172,47 @@ class GenerationChunkStore:
         if not re.fullmatch(r"[0-9A-F]{64}", data_hash):
             raise GenerationPersistenceError("production generation contract data_hash must be a canonical SHA-256 digest")
 
+    @staticmethod
+    def _manifest_revision_for(manifest: Mapping[str, Any]) -> str:
+        return sha256_json(dict(manifest))
+
+    def _validate_manifest_shape(self, manifest: Mapping[str, Any]) -> dict[str, Any]:
+        try:
+            schema_version = int(manifest.get("schema_version", -1))
+        except (TypeError, ValueError) as exc:
+            raise GenerationPersistenceError(f"unsupported generation chunk manifest: {self.manifest_path}") from exc
+        if schema_version != self.SCHEMA_VERSION:
+            raise GenerationPersistenceError(f"unsupported generation chunk manifest: {self.manifest_path}")
+        if str(manifest.get("split")) != self.split or [str(value) for value in manifest.get("sample_ids", [])] != self.sample_ids:
+            raise GenerationPersistenceError("generation chunk manifest input identity mismatch")
+        self._validate_manifest_contract(manifest)
+        chunks = manifest.get("chunks", [])
+        if not isinstance(chunks, list):
+            raise GenerationPersistenceError("generation chunk manifest has invalid chunks")
+        indexes: set[int] = set()
+        for item in chunks:
+            if not isinstance(item, Mapping) or not str(item.get("path", "")) or not str(item.get("sha256", "")):
+                raise GenerationPersistenceError("generation chunk manifest contains an invalid chunk entry")
+            try:
+                index = int(item.get("index", -1))
+            except (TypeError, ValueError) as exc:
+                raise GenerationPersistenceError("generation chunk manifest contains an invalid chunk index") from exc
+            if index < 0 or index in indexes:
+                raise GenerationPersistenceError("generation chunk manifest contains duplicate or invalid chunk indexes")
+            indexes.add(index)
+            if not isinstance(item.get("sample_ids", []), list):
+                raise GenerationPersistenceError("generation chunk manifest contains invalid sample IDs")
+        return dict(manifest)
+
+    def _read_manifest(self) -> dict[str, Any]:
+        try:
+            manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+        except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+            raise GenerationPersistenceError(f"invalid generation chunk manifest: {self.manifest_path}") from exc
+        if not isinstance(manifest, Mapping):
+            raise GenerationPersistenceError("generation chunk manifest must be a JSON object")
+        return self._validate_manifest_shape(manifest)
+
     def _load_or_create_manifest(self) -> dict[str, Any]:
         if not self.manifest_path.exists():
             if self.generation_contract is None and not (self.fixture_mode or self.legacy_mode):
@@ -183,25 +231,7 @@ class GenerationChunkStore:
                 manifest["legacy_compatibility"] = True
             atomic_write_json(self.manifest_path, manifest)
             return manifest
-        try:
-            manifest = json.loads(self.manifest_path.read_text(encoding="utf-8"))
-        except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
-            raise GenerationPersistenceError(f"invalid generation chunk manifest: {self.manifest_path}") from exc
-        if not isinstance(manifest, Mapping) or int(manifest.get("schema_version", -1)) != self.SCHEMA_VERSION:
-            raise GenerationPersistenceError(f"unsupported generation chunk manifest: {self.manifest_path}")
-        if str(manifest.get("split")) != self.split or [str(value) for value in manifest.get("sample_ids", [])] != self.sample_ids:
-            raise GenerationPersistenceError("generation chunk manifest input identity mismatch")
-        self._validate_manifest_contract(manifest)
-        chunks = manifest.get("chunks", [])
-        if not isinstance(chunks, list):
-            raise GenerationPersistenceError("generation chunk manifest has invalid chunks")
-        for item in chunks:
-            if not isinstance(item, Mapping) or not str(item.get("path", "")) or not str(item.get("sha256", "")):
-                raise GenerationPersistenceError("generation chunk manifest contains an invalid chunk entry")
-            path = self.root / str(item["path"])
-            if not path.exists() or sha256_json(self._read_rows(path)) != str(item["sha256"]):
-                raise GenerationPersistenceError(f"generation chunk is missing or corrupt: {path}")
-        return dict(manifest)
+        return self._read_manifest()
 
     @staticmethod
     def _read_rows(path: Path) -> list[dict[str, Any]]:
@@ -213,29 +243,105 @@ class GenerationChunkStore:
     def _write_manifest(self) -> None:
         atomic_write_json(self.manifest_path, self._manifest)
 
-    def committed_rows(self) -> list[dict[str, Any]]:
-        rows: list[dict[str, Any]] = []
-        seen: set[str] = set()
-        expected = set(self.sample_ids)
-        for item in sorted(self._manifest.get("chunks", []), key=lambda value: int(value["index"])):
-            manifest_contract_sha = self._manifest.get("generation_contract_sha256")
-            if manifest_contract_sha is not None and str(item.get("generation_contract_sha256", "")) != str(manifest_contract_sha):
-                raise GenerationPersistenceError("generation chunk contract identity is invalid")
-            chunk_rows = self._read_rows(self.root / str(item["path"]))
-            expected_chunk_ids = [str(value) for value in item.get("sample_ids", [])]
+    @staticmethod
+    def _file_signature(path: Path) -> tuple[int, int, int, int]:
+        try:
+            stat = path.stat()
+        except OSError as exc:
+            raise GenerationPersistenceError(f"generation chunk is missing: {path}") from exc
+        return (int(stat.st_dev), int(stat.st_ino), int(stat.st_size), int(stat.st_mtime_ns))
+
+    def _validate_chunk_entry(
+        self,
+        item: Mapping[str, Any],
+        *,
+        seen: set[str],
+        read_rows: bool = True,
+    ) -> list[dict[str, Any]]:
+        manifest_contract_sha = self._manifest.get("generation_contract_sha256")
+        if manifest_contract_sha is not None and str(item.get("generation_contract_sha256", "")) != str(manifest_contract_sha):
+            raise GenerationPersistenceError("generation chunk contract identity is invalid")
+        path = self.root / str(item["path"])
+        if read_rows:
+            chunk_rows = self._read_rows(path)
+            if sha256_json(chunk_rows) != str(item["sha256"]):
+                raise GenerationPersistenceError(f"generation chunk is missing or corrupt: {path}")
+        else:
+            self._file_signature(path)
+            chunk_rows = []
+        expected_chunk_ids = [str(value) for value in item.get("sample_ids", [])]
+        if read_rows:
             observed_ids = [str(row.get("sample_id", "")) for row in chunk_rows]
-            if observed_ids != expected_chunk_ids or not set(observed_ids) <= expected or seen.intersection(observed_ids):
+            try:
+                expected_row_count = int(item.get("row_count", len(chunk_rows)))
+            except (TypeError, ValueError) as exc:
+                raise GenerationPersistenceError("generation chunk row count is invalid") from exc
+            if (
+                observed_ids != expected_chunk_ids
+                or len(chunk_rows) != expected_row_count
+                or len(observed_ids) != len(set(observed_ids))
+                or not set(observed_ids) <= set(self.sample_ids)
+                or seen.intersection(observed_ids)
+            ):
                 raise GenerationPersistenceError("generation chunk ordering or sample identity is invalid")
             seen.update(observed_ids)
-            rows.extend(chunk_rows)
-        return rows
+        return chunk_rows
+
+    def _register_chunk(self, item: Mapping[str, Any], rows: Sequence[Mapping[str, Any]]) -> None:
+        entry = dict(item)
+        ids = tuple(str(value) for value in entry.get("sample_ids", []))
+        if ids in self._chunk_entries_by_ids:
+            raise GenerationPersistenceError("generation manifest contains a duplicate chunk")
+        self._chunk_entries_by_ids[ids] = entry
+        self._committed_rows_cache.extend(dict(row) for row in rows)
+        self._committed_sample_ids_cache.update(ids)
+        path = self.root / str(entry["path"])
+        self._chunk_file_signatures[path] = self._file_signature(path)
+        self._next_chunk_index = max(self._next_chunk_index, int(entry["index"]) + 1)
+
+    def _initialize_committed_state(self) -> None:
+        seen: set[str] = set()
+        for item in sorted(self._manifest.get("chunks", []), key=lambda value: int(value["index"])):
+            rows = self._validate_chunk_entry(item, seen=seen)
+            self._register_chunk(item, rows)
+
+    def _assert_cached_chunks_unchanged(self) -> None:
+        for path, signature in self._chunk_file_signatures.items():
+            if self._file_signature(path) != signature:
+                raise GenerationPersistenceError(f"generation chunk changed after validation: {path}")
+
+    def _reconcile_manifest_under_lock(self) -> None:
+        manifest = self._read_manifest()
+        if self._manifest_revision == self._manifest_revision_for(manifest):
+            self._assert_cached_chunks_unchanged()
+            return
+        current_chunks = list(self._manifest.get("chunks", []))
+        observed_chunks = list(manifest.get("chunks", []))
+        if len(observed_chunks) < len(current_chunks) or observed_chunks[:len(current_chunks)] != current_chunks:
+            raise GenerationPersistenceError("generation manifest changed outside the append-only commit boundary")
+        self._manifest = manifest
+        seen = set(self._committed_sample_ids_cache)
+        for item in observed_chunks[len(current_chunks):]:
+            if int(item["index"]) < self._next_chunk_index:
+                raise GenerationPersistenceError("generation manifest appended a non-monotonic chunk index")
+            rows = self._validate_chunk_entry(item, seen=seen)
+            self._register_chunk(item, rows)
+        self._manifest_revision = self._manifest_revision_for(manifest)
+        self._assert_cached_chunks_unchanged()
+
+    def _validate_all_cached_chunks(self) -> None:
+        seen: set[str] = set()
+        for item in sorted(self._manifest.get("chunks", []), key=lambda value: int(value["index"])):
+            self._validate_chunk_entry(item, seen=seen)
+
+    def committed_rows(self) -> list[dict[str, Any]]:
+        return [dict(row) for row in self._committed_rows_cache]
 
     def committed_sample_ids(self) -> set[str]:
-        return {str(row["sample_id"]) for row in self.committed_rows()}
+        return set(self._committed_sample_ids_cache)
 
     def next_index(self) -> int:
-        chunks = self._manifest.get("chunks", [])
-        return max((int(item["index"]) for item in chunks), default=-1) + 1
+        return self._next_chunk_index
 
     def commit(self, rows: Iterable[Mapping[str, Any]]) -> dict[str, Any]:
         materialized = [dict(row) for row in rows]
@@ -248,17 +354,20 @@ class GenerationChunkStore:
             raise GenerationPersistenceError("generation chunk contains an unexpected sample ID")
         digest = sha256_json(materialized)
         with exclusive_lock(self.manifest_path.with_suffix(self.manifest_path.suffix + ".lock")):
-            self._manifest = self._load_or_create_manifest()
-            for item in self._manifest.get("chunks", []):
-                if [str(value) for value in item.get("sample_ids", [])] == ids:
-                    if str(item.get("sha256")) != digest:
-                        raise GenerationPersistenceError("attempted to rewrite a committed generation chunk")
-                    return dict(item)
-            if self.committed_sample_ids().intersection(ids):
+            self._reconcile_manifest_under_lock()
+            key = tuple(ids)
+            existing = self._chunk_entries_by_ids.get(key)
+            if existing is not None:
+                if str(existing.get("sha256")) != digest:
+                    raise GenerationPersistenceError("attempted to rewrite a committed generation chunk")
+                return dict(existing)
+            if self._committed_sample_ids_cache.intersection(ids):
                 raise GenerationPersistenceError("generation chunk would duplicate committed sample work")
             index = self.next_index()
             relative_path = (Path("reasoning") / f"{self.split}_chunks" / f"chunk_{index:06d}.jsonl").as_posix()
             path = self.root / relative_path
+            if path.exists():
+                raise GenerationPersistenceError(f"generation chunk path already exists: {path}")
             atomic_write_text(path, "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in materialized))
             entry = {
                 "index": index,
@@ -268,13 +377,21 @@ class GenerationChunkStore:
                 "row_count": len(materialized),
                 "generation_contract_sha256": self._manifest.get("generation_contract_sha256"),
             }
-            self._manifest.setdefault("chunks", []).append(entry)
-            self._manifest["complete"] = len(self.committed_sample_ids()) == len(self.sample_ids)
+            candidate_manifest = dict(self._manifest)
+            candidate_manifest["chunks"] = [dict(item) for item in self._manifest.get("chunks", [])] + [entry]
+            candidate_manifest["complete"] = len(self._committed_sample_ids_cache | set(ids)) == len(self.sample_ids)
+            self._manifest = candidate_manifest
             self._write_manifest()
+            self._register_chunk(entry, materialized)
+            self._manifest_revision = self._manifest_revision_for(self._manifest)
             return dict(entry)
 
     def mark_complete(self) -> None:
-        if self.committed_sample_ids() != set(self.sample_ids):
-            raise GenerationPersistenceError("cannot mark generation chunks complete before every sample is committed")
-        self._manifest["complete"] = True
-        self._write_manifest()
+        with exclusive_lock(self.manifest_path.with_suffix(self.manifest_path.suffix + ".lock")):
+            self._reconcile_manifest_under_lock()
+            if self.committed_sample_ids() != set(self.sample_ids):
+                raise GenerationPersistenceError("cannot mark generation chunks complete before every sample is committed")
+            self._validate_all_cached_chunks()
+            self._manifest["complete"] = True
+            self._write_manifest()
+            self._manifest_revision = self._manifest_revision_for(self._manifest)

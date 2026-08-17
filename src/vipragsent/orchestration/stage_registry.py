@@ -76,7 +76,9 @@ from .explanation_runtime import (
     ExplanationRuntimeError,
     SharedInferenceIdentity,
     SourceCheckpointIdentity,
+    ValidatedSourceCheckpointIdentity,
 )
+from .generation_persistence import GenerationChunkStore
 from .preflight_single import run_single_preflight
 from .provenance import expected_inference_provenance, validate_inference_provenance
 from .run_store import RunStore, artifact_hashes, git_commit, utc_now
@@ -855,6 +857,52 @@ def _production_reasoning_records(root: Path, tokenizer: Any, examples: list[Dat
     return records
 
 
+def _production_generation_artifact_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
+    """Judge or score existing generation artifacts without loading a model."""
+    run_root = Path(context.run_root)
+    split = "dev" if "dev" in stage else "test"
+    judge = ReasoningJudge(context.root, cache_root=run_root / "judge/cache", require_deployment_manifest=True)
+    if stage.startswith("judge_"):
+        reasoning_path = run_root / f"reasoning/{split}_reasoning.jsonl"
+        if not reasoning_path.exists():
+            return StageOutcome.blocked(f"{split} reasoning is missing")
+        if split == "dev" and _selected_dev_artifacts_reusable(run_root):
+            return StageOutcome.passed(summary={"split": split, "reused_best_epoch_artifacts": True}, expected_files=("judge/dev_judge_responses.jsonl", "predictions/dev_predictions.jsonl"))
+        bundle = load_vipragsent(context.root / "data/processed/vipragsent")
+        generated = _read_jsonl(reasoning_path)
+        gold = {row.sample_id: {label: int(row.labels[label]) for label in PRAGMATIC_LABELS} for row in getattr(bundle, split)}
+        predictions: list[dict[str, Any]] = []
+        decisions: list[dict[str, Any]] = []
+        for row in generated:
+            sample_id = str(row["sample_id"])
+            decision = judge.judge(str(row.get("generated_reasoning", "")))
+            decisions.append({"sample_id": sample_id, **dict(decision)})
+            predictions.append(
+                build_reasoning_prediction_row(
+                    sample_id,
+                    gold[sample_id],
+                    str(row.get("generated_reasoning", "")),
+                    decision,
+                    truncated=bool(row.get("truncated")),
+                )
+            )
+        judge.write_artifacts(run_root, split, predictions, decisions)
+        atomic_write_text(run_root / f"predictions/{split}_predictions.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in predictions))
+        return StageOutcome.passed(summary={"split": split, "judge_protocol_id": judge.judge_protocol_id}, expected_files=(f"judge/{split}_judge_responses.jsonl", f"predictions/{split}_predictions.jsonl"))
+    if stage.startswith("compute_"):
+        predictions_path = run_root / f"predictions/{split}_predictions.jsonl"
+        if not predictions_path.exists():
+            return StageOutcome.blocked(f"{split} judge predictions are missing")
+        if split == "dev" and _selected_dev_artifacts_reusable(run_root):
+            metrics_path = run_root / "metrics/dev_reasoning_metrics.json"
+            return StageOutcome.passed(summary=_load_mapping(metrics_path) if metrics_path.exists() else {}, expected_files=("metrics/dev_reasoning_metrics.json",))
+        metrics = compute_reasoning_metrics(_read_jsonl(predictions_path), diagnostics=judge.diagnostics)
+        metrics.update({"status": "PASS", "split": split, "judge_protocol_id": judge.judge_protocol_id, "judge_prompt_hash": judge.prompt_hash, "judge_schema_hash": judge.schema_hash, "generation_protocol_id": "reasoning_generation_shared_judge_v1"})
+        atomic_write_json(run_root / f"metrics/{split}_reasoning_metrics.json", metrics)
+        return StageOutcome.passed(summary=metrics, expected_files=(f"metrics/{split}_reasoning_metrics.json",))
+    return StageOutcome.failed(f"unsupported production generation artifact stage: {stage}")
+
+
 def _production_generation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
     data_hash = context.metadata.get("data_hash")
     if not is_real_dataset_hash(data_hash):
@@ -867,6 +915,8 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         if callable(handler):
             result = handler()
             return result if isinstance(result, StageOutcome) else StageOutcome.passed(summary=dict(result))
+    if stage.startswith("judge_") or stage.startswith("compute_"):
+        return _production_generation_artifact_stage(context, entry, stage)
     spec = _execution_spec(context.root, entry)
     family = spec.model_family
     selected_device, device_blocker = _resolve_production_device(context.root)
@@ -921,13 +971,22 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         for epoch in range(1, resolved.maximum_epochs + 1):
             history.extend(executor.train_generation(train_records, optimizer=optimizer, epochs=1, scheduler=scheduler, gradient_clipping=resolved.gradient_clipping, epoch_start=epoch))
             epoch_root = Path(context.run_root) / "epochs" / f"epoch_{epoch}"
+            # The canonical post-training checkpoint is the generation
+            # identity for this epoch.  Save it before DEV inference so the
+            # generation contract never falls back to hashing live weights.
+            epoch_checkpoint = executor.write_checkpoint(
+                f"checkpoints/epoch_{epoch}/model.pt",
+                optimizer=optimizer,
+                scheduler=scheduler,
+                epoch=epoch,
+                selection_metric=None,
+            )
             generated_dev = executor.generate_reasoning_split("dev", dev_records, artifact_root=epoch_root)
             gold_dev = {str(row["sample_id"]): row["gold"] for row in dev_records}
             dev_predictions, _ = executor.judge_reasoning_split("dev", generated_dev, gold_dev, artifact_root=epoch_root)
             dev_metrics = executor.compute_split_metrics("dev", dev_predictions, artifact_root=epoch_root)
             latest_epoch = epoch
             latest_metric = float(dev_metrics["primary_macro_f1"])
-            epoch_checkpoint = executor.write_checkpoint(f"checkpoints/epoch_{epoch}/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=epoch, selection_metric=float(dev_metrics["primary_macro_f1"]))
             history[-1]["dev_primary_macro_f1"] = float(dev_metrics["primary_macro_f1"])
             if float(dev_metrics["primary_macro_f1"]) > best_metric:
                 best_metric = float(dev_metrics["primary_macro_f1"])
@@ -1115,7 +1174,10 @@ def _build_production_explanation_runtime(
     tokenizer: Any,
     judge: ReasoningJudge,
 ) -> ExplanationOnlyRuntime:
-    source_identity = SourceCheckpointIdentity.from_approved_source(source)
+    # The approved-source resolver has already verified this exact checkpoint
+    # path and digest.  Preserve that boundary so request construction does
+    # not hash the large source checkpoint a second time.
+    source_identity = ValidatedSourceCheckpointIdentity(SourceCheckpointIdentity.from_approved_source(source))
     data_hash = context.metadata.get("data_hash") or source_identity.dataset_hash
     if not is_real_dataset_hash(data_hash):
         raise ExplanationRuntimeError("production explanation inference requires a canonical SHA-256 dataset hash")
@@ -1150,6 +1212,75 @@ def _production_explanation_records(tokenizer: Any, examples: list[DatasetExampl
     return records
 
 
+def _read_production_explanation_rows_without_model(
+    run_root: Path,
+    split: str,
+    sample_ids: list[str],
+    source: Any,
+    engine_fingerprint: str,
+) -> list[dict[str, Any]]:
+    """Validate committed rationale artifacts without instantiating 7B state."""
+    reasoning_path = run_root / f"reasoning/{split}_reasoning.jsonl"
+    manifest_path = run_root / f"reasoning/{split}_chunks_manifest.json"
+    if not reasoning_path.exists() or not manifest_path.exists():
+        raise ExplanationRuntimeError(f"{split} committed rationale artifacts are missing")
+    manifest = _load_mapping(manifest_path)
+    contract = manifest.get("generation_contract")
+    if not isinstance(contract, Mapping):
+        raise ExplanationRuntimeError(f"{split} rationale chunks lack a canonical generation contract")
+    checkpoint_identity = contract.get("checkpoint_identity")
+    if not isinstance(checkpoint_identity, Mapping) or str(checkpoint_identity.get("checkpoint_sha256", "")).upper() != str(source.checkpoint_sha256).upper():
+        raise ExplanationRuntimeError(f"{split} rationale chunks are bound to a different source checkpoint")
+    store = GenerationChunkStore(run_root, split, sample_ids, generation_contract=contract)
+    rows = store.committed_rows()
+    observed_ids = [str(row.get("sample_id", "")) for row in rows]
+    if manifest.get("complete") is not True or observed_ids != sample_ids:
+        raise ExplanationRuntimeError(f"{split} committed rationale chunks are incomplete or out of order")
+    for row in rows:
+        if str(row.get("engine_fingerprint", "")) != engine_fingerprint:
+            raise ExplanationRuntimeError(f"{split} chunk engine identity mismatch")
+        if str(row.get("source_checkpoint_sha256", "")).upper() != str(source.checkpoint_sha256).upper():
+            raise ExplanationRuntimeError(f"{split} chunk source checkpoint binding mismatch")
+        if str(row.get("source_checkpoint_key", "")) != f"vipragsent_full_vistral:{source.seed}":
+            raise ExplanationRuntimeError(f"{split} chunk source checkpoint key mismatch")
+    return rows
+
+
+def _production_explanation_artifact_stage(context: RunContext, entry: RunEntry, stage: str, source: Any) -> StageOutcome:
+    """Judge or score existing rationale artifacts without loading the source model."""
+    run_root = Path(context.run_root)
+    judge = ReasoningJudge(context.root, cache_root=run_root / "judge/cache", require_deployment_manifest=True)
+    identity = _production_explanation_identity(context, judge.protocol)
+    if stage.startswith("judge_"):
+        split = "dev" if "dev" in stage else "test"
+        bundle = load_vipragsent(context.root / "data/processed/vipragsent")
+        sample_ids = [str(example.sample_id) for example in getattr(bundle, split)]
+        try:
+            reasoning = _read_production_explanation_rows_without_model(run_root, split, sample_ids, source, identity.fingerprint)
+        except (ExplanationRuntimeError, OSError, RuntimeError, ValueError) as exc:
+            return StageOutcome.blocked(str(exc))
+        gold = {example.sample_id: {label: int(example.labels[label]) for label in PRAGMATIC_LABELS} for example in getattr(bundle, split)}
+        predictions: list[dict[str, Any]] = []
+        decisions: list[dict[str, Any]] = []
+        for row in reasoning:
+            sample_id = str(row["sample_id"])
+            decision = judge.judge(str(row.get("generated_reasoning", "")))
+            decisions.append({"sample_id": sample_id, **dict(decision)})
+            predictions.append(build_reasoning_prediction_row(sample_id, gold[sample_id], str(row.get("generated_reasoning", "")), decision, truncated=bool(row.get("truncated"))))
+        judge.write_artifacts(run_root, split, predictions, decisions)
+        atomic_write_text(run_root / f"predictions/{split}_predictions.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in predictions))
+        return StageOutcome.passed(summary={"split": split, "source_run_id": source.run_id, "judge_protocol_id": judge.judge_protocol_id}, expected_files=(f"judge/{split}_judge_responses.jsonl", f"predictions/{split}_predictions.jsonl"))
+    if stage.startswith("compute_"):
+        split = "dev" if "dev" in stage else "test"
+        path = run_root / f"predictions/{split}_predictions.jsonl"
+        if not path.exists():
+            return StageOutcome.blocked(f"{split} rationale judge predictions are missing")
+        metrics = compute_reasoning_metrics(_read_jsonl(path), diagnostics=judge.diagnostics) | {"status": "PASS", "split": split, "inference_output_source": "judge_of_rationale_decoder_output"}
+        atomic_write_json(run_root / f"metrics/{split}_reasoning_metrics.json", metrics)
+        return StageOutcome.passed(summary=metrics, expected_files=(f"metrics/{split}_reasoning_metrics.json",))
+    return StageOutcome.failed(f"unsupported production explanation artifact stage: {stage}")
+
+
 def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
     run_root = Path(context.run_root)
     if stage == "resolve_approved_full_vistral_source":
@@ -1169,6 +1300,8 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
     if stage == "validate_source_checkpoint":
         report = validate_source_checkpoint(context.root, source)
         return StageOutcome.passed(summary=report, expected_files=("source/source_provenance.json",)) if report["status"] == "PASS" else StageOutcome.blocked(*report["errors"])
+    if stage.startswith("judge_") or stage.startswith("compute_"):
+        return _production_explanation_artifact_stage(context, entry, stage, source)
     spec = _execution_spec(context.root, entry)
     selected_device, device_blocker = _resolve_production_device(context.root)
     if device_blocker:
