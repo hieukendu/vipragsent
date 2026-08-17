@@ -372,13 +372,21 @@ def test_chunk_commit_is_idempotent_and_rejects_rewrites(tmp_path: Path) -> None
 
 def test_generation_chunk_store_keeps_committed_state_in_memory(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
     reads: list[Path] = []
+    signatures: list[Path] = []
     original_read_rows = GenerationChunkStore._read_rows
+    original_file_signature = GenerationChunkStore._file_signature
 
     def counted_read_rows(path: Path) -> list[dict[str, object]]:
         reads.append(path)
         return original_read_rows(path)
 
     monkeypatch.setattr(GenerationChunkStore, "_read_rows", staticmethod(counted_read_rows))
+
+    def counted_file_signature(path: Path) -> tuple[int, int, int, int]:
+        signatures.append(path)
+        return original_file_signature(path)
+
+    monkeypatch.setattr(GenerationChunkStore, "_file_signature", staticmethod(counted_file_signature))
     sample_ids = [f"sample-{index}" for index in range(12)]
     store = GenerationChunkStore(tmp_path, "dev", sample_ids, fixture_mode=True)
     for sample_id in sample_ids:
@@ -392,6 +400,7 @@ def test_generation_chunk_store_keeps_committed_state_in_memory(monkeypatch: pyt
     assert [row["sample_id"] for row in store.committed_rows()] == sample_ids
     store.mark_complete()
     assert len(reads) == len(sample_ids)
+    assert len(signatures) <= 2 * len(sample_ids) + 3
 
 
 def test_generation_chunk_store_reconciles_only_external_append_and_detects_mutation(tmp_path: Path) -> None:
@@ -403,5 +412,24 @@ def test_generation_chunk_store_reconciles_only_external_append_and_detects_muta
 
     chunk_path = tmp_path / "reasoning/dev_chunks/chunk_000000.jsonl"
     chunk_path.write_text('{"generated_reasoning":"tampered","sample_id":"a"}\n', encoding="utf-8")
-    with pytest.raises(GenerationPersistenceError, match="changed after validation"):
-        second.commit([{"sample_id": "a", "generated_reasoning": "a"}])
+    with pytest.raises(GenerationPersistenceError, match="missing or corrupt"):
+        second.mark_complete()
+
+
+def test_generation_chunk_store_rejects_out_of_order_and_noncontiguous_appends(tmp_path: Path) -> None:
+    store = GenerationChunkStore(tmp_path, "dev", ["a", "b"], fixture_mode=True)
+    with pytest.raises(GenerationPersistenceError, match="exact sample record ordering"):
+        store.commit([{"sample_id": "b", "generated_reasoning": "b"}])
+
+    manifest_path = tmp_path / "reasoning/dev_chunks_manifest.json"
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    manifest["chunks"] = [{
+        "index": 2,
+        "path": "reasoning/dev_chunks/chunk_000002.jsonl",
+        "sample_ids": [],
+        "sha256": "0" * 64,
+        "row_count": 0,
+    }]
+    manifest_path.write_text(json.dumps(manifest), encoding="utf-8")
+    with pytest.raises(GenerationPersistenceError, match="contiguous"):
+        GenerationChunkStore(tmp_path, "dev", ["a", "b"], fixture_mode=True)

@@ -56,6 +56,7 @@ SHARED_BATCH_POLICY_ID = "generation_inference_batch_policy"
 SHARED_BATCH_POLICY_VERSION = "wave2-v1"
 CONTRACT_VERSION = 1
 EXPECTED_EXPLANATION_SEEDS = (20260521, 20260522, 20260523)
+_VALIDATED_SOURCE_TOKEN = object()
 
 
 class ExplanationRuntimeError(RuntimeError):
@@ -255,7 +256,7 @@ class SourceCheckpointIdentity:
             raise ExplanationRuntimeError("source checkpoint hash mismatch")
         if require_approval_bindings:
             self._validate_approval_bindings(requested_seed)
-        return ValidatedSourceCheckpointIdentity(self)
+        return ValidatedSourceCheckpointIdentity._from_verified(self)
 
     def _validate_approval_bindings(self, requested_seed: int | str | None) -> None:
         """Validate the on-disk approval chain, not just copied hash fields."""
@@ -387,6 +388,29 @@ class ValidatedSourceCheckpointIdentity:
     """Immutable source boundary after the exact checkpoint was verified once."""
 
     identity: SourceCheckpointIdentity
+    _verification_token: object = field(default=None, repr=False, compare=False)
+
+    def __post_init__(self) -> None:
+        token = self._verification_token
+        if (
+            not isinstance(token, tuple)
+            or len(token) != 2
+            or token[0] is not _VALIDATED_SOURCE_TOKEN
+            or token[1] is not self.identity
+        ):
+            raise ExplanationRuntimeError(
+                "validated source identities must be created by a physically verified checkpoint"
+            )
+
+    @classmethod
+    def _from_verified(cls, identity: SourceCheckpointIdentity) -> ValidatedSourceCheckpointIdentity:
+        return cls(identity, (_VALIDATED_SOURCE_TOKEN, identity))
+
+    @classmethod
+    def from_approved_source(cls, source: ApprovedFullVistralSource) -> ValidatedSourceCheckpointIdentity:
+        if not bool(getattr(source, "checkpoint_verified", False)):
+            raise ExplanationRuntimeError("approved source checkpoint has not been physically verified")
+        return cls._from_verified(SourceCheckpointIdentity.from_approved_source(source))
 
     def __getattr__(self, name: str) -> Any:
         return getattr(self.identity, name)
@@ -939,7 +963,7 @@ def resolve_explanation_source(root: str | Path, *, seed: int | str, source_chec
     # path and approval bindings.  Preserve that verified boundary so request
     # construction and runtime validation do not hash the large checkpoint
     # again.
-    return ValidatedSourceCheckpointIdentity(SourceCheckpointIdentity.from_approved_source(source))
+    return ValidatedSourceCheckpointIdentity.from_approved_source(source)
 
 
 def validate_three_seed_binding(requests: Sequence[ExplanationOnlyRequest]) -> str:

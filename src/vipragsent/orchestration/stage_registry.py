@@ -75,7 +75,6 @@ from .explanation_runtime import (
     ExplanationOnlyRuntime,
     ExplanationRuntimeError,
     SharedInferenceIdentity,
-    SourceCheckpointIdentity,
     ValidatedSourceCheckpointIdentity,
 )
 from .generation_persistence import GenerationChunkStore
@@ -904,6 +903,11 @@ def _production_generation_artifact_stage(context: RunContext, entry: RunEntry, 
 
 
 def _production_generation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
+    # Classify artifact-only work before touching device, snapshot, model, or
+    # tokenizer resolution.  Existing reasoning can be judged/scored from
+    # files alone.
+    if stage.startswith("judge_") or stage.startswith("compute_"):
+        return _production_generation_artifact_stage(context, entry, stage)
     data_hash = context.metadata.get("data_hash")
     if not is_real_dataset_hash(data_hash):
         return StageOutcome.blocked("production generation requires a real context.metadata data_hash")
@@ -915,8 +919,6 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         if callable(handler):
             result = handler()
             return result if isinstance(result, StageOutcome) else StageOutcome.passed(summary=dict(result))
-    if stage.startswith("judge_") or stage.startswith("compute_"):
-        return _production_generation_artifact_stage(context, entry, stage)
     spec = _execution_spec(context.root, entry)
     family = spec.model_family
     selected_device, device_blocker = _resolve_production_device(context.root)
@@ -1177,7 +1179,7 @@ def _build_production_explanation_runtime(
     # The approved-source resolver has already verified this exact checkpoint
     # path and digest.  Preserve that boundary so request construction does
     # not hash the large source checkpoint a second time.
-    source_identity = ValidatedSourceCheckpointIdentity(SourceCheckpointIdentity.from_approved_source(source))
+    source_identity = ValidatedSourceCheckpointIdentity.from_approved_source(source)
     data_hash = context.metadata.get("data_hash") or source_identity.dataset_hash
     if not is_real_dataset_hash(data_hash):
         raise ExplanationRuntimeError("production explanation inference requires a canonical SHA-256 dataset hash")
