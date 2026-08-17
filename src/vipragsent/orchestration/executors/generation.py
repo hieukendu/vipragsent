@@ -1255,9 +1255,13 @@ class ReasoningGenerationExecutor:
         checkpoint_path, pointer = self._resolve_checkpoint_reference(path)
         if not checkpoint_path.exists():
             raise GenerationCheckpointError(f"generation checkpoint is missing: {checkpoint_path}")
-        observed_hash = sha256_file(checkpoint_path)
-        pointer_hash = pointer.get("checkpoint_sha256") if pointer is not None and not pointer.get("legacy") else None
-        if pointer_hash and observed_hash.upper() != str(pointer_hash).upper():
+        pointer_hash = pointer.get("checkpoint_sha256") if pointer is not None else None
+        observed_hash = (
+            str(pointer_hash).upper()
+            if pointer_hash is not None
+            else sha256_file(checkpoint_path).upper()
+        )
+        if pointer_hash and observed_hash != str(pointer_hash).upper():
             raise GenerationCheckpointError(
                 f"generation checkpoint pointer hash mismatch: expected {pointer_hash}, observed {observed_hash}"
             )
@@ -1299,6 +1303,7 @@ class ReasoningGenerationExecutor:
             report_path=self.run_root / "checkpoints/load_report.json",
             production_provenance_required=self.production_provenance_required,
             fixture_mode=self.fixture_mode,
+            observed_checkpoint_sha256=observed_hash,
         )
         report = loaded.checkpoint.report.as_dict()
         report.update({
