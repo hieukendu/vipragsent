@@ -5,7 +5,7 @@
   "pr": 10,
   "base_branch": "main",
   "source_implementation_head": "9f540f3043c85cd60ea6c8706175d1bb44bcae0e",
-  "status": "SOURCE_CONVERGED_REPORT_UPDATE_PENDING_FINAL_REPORT_HEAD_REVIEW",
+  "status": "FINAL_REPORT_HEAD_CI_RETRY_PENDING",
   "final_pass": false,
   "findings": {
     "P0-1": "PASS",
@@ -44,6 +44,14 @@
     "job_id": 95280143214,
     "conclusion": "success",
     "url": "https://github.com/hieukendu/vipragsent/actions/runs/31993165762"
+  },
+  "report_head_retry": {
+    "failed_run_id": 31994028456,
+    "failed_job_id": 95282440352,
+    "failed_at": "Production implementation audit",
+    "standalone_steps_passed": ["Compile", "Ruff", "CPU tests"],
+    "isolated_reproduction": "implementation_passed=true; errors=[]",
+    "final_green_exact_head_required": true
   },
   "p2_deferral": {
     "status": "DEFERRED",

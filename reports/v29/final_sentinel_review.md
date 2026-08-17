@@ -6,6 +6,12 @@ The V29 source implementation is converged at `9f540f3043c85cd60ea6c8706175d1bb4
 This evidence update is report-only; the resulting PR head must receive a fresh exact-head
 CI run and Sentinel review before final completion.
 
+The first report-only validation run (`31994028456`) failed in the GitHub
+`Production implementation audit` while its standalone compile, Ruff, and CPU-test steps
+passed. The same audit was rerun in an isolated checkout of this exact tree and returned
+`implementation_passed: true` with no errors. A new report-only head is therefore being used
+for the final GitHub revalidation; the failure is not treated as a green result.
+
 ## Finding closure
 
 - **P0-1 — GenerationChunkStore:** committed rows, sample IDs, next index, and chunk metadata are retained in memory after one initialization validation. Commits inspect only the manifest signature, reconcile only appended manifest entries, validate only new rows, and perform one full chunk validation at completion. Contiguous chunk indexes and exact sample-record order are enforced. The scaling regression counts both historical JSONL reads and manifest stat calls and rejects quadratic growth.
