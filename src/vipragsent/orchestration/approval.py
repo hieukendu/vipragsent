@@ -9,6 +9,7 @@ from typing import Any
 
 from ..atomic import atomic_write_json
 from ..hashing import sha256_file
+from ..training.generation_checkpoint import GenerationCheckpointError, read_generation_checkpoint_pointer
 from .contracts import RunStatus
 from .review import validate_review_summary
 from .run_store import RunStore, git_commit
@@ -55,6 +56,21 @@ def validate_approval_record(
         return [f"approval record is unreadable: {exc}"]
     if not isinstance(approval, Mapping):
         return ["approval record must be a JSON object"]
+
+    # A modern trainable generation run binds approval to both tiny pointer
+    # records and their canonical epoch payloads.  Keep the legacy physical
+    # fallback available when no pointer files exist, but fail closed if a
+    # partially migrated run exposes only an invalid modern pointer.
+    pointer_paths = (
+        root / "checkpoints/best_checkpoint.json",
+        root / "checkpoints/latest_checkpoint.json",
+    )
+    if any(path.exists() for path in pointer_paths):
+        for kind in ("best", "latest"):
+            try:
+                read_generation_checkpoint_pointer(root, kind, allow_legacy=True)
+            except GenerationCheckpointError as exc:
+                errors.append(f"{kind} generation checkpoint pointer is invalid: {exc}")
 
     if approval.get("run_id") != run_id:
         errors.append("approval record run_id does not match the source run")
