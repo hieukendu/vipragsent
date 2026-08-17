@@ -55,6 +55,173 @@ class GenerationRecordError(ValueError):
 
 GENERATION_CHECKPOINT_SCHEMA_VERSION = 2
 SUPPORTED_GENERATION_BATCH_SIZES = (1, 2, 4)
+GENERATION_PROFILE_MATERIAL_GAIN_THRESHOLD = 0.05
+GENERATION_PROFILE_MIN_HEADROOM_BYTES = 2 * (1024**3)
+GENERATION_PROFILE_HEADROOM_FRACTION = 0.10
+GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES = 256 * (1024**2)
+
+
+def _required_generation_memory_headroom(total_bytes: int | None) -> int | None:
+    if total_bytes is None or int(total_bytes) < 1:
+        return None
+    return max(
+        GENERATION_PROFILE_MIN_HEADROOM_BYTES,
+        math.ceil(int(total_bytes) * GENERATION_PROFILE_HEADROOM_FRACTION),
+    )
+
+
+def _classify_generation_contention(
+    *,
+    total_visible_vram_bytes: int | None,
+    free_vram_bytes: int | None,
+    process_reserved_bytes: int | None,
+) -> dict[str, Any]:
+    """Classify visible GPU contention from global and process-local memory evidence."""
+    values = (total_visible_vram_bytes, free_vram_bytes, process_reserved_bytes)
+    if any(value is None or int(value) < 0 for value in values):
+        return {
+            "status": "UNKNOWN",
+            "external_memory_bytes": None,
+            "method": "torch_memory_evidence_unavailable",
+            "tolerance_bytes": GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES,
+        }
+    external_memory = max(
+        int(total_visible_vram_bytes) - int(free_vram_bytes) - int(process_reserved_bytes),
+        0,
+    )
+    return {
+        "status": "CONTENDED" if external_memory > GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES else "CLEAN",
+        "external_memory_bytes": external_memory,
+        "method": "torch_mem_get_info_minus_process_reserved",
+        "tolerance_bytes": GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES,
+    }
+
+
+def _generation_memory_evidence(
+    *,
+    cuda_available: bool,
+    error: str | None,
+    total_visible_vram_bytes: int | None,
+    free_vram_before_probe: int | None,
+    free_vram_after_probe: int | None,
+    peak_allocated_bytes: int | None,
+    peak_reserved_bytes: int | None,
+    memory_error: str | None = None,
+) -> dict[str, Any]:
+    """Return conservative per-candidate memory evidence and safety decision."""
+    required_headroom = _required_generation_memory_headroom(total_visible_vram_bytes)
+    if not cuda_available:
+        return {
+            "peak_allocated_bytes": None,
+            "peak_reserved_bytes": None,
+            "total_visible_vram_bytes": None,
+            "free_vram_before_probe": None,
+            "free_vram_after_probe": None,
+            "memory_headroom_bytes": None,
+            "required_memory_headroom_bytes": None,
+            "memory_safe": error is None,
+            "memory_error": None,
+        }
+
+    headroom_values = [
+        int(free_vram_after_probe)
+        if free_vram_after_probe is not None
+        else None,
+        int(total_visible_vram_bytes) - int(peak_reserved_bytes)
+        if total_visible_vram_bytes is not None and peak_reserved_bytes is not None
+        else None,
+    ]
+    valid_headroom = [value for value in headroom_values if value is not None]
+    memory_headroom = min(valid_headroom) if valid_headroom else None
+    memory_safe = bool(
+        error is None
+        and memory_error is None
+        and required_headroom is not None
+        and total_visible_vram_bytes is not None
+        and free_vram_before_probe is not None
+        and free_vram_after_probe is not None
+        and peak_allocated_bytes is not None
+        and peak_reserved_bytes is not None
+        and memory_headroom is not None
+        and memory_headroom >= required_headroom
+    )
+    return {
+        "peak_allocated_bytes": peak_allocated_bytes,
+        "peak_reserved_bytes": peak_reserved_bytes,
+        "total_visible_vram_bytes": total_visible_vram_bytes,
+        "free_vram_before_probe": free_vram_before_probe,
+        "free_vram_after_probe": free_vram_after_probe,
+        "memory_headroom_bytes": memory_headroom,
+        "required_memory_headroom_bytes": required_headroom,
+        "memory_safe": memory_safe,
+        "memory_error": memory_error,
+    }
+
+
+def _select_generation_profile_batch(
+    candidate_reports: list[dict[str, Any]],
+    *,
+    material_gain_threshold: float = GENERATION_PROFILE_MATERIAL_GAIN_THRESHOLD,
+) -> tuple[int, bool]:
+    """Select batches sequentially so a higher candidate cannot skip a rejected lower one."""
+    by_batch = {int(item["batch_size"]): item for item in candidate_reports}
+    baseline = by_batch.get(1)
+    baseline_throughput = float((baseline or {}).get("throughput_samples_per_second") or 0.0)
+
+    def accepted(item: Mapping[str, Any] | None) -> bool:
+        return bool(
+            item
+            and str(item.get("status", "")).upper() == "PASS"
+            and item.get("memory_safe") is True
+            and item.get("equivalent_to_batch_one") is True
+        )
+
+    def gain(current: Mapping[str, Any], previous_throughput: float) -> float | None:
+        if previous_throughput <= 0.0:
+            return None
+        return float(current.get("throughput_samples_per_second") or 0.0) / previous_throughput - 1.0
+
+    baseline_ok = accepted(baseline)
+    previous_accepted = baseline if baseline_ok else None
+    progression_open = baseline_ok
+    for item in candidate_reports:
+        batch_size = int(item["batch_size"])
+        item["throughput_gain_vs_batch_one"] = (
+            0.0 if batch_size == 1 and baseline_throughput > 0.0 else gain(item, baseline_throughput)
+        )
+        item["previous_accepted_batch_size"] = None
+        item["throughput_gain_vs_previous_accepted"] = None
+        if batch_size == 1:
+            item["materially_beneficial"] = False
+            item["accepted_for_selection"] = baseline_ok
+        else:
+            lower = previous_accepted if progression_open else None
+            if lower is not None:
+                lower_batch_size = int(lower["batch_size"])
+                lower_throughput = float(lower.get("throughput_samples_per_second") or 0.0)
+                item["previous_accepted_batch_size"] = lower_batch_size
+                item["throughput_gain_vs_previous_accepted"] = gain(item, lower_throughput)
+            current_gain = item["throughput_gain_vs_previous_accepted"]
+            materially_beneficial = bool(
+                accepted(item)
+                and lower is not None
+                and current_gain is not None
+                and current_gain >= material_gain_threshold
+            )
+            item["materially_beneficial"] = materially_beneficial
+            item["accepted_for_selection"] = materially_beneficial
+        if item["accepted_for_selection"]:
+            previous_accepted = item
+            progression_open = True
+        elif batch_size > 1:
+            previous_accepted = None
+            progression_open = False
+
+    selected = max(
+        (int(item["batch_size"]) for item in candidate_reports if item.get("accepted_for_selection")),
+        default=1,
+    )
+    return selected, baseline_ok
 
 
 def _unwrap_generation_profile(profile: Mapping[str, Any] | Sequence[Mapping[str, Any]] | None) -> Mapping[str, Any] | None:
@@ -104,6 +271,13 @@ def select_generation_batch_size(
                 raise GenerationPersistenceError("generation batch >1 requires an explicit passing generation profile")
             if not any(resolved.get(key) is True for key in ("profiled", "measured", "approved")):
                 raise GenerationPersistenceError("generation batch >1 requires profiled/approved evidence")
+            if resolved.get("approved") is not True:
+                raise GenerationPersistenceError("generation batch >1 requires approval-quality profile evidence")
+            contention_status = resolved.get("contention_status")
+            if contention_status is not None and str(contention_status).upper() != "CLEAN":
+                raise GenerationPersistenceError("generation batch >1 requires clean contention evidence")
+            if contention_status is None:
+                raise GenerationPersistenceError("generation batch >1 requires explicit contention evidence")
     elif selected > 1:
         raise GenerationPersistenceError("generation batch >1 requires an explicit passing generation profile")
     return selected
@@ -933,8 +1107,8 @@ class ReasoningGenerationExecutor:
         real generation path.  It writes no reasoning artifacts and therefore
         cannot promote a profiling result into scientific output.  Batch sizes
         above one are eligible only when their decoded rows are byte-for-byte
-        equivalent to batch-one output and their measured throughput is at
-        least five percent better.
+        equivalent to batch-one output and each accepted higher batch materially
+        improves throughput over the preceding accepted candidate.
         """
         if not self.fixture_mode and split != "dev":
             raise GenerationPersistenceError("production generation profiling is DEV-only")
@@ -966,7 +1140,47 @@ class ReasoningGenerationExecutor:
                     "total_bytes": int(total),
                 }
             except (RuntimeError, TypeError, ValueError) as exc:
-                return {"available": False, "reason": f"cuda_memory_query_failed:{type(exc).__name__}"}
+                return {
+                    "available": False,
+                    "reason": f"cuda_memory_query_failed:{type(exc).__name__}",
+                }
+
+        def contention_snapshot(memory: Mapping[str, Any]) -> dict[str, Any]:
+            if self.device.type != "cuda":
+                return {
+                    "status": "CLEAN",
+                    "external_memory_bytes": 0,
+                    "method": "not_applicable_non_cuda_profile",
+                }
+            if not memory.get("available"):
+                return {
+                    "status": "UNKNOWN",
+                    "external_memory_bytes": None,
+                    "method": "cuda_memory_query_unavailable",
+                }
+            try:
+                process_reserved = int(torch.cuda.memory_reserved(self.device))
+            except (RuntimeError, TypeError, ValueError) as exc:
+                return {
+                    "status": "UNKNOWN",
+                    "external_memory_bytes": None,
+                    "method": f"process_memory_query_failed:{type(exc).__name__}",
+                }
+            evidence = _classify_generation_contention(
+                total_visible_vram_bytes=int(memory["total_bytes"]),
+                free_vram_bytes=int(memory["free_bytes"]),
+                process_reserved_bytes=process_reserved,
+            )
+            evidence["process_reserved_bytes"] = process_reserved
+            return evidence
+
+        def merge_contention_status(observations: Iterable[Mapping[str, Any]]) -> str:
+            statuses = {str(item.get("status", "UNKNOWN")).upper() for item in observations}
+            if "CONTENDED" in statuses:
+                return "CONTENDED"
+            if "UNKNOWN" in statuses:
+                return "UNKNOWN"
+            return "CLEAN"
 
         def projection(generated: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
             return [
@@ -979,15 +1193,18 @@ class ReasoningGenerationExecutor:
 
         baseline_projection: list[dict[str, Any]] | None = None
         candidate_reports: list[dict[str, Any]] = []
+        contention_observations: list[dict[str, Any]] = []
         with reversible_inference_context(self.model):
             for candidate in candidates:
+                peak_memory_error: str | None = None
                 if self.device.type == "cuda":
                     try:
                         torch.cuda.empty_cache()
                         torch.cuda.reset_peak_memory_stats(self.device)
-                    except (RuntimeError, TypeError, ValueError):
-                        pass
+                    except (RuntimeError, TypeError, ValueError) as exc:
+                        peak_memory_error = f"peak_memory_reset_failed:{type(exc).__name__}"
                 before_memory = memory_snapshot()
+                before_contention = contention_snapshot(before_memory)
                 started = time.perf_counter()
                 generated: list[dict[str, Any]] = []
                 error: str | None = None
@@ -1000,12 +1217,22 @@ class ReasoningGenerationExecutor:
                     error = f"{type(exc).__name__}: {exc}"
                 elapsed = max(time.perf_counter() - started, 1e-9)
                 after_memory = memory_snapshot()
-                peak_allocated = None
+                after_contention = contention_snapshot(after_memory)
+                candidate_contention = merge_contention_status((before_contention, after_contention))
+                contention_observations.extend(
+                    [
+                        {"batch_size": candidate, "point": "before_probe", **before_contention},
+                        {"batch_size": candidate, "point": "after_probe", **after_contention},
+                    ]
+                )
+                peak_allocated: int | None = None
+                peak_reserved: int | None = None
                 if self.device.type == "cuda":
                     try:
                         peak_allocated = int(torch.cuda.max_memory_allocated(self.device))
-                    except (RuntimeError, TypeError, ValueError):
-                        peak_allocated = None
+                        peak_reserved = int(torch.cuda.max_memory_reserved(self.device))
+                    except (RuntimeError, TypeError, ValueError) as exc:
+                        peak_memory_error = peak_memory_error or f"peak_memory_read_failed:{type(exc).__name__}"
                 current_projection = projection(generated) if error is None else []
                 if candidate == 1 and error is None:
                     baseline_projection = current_projection
@@ -1014,10 +1241,17 @@ class ReasoningGenerationExecutor:
                     and baseline_projection is not None
                     and current_projection == baseline_projection
                 )
-                total_bytes = after_memory.get("total_bytes") or before_memory.get("total_bytes")
-                memory_safe = error is None
-                if total_bytes and peak_allocated is not None:
-                    memory_safe = memory_safe and peak_allocated <= int(float(total_bytes) * 0.90)
+                memory_error = peak_memory_error or before_memory.get("reason") or after_memory.get("reason")
+                memory_evidence = _generation_memory_evidence(
+                    cuda_available=self.device.type == "cuda",
+                    error=error,
+                    total_visible_vram_bytes=after_memory.get("total_bytes") or before_memory.get("total_bytes"),
+                    free_vram_before_probe=before_memory.get("free_bytes"),
+                    free_vram_after_probe=after_memory.get("free_bytes"),
+                    peak_allocated_bytes=peak_allocated,
+                    peak_reserved_bytes=peak_reserved,
+                    memory_error=memory_error,
+                )
                 throughput = float(len(sample) / elapsed) if error is None else 0.0
                 candidate_reports.append(
                     {
@@ -1025,42 +1259,49 @@ class ReasoningGenerationExecutor:
                         "status": "PASS" if error is None else "FAIL",
                         "error": error,
                         "elapsed_seconds": elapsed,
+                        "elapsed_time_seconds": elapsed,
                         "throughput_samples_per_second": throughput,
+                        "samples_per_second": throughput,
                         "output_sha256": sha256_json(current_projection) if error is None else None,
                         "equivalent_to_batch_one": equivalent,
-                        "memory_safe": memory_safe,
+                        "deterministic_equivalence": equivalent,
+                        "cuda_error": error if self.device.type == "cuda" else None,
+                        "contention_status": candidate_contention,
+                        "contention_evidence": {
+                            "before_probe": before_contention,
+                            "after_probe": after_contention,
+                        },
                         "memory_before": before_memory,
                         "memory_after": after_memory,
-                        "peak_allocated_bytes": peak_allocated,
+                        **memory_evidence,
                     }
                 )
 
-        baseline = next((item for item in candidate_reports if item["batch_size"] == 1), None)
-        baseline_throughput = float((baseline or {}).get("throughput_samples_per_second") or 0.0)
-        for item in candidate_reports:
-            item["materially_beneficial"] = bool(
-                item["status"] == "PASS"
-                and item["memory_safe"]
-                and item["equivalent_to_batch_one"]
-                and (item["batch_size"] == 1 or float(item["throughput_samples_per_second"]) >= baseline_throughput * 1.05)
-            )
-        eligible = [item for item in candidate_reports if item["materially_beneficial"]]
-        selected = max((int(item["batch_size"]) for item in eligible), default=1)
-        baseline_ok = bool(baseline and baseline["status"] == "PASS" and baseline["memory_safe"])
+        selected, baseline_ok = _select_generation_profile_batch(candidate_reports)
+        contention_status = merge_contention_status(contention_observations)
+        profile_status = "FAIL" if not baseline_ok else ("PASS" if contention_status == "CLEAN" else "BLOCKED")
         return {
-            "status": "PASS" if baseline_ok else "FAIL",
+            "status": profile_status,
             "profiled": True,
-            "approved": baseline_ok,
+            "approved": bool(baseline_ok and contention_status == "CLEAN"),
             "split": split,
             "sample_count": len(sample),
             "sample_ids_sha256": sha256_json(sample_ids),
             "input_record_digest": sha256_json([_canonical_generation_value(row) for row in sample]),
             "candidate_batch_sizes": list(candidates),
             "selected_batch_size": selected,
-            "selection_rule": "highest safe deterministic candidate with >=5% measured throughput gain over batch one",
+            "selection_rule": "batch 2 must beat batch 1 and batch 4 must beat the previous accepted candidate by >=5%; rejected lower candidates block higher candidates",
+            "material_gain_threshold": GENERATION_PROFILE_MATERIAL_GAIN_THRESHOLD,
             "deterministic_decoding": decoding_is_deterministic,
             "checkpoint_sha256": checkpoint_sha256,
             "variant_fingerprint": self.variant_fingerprint,
+            "contention_status": contention_status,
+            "contention_requires_clean": self.device.type == "cuda",
+            "contention_evidence": contention_observations,
+            "memory_headroom_rule": {
+                "minimum_bytes": GENERATION_PROFILE_MIN_HEADROOM_BYTES,
+                "visible_memory_fraction": GENERATION_PROFILE_HEADROOM_FRACTION,
+            },
             "candidate_results": candidate_reports,
         }
 
