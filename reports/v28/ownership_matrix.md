@@ -1,6 +1,6 @@
 # V28 ownership matrix
 
-The integrated source head is `acc6467864bcea299862f5b0e29c7247cef7afde`.
+The integrated source head is `168254eb5df094924a49f0363d2403af4c87b35c`; exact code-head CI run `31988858252` is green.
 The implementation Workers have completed their disjoint repair scopes. Existing builder
 worktrees remain preserved and are not concurrently edited.
 
@@ -19,7 +19,7 @@ worktrees remain preserved and are not concurrently edited.
 | Generation provenance repair | GENE-V28 | generation persistence/executor modules and generation tests | generation manifests and checkpoint contracts | canonical generation identity | SENTINEL-002 | CPU/mock | 6A | integrated; regressions pass |
 | Azure safety/cache repair | AZURE-V28 | Azure client/async judge/stage registry and Azure tests | request/retry/budget contracts | global Azure ceiling contract | SENTINEL-003/004 | CPU/mock | 6B | integrated; regressions pass |
 | Profile parity repair | PROFILE-V28 | NAACL profile validator/report/profile tests | Q2/Q3/YAML/JSON policy | profile exclusion contract | SENTINEL-005 | CPU/mock | 6C | integrated; regressions pass |
-| Exact-head evidence repair | Manager | V28 reports, convergence register, PR body | Sentinel findings, CI, PR metadata | exact-head evidence binding | SENTINEL-001 | read-only/CPU | 7 | refreshed; evidence push pending |
+| Exact-head evidence repair | Manager | V28 reports, convergence register, PR body | Sentinel findings, CI, PR metadata | exact-head evidence binding | SENTINEL-001 | read-only/CPU | 7 | source/CI evidence refreshed; live PR-head Sentinel pending |
 
 Workers may not write the same physical file concurrently. Any new finding
 will receive one explicit owner and a disjoint write scope before activation.

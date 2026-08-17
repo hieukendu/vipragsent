@@ -19,16 +19,17 @@ No production training/evaluation, real Azure request, Hugging Face mutation, mo
 - Generation chunk manifests now carry a versioned canonical contract covering source, code, model, tokenizer, checkpoint, config/protocol, dataset/data, split, record content/order, seed, system, and budget identity. Production resume fails closed on missing or changed identity.
 - Explanation-only runtime uses the same generation persistence boundary and binds its approved source/checkpoint/config/dataset identity into that contract; CPU fixture mode is explicit.
 - Async and synchronous Azure paths enforce finite logical-request, transport-attempt, input/output/total-token, concurrency, and verified-spend ceilings, with actual response usage checked before persistence.
+- Azure ceiling configuration rejects non-finite spend and non-integral integer limits; the synchronous cache validates embedded cache keys and request identity before reuse.
 - Retryable Azure transport failures are not reusable cache entries; bounded stage loops stop and mark remaining work after a safety ceiling.
 - The checked-in NAACL profile enforces parity between retained rows, exclusions, and the YAML policy.
 
 ## Validation and exact-head binding
 
-The Manager records the exact final PR head, current-head `cpu-ci` run, review state, and Sentinel result in `reports/v28/` after the final evidence push. The local source integration head for this repair wave is `acc6467864bcea299862f5b0e29c7247cef7afde`; the final PR head is the exact SHA reported by GitHub after the evidence commit.
+The source integration head is `168254eb5df094924a49f0363d2403af4c87b35c`. Exact code-head `cpu-ci` run `31988858252` (job `95268598734`) is green; the live PR head after this evidence refresh and the final Sentinel result must be verified from GitHub.
 
 Local validation on the integrated source tree:
 
-- **346 CPU/mock-only tests passed** (`not server`, `not gpu`, `not azure_live`, `not model_download`).
+- **389 CPU/mock-only tests passed** (`not server`, `not gpu`, `not azure_live`, `not model_download`), including **65 Azure/cache/ceiling regressions**.
 - Generation, explanation, Azure, and profile regression suites passed, including negative identity, actual-usage, retry/cache-recovery, and exclusion-parity cases.
 - `compileall`, Ruff, and `git diff --check` passed.
 

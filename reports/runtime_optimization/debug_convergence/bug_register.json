@@ -1,11 +1,11 @@
 {
   "schema_version": 3,
-  "as_of": "2026-08-17T01:01:06Z",
-  "manager_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
-  "reviewed_code_head": "PENDING_FINAL_EXACT_HEAD_SENTINEL",
-  "integrated_source_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
+  "as_of": "2026-08-17T02:50:00Z",
+  "manager_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "reviewed_code_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
   "prior_reviewed_code_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
-  "artifact_commit": "V28_FIX_WAVE_EVIDENCE_PENDING_PUSH",
+  "artifact_commit": "SOURCE_HEAD_168254E_REMOTE_CI_GREEN_FINAL_SENTINEL_PENDING",
   "artifact_head_semantics": "The integrated source head is recorded separately; the final exact PR head must be revalidated after the evidence push.",
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "pr": {
@@ -14,26 +14,27 @@
     "draft": false,
     "base": "main",
     "head": "codex/naacl-runtime-optimization",
-    "last_remote_ci_run": 31983563069,
-    "last_remote_ci_conclusion": "IN_PROGRESS",
-    "last_remote_ci_head_sha": "acc6467864bcea299862f5b0e29c7247cef7afde",
-    "last_remote_ci_is_stale": true,
-    "fresh_remote_ci_required": true
+    "last_remote_ci_run": 31988858252,
+    "last_remote_ci_conclusion": "SUCCESS",
+    "last_remote_ci_head_sha": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "last_remote_ci_is_stale": false,
+    "fresh_remote_ci_required": false
   },
   "review_status": "PENDING",
   "final_gate_status": "OPEN_PENDING_EXACT_HEAD_REVIEW",
   "last_remote_ci": {
-    "run_id": 31983563069,
+    "run_id": 31988858252,
     "workflow": "cpu-ci",
-    "head_sha": "acc6467864bcea299862f5b0e29c7247cef7afde",
-    "status": "in_progress",
-    "conclusion": null,
-    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31983563069"
+    "head_sha": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "status": "completed",
+    "conclusion": "success",
+    "job_id": 95268598734,
+    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31988858252"
   },
   "evidence": {
-    "fresh_remote_ci": "IN_PROGRESS; cpu-ci run 31983563069",
-    "fresh_remote_ci_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
-    "fresh_exact_head_sentinel": "PENDING_AFTER_EVIDENCE_PUSH",
+    "fresh_remote_ci": "SUCCESS; cpu-ci run 31988858252",
+    "fresh_remote_ci_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "fresh_exact_head_sentinel": "PENDING_FINAL_EXACT_HEAD_SENTINEL",
     "sentinel_report": "reports/v28/final_sentinel_review.json",
     "final_runtime_integration_audit": "PASS",
     "final_readiness_consistency": "PASS"
@@ -386,7 +387,7 @@
       "symptoms": "Committed generation rows were reused by sample_id without complete identity validation.",
       "root_cause": "Generation chunk manifests lacked canonical source/model/checkpoint/config/data/record provenance.",
       "regression_test": "changed identity and record-order negative cases",
-      "closure_reason": "Integrated in acc6467864bcea299862f5b0e29c7247cef7afde; targeted negatives pass; pending exact-head Sentinel re-review."
+      "closure_reason": "Integrated in 168254e; targeted negatives pass; pending exact-head Sentinel re-review."
     },
     {
       "bug_id": "SENTINEL-003",
@@ -399,7 +400,7 @@
       "symptoms": "Production Azure loops lacked enforceable global request/attempt/token/concurrency/spend ceilings and accepted oversized actual usage.",
       "root_cause": "Only per-request or estimated prompt-token limits were enforced.",
       "regression_test": "global budget preflight and actual-usage overrun negatives",
-      "closure_reason": "Integrated in a9f0159, fc53143, bc64fd9, and acc6467; actual-usage and global-ceiling regressions pass; pending exact-head Sentinel re-review."
+      "closure_reason": "Integrated in a9f0159, fc53143, bc64fd9, and 168254e; actual-usage, finite-ceiling, and global-ceiling regressions pass; pending exact-head Sentinel re-review."
     },
     {
       "bug_id": "SENTINEL-004",
@@ -426,6 +427,32 @@
       "root_cause": "Profile validator did not enforce report exclusion parity with source policy.",
       "regression_test": "contradictory-report negative case and exact-profile positive case",
       "closure_reason": "Integrated in a9f0159; exact profile parity regressions pass; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "F-002",
+      "severity": "HIGH",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "Azure safety configuration",
+      "assigned_worker": "DARWIN",
+      "fix_branch": "codex/naacl-runtime-optimization",
+      "files": ["src/vipragsent/azure/client.py", "src/vipragsent/azure/async_judge.py"],
+      "symptoms": "NaN/Inf spend ceilings and non-integral integer ceilings were accepted.",
+      "root_cause": "Ceiling validation only compared values after permissive coercion and did not require finite spend values.",
+      "regression_test": "direct and mapping/config finite-spend and strict-integer negatives",
+      "closure_reason": "Fixed in 168254e; sync and async Azure ceiling regressions pass; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "F-003",
+      "severity": "MEDIUM",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "synchronous Azure cache identity",
+      "assigned_worker": "DARWIN",
+      "fix_branch": "codex/naacl-runtime-optimization",
+      "files": ["src/vipragsent/azure/client.py"],
+      "symptoms": "A cache file at the requested path could be reused despite an embedded key or request-identity mismatch.",
+      "root_cause": "AzureCache.get checked the path and model/version but not the persisted cache key and request identity.",
+      "regression_test": "embedded-key poisoning and prompt/schema/input/deployment identity negatives",
+      "closure_reason": "Fixed in 168254e; sync cache poisoning and identity regressions pass; pending exact-head Sentinel re-review."
     }
   ],
   "review_history": [
@@ -511,15 +538,16 @@
   ],
   "closure_summary": {
     "open_critical": 0,
-    "open_high": 3,
-    "open_medium": 2,
+    "open_high": 4,
+    "open_medium": 3,
     "open_low": 0,
     "code_findings_closed": "PENDING_SENTINEL_REVIEW",
     "report_findings_closed": "PENDING_SENTINEL_REVIEW",
     "remote_ci_gate_open": true
   },
   "local_evidence": {
-    "broad_cpu_mock_only": "346 passed",
+    "broad_cpu_mock_only": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
     "targeted_approval_source_suite": "PASS; impacted generation/explanation/Azure/profile suites",
     "fixture_dag": "PASS",
     "execution_registry": "PASS",

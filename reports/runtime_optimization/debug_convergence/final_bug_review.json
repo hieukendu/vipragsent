@@ -2,10 +2,11 @@
   "schema_version": 3,
   "spec_version": "V28",
   "spec_sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
-  "status": "PENDING_FINAL_EXACT_HEAD_SENTINEL",
+  "status": "EVIDENCE_REFRESHED_PENDING_FINAL_EXACT_HEAD_SENTINEL",
   "reviewer": "Kant",
   "reviewed_base": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
-  "integrated_source_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
+  "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "reviewed_code_head": "168254eb5df094924a49f0363d2403af4c87b35c",
   "prior_exact_head_review": "0430fbd57e881346e139385f2ee409beb56ccf2a",
   "scope": "V28 finding-driven convergence after SENTINEL-001 through SENTINEL-005",
   "resolved_findings_pending_independent_recheck": [
@@ -16,7 +17,8 @@
     "SENTINEL-005"
   ],
   "local_checks": {
-    "broad_cpu_mock_only": "346 passed",
+    "broad_cpu_mock_only": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
     "generation_explanation_azure_profile_regressions": "PASS",
     "compileall": "PASS",
     "ruff": "PASS",
@@ -24,8 +26,12 @@
   },
   "remote_ci": {
     "required": true,
-    "head_sha": "PENDING_EVIDENCE_PUSH",
-    "status": "PENDING"
+    "head_sha": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "run_id": 31988858252,
+    "job_id": 95268598734,
+    "status": "COMPLETED",
+    "conclusion": "SUCCESS",
+    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31988858252"
   },
   "production_actions_taken": false,
   "pr_was_not_merged": true,
