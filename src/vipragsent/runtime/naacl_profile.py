@@ -234,6 +234,8 @@ def _protocol_binding(
         for item in config.get("exclusions", [])
         if isinstance(item, dict) and "q3_system" in item
     ]
+    if excluded_systems != ["xlmr_pragmatic_finetune"]:
+        errors.append("Q3 excluded system policy drift")
     if "xlmr_pragmatic_finetune" not in excluded_systems:
         errors.append("XLM-R Q3 exclusion is missing")
     if "xlmr_pragmatic_finetune" in retained_systems:
@@ -274,10 +276,10 @@ def _protocol_binding(
         if isinstance(item, dict) and "q3_budget" in item
     ]
     required_excluded_budgets = ["64", "256"]
+    if excluded_budgets != required_excluded_budgets:
+        errors.append("Q3 excluded budget policy drift")
     if set(required_excluded_budgets) - set(source_budgets):
         errors.append("Q3 protocol source is missing budget 64 or 256")
-    if set(excluded_budgets) != set(required_excluded_budgets):
-        errors.append("Q3 excluded budget policy drift")
     expected_retained_budgets = [budget for budget in source_budgets if budget not in required_excluded_budgets]
     if set(retained_budgets) != set(expected_retained_budgets):
         errors.append(
@@ -665,6 +667,25 @@ def validate_naacl_profile(root: str | Path = ".") -> dict[str, Any]:
         errors.append("checked-in Q3/Q2 protocol binding differs from source")
     report_q3 = report.get("q3", {})
     expected_q3 = snapshot["protocol_binding"]["q3"]
+    report_exclusions = report.get("exclusions", {})
+    report_excluded_systems = _normalise_tokens(report_exclusions.get("q3_systems"))
+    report_excluded_budgets = _normalise_tokens(report_exclusions.get("q3_budgets"))
+    if report_excluded_systems != expected_q3["excluded_systems"]:
+        errors.append(
+            "checked-in report Q3 excluded system parity drift: "
+            f"report={report_excluded_systems}, policy={expected_q3['excluded_systems']}"
+        )
+    if report_excluded_budgets != expected_q3["excluded_budgets"]:
+        errors.append(
+            "checked-in report Q3 excluded budget parity drift: "
+            f"report={report_excluded_budgets}, policy={expected_q3['excluded_budgets']}"
+        )
+    if "xlmr_pragmatic_finetune" not in report_excluded_systems:
+        errors.append("checked-in report is missing required XLM-R Q3 exclusion")
+    if {"64", "256"} - set(report_excluded_budgets):
+        errors.append("checked-in report is missing required Q3 budget exclusion")
+    if Q3_AZURE_SYSTEM in report_excluded_systems:
+        errors.append("checked-in report excludes retained Azure Q3 comparison")
     if {
         "systems": report_q3.get("systems"),
         "budgets": [str(value) for value in report_q3.get("budgets", [])],
