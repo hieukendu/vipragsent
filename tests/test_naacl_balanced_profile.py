@@ -163,6 +163,25 @@ def test_checked_in_report_validates_and_real_execution_parity_is_unambiguous() 
     assert report["exclusions"]["real_execution"] == "PROHIBITED"
 
 
+def test_checked_in_report_has_exact_q3_exclusion_policy() -> None:
+    report = json.loads(REPORT.read_text(encoding="utf-8"))
+    assert report["exclusions"]["q3_systems"] == ["xlmr_pragmatic_finetune"]
+    assert report["exclusions"]["q3_budgets"] == [64, 256]
+    assert report["q3"]["azure_comparison"]["system_id"] == "azure_gpt41_mini_8shot"
+    assert "azure_gpt41_mini_8shot" not in report["exclusions"]["q3_systems"]
+    validate_naacl_profile(ROOT)
+
+
+def test_validator_fails_closed_on_contradictory_report_azure_exclusion(tmp_path: Path) -> None:
+    _copy_profile_tree(tmp_path)
+    report_path = tmp_path / "reports/runtime_optimization/naacl_balanced_profile.json"
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    report["exclusions"]["q3_systems"].append("azure_gpt41_mini_8shot")
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    with pytest.raises(ProfileValidationError, match="report Q3 excluded system parity drift|excludes retained Azure"):
+        validate_naacl_profile(tmp_path)
+
+
 def test_validator_fails_closed_on_binding_drift(tmp_path: Path) -> None:
     _copy_profile_tree(tmp_path)
     report_path = tmp_path / "reports/runtime_optimization/naacl_balanced_profile.json"
