@@ -26,6 +26,7 @@ from ..constants import PRAGMATIC_LABELS
 from ..evaluation.reasoning_judge import load_reasoning_protocol, validate_judge_labels
 from ..hashing import sha256_json
 from ..profiling import azure_successful_usage_cost
+from .client import AzureSafetyLedger, AzureSafetyLedgerState
 
 JUDGE_LABELS = tuple(PRAGMATIC_LABELS)
 LOCKED_MODEL = "gpt-4.1-mini"
@@ -57,6 +58,11 @@ class JudgeSemanticError(ValueError):
 
 class BudgetExhausted(RuntimeError):
     """Raised internally when a finite request/token budget is exhausted."""
+
+    def __init__(self, message: str, *, stop_reason: str | None = None, telemetry: Mapping[str, Any] | None = None) -> None:
+        super().__init__(message)
+        self.stop_reason = stop_reason
+        self.telemetry = dict(telemetry or {})
 
 
 class QuotaExceeded(RuntimeError):
@@ -135,12 +141,35 @@ class RetryPolicy:
     maximum_total_attempts: int = LOCKED_MAX_ATTEMPTS
     maximum_delay_seconds: float = 60.0
     fallback_delays_seconds: tuple[float, ...] = (2.0, 4.0, 8.0, 16.0)
+    max_retry_per_request: int | None = None
+    max_retries_per_request: int | None = None
 
     def __post_init__(self) -> None:
         if not 1 <= self.maximum_total_attempts <= LOCKED_MAX_ATTEMPTS:
             raise ValueError("maximum_total_attempts must be between 1 and the locked five attempts")
         if self.maximum_delay_seconds < 0 or any(delay < 0 for delay in self.fallback_delays_seconds):
             raise ValueError("retry delays must be non-negative")
+        for value in (self.max_retry_per_request, self.max_retries_per_request):
+            if value is not None and (isinstance(value, bool) or int(value) < 0):
+                raise ValueError("per-request retry ceilings must be non-negative")
+
+    @property
+    def retry_ceiling(self) -> int:
+        values = [self.maximum_total_attempts - 1]
+        if self.max_retry_per_request is not None:
+            values.append(int(self.max_retry_per_request))
+        if self.max_retries_per_request is not None:
+            values.append(int(self.max_retries_per_request))
+        return max(0, min(values))
+
+    @classmethod
+    def from_mapping(cls, value: Mapping[str, Any] | None) -> RetryPolicy:
+        if not value:
+            return cls()
+        payload = dict(value)
+        if "max_retries_per_request" in payload and "max_retry_per_request" not in payload:
+            payload["max_retry_per_request"] = payload["max_retries_per_request"]
+        return cls(**{field: payload[field] for field in cls.__dataclass_fields__ if field in payload})
 
 
 @dataclass(frozen=True, slots=True)
@@ -170,7 +199,9 @@ class BudgetConfig:
     max_total_tokens: int = 50_000_000
     max_concurrency: int = 32
     max_verified_spend_usd: float = 100.0
-    allow_unknown_spend: bool = True
+    allow_unknown_spend: bool = False
+    max_retry_per_request: int = LOCKED_MAX_ATTEMPTS - 1
+    max_retries_per_request: int | None = None
 
     def __post_init__(self) -> None:
         if any(isinstance(value, bool) or int(value) <= 0 for value in (self.max_logical_items, self.max_requests, self.max_tokens, self.max_input_tokens, self.max_output_tokens, self.max_concurrency)):
@@ -179,10 +210,29 @@ class BudgetConfig:
             raise ValueError("max_total_tokens must be positive")
         if self.max_verified_spend_usd < 0:
             raise ValueError("max_verified_spend_usd must be non-negative")
+        for value in (self.max_retry_per_request, self.max_retries_per_request):
+            if value is not None and (isinstance(value, bool) or int(value) < 0):
+                raise ValueError("per-request retry ceilings must be non-negative")
 
     @property
     def total_token_limit(self) -> int:
         return min(self.max_tokens, self.max_total_tokens)
+
+    @property
+    def retry_ceiling(self) -> int:
+        values = [int(self.max_retry_per_request)]
+        if self.max_retries_per_request is not None:
+            values.append(int(self.max_retries_per_request))
+        return min(values)
+
+    @classmethod
+    def from_mapping(cls, value: Mapping[str, Any] | None) -> BudgetConfig:
+        if not value:
+            return cls()
+        payload = dict(value)
+        if "max_retries_per_request" in payload and "max_retry_per_request" not in payload:
+            payload["max_retry_per_request"] = payload["max_retries_per_request"]
+        return cls(**{field: payload[field] for field in cls.__dataclass_fields__ if field in payload})
 
 
 @dataclass(frozen=True, slots=True)
@@ -226,7 +276,7 @@ class JudgeResult:
 class JudgeRunReport:
     results: tuple[JudgeResult, ...]
     final_rows: tuple[dict[str, Any], ...]
-    telemetry: dict[str, int | float]
+    telemetry: dict[str, Any]
     stopped_reason: str | None = None
 
 
@@ -411,10 +461,41 @@ class _BudgetLedger:
     unknown_spend_count: int = 0
     reserved_input: int = 0
     reserved_output: int = 0
+    cancelled_requests: int = 0
+    safety_state: AzureSafetyLedgerState = field(default_factory=AzureSafetyLedgerState)
     lock: asyncio.Lock = field(default_factory=asyncio.Lock)
+
+    @property
+    def stop_reason(self) -> str | None:
+        return self.safety_state.final_stop_reason
+
+    def telemetry(self) -> dict[str, Any]:
+        return {
+            "input_tokens": self.input_tokens,
+            "output_tokens": self.output_tokens,
+            "total_tokens": self.total_tokens,
+            "verified_spend_usd": self.verified_spend_usd,
+            "unknown_spend_count": self.unknown_spend_count,
+            "cancelled_requests": self.cancelled_requests,
+            **self.safety_state.snapshot(),
+        }
+
+    def _budget_error(self, message: str) -> BudgetExhausted:
+        return BudgetExhausted(message, stop_reason=self.stop_reason, telemetry=self.telemetry())
+
+    def _stop_for_admission(self, reason: str) -> None:
+        self.safety_state.stop(reason)
+
+    def _trip_for_unknown_usage(self) -> None:
+        self.safety_state.trip("unknown_usage", details={"message": "actual usage has unknown spend"})
+
+    def _trip_for_overrun(self, reason: str, details: Mapping[str, Any]) -> None:
+        self.safety_state.trip(reason, details=details, overrun=True)
 
     async def reserve_logical(self) -> bool:
         async with self.lock:
+            if self.stop_reason is not None:
+                return False
             if self.logical_items >= self.config.max_logical_items:
                 return False
             self.logical_items += 1
@@ -422,15 +503,21 @@ class _BudgetLedger:
 
     async def reserve_request(self, estimated_tokens: int, output_ceiling: int) -> _RequestReservation | None:
         async with self.lock:
+            if self.stop_reason is not None:
+                return None
             estimate = max(0, int(estimated_tokens))
             output = max(0, int(output_ceiling))
             if self.requests >= self.config.max_requests:
+                self._stop_for_admission("request_or_token_budget_exhausted")
                 return None
             if self.input_tokens + self.reserved_input + estimate > self.config.max_input_tokens:
+                self._stop_for_admission("request_or_token_budget_exhausted")
                 return None
             if self.output_tokens + self.reserved_output + output > self.config.max_output_tokens:
+                self._stop_for_admission("request_or_token_budget_exhausted")
                 return None
             if self.total_tokens + self.reserved_input + self.reserved_output + estimate + output > self.config.total_token_limit:
+                self._stop_for_admission("request_or_token_budget_exhausted")
                 return None
             self.requests += 1
             self.reserved_input += estimate
@@ -441,6 +528,7 @@ class _BudgetLedger:
         async with self.lock:
             self.reserved_input = max(0, self.reserved_input - reservation.input_estimate)
             self.reserved_output = max(0, self.reserved_output - reservation.output_ceiling)
+            self.cancelled_requests += 1
 
     async def commit_request(self, reservation: _RequestReservation, usage: Mapping[str, Any]) -> str:
         cost = azure_successful_usage_cost(usage)
@@ -449,23 +537,38 @@ class _BudgetLedger:
         async with self.lock:
             self.reserved_input = max(0, self.reserved_input - reservation.input_estimate)
             self.reserved_output = max(0, self.reserved_output - reservation.output_ceiling)
+            if self.safety_state.tripped or self.safety_state.cancelled:
+                raise self._budget_error(f"Azure safety ledger stopped: {self.stop_reason or 'safety_ledger_stopped'}")
             if input_tokens is None or output_tokens is None or cost.get("request_cost_usd") is None:
                 self.unknown_spend_count += 1
                 if not self.config.allow_unknown_spend:
-                    raise BudgetExhausted("actual usage has unknown spend")
+                    self._trip_for_unknown_usage()
+                    raise self._budget_error("actual usage has unknown spend")
+                # An explicit diagnostic/fixture opt-in still debits the
+                # entire reservation so omitted usage cannot bypass token
+                # ceilings.
+                input_tokens = reservation.input_estimate
+                output_tokens = reservation.output_ceiling
+                self.input_tokens += input_tokens
+                self.output_tokens += output_tokens
+                self.total_tokens += input_tokens + output_tokens
                 return "UNKNOWN"
             input_tokens = int(input_tokens)
             output_tokens = int(output_tokens)
             total_tokens = input_tokens + output_tokens
             if self.input_tokens + input_tokens > self.config.max_input_tokens:
-                raise BudgetExhausted("actual input tokens exceed budget")
+                self._trip_for_overrun("actual_input_token_ceiling_exceeded", {"message": "actual input tokens exceed budget", "input_tokens": input_tokens})
+                raise self._budget_error("actual input tokens exceed budget")
             if self.output_tokens + output_tokens > self.config.max_output_tokens:
-                raise BudgetExhausted("actual output tokens exceed budget")
+                self._trip_for_overrun("actual_output_token_ceiling_exceeded", {"message": "actual output tokens exceed budget", "output_tokens": output_tokens})
+                raise self._budget_error("actual output tokens exceed budget")
             if self.total_tokens + total_tokens > self.config.total_token_limit:
-                raise BudgetExhausted("actual total tokens exceed budget")
+                self._trip_for_overrun("actual_total_token_ceiling_exceeded", {"message": "actual total tokens exceed budget", "total_tokens": total_tokens})
+                raise self._budget_error("actual total tokens exceed budget")
             spend = float(cost["request_cost_usd"])
             if self.verified_spend_usd + spend > self.config.max_verified_spend_usd:
-                raise BudgetExhausted("actual verified spend exceeds budget")
+                self._trip_for_overrun("actual_verified_spend_ceiling_exceeded", {"message": "actual verified spend exceeds budget", "spend_usd": spend})
+                raise self._budget_error("actual verified spend exceeds budget")
             self.input_tokens += input_tokens
             self.output_tokens += output_tokens
             self.total_tokens += total_tokens
@@ -485,8 +588,11 @@ class AsyncJudgePipeline:
         max_inflight: int = 4,
         max_committed_unjudged: int = 16,
         quota: QuotaConfig | None = None,
-        retry: RetryPolicy | None = None,
-        budget: BudgetConfig | None = None,
+        retry: RetryPolicy | Mapping[str, Any] | None = None,
+        budget: BudgetConfig | Mapping[str, Any] | None = None,
+        max_retry_per_request: int | None = None,
+        safety_ledger: AzureSafetyLedger | AzureSafetyLedgerState | None = None,
+        safety_state: AzureSafetyLedgerState | None = None,
         sleep: Callable[[float], Awaitable[None] | None] = asyncio.sleep,
         clock: Callable[[], float] = time.monotonic,
         token_estimator: Callable[[str], int] | None = None,
@@ -515,8 +621,25 @@ class AsyncJudgePipeline:
         self.max_inflight = max_inflight
         self.max_committed_unjudged = max_committed_unjudged
         self.quota = _QuotaLimiter(quota or QuotaConfig(), clock=clock, sleep=sleep)
-        self.retry = retry or RetryPolicy()
-        self.budget = budget or BudgetConfig()
+        self.retry = RetryPolicy.from_mapping(retry) if isinstance(retry, Mapping) else (retry or RetryPolicy())
+        self.budget = BudgetConfig.from_mapping(budget) if isinstance(budget, Mapping) else (budget or BudgetConfig())
+        retry_ceiling = min(self.retry.retry_ceiling, self.budget.retry_ceiling)
+        if max_retry_per_request is not None:
+            if isinstance(max_retry_per_request, bool) or max_retry_per_request < 0:
+                raise ValueError("max_retry_per_request must be non-negative")
+            retry_ceiling = min(retry_ceiling, int(max_retry_per_request))
+        available_attempts = self.budget.max_requests
+        if available_attempts > 1:
+            available_attempts -= 1
+        retry_ceiling = min(retry_ceiling, max(0, available_attempts - 1))
+        self._retry_ceiling = retry_ceiling
+        if safety_ledger is not None and safety_state is not None:
+            raise ValueError("pass either safety_ledger or safety_state, not both")
+        if isinstance(safety_ledger, AzureSafetyLedger):
+            safety_state = safety_ledger.state
+        elif isinstance(safety_ledger, AzureSafetyLedgerState):
+            safety_state = safety_ledger
+        self.safety_state = safety_state or AzureSafetyLedgerState()
         self.sleep = sleep
         self.clock = clock
         self.token_estimator = token_estimator or (lambda text: max(1, len(text.split())))
@@ -524,6 +647,13 @@ class AsyncJudgePipeline:
         self._key_locks: dict[str, asyncio.Lock] = {}
         self._key_lock_users: dict[str, int] = {}
         self._key_locks_guard = asyncio.Lock()
+
+    @property
+    def safety_telemetry(self) -> dict[str, Any]:
+        return self.safety_state.snapshot()
+
+    def cancel(self, reason: str = "safety_ledger_cancelled") -> None:
+        self.safety_state.cancel(reason)
 
     @property
     def judge_identity(self) -> str:
@@ -620,10 +750,11 @@ class AsyncJudgePipeline:
             spend_status = "UNKNOWN"
             last_error: Exception | None = None
             payload = self._payload(prompt)
-            for attempt in range(self.retry.maximum_total_attempts):
+            maximum_attempts = 1 + self._retry_ceiling
+            for attempt in range(maximum_attempts):
                 reservation = await ledger.reserve_request(estimated_tokens, int(payload["max_output_tokens"]))
                 if reservation is None:
-                    return JudgeResult(ordinal, commit.identity, "failed", False, None, False, attempts, retries, "request_or_token_budget_exhausted", input_tokens, output_tokens, quota_wait)
+                    return JudgeResult(ordinal, commit.identity, "failed", False, None, False, attempts, retries, ledger.stop_reason or "request_or_token_budget_exhausted", input_tokens, output_tokens, quota_wait, spend_status)
                 try:
                     quota_wait += await self.quota.acquire(estimated_tokens)
                     response = await self._invoke(payload)
@@ -650,7 +781,7 @@ class AsyncJudgePipeline:
                     # over-budget response, even when the estimate admitted it.
                     reservation = None
                     attempts = max(attempts, 1)
-                    return JudgeResult(ordinal, commit.identity, "failed", False, None, False, attempts, retries, str(exc), input_tokens, output_tokens, quota_wait)
+                    return JudgeResult(ordinal, commit.identity, "failed", False, None, False, attempts, retries, str(exc), input_tokens, output_tokens, quota_wait, spend_status)
                 except QuotaExceeded as exc:
                     await ledger.cancel_request(reservation)
                     reservation = None
@@ -660,7 +791,7 @@ class AsyncJudgePipeline:
                     reservation = None
                     attempts = max(attempts, 1)
                     last_error = exc
-                    if not _retryable(exc) or attempt + 1 >= self.retry.maximum_total_attempts:
+                    if not _retryable(exc) or attempt + 1 >= maximum_attempts:
                         break
                     retries += 1
                     delay = _retry_after_from_exception(exc)
@@ -674,8 +805,8 @@ class AsyncJudgePipeline:
             return JudgeResult(ordinal, commit.identity, "failed", False, None, False, attempts, retries, reason, input_tokens, output_tokens, quota_wait)
 
     @staticmethod
-    def _budget_result(ordinal: int, commit: JudgeCommit) -> JudgeResult:
-        return JudgeResult(ordinal, commit.identity, "failed", False, None, False, 0, 0, "logical_budget_exhausted", 0, 0)
+    def _budget_result(ordinal: int, commit: JudgeCommit, reason: str = "logical_budget_exhausted") -> JudgeResult:
+        return JudgeResult(ordinal, commit.identity, "failed", False, None, False, 0, 0, reason, 0, 0)
 
     async def run(self, commits: Iterable[JudgeCommit] | AsyncIterable[JudgeCommit]) -> JudgeRunReport:
         """Consume commits with bounded queue/inflight state and deterministic merge."""
@@ -683,7 +814,7 @@ class AsyncJudgePipeline:
         queue: asyncio.Queue[tuple[int, JudgeCommit] | None] = asyncio.Queue(maxsize=self.max_committed_unjudged)
         result_queue: asyncio.Queue[JudgeResult | None] = asyncio.Queue(maxsize=self.max_committed_unjudged)
         slots = asyncio.Semaphore(self.max_committed_unjudged)
-        ledger = _BudgetLedger(self.budget)
+        ledger = _BudgetLedger(self.budget, safety_state=self.safety_state)
         submitted: list[JudgeCommit] = []
         results: dict[int, JudgeResult] = {}
         latest: dict[tuple[str, str, str], str] = {}
@@ -701,8 +832,8 @@ class AsyncJudgePipeline:
                 key = (commit.run_id, commit.split, commit.sample_id)
                 latest[key] = commit.identity_hash
                 if not await ledger.reserve_logical():
-                    stopped_reason = stopped_reason or "logical_budget_exhausted"
-                    results[ordinal] = self._budget_result(ordinal, commit)
+                    stopped_reason = stopped_reason or ledger.stop_reason or "logical_budget_exhausted"
+                    results[ordinal] = self._budget_result(ordinal, commit, stopped_reason)
                     if slot_owned:
                         slots.release()
                     ordinal += 1
@@ -737,7 +868,7 @@ class AsyncJudgePipeline:
                         except StopIteration:
                             break
                         submitted.append(remainder)
-                        results[ordinal] = self._budget_result(ordinal, remainder)
+                        results[ordinal] = self._budget_result(ordinal, remainder, stopped_reason or "logical_budget_exhausted")
                         ordinal += 1
                         continue
                     await slots.acquire()
@@ -803,7 +934,7 @@ class AsyncJudgePipeline:
             slot = (result.identity["run_id"], result.identity["split"], result.identity["sample_id"])
             merged[slot] = result
         final_results = tuple(sorted(merged.values(), key=lambda item: item.ordinal))
-        telemetry: dict[str, int | float] = {
+        telemetry: dict[str, Any] = {
             "logical_items": len(submitted),
             "cache_hits": sum(int(item.cache_hit) for item in ordered),
             "cache_misses": sum(int(not item.cache_hit) for item in ordered if item.failure_reason != "logical_budget_exhausted"),
@@ -815,11 +946,37 @@ class AsyncJudgePipeline:
             "stale_result_count": sum(int(item.status == "stale") for item in ordered),
             "quota_wait_seconds": sum(item.quota_wait_seconds for item in ordered),
         }
+        if ledger.safety_state.tripped or ledger.safety_state.cancelled:
+            stopped_reason = ledger.stop_reason
+        elif stopped_reason is None and ledger.stop_reason is not None:
+            stopped_reason = ledger.stop_reason
         if stopped_reason is None:
             if any(item.failure_reason == "request_or_token_budget_exhausted" for item in ordered):
                 stopped_reason = "request_or_token_budget_exhausted"
             elif any(item.failure_reason == "quota wait exceeded maximum_wait_seconds" for item in ordered):
                 stopped_reason = "quota_exhausted"
+        safety_telemetry = ledger.telemetry()
+        if safety_telemetry["safety_stop_reason"] is not None or safety_telemetry["unknown_spend_count"]:
+            telemetry.update({
+                "safety_tripped": safety_telemetry["safety_tripped"],
+                "safety_cancelled": safety_telemetry["safety_cancelled"],
+                "safety_stop_reason": safety_telemetry["safety_stop_reason"],
+                "safety_overrun_count": safety_telemetry["safety_overrun_count"],
+                "safety_overrun_reason": safety_telemetry["safety_overrun_reason"],
+                "safety_overrun": safety_telemetry["safety_overrun"],
+                "tripped": safety_telemetry["tripped"],
+                "cancelled": safety_telemetry["cancelled"],
+                "stop_reason": safety_telemetry["stop_reason"],
+                "overrun_count": safety_telemetry["overrun_count"],
+                "overrun_reason": safety_telemetry["overrun_reason"],
+                "overrun": safety_telemetry["safety_overrun"],
+                "unknown_spend_count": safety_telemetry["unknown_spend_count"],
+                "cancelled_requests": safety_telemetry["cancelled_requests"],
+                "accounted_input_tokens": safety_telemetry["input_tokens"],
+                "accounted_output_tokens": safety_telemetry["output_tokens"],
+                "accounted_total_tokens": safety_telemetry["total_tokens"],
+                "verified_spend_usd": safety_telemetry["verified_spend_usd"],
+            })
         rows = tuple(item.as_row() for item in final_results)
         if self.aggregate_finalizer is not None:
             await _maybe_await(self.aggregate_finalizer(rows, telemetry))

@@ -76,6 +76,115 @@ class AzureStructuredOutputError(ValueError):
 class AzureSafetyBudgetError(RuntimeError):
     """A finite Azure safety ceiling rejected a request or its actual usage."""
 
+    def __init__(
+        self,
+        message: str,
+        *,
+        stop_reason: str | None = None,
+        telemetry: Mapping[str, Any] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.stop_reason = stop_reason
+        self.telemetry = dict(telemetry or {})
+
+
+class AzureSafetyLedgerState:
+    """Thread-safe stop state shared by synchronous and asynchronous Azure use.
+
+    Token and spend ceilings are safety boundaries, not recoverable request
+    failures.  Once an actual response crosses one, this state latches and
+    every later admission is rejected.  A caller can also cancel the state
+    explicitly; cancellation never overwrites an earlier overrun reason.
+    """
+
+    def __init__(self) -> None:
+        self.tripped = False
+        self.cancelled = False
+        self.stop_reason: str | None = None
+        self.overrun_count = 0
+        self.overrun_reason: str | None = None
+        self.overrun: dict[str, Any] | None = None
+        self._lock = threading.RLock()
+
+    @property
+    def stopped(self) -> bool:
+        with self._lock:
+            return self.tripped or self.cancelled or self.stop_reason is not None
+
+    @property
+    def is_tripped(self) -> bool:
+        return self.tripped
+
+    @property
+    def is_cancelled(self) -> bool:
+        return self.cancelled
+
+    @property
+    def final_stop_reason(self) -> str | None:
+        with self._lock:
+            return self.stop_reason
+
+    def trip(self, reason: str, *, details: Mapping[str, Any] | None = None, overrun: bool = False) -> bool:
+        """Latch the first safety stop and return whether this call won."""
+
+        with self._lock:
+            if self.tripped or self.cancelled:
+                return False
+            # A non-overrun admission stop may already have been observed by
+            # a producer while an admitted request is still in flight.  An
+            # actual usage overrun upgrades that provisional stop to the
+            # authoritative latched reason.
+            if self.stop_reason is not None and not overrun:
+                return False
+            self.tripped = True
+            self.stop_reason = str(reason)
+            if overrun:
+                self.overrun_count = 1
+                self.overrun_reason = str(reason)
+                self.overrun = dict(details or {}) | {"reason": str(reason)}
+            return True
+
+    def stop(self, reason: str) -> bool:
+        """Latch a non-overrun admission stop without marking an overrun."""
+
+        with self._lock:
+            if self.tripped or self.cancelled or self.stop_reason is not None:
+                return False
+            self.stop_reason = str(reason)
+            return True
+
+    def cancel(self, reason: str = "safety_ledger_cancelled") -> bool:
+        with self._lock:
+            if self.tripped or self.cancelled or self.stop_reason is not None:
+                return False
+            self.cancelled = True
+            self.stop_reason = str(reason)
+            return True
+
+    def snapshot(self) -> dict[str, Any]:
+        with self._lock:
+            return {
+                "safety_tripped": self.tripped,
+                "safety_cancelled": self.cancelled,
+                "safety_stop_reason": self.stop_reason,
+                "safety_overrun_count": self.overrun_count,
+                "safety_overrun_reason": self.overrun_reason,
+                "safety_overrun": dict(self.overrun) if self.overrun is not None else None,
+                # Short aliases make the state useful to callers that persist
+                # a compact telemetry record.
+                "tripped": self.tripped,
+                "cancelled": self.cancelled,
+                "stop_reason": self.stop_reason,
+                "overrun_count": self.overrun_count,
+                "overrun_reason": self.overrun_reason,
+            }
+
+    @property
+    def overrun_telemetry(self) -> dict[str, Any] | None:
+        snapshot = self.snapshot()
+        value = snapshot.get("safety_overrun")
+        return dict(value) if isinstance(value, Mapping) else None
+
 
 @dataclass(frozen=True)
 class AzureSafetyCeilings:
@@ -88,7 +197,11 @@ class AzureSafetyCeilings:
     max_total_tokens: int = 100_000_000
     max_concurrency: int = 32
     max_verified_spend_usd: float = 100.0
-    allow_unknown_spend: bool = True
+    allow_unknown_spend: bool = False
+    max_retry_per_request: int = 4
+    # Accept the plural spelling used by some caller configuration while
+    # retaining the singular spelling from the safety specification.
+    max_retries_per_request: int | None = None
 
     def __post_init__(self) -> None:
         integer_fields = (
@@ -103,13 +216,29 @@ class AzureSafetyCeilings:
             raise ValueError("Azure safety ceilings must be positive")
         if float(self.max_verified_spend_usd) < 0:
             raise ValueError("max_verified_spend_usd must be non-negative")
+        for value in (self.max_retry_per_request, self.max_retries_per_request):
+            if value is not None and (isinstance(value, bool) or int(value) < 0):
+                raise ValueError("per-request retry ceilings must be non-negative")
+
+    @property
+    def retry_ceiling(self) -> int:
+        values = [int(self.max_retry_per_request)]
+        if self.max_retries_per_request is not None:
+            values.append(int(self.max_retries_per_request))
+        return min(values)
 
     @classmethod
     def from_mapping(cls, value: Mapping[str, Any] | None) -> AzureSafetyCeilings:
         if not value:
             return cls()
         payload = dict(value)
-        aliases = {"max_requests": "max_logical_requests", "max_attempts": "max_transport_attempts", "max_tokens": "max_total_tokens", "max_spend_usd": "max_verified_spend_usd"}
+        aliases = {
+            "max_requests": "max_logical_requests",
+            "max_attempts": "max_transport_attempts",
+            "max_tokens": "max_total_tokens",
+            "max_spend_usd": "max_verified_spend_usd",
+            "max_retries_per_request": "max_retry_per_request",
+        }
         for source, target in aliases.items():
             if source in payload and target not in payload:
                 payload[target] = payload[source]
@@ -125,8 +254,9 @@ class _AzureAttemptReservation:
 class AzureSafetyLedger:
     """Thread-safe actual-usage ledger shared by all calls in one execution."""
 
-    def __init__(self, ceilings: AzureSafetyCeilings | None = None) -> None:
+    def __init__(self, ceilings: AzureSafetyCeilings | None = None, *, state: AzureSafetyLedgerState | None = None) -> None:
         self.ceilings = ceilings or AzureSafetyCeilings()
+        self.state = state or AzureSafetyLedgerState()
         self.logical_requests = 0
         self.transport_attempts = 0
         self.input_tokens = 0
@@ -137,18 +267,115 @@ class AzureSafetyLedger:
         self.active = 0
         self._reserved_input = 0
         self._reserved_output = 0
+        self.cancelled_attempts = 0
         self._lock = threading.RLock()
+
+    @property
+    def tripped(self) -> bool:
+        return self.state.tripped
+
+    @property
+    def cancelled(self) -> bool:
+        return self.state.cancelled
+
+    @property
+    def stop_reason(self) -> str | None:
+        return self.state.final_stop_reason
+
+    @property
+    def final_stop_reason(self) -> str | None:
+        return self.state.final_stop_reason
+
+    @property
+    def stopped_reason(self) -> str | None:
+        return self.state.final_stop_reason
+
+    @property
+    def is_tripped(self) -> bool:
+        return self.state.tripped
+
+    @property
+    def is_cancelled(self) -> bool:
+        return self.state.cancelled
+
+    @property
+    def overrun(self) -> dict[str, Any] | None:
+        snapshot = self.state.snapshot()
+        value = snapshot.get("safety_overrun")
+        return dict(value) if isinstance(value, Mapping) else None
+
+    def telemetry(self) -> dict[str, Any]:
+        with self._lock:
+            counters = {
+                "logical_requests": self.logical_requests,
+                "transport_attempts": self.transport_attempts,
+                "input_tokens": self.input_tokens,
+                "output_tokens": self.output_tokens,
+                "total_tokens": self.total_tokens,
+                "verified_spend_usd": self.verified_spend_usd,
+                "unknown_spend_count": self.unknown_spend_count,
+                "active": self.active,
+                "cancelled_attempts": self.cancelled_attempts,
+            }
+        return counters | self.state.snapshot()
+
+    def snapshot(self) -> dict[str, Any]:
+        return self.telemetry()
+
+    def cancel(self, reason: str = "safety_ledger_cancelled") -> None:
+        self.state.cancel(reason)
+
+    def _budget_error(self, message: str) -> AzureSafetyBudgetError:
+        telemetry = self.telemetry()
+        return AzureSafetyBudgetError(message, stop_reason=self.stop_reason, telemetry=telemetry)
+
+    def _reject_if_admission_stopped(self) -> None:
+        reason = self.stop_reason
+        if reason is not None:
+            raise self._budget_error(f"Azure safety ledger stopped: {reason}")
+
+    def _reject_if_hard_stopped(self) -> None:
+        if self.state.tripped or self.state.cancelled:
+            reason = self.stop_reason or "safety_ledger_stopped"
+            raise self._budget_error(f"Azure safety ledger stopped: {reason}")
+
+    def _stop_for_admission(self, reason: str, message: str) -> None:
+        self.state.stop(reason)
+        raise self._budget_error(message)
+
+    def _trip_for_overrun(self, reason: str, message: str, details: Mapping[str, Any]) -> None:
+        self.state.trip(reason, details={"message": message, **dict(details)}, overrun=True)
+        raise self._budget_error(message)
+
+    def effective_retry_count(self, retries: int, requested_ceiling: int | None = None) -> int:
+        if isinstance(retries, bool) or retries < 0:
+            raise ValueError("retries must be non-negative")
+        ceiling = self.ceilings.retry_ceiling
+        if requested_ceiling is not None:
+            if isinstance(requested_ceiling, bool) or requested_ceiling < 0:
+                raise ValueError("max_retry_per_request must be non-negative")
+            ceiling = min(ceiling, int(requested_ceiling))
+        # Leave one transport-attempt slot for another logical request when a
+        # global attempt ceiling has more than one slot.  A one-attempt global
+        # budget necessarily permits its single admitted attempt.
+        available_attempts = self.ceilings.max_transport_attempts
+        if available_attempts > 1:
+            available_attempts -= 1
+        ceiling = min(ceiling, max(0, available_attempts - 1))
+        return min(int(retries), ceiling)
 
     def reserve_logical(self) -> None:
         with self._lock:
+            self._reject_if_admission_stopped()
             if self.logical_requests >= self.ceilings.max_logical_requests:
-                raise AzureSafetyBudgetError("Azure logical-request ceiling exhausted")
+                raise self._budget_error("Azure logical-request ceiling exhausted")
             self.logical_requests += 1
 
     def enter(self) -> None:
         with self._lock:
+            self._reject_if_admission_stopped()
             if self.active >= self.ceilings.max_concurrency:
-                raise AzureSafetyBudgetError("Azure concurrency ceiling exhausted")
+                self._stop_for_admission("concurrency_ceiling_exhausted", "Azure concurrency ceiling exhausted")
             self.active += 1
 
     def leave(self) -> None:
@@ -159,14 +386,15 @@ class AzureSafetyLedger:
         estimate = max(0, int(input_estimate))
         output = max(0, int(output_ceiling))
         with self._lock:
+            self._reject_if_admission_stopped()
             if self.transport_attempts >= self.ceilings.max_transport_attempts:
-                raise AzureSafetyBudgetError("Azure transport-attempt ceiling exhausted")
+                self._stop_for_admission("transport_attempt_ceiling_exhausted", "Azure transport-attempt ceiling exhausted")
             if self.input_tokens + self._reserved_input + estimate > self.ceilings.max_input_tokens:
-                raise AzureSafetyBudgetError("Azure input-token ceiling preflight failed")
+                self._stop_for_admission("input_token_ceiling_preflight", "Azure input-token ceiling preflight failed")
             if self.output_tokens + self._reserved_output + output > self.ceilings.max_output_tokens:
-                raise AzureSafetyBudgetError("Azure output-token ceiling preflight failed")
+                self._stop_for_admission("output_token_ceiling_preflight", "Azure output-token ceiling preflight failed")
             if self.total_tokens + self._reserved_input + self._reserved_output + estimate + output > self.ceilings.max_total_tokens:
-                raise AzureSafetyBudgetError("Azure total-token ceiling preflight failed")
+                self._stop_for_admission("total_token_ceiling_preflight", "Azure total-token ceiling preflight failed")
             self.transport_attempts += 1
             self._reserved_input += estimate
             self._reserved_output += output
@@ -176,6 +404,7 @@ class AzureSafetyLedger:
         with self._lock:
             self._reserved_input = max(0, self._reserved_input - reservation.input_estimate)
             self._reserved_output = max(0, self._reserved_output - reservation.output_ceiling)
+            self.cancelled_attempts += 1
 
     def commit_attempt(self, reservation: _AzureAttemptReservation, usage: Mapping[str, Any] | None) -> dict[str, Any]:
         cost = azure_successful_usage_cost(usage)
@@ -184,28 +413,46 @@ class AzureSafetyLedger:
         with self._lock:
             self._reserved_input = max(0, self._reserved_input - reservation.input_estimate)
             self._reserved_output = max(0, self._reserved_output - reservation.output_ceiling)
+            self._reject_if_hard_stopped()
             if input_tokens is None or output_tokens is None or cost.get("request_cost_usd") is None:
                 self.unknown_spend_count += 1
                 if not self.ceilings.allow_unknown_spend:
-                    raise AzureSafetyBudgetError("Azure spend is unknown because response usage is incomplete")
-                return {"spend_status": "UNKNOWN", **cost}
+                    self.state.trip("unknown_usage", details={"message": "Azure spend is unknown because response usage is incomplete"})
+                    raise self._budget_error("Azure spend is unknown because response usage is incomplete")
+                # Explicit diagnostic/fixture opt-ins still consume the full
+                # reservation so omitted usage cannot bypass token ceilings.
+                input_tokens = reservation.input_estimate
+                output_tokens = reservation.output_ceiling
+                total_tokens = input_tokens + output_tokens
+                self.input_tokens += input_tokens
+                self.output_tokens += output_tokens
+                self.total_tokens += total_tokens
+                return {"spend_status": "UNKNOWN", "accounted_input_tokens": input_tokens, "accounted_output_tokens": output_tokens, "accounted_total_tokens": total_tokens, **cost}
             input_tokens = int(input_tokens)
             output_tokens = int(output_tokens)
             total_tokens = input_tokens + output_tokens
             if self.input_tokens + input_tokens > self.ceilings.max_input_tokens:
-                raise AzureSafetyBudgetError("Azure input-token ceiling exceeded by actual usage")
+                self._trip_for_overrun("actual_input_token_ceiling_exceeded", "Azure input-token ceiling exceeded by actual usage", {"input_tokens": input_tokens})
             if self.output_tokens + output_tokens > self.ceilings.max_output_tokens:
-                raise AzureSafetyBudgetError("Azure output-token ceiling exceeded by actual usage")
+                self._trip_for_overrun("actual_output_token_ceiling_exceeded", "Azure output-token ceiling exceeded by actual usage", {"output_tokens": output_tokens})
             if self.total_tokens + total_tokens > self.ceilings.max_total_tokens:
-                raise AzureSafetyBudgetError("Azure total-token ceiling exceeded by actual usage")
+                self._trip_for_overrun("actual_total_token_ceiling_exceeded", "Azure total-token ceiling exceeded by actual usage", {"total_tokens": total_tokens})
             spend = float(cost["request_cost_usd"])
             if self.verified_spend_usd + spend > self.ceilings.max_verified_spend_usd:
-                raise AzureSafetyBudgetError("Azure verified-spend ceiling exceeded by actual usage")
+                self._trip_for_overrun("actual_verified_spend_ceiling_exceeded", "Azure verified-spend ceiling exceeded by actual usage", {"spend_usd": spend})
             self.input_tokens += input_tokens
             self.output_tokens += output_tokens
             self.total_tokens += total_tokens
             self.verified_spend_usd += spend
             return {"spend_status": "VERIFIED", **cost}
+
+    def preflight_logical_requests(self, count: int) -> None:
+        if count < 0:
+            raise ValueError("logical request count must be non-negative")
+        with self._lock:
+            self._reject_if_admission_stopped()
+            if self.logical_requests + count > self.ceilings.max_logical_requests:
+                self._stop_for_admission("logical_request_ceiling_preflight", "Azure logical-request ceiling preflight failed")
 
 
 def _status_code(exc: Exception) -> int | None:
@@ -428,14 +675,15 @@ class AzureResponsesClient:
         self.settings = settings
         self.transport = transport
         self.cache = cache
-        self.safety = safety or AzureSafetyCeilings()
+        self.safety = safety or (safety_ledger.ceilings if safety_ledger is not None else AzureSafetyCeilings())
         self.safety_ledger = safety_ledger or AzureSafetyLedger(self.safety)
 
     def preflight_logical_requests(self, count: int) -> None:
-        if count < 0:
-            raise ValueError("logical request count must be non-negative")
-        if self.safety_ledger.logical_requests + count > self.safety.max_logical_requests:
-            raise AzureSafetyBudgetError("Azure logical-request ceiling preflight failed")
+        self.safety_ledger.preflight_logical_requests(count)
+
+    @property
+    def safety_telemetry(self) -> dict[str, Any]:
+        return self.safety_ledger.telemetry()
 
     def _default_transport(self, **kwargs: Any) -> Mapping[str, Any]:
         try:
@@ -525,6 +773,7 @@ class AzureResponsesClient:
         return_invalid: bool = False,
         terminal_invalid_stage: str = "structured_response",
         retries: int = 4,
+        max_retry_per_request: int | None = None,
         sleep: Callable[[float], None] = time.sleep,
     ) -> dict[str, Any]:
         """Execute one bounded logical request through the shared safety ledger."""
@@ -546,6 +795,7 @@ class AzureResponsesClient:
                 return_invalid=return_invalid,
                 terminal_invalid_stage=terminal_invalid_stage,
                 retries=retries,
+                max_retry_per_request=max_retry_per_request,
                 sleep=sleep,
             )
         finally:
@@ -568,6 +818,7 @@ class AzureResponsesClient:
         return_invalid: bool = False,
         terminal_invalid_stage: str = "structured_response",
         retries: int = 4,
+        max_retry_per_request: int | None = None,
         sleep: Callable[[float], None] = time.sleep,
     ) -> dict[str, Any]:
         if not schema.get("strict", True):
@@ -578,6 +829,7 @@ class AzureResponsesClient:
             raise ValueError("max_output_tokens must be positive")
         if retries < 0:
             raise ValueError("retries must be non-negative")
+        retries = self.safety_ledger.effective_retry_count(retries, max_retry_per_request)
         expected_version = expected_model_version or self.settings.expected_model_version
         schema_hash = sha256_json(schema)
         prompt_hash = sha256_json({"prompt": prompt})

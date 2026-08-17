@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pytest
@@ -48,7 +50,7 @@ def test_mocked_azure_retry_and_response_metadata() -> None:
             raise AzureRetryableError("429")
         return {"id": "resp_1", "model": "gpt-4.1-mini", "output": {"parsed": {"implicit_sentiment": 0, "sarcasm": 0, "irony": 0, "idiom_figurative": 0, "code_switching": 0, "mocking": 0, "polarity": "neutral", "emotion": "other"}}}
 
-    client = AzureResponsesClient(settings, transport=transport)
+    client = AzureResponsesClient(settings, transport=transport, safety=AzureSafetyCeilings(allow_unknown_spend=True))
     result = client.create_structured(prompt="x", task="all", schema={"strict": True, "schema": strict_label_schema()}, max_output_tokens=32, sleep=lambda _: None)
     assert result["request_id"] == "resp_1"
     assert calls["n"] == 2
@@ -214,6 +216,84 @@ def test_client_rejects_actual_usage_over_safety_ceiling() -> None:
     client = AzureResponsesClient(settings, transport=lambda **_: _nested_response(_structured_labels()), safety=safety, safety_ledger=AzureSafetyLedger(safety))
     with pytest.raises(AzureSafetyBudgetError, match="output-token ceiling"):
         client.create_structured(prompt="actual", task="all", schema={"strict": True, "schema": strict_label_schema()}, max_output_tokens=32)
+
+
+def test_sync_actual_overrun_latches_shared_ledger_under_concurrency() -> None:
+    settings = AzureSettings("https://fixture.azure.com", "https://fixture.azure.com/openai/v1/", "dep", None, "api_key", "secret")
+    safety = AzureSafetyCeilings(max_output_tokens=10, max_total_tokens=50, max_concurrency=2, max_retry_per_request=0)
+    ledger = AzureSafetyLedger(safety)
+    barrier = threading.Barrier(2)
+    calls = 0
+    calls_lock = threading.Lock()
+
+    def transport(**_: object) -> dict[str, object]:
+        nonlocal calls
+        with calls_lock:
+            calls += 1
+        barrier.wait()
+        payload = _nested_response(_structured_labels())
+        payload["usage"] = {"input_tokens": 1, "output_tokens": 6}
+        return payload
+
+    client = AzureResponsesClient(settings, transport=transport, safety=safety, safety_ledger=ledger)
+
+    def invoke() -> tuple[str, object]:
+        try:
+            return "ok", client.create_structured(prompt="concurrent", task="all", schema={"strict": True, "schema": strict_label_schema()}, max_output_tokens=4, retries=99)
+        except AzureSafetyBudgetError as exc:
+            return "error", exc
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        outcomes = list(executor.map(lambda _: invoke(), range(2)))
+
+    assert calls == 2
+    assert sum(kind == "error" for kind, _ in outcomes) == 1
+    assert ledger.tripped is True
+    assert ledger.final_stop_reason == "actual_output_token_ceiling_exceeded"
+    assert ledger.telemetry()["safety_overrun_count"] == 1
+    with pytest.raises(AzureSafetyBudgetError, match="safety ledger stopped"):
+        client.create_structured(prompt="after-stop", task="all", schema={"strict": True, "schema": strict_label_schema()}, max_output_tokens=4)
+    assert calls == 2
+
+
+def test_sync_missing_usage_fails_closed_and_blocks_later_admission() -> None:
+    settings = AzureSettings("https://fixture.azure.com", "https://fixture.azure.com/openai/v1/", "dep", None, "api_key", "secret")
+    safety = AzureSafetyCeilings(max_output_tokens=32, max_total_tokens=64)
+    ledger = AzureSafetyLedger(safety)
+    calls = 0
+
+    def transport(**_: object) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        payload = _nested_response(_structured_labels())
+        payload.pop("usage")
+        return payload
+
+    client = AzureResponsesClient(settings, transport=transport, safety=safety, safety_ledger=ledger)
+    with pytest.raises(AzureSafetyBudgetError) as first:
+        client.create_structured(prompt="missing-usage", task="all", schema={"strict": True, "schema": strict_label_schema()}, max_output_tokens=8)
+    assert first.value.stop_reason == "unknown_usage"
+    assert first.value.telemetry["unknown_spend_count"] == 1
+    with pytest.raises(AzureSafetyBudgetError, match="safety ledger stopped"):
+        client.create_structured(prompt="blocked", task="all", schema={"strict": True, "schema": strict_label_schema()}, max_output_tokens=8)
+    assert calls == 1
+
+
+def test_sync_retry_caller_is_clamped_by_safety_ceiling_alias() -> None:
+    settings = AzureSettings("https://fixture.azure.com", "https://fixture.azure.com/openai/v1/", "dep", None, "api_key", "secret")
+    safety = AzureSafetyCeilings.from_mapping({"max_retry_per_request": 1, "max_transport_attempts": 10})
+    calls = 0
+
+    def transport(**_: object) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        return {"status_code": 503, "error": "temporary"}
+
+    client = AzureResponsesClient(settings, transport=transport, safety=safety)
+    result = client.create_structured(prompt="retry-cap", task="all", schema={"strict": True, "schema": strict_label_schema()}, max_output_tokens=8, retries=99, return_invalid=True, sleep=lambda _: None)
+    assert calls == 2
+    assert result["retry_count"] == 1
+    assert AzureSafetyCeilings.from_mapping({"max_retries_per_request": 1}).retry_ceiling == 1
 
 
 def test_stage_registry_preflights_logical_request_ceiling(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
