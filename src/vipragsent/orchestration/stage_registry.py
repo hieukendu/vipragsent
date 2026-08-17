@@ -56,7 +56,6 @@ from .contracts import (
 )
 from .executors.component_bundle import run_component_bundle
 from .executors.explanation_reuse import (
-    ExplanationReuseExecutor,
     resolve_approved_full_vistral_source,
     validate_source_checkpoint,
 )
@@ -70,6 +69,14 @@ from .executors.generation import (
     generation_targets_available,
 )
 from .executors.q4 import resolve_and_extract_q4_source
+from .explanation_runtime import (
+    ExplanationOnlyConfig,
+    ExplanationOnlyRequest,
+    ExplanationOnlyRuntime,
+    ExplanationRuntimeError,
+    SharedInferenceIdentity,
+    SourceCheckpointIdentity,
+)
 from .preflight_single import run_single_preflight
 from .provenance import expected_inference_provenance, validate_inference_provenance
 from .run_store import RunStore, artifact_hashes, git_commit, utc_now
@@ -1034,11 +1041,120 @@ def _fixture_explanation_stage(context: RunContext, entry: RunEntry, stage: str)
     return StageOutcome.failed(f"unsupported explanation-only fixture stage: {stage}")
 
 
+def _production_explanation_source_entry(entry: RunEntry) -> dict[str, Any]:
+    """Bind an explanation run to its approved same-seed full-model source."""
+    source_entry = dict(entry.raw)
+    source_entry.update(
+        {
+            "seed": entry.seed,
+            "source_checkpoint_id": f"vipragsent_full_vistral:{entry.seed}",
+        }
+    )
+    if entry.model_revision:
+        source_entry["model_revision"] = entry.model_revision
+    if entry.tokenizer_revision:
+        source_entry["tokenizer_revision"] = entry.tokenizer_revision
+    return source_entry
+
+
+def _resolve_production_explanation_source(context: RunContext, entry: RunEntry):
+    return resolve_approved_full_vistral_source(
+        context.root,
+        _production_explanation_source_entry(entry),
+    )
+
+
+def _production_explanation_identity(
+    context: RunContext,
+    protocol: Mapping[str, Any],
+) -> SharedInferenceIdentity:
+    """Build the frozen identity shared by explanation inference and chunks."""
+    protocol_hash = sha256_json(protocol)
+    configured = context.metadata.get("explanation_inference_identity")
+    if configured is None:
+        configured = context.metadata.get("generation_identity")
+    values = dict(configured) if isinstance(configured, Mapping) else {}
+    configured_hash = values.get("protocol_hash") or context.metadata.get("generation_protocol_hash")
+    if configured_hash not in (None, "", protocol_hash):
+        raise ExplanationRuntimeError("explanation protocol hash does not match the locked generation protocol")
+    configured_protocol_id = values.get("protocol_id")
+    protocol_id = str(protocol.get("protocol_version", ""))
+    if configured_protocol_id not in (None, "", protocol_id):
+        raise ExplanationRuntimeError("explanation protocol identity does not match the locked generation protocol")
+
+    environment_path = Path(context.run_root) / "environment.json"
+    environment = _load_mapping(environment_path)
+    environment_identity = (
+        context.metadata.get("environment_identity")
+        or environment.get("environment_identity")
+        or "production"
+    )
+    environment_version = context.metadata.get("environment_version")
+    if not environment_version and environment_path.exists():
+        environment_version = sha256_file(environment_path)
+    if not environment_version:
+        environment_version = f"torch-{torch.__version__}"
+
+    values.update(
+        {
+            "protocol_id": protocol_id,
+            "protocol_hash": protocol_hash,
+            "protocol_version": str(values.get("protocol_version") or "v1"),
+            "environment_identity": str(environment_identity),
+            "environment_version": str(environment_version),
+        }
+    )
+    return SharedInferenceIdentity.from_mapping(values)
+
+
+def _build_production_explanation_runtime(
+    context: RunContext,
+    entry: RunEntry,
+    source: Any,
+    model: torch.nn.Module,
+    tokenizer: Any,
+    judge: ReasoningJudge,
+) -> ExplanationOnlyRuntime:
+    source_identity = SourceCheckpointIdentity.from_approved_source(source)
+    data_hash = context.metadata.get("data_hash") or source_identity.dataset_hash
+    if not is_real_dataset_hash(data_hash):
+        raise ExplanationRuntimeError("production explanation inference requires a canonical SHA-256 dataset hash")
+    dataset_identity = str(context.metadata.get("dataset_identity") or source_identity.dataset_identity)
+    if not dataset_identity:
+        raise ExplanationRuntimeError("production explanation inference requires a dataset identity")
+    protocol = judge.protocol
+    config = ExplanationOnlyConfig(
+        identity=_production_explanation_identity(context, protocol),
+        decoder_max_tokens=int(protocol.get("decoding", {}).get("max_new_tokens", 160)),
+        generation_profile=_production_generation_profile(context),
+    )
+    request = ExplanationOnlyRequest(
+        seed=entry.seed,
+        source_checkpoint=source_identity,
+        config=config,
+        data_hash=str(data_hash),
+        dataset_identity=dataset_identity,
+        batch_size=context.metadata.get("generation_batch_size"),
+        artifact_root=Path(context.run_root),
+        legacy_artifact_root=Path(context.run_root) / "legacy_explanation",
+        fixture_mode=False,
+    )
+    return ExplanationOnlyRuntime(model, tokenizer, request, run_root=context.run_root)
+
+
+def _production_explanation_records(tokenizer: Any, examples: list[DatasetExample]) -> list[dict[str, Any]]:
+    records: list[dict[str, Any]] = []
+    for example in examples:
+        input_ids, attention = _encode_text(tokenizer, example.text)
+        records.append({"sample_id": example.sample_id, "input_ids": input_ids, "attention_mask": attention})
+    return records
+
+
 def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: str) -> StageOutcome:
     run_root = Path(context.run_root)
     if stage == "resolve_approved_full_vistral_source":
         try:
-            source = resolve_approved_full_vistral_source(context.root, entry.raw)
+            source = _resolve_production_explanation_source(context, entry)
         except Exception as exc:
             return StageOutcome.blocked(str(exc))
         atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source": source.as_dict(context.root), "source_system_id": "vipragsent_full_vistral", "same_seed_source": True, "additional_training": False, "direct_classification_outputs_used": False, "rationale_decoder_enabled_at_inference": True, "native_causal_lm_generation_used": False, "inference_output_source": "judge_of_rationale_decoder_output"})
@@ -1047,7 +1163,7 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
     if not source_payload:
         return StageOutcome.blocked("approved full Vistral source has not been resolved")
     try:
-        source = resolve_approved_full_vistral_source(context.root, entry.raw)
+        source = _resolve_production_explanation_source(context, entry)
     except Exception as exc:
         return StageOutcome.blocked(str(exc))
     if stage == "validate_source_checkpoint":
@@ -1079,21 +1195,48 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
     )
     tokenizer = create_tokenizer(spec.model_family, revision=runtime_spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
     judge = ReasoningJudge(context.root, cache_root=run_root / "judge/cache", require_deployment_manifest=True)
-    executor = ExplanationReuseExecutor(context.root, model=model, tokenizer=tokenizer, judge=judge, run_root=run_root, source=source)
     bundle = load_vipragsent(context.root / "data/processed/vipragsent")
+    try:
+        runtime = _build_production_explanation_runtime(context, entry, source, model, tokenizer, judge)
+    except (ExplanationRuntimeError, OSError, RuntimeError, ValueError) as exc:
+        return StageOutcome.blocked(str(exc))
     if stage in {"generate_dev_reasoning_from_rationale_decoder", "generate_test_reasoning_from_rationale_decoder"}:
         split = "dev" if stage.startswith("generate_dev") else "test"
-        records = []
-        for example in getattr(bundle, split):
-            input_ids, attention = _encode_text(tokenizer, example.text)
-            records.append({"sample_id": example.sample_id, "input_ids": input_ids, "attention_mask": attention})
-        executor.generate_reasoning_split(split, records)
+        records = _production_explanation_records(tokenizer, getattr(bundle, split))
+        try:
+            runtime.generate_reasoning_split(split, records)
+        except (ExplanationRuntimeError, OSError, RuntimeError, ValueError) as exc:
+            return StageOutcome.blocked(str(exc))
         return StageOutcome.passed(summary={"split": split, "source_run_id": source.run_id, "additional_training": False, "direct_classification_outputs_used": False, "inference_output_source": "judge_of_rationale_decoder_output"}, expected_files=(f"reasoning/{split}_reasoning.jsonl",))
     if stage in {"judge_dev_reasoning", "judge_test_reasoning"}:
         split = "dev" if "dev" in stage else "test"
-        reasoning = _read_jsonl(run_root / f"reasoning/{split}_reasoning.jsonl")
+        records = _production_explanation_records(tokenizer, getattr(bundle, split))
+        sample_ids = [str(record["sample_id"]) for record in records]
+        try:
+            reasoning = runtime.committed_rows_for_downstream(split, sample_ids, records)
+        except (ExplanationRuntimeError, OSError, RuntimeError, ValueError) as exc:
+            return StageOutcome.blocked(str(exc))
+        if not reasoning:
+            return StageOutcome.blocked(f"{split} committed rationale chunks are missing")
         gold = {example.sample_id: {label: int(example.labels[label]) for label in PRAGMATIC_LABELS} for example in getattr(bundle, split)}
-        metrics = executor.judge_and_write(split, reasoning, gold)
+        predictions: list[dict[str, Any]] = []
+        decisions: list[dict[str, Any]] = []
+        for row in reasoning:
+            decision = judge.judge(str(row.get("generated_reasoning", "")))
+            decisions.append({"sample_id": row["sample_id"], **decision})
+            predictions.append(
+                build_reasoning_prediction_row(
+                    str(row["sample_id"]),
+                    gold[str(row["sample_id"])],
+                    str(row.get("generated_reasoning", "")),
+                    decision,
+                    truncated=bool(row.get("truncated")),
+                )
+            )
+        judge.write_artifacts(run_root, split, predictions, decisions)
+        atomic_write_text(run_root / f"predictions/{split}_predictions.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in predictions))
+        metrics = compute_reasoning_metrics(predictions, diagnostics=judge.diagnostics) | {"status": "PASS", "split": split, "inference_output_source": "judge_of_rationale_decoder_output"}
+        atomic_write_json(run_root / f"metrics/{split}_reasoning_metrics.json", metrics)
         return StageOutcome.passed(summary=metrics, expected_files=(f"judge/{split}_judge_responses.jsonl", f"predictions/{split}_predictions.jsonl"))
     if stage in {"compute_dev_reasoning_metrics", "compute_test_reasoning_metrics"}:
         split = "dev" if "dev" in stage else "test"
