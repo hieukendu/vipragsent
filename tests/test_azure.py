@@ -9,6 +9,9 @@ from vipragsent.azure.client import (
     AzureCache,
     AzureResponsesClient,
     AzureRetryableError,
+    AzureSafetyBudgetError,
+    AzureSafetyCeilings,
+    AzureSafetyLedger,
     AzureSettings,
 )
 from vipragsent.azure.prompts import build_demo_manifest, validate_demo_manifest
@@ -18,6 +21,8 @@ from vipragsent.azure.schemas import (
     validate_structured_output,
 )
 from vipragsent.data.loaders import load_vipragsent
+from vipragsent.orchestration.contracts import RunContext, RunEntry
+from vipragsent.orchestration.stage_registry import _azure_execute
 
 
 def test_azure_settings_reject_direct_openai_endpoint() -> None:
@@ -170,6 +175,92 @@ def test_public_client_caches_terminal_invalid_response_without_retry(tmp_path: 
     assert second["valid"] is False
     assert second["cache_hit"] is True
     assert calls == 1
+
+
+def test_retryable_outage_is_not_reused_across_client_runs(tmp_path: Path) -> None:
+    settings = AzureSettings("https://fixture.azure.com", "https://fixture.azure.com/openai/v1/", "dep", None, "api_key", "secret")
+    cache = AzureCache(tmp_path / "cache")
+    kwargs = {"prompt": "recover", "task": "all", "schema": {"strict": True, "schema": strict_label_schema()}, "max_output_tokens": 32, "return_invalid": True, "retries": 1, "sleep": lambda _: None}
+
+    first_calls = 0
+
+    def outage(**_: object) -> dict[str, object]:
+        nonlocal first_calls
+        first_calls += 1
+        return {"status_code": 503, "error": "temporarily unavailable"}
+
+    first = AzureResponsesClient(settings, transport=outage, cache=cache)
+    failed = first.create_structured(**kwargs)
+    assert failed["valid"] is False
+    assert first_calls == 2
+
+    recovery_calls = 0
+
+    def recovery(**_: object) -> dict[str, object]:
+        nonlocal recovery_calls
+        recovery_calls += 1
+        return _nested_response(_structured_labels(), response_id="recovered")
+
+    second = AzureResponsesClient(settings, transport=recovery, cache=cache)
+    recovered = second.create_structured(**kwargs)
+    assert recovered["valid"] is True
+    assert recovered["cache_hit"] is False
+    assert recovery_calls == 1
+
+
+def test_client_rejects_actual_usage_over_safety_ceiling() -> None:
+    settings = AzureSettings("https://fixture.azure.com", "https://fixture.azure.com/openai/v1/", "dep", None, "api_key", "secret")
+    safety = AzureSafetyCeilings(max_output_tokens=1, max_total_tokens=2, max_verified_spend_usd=1.0)
+    client = AzureResponsesClient(settings, transport=lambda **_: _nested_response(_structured_labels()), safety=safety, safety_ledger=AzureSafetyLedger(safety))
+    with pytest.raises(AzureSafetyBudgetError, match="output-token ceiling"):
+        client.create_structured(prompt="actual", task="all", schema={"strict": True, "schema": strict_label_schema()}, max_output_tokens=32)
+
+
+def test_stage_registry_preflights_logical_request_ceiling(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "https://fixture.azure.com")
+    monkeypatch.setenv("AZURE_OPENAI_BASE_URL", "https://fixture.azure.com/openai/v1/")
+    monkeypatch.setenv("AZURE_OPENAI_DEPLOYMENT", "dep")
+    monkeypatch.setenv("AZURE_OPENAI_API_KEY", "secret")
+    input_path = tmp_path / "data/processed/rationales/azure_rationale_input_train.jsonl"
+    input_path.parent.mkdir(parents=True, exist_ok=True)
+    input_path.write_text("\n".join(json.dumps({"sample_id": f"sample-{i}", "comment": "bình luận"}) for i in range(2)) + "\n", encoding="utf-8")
+    entry = RunEntry.from_mapping({"job_id": "azure_stage", "variant": "rationale_generation", "execution_kind": "azure", "backbone": "azure", "task": "rationale"}, run_id="azure_stage")
+    calls = 0
+
+    def transport(**_: object) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        return {}
+
+    context = RunContext(tmp_path, entry, run_root=tmp_path / "run", metadata={"azure_safety_ceilings": {"max_logical_requests": 1}, "azure_transport": transport})
+    outcome = _azure_execute(context, entry)
+    assert outcome.status == "BLOCKED"
+    assert "logical-request ceiling" in str(outcome.error)
+    assert calls == 0
+
+
+def test_stage_registry_stops_after_actual_usage_overrun(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("AZURE_OPENAI_ENDPOINT", "https://fixture.azure.com")
+    monkeypatch.setenv("AZURE_OPENAI_BASE_URL", "https://fixture.azure.com/openai/v1/")
+    monkeypatch.setenv("AZURE_OPENAI_DEPLOYMENT", "dep")
+    monkeypatch.setenv("AZURE_OPENAI_API_KEY", "secret")
+    calls = 0
+
+    def transport(**_: object) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        return {"model": "gpt-4.1-mini", "output": {"parsed": {"rationale": "valid rationale"}}, "usage": {"input_tokens": 1, "output_tokens": 257}}
+
+    input_path = tmp_path / "data/processed/rationales/azure_rationale_input_train.jsonl"
+    input_path.parent.mkdir(parents=True, exist_ok=True)
+    input_path.write_text(json.dumps({"sample_id": "sample-0", "comment": "bình luận"}) + "\n", encoding="utf-8")
+    entry = RunEntry.from_mapping({"job_id": "azure_stage", "variant": "rationale_generation", "execution_kind": "azure", "backbone": "azure", "task": "rationale"}, run_id="azure_stage")
+    context = RunContext(tmp_path, entry, run_root=tmp_path / "run", metadata={"azure_safety_ceilings": {"max_output_tokens": 256, "max_total_tokens": 10_000}, "azure_transport": transport})
+    outcome = _azure_execute(context, entry)
+    assert outcome.status == "FAIL"
+    assert "rejected" in str(outcome.error)
+    response = json.loads((context.run_root / "azure/response_manifest.json").read_text(encoding="utf-8"))
+    assert response["requested"] == response["invalid"] == 1
 
 
 def test_cache_ignores_non_object_json_records(tmp_path: Path) -> None:

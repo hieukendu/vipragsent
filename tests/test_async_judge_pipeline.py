@@ -217,6 +217,40 @@ def test_five_xx_is_retried_with_bounded_delay() -> None:
     assert report.results[0].retry_count == 1  # type: ignore[union-attr]
 
 
+def test_retryable_outage_is_not_reused_across_pipeline_runs(tmp_path: Path) -> None:
+    calls = 0
+
+    async def outage(payload: dict[str, object]) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        return {"status_code": 503, "error": "temporarily unavailable"}
+
+    first = AsyncJudgePipeline(ROOT, transport=outage, cache=FileJudgeCache(tmp_path / "cache"), retry=RetryPolicy(maximum_total_attempts=1))
+    failed = _run(first.run([_commit("outage")]))
+    assert failed.results[0].valid is False  # type: ignore[union-attr]
+
+    async def recovery(payload: dict[str, object]) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        return {"labels": _labels(), "usage": {"input_tokens": 2, "output_tokens": 1}}
+
+    second = AsyncJudgePipeline(ROOT, transport=recovery, cache=FileJudgeCache(tmp_path / "cache"), retry=RetryPolicy(maximum_total_attempts=1))
+    recovered = _run(second.run([_commit("recovered")]))
+    assert recovered.results[0].valid is True  # type: ignore[union-attr]
+    assert recovered.results[0].cache_hit is False  # type: ignore[union-attr]
+    assert calls == 2
+
+
+def test_actual_usage_is_checked_after_estimate_admission() -> None:
+    async def transport(payload: dict[str, object]) -> dict[str, object]:
+        return {"labels": _labels(), "usage": {"input_tokens": 1, "output_tokens": 129}}
+
+    pipeline = AsyncJudgePipeline(ROOT, transport=transport, budget=BudgetConfig(max_output_tokens=128, max_total_tokens=10_000))
+    report = _run(pipeline.run([_commit("actual-budget")]))
+    assert report.results[0].valid is False  # type: ignore[union-attr]
+    assert "actual output tokens" in str(report.results[0].failure_reason)  # type: ignore[union-attr]
+
+
 def test_stale_result_rejected_and_final_merge_is_ordered() -> None:
     release_first = asyncio.Event()
     calls: list[str] = []
