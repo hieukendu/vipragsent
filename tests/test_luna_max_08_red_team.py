@@ -11,7 +11,12 @@ import torch
 import yaml
 from torch import nn
 
-from vipragsent.azure.client import AzureCache, AzureResponsesClient, AzureSettings
+from vipragsent.azure.client import (
+    AzureCache,
+    AzureResponsesClient,
+    AzureSafetyCeilings,
+    AzureSettings,
+)
 from vipragsent.azure.schemas import strict_label_schema
 from vipragsent.constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS, TRAINING_SEEDS
 from vipragsent.data.loaders import DatasetExample
@@ -473,7 +478,7 @@ def test_red_team_reasoning_judge_parses_nested_responses_payload(tmp_path: Path
     valid["emotion"] = "other"
     settings = AzureSettings("https://azure.example/", "https://azure.example/openai/v1/", "judge", None, "api_key", "not-a-secret")
     payload = {"output": [{"type": "message", "content": [{"type": "output_text", "text": json.dumps(valid)}]}], "model": "GPT-4.1-mini", "version": "2025-04-14"}
-    client = AzureResponsesClient(settings, transport=lambda **_kwargs: payload, cache=AzureCache(tmp_path / "azure-cache"))
+    client = AzureResponsesClient(settings, transport=lambda **_kwargs: payload, cache=AzureCache(tmp_path / "azure-cache"), safety=AzureSafetyCeilings(allow_unknown_spend=True))
     record = client.create_structured(prompt="reason", task="all", schema={"strict": True, "schema": strict_label_schema("all")}, max_output_tokens=20)
     assert record["labels"] == valid, "nested Responses output_text payload was not parsed by the shared client"
 
@@ -487,7 +492,7 @@ def test_red_team_reasoning_judge_caches_terminal_invalid_and_validates_model_ve
         calls += 1
         return {"parsed": {"unexpected": 1}, "model": "GPT-4.1-mini", "version": "2025-04-14"}
 
-    client = AzureResponsesClient(settings, transport=invalid_transport, cache=AzureCache(tmp_path / "cache"))
+    client = AzureResponsesClient(settings, transport=invalid_transport, cache=AzureCache(tmp_path / "cache"), safety=AzureSafetyCeilings(allow_unknown_spend=True))
     schema = {"strict": True, "schema": strict_label_schema("all")}
     first = client.create_structured(prompt="reason", task="all", schema=schema, max_output_tokens=20, return_invalid=True)
     second = client.create_structured(prompt="reason", task="all", schema=schema, max_output_tokens=20, return_invalid=True)
@@ -497,7 +502,7 @@ def test_red_team_reasoning_judge_caches_terminal_invalid_and_validates_model_ve
 
 def test_red_team_reasoning_judge_rejects_model_version_mismatch() -> None:
     settings = AzureSettings("https://azure.example/", "https://azure.example/openai/v1/", "judge", None, "api_key", "not-a-secret")
-    mismatch = AzureResponsesClient(settings, transport=lambda **_kwargs: {"parsed": {label: 0 for label in PRAGMATIC_LABELS} | {"polarity": "neutral", "emotion": "other"}, "model": "GPT-4.1-mini", "version": "wrong"})
+    mismatch = AzureResponsesClient(settings, transport=lambda **_kwargs: {"parsed": {label: 0 for label in PRAGMATIC_LABELS} | {"polarity": "neutral", "emotion": "other"}, "model": "GPT-4.1-mini", "version": "wrong"}, safety=AzureSafetyCeilings(allow_unknown_spend=True))
     schema = {"strict": True, "schema": strict_label_schema("all")}
     with pytest.raises(Exception, match="version"):
         mismatch.create_structured(prompt="reason", task="all", schema=schema, max_output_tokens=20)

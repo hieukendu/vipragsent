@@ -32,6 +32,12 @@ def _run(coro: object) -> object:
     return asyncio.run(coro)  # type: ignore[arg-type]
 
 
+def _fixture_budget(**kwargs: object) -> BudgetConfig:
+    """Explicitly permit legacy no-usage mock responses in fixture tests."""
+
+    return BudgetConfig(allow_unknown_spend=True, **kwargs)
+
+
 def test_cache_is_sample_independent_and_persisted(tmp_path: Path) -> None:
     calls: list[dict[str, object]] = []
 
@@ -62,7 +68,7 @@ def test_cache_key_lock_deduplicates_concurrent_requests(tmp_path: Path) -> None
         return {"labels": _labels(1)}
 
     async def exercise() -> object:
-        pipeline = AsyncJudgePipeline(ROOT, transport=transport, cache=FileJudgeCache(tmp_path / "cache"), max_inflight=2)
+        pipeline = AsyncJudgePipeline(ROOT, transport=transport, cache=FileJudgeCache(tmp_path / "cache"), max_inflight=2, budget=_fixture_budget())
         task = asyncio.create_task(pipeline.run([_commit("a"), _commit("b")]))
         await started.wait()
         assert len(calls) == 1
@@ -83,8 +89,8 @@ def test_payload_is_reasoning_only_and_client_can_be_shared() -> None:
         return {"labels": _labels()}
 
     async def exercise() -> tuple[object, object]:
-        left = AsyncJudgePipeline(ROOT, transport=transport)
-        right = AsyncJudgePipeline(ROOT, transport=transport)
+        left = AsyncJudgePipeline(ROOT, transport=transport, budget=_fixture_budget())
+        right = AsyncJudgePipeline(ROOT, transport=transport, budget=_fixture_budget())
         return await asyncio.gather(left.run([_commit("left", "left reasoning")]), right.run([_commit("right", "right reasoning")]))  # type: ignore[return-value]
 
     _run(exercise())
@@ -122,7 +128,7 @@ def test_backpressure_bounds_committed_unjudged_and_inflight() -> None:
             yield _commit(str(index), f"reasoning-{index}")
 
     async def exercise() -> object:
-        pipeline = AsyncJudgePipeline(ROOT, transport=transport, max_inflight=1, max_committed_unjudged=2)
+        pipeline = AsyncJudgePipeline(ROOT, transport=transport, max_inflight=1, max_committed_unjudged=2, budget=_fixture_budget())
         task = asyncio.create_task(pipeline.run(commits()))
         await started.wait()
         await asyncio.sleep(0)
@@ -189,7 +195,7 @@ def test_semantic_error_is_per_sample_and_not_retried() -> None:
         calls += 1
         return {"labels": {"sarcasm": 2}}
 
-    pipeline = AsyncJudgePipeline(ROOT, transport=transport, retry=RetryPolicy(maximum_total_attempts=5))
+    pipeline = AsyncJudgePipeline(ROOT, transport=transport, retry=RetryPolicy(maximum_total_attempts=5), budget=_fixture_budget())
     report = _run(pipeline.run([_commit("bad")]))
     assert calls == 1
     assert report.results[0].status == "failed"  # type: ignore[union-attr]
@@ -210,7 +216,7 @@ def test_five_xx_is_retried_with_bounded_delay() -> None:
     async def sleep(seconds: float) -> None:
         sleeps.append(seconds)
 
-    pipeline = AsyncJudgePipeline(ROOT, transport=transport, retry=RetryPolicy(maximum_total_attempts=2), sleep=sleep)
+    pipeline = AsyncJudgePipeline(ROOT, transport=transport, retry=RetryPolicy(maximum_total_attempts=2), budget=_fixture_budget(), sleep=sleep)
     report = _run(pipeline.run([_commit("server-error")]))
     assert calls == 2
     assert sleeps == [0.5]
@@ -251,6 +257,72 @@ def test_actual_usage_is_checked_after_estimate_admission() -> None:
     assert "actual output tokens" in str(report.results[0].failure_reason)  # type: ignore[union-attr]
 
 
+def test_concurrent_async_actual_overrun_latches_stop_and_telemetry() -> None:
+    calls = 0
+    release = asyncio.Event()
+
+    async def transport(payload: dict[str, object]) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            release.set()
+        await release.wait()
+        return {"labels": _labels(), "usage": {"input_tokens": 1, "output_tokens": 257}}
+
+    pipeline = AsyncJudgePipeline(
+        ROOT,
+        transport=transport,
+        max_inflight=2,
+        max_committed_unjudged=2,
+        retry=RetryPolicy(maximum_total_attempts=5),
+        budget=BudgetConfig(max_output_tokens=256, max_total_tokens=10_000, max_requests=20, max_concurrency=2),
+    )
+    report = _run(pipeline.run([_commit("overrun-a", "reason-a"), _commit("overrun-b", "reason-b")]))
+
+    assert calls == 2
+    assert report.stopped_reason == "actual_output_token_ceiling_exceeded"
+    assert report.telemetry["safety_tripped"] is True
+    assert report.telemetry["safety_overrun_count"] == 1
+    assert report.telemetry["safety_overrun_reason"] == "actual_output_token_ceiling_exceeded"
+    assert report.telemetry["safety_stop_reason"] is not None
+
+
+def test_async_missing_usage_fails_closed_by_default() -> None:
+    calls = 0
+
+    async def transport(payload: dict[str, object]) -> dict[str, object]:
+        nonlocal calls
+        calls += 1
+        return {"labels": _labels()}
+
+    pipeline = AsyncJudgePipeline(ROOT, transport=transport, max_inflight=1)
+    report = _run(pipeline.run([_commit("missing-a"), _commit("missing-b")]))
+
+    assert calls == 1
+    assert report.stopped_reason == "unknown_usage"
+    assert report.results[0].failure_reason == "actual usage has unknown spend"  # type: ignore[union-attr]
+    assert report.telemetry["safety_tripped"] is True
+    assert report.telemetry["unknown_spend_count"] == 1
+
+
+def test_async_unknown_usage_opt_in_debits_the_reserved_ceiling() -> None:
+    async def transport(payload: dict[str, object]) -> dict[str, object]:
+        return {"labels": _labels()}
+
+    pipeline = AsyncJudgePipeline(
+        ROOT,
+        transport=transport,
+        budget=BudgetConfig(allow_unknown_spend=True, max_output_tokens=128, max_total_tokens=10_000),
+    )
+    report = _run(pipeline.run([_commit("unknown-opt-in")]))
+
+    assert report.results[0].valid is True  # type: ignore[union-attr]
+    assert report.results[0].spend_status == "UNKNOWN"  # type: ignore[union-attr]
+    assert report.telemetry["unknown_spend_count"] == 1
+    assert report.telemetry["accounted_output_tokens"] == 128
+    assert report.telemetry["accounted_total_tokens"] >= 128
+
+
 def test_stale_result_rejected_and_final_merge_is_ordered() -> None:
     release_first = asyncio.Event()
     calls: list[str] = []
@@ -263,7 +335,7 @@ def test_stale_result_rejected_and_final_merge_is_ordered() -> None:
         return {"labels": _labels(1)}
 
     async def exercise() -> object:
-        pipeline = AsyncJudgePipeline(ROOT, transport=transport, max_inflight=2, max_committed_unjudged=2)
+        pipeline = AsyncJudgePipeline(ROOT, transport=transport, max_inflight=2, max_committed_unjudged=2, budget=_fixture_budget())
         old = _commit("same", "old reasoning")
         new = _commit("same", "new reasoning")
         task = asyncio.create_task(pipeline.run([old, new]))
@@ -290,7 +362,7 @@ def test_budget_stop_and_single_writer_finalizer() -> None:
     def finalizer(rows: tuple[dict[str, object], ...], telemetry: dict[str, int | float]) -> None:
         finalizer_calls.append((rows, dict(telemetry)))
 
-    pipeline = AsyncJudgePipeline(ROOT, transport=transport, budget=BudgetConfig(max_logical_items=2, max_requests=10, max_tokens=10_000), aggregate_finalizer=finalizer)
+    pipeline = AsyncJudgePipeline(ROOT, transport=transport, budget=_fixture_budget(max_logical_items=2, max_requests=10, max_tokens=10_000), aggregate_finalizer=finalizer)
     report = _run(pipeline.run([_commit("0", "zero"), _commit("1", "one"), _commit("2", "two")]))
     assert calls == 2
     assert report.stopped_reason == "logical_budget_exhausted"
@@ -308,7 +380,7 @@ def test_request_budget_stops_without_partial_extra_request() -> None:
         calls += 1
         return {"labels": _labels()}
 
-    pipeline = AsyncJudgePipeline(ROOT, transport=transport, max_inflight=1, budget=BudgetConfig(max_logical_items=3, max_requests=1, max_tokens=10_000))
+    pipeline = AsyncJudgePipeline(ROOT, transport=transport, max_inflight=1, budget=_fixture_budget(max_logical_items=3, max_requests=1, max_tokens=10_000))
     report = _run(pipeline.run([_commit("0", "zero"), _commit("1", "one")]))
     assert calls == 1
     assert report.results[1].failure_reason == "request_or_token_budget_exhausted"  # type: ignore[union-attr]
