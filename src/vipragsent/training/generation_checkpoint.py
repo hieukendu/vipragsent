@@ -8,6 +8,7 @@ never contains a second copy of model weights.
 from __future__ import annotations
 
 import json
+import math
 import re
 from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass
@@ -28,6 +29,12 @@ from .checkpoints import (
 )
 
 GENERATION_CHECKPOINT_SCHEMA_VERSION = 2
+GENERATION_CHECKPOINT_POINTER_SCHEMA_VERSION = 1
+GENERATION_SELECTION_METRIC_NAME = "full_split_macro_pragmatic_f1_all_zero_fallback_dev"
+GENERATION_CHECKPOINT_POINTER_KINDS = ("latest", "best")
+_CHECKPOINT_SHA_RE = re.compile(r"[0-9A-Fa-f]{64}")
+_CANONICAL_EPOCH_PATH_RE = re.compile(r"checkpoints/epoch_(\d{4})/model\.pt")
+_LEGACY_EPOCH_PATH_RE = re.compile(r"checkpoints/epoch_(\d+)/model\.pt")
 _PLACEHOLDER_DATA_HASHES = {
     "",
     "NONE",
@@ -62,6 +69,10 @@ class GenerationCheckpointManifest:
     checkpoint_sha256: str
     provenance: dict[str, Any]
     provenance_sha256: str
+    epoch: int | None = None
+    variant_fingerprint: str = "NOT_PROVIDED"
+    selection_metric_name: str = GENERATION_SELECTION_METRIC_NAME
+    selection_metric_value: float | None = None
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -69,6 +80,10 @@ class GenerationCheckpointManifest:
             "checkpoint_sha256": self.checkpoint_sha256,
             "provenance": self.provenance,
             "provenance_sha256": self.provenance_sha256,
+            "epoch": self.epoch,
+            "variant_fingerprint": self.variant_fingerprint,
+            "selection_metric_name": self.selection_metric_name,
+            "selection_metric_value": self.selection_metric_value,
         }
 
 
@@ -84,6 +99,81 @@ class GenerationCheckpointLoadResult:
     @property
     def run_state(self) -> Mapping[str, Any]:
         return self.checkpoint.run_state
+
+
+def _finite_metric(value: Any, *, allow_none: bool = True) -> float | None:
+    if value is None and allow_none:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int | float):
+        raise GenerationCheckpointError("generation checkpoint selection metric must be a finite number or null")
+    result = float(value)
+    if not math.isfinite(result):
+        raise GenerationCheckpointError("generation checkpoint selection metric must be finite")
+    return result
+
+
+def _positive_epoch(value: Any, *, field: str = "epoch") -> int:
+    if isinstance(value, bool) or not isinstance(value, int | float) or not float(value).is_integer():
+        raise GenerationCheckpointError(f"generation checkpoint {field} must be a positive integer")
+    result = int(value)
+    if result < 1:
+        raise GenerationCheckpointError(f"generation checkpoint {field} must be a positive integer")
+    return result
+
+
+def _sha256(value: Any, *, field: str) -> str:
+    result = str(value or "").strip().upper()
+    if not _CHECKPOINT_SHA_RE.fullmatch(result):
+        raise GenerationCheckpointError(f"generation checkpoint {field} must be a SHA-256 digest")
+    return result
+
+
+def _run_root_path(run_root: str | Path, path: str | Path, *, require_relative: bool = False) -> Path:
+    """Resolve a checkpoint path while refusing paths outside the run root."""
+    root = Path(run_root).resolve()
+    candidate = Path(path)
+    if require_relative and candidate.is_absolute():
+        raise GenerationCheckpointError("generation checkpoint pointer path must be relative to the run root")
+    resolved = (root / candidate if not candidate.is_absolute() else candidate).resolve()
+    try:
+        resolved.relative_to(root)
+    except ValueError as exc:
+        raise GenerationCheckpointError("generation checkpoint path is outside the run root") from exc
+    return resolved
+
+
+def _relative_run_path(run_root: str | Path, path: str | Path) -> str:
+    root = Path(run_root).resolve()
+    resolved = _run_root_path(root, path)
+    return resolved.relative_to(root).as_posix()
+
+
+def _pointer_path(run_root: str | Path, kind: str) -> Path:
+    if kind not in GENERATION_CHECKPOINT_POINTER_KINDS:
+        raise GenerationCheckpointError(f"unsupported generation checkpoint pointer kind: {kind}")
+    return Path(run_root) / "checkpoints" / f"{kind}_checkpoint.json"
+
+
+def generation_checkpoint_pointer_path(run_root: str | Path, kind: str) -> Path:
+    """Return the atomic pointer path for ``latest`` or ``best``."""
+    return _pointer_path(run_root, kind)
+
+
+def canonical_generation_epoch_path(epoch: int) -> str:
+    """Return the immutable, zero-padded physical path for one epoch."""
+    return f"checkpoints/epoch_{_positive_epoch(epoch):04d}/model.pt"
+
+
+def _epoch_from_checkpoint_path(path: str, *, canonical_only: bool = False) -> int:
+    normalized = Path(path).as_posix()
+    match = _CANONICAL_EPOCH_PATH_RE.fullmatch(normalized)
+    if match is None and not canonical_only:
+        match = _LEGACY_EPOCH_PATH_RE.fullmatch(normalized)
+    if match is None:
+        raise GenerationCheckpointError(
+            "generation checkpoint pointer path must identify checkpoints/epoch_NNNN/model.pt"
+        )
+    return _positive_epoch(int(match.group(1)))
 
 
 def is_real_dataset_hash(value: Any) -> bool:
@@ -157,6 +247,10 @@ def _read_manifest(path: Path, checkpoint_path: Path) -> GenerationCheckpointMan
             checkpoint_sha256=str(raw["checkpoint_sha256"]),
             provenance=provenance,
             provenance_sha256=str(raw["provenance_sha256"]),
+            epoch=(None if raw.get("epoch") is None else _positive_epoch(raw["epoch"])),
+            variant_fingerprint=str(raw.get("variant_fingerprint", "NOT_PROVIDED")),
+            selection_metric_name=str(raw.get("selection_metric_name", GENERATION_SELECTION_METRIC_NAME)),
+            selection_metric_value=_finite_metric(raw.get("selection_metric_value")),
         )
     except (OSError, KeyError, TypeError, ValueError, json.JSONDecodeError) as exc:
         raise GenerationCheckpointError(f"invalid generation checkpoint manifest {path}: {exc}") from exc
@@ -166,6 +260,10 @@ def _read_manifest(path: Path, checkpoint_path: Path) -> GenerationCheckpointMan
         raise GenerationCheckpointError("generation checkpoint provenance hash mismatch")
     if manifest.checkpoint_sha256 != sha256_file(checkpoint_path):
         raise GenerationCheckpointError("generation checkpoint content hash mismatch")
+    if not manifest.variant_fingerprint:
+        raise GenerationCheckpointError("generation checkpoint variant fingerprint is missing")
+    if not manifest.selection_metric_name:
+        raise GenerationCheckpointError("generation checkpoint selection metric name is missing")
     return manifest
 
 
@@ -199,10 +297,21 @@ def save_generation_checkpoint(
     metadata: Mapping[str, Any] | None = None,
     production_provenance_required: bool = False,
     fixture_mode: bool = False,
+    epoch: int | None = None,
+    variant_fingerprint: str | None = None,
+    selection_metric_name: str = GENERATION_SELECTION_METRIC_NAME,
+    selection_metric_value: float | None = None,
 ) -> GenerationCheckpointManifest:
     """Atomically save one canonical checkpoint plus its integrity manifest."""
     checkpoint_path = Path(path)
     normalized = _validated_provenance(provenance)
+    normalized_epoch = None if epoch is None else _positive_epoch(epoch)
+    if not str(selection_metric_name).strip():
+        raise GenerationCheckpointError("generation checkpoint selection metric name is missing")
+    normalized_metric = _finite_metric(selection_metric_value)
+    normalized_variant = str(variant_fingerprint or "NOT_PROVIDED").strip()
+    if not normalized_variant:
+        raise GenerationCheckpointError("generation checkpoint variant fingerprint is missing")
     _validate_provenance_mode(
         normalized,
         model,
@@ -215,6 +324,11 @@ def save_generation_checkpoint(
             **dict(metadata or {}),
             "checkpoint_kind": "generation_resume",
             "provenance": normalized,
+            "provenance_sha256": sha256_json(normalized),
+            "epoch": normalized_epoch,
+            "variant_fingerprint": normalized_variant,
+            "selection_metric_name": str(selection_metric_name),
+            "selection_metric_value": normalized_metric,
         },
         rng_state=rng_state,
     )
@@ -224,9 +338,301 @@ def save_generation_checkpoint(
         sha256_file(checkpoint_path),
         normalized,
         sha256_json(normalized),
+        normalized_epoch,
+        normalized_variant,
+        str(selection_metric_name),
+        normalized_metric,
     )
     atomic_write_json(_manifest_path(checkpoint_path), manifest.as_dict())
+    # Verify both atomic outputs before making the checkpoint eligible for a
+    # latest/best pointer.  A pointer must never reference a partially written
+    # or stale canonical payload.
+    verified = _read_manifest(_manifest_path(checkpoint_path), checkpoint_path)
+    if verified.checkpoint_sha256 != manifest.checkpoint_sha256 or verified.provenance_sha256 != manifest.provenance_sha256:
+        raise GenerationCheckpointError("generation checkpoint sidecar verification failed")
     return manifest
+
+
+def _payload_identity(path: Path) -> tuple[int | None, Mapping[str, Any]]:
+    """Read payload metadata needed to validate a pointer identity."""
+    try:
+        try:
+            raw = torch.load(path, map_location="cpu", weights_only=False)
+        except TypeError:
+            raw = torch.load(path, map_location="cpu")
+    except Exception as exc:
+        raise GenerationCheckpointError(f"generation checkpoint payload is unreadable: {path}") from exc
+    if not isinstance(raw, Mapping):
+        raise GenerationCheckpointError("generation checkpoint payload must be a mapping")
+    state = raw.get("run_state")
+    epoch = None
+    if isinstance(state, Mapping) and state.get("epoch") is not None:
+        epoch = _positive_epoch(state.get("epoch"), field="run_state epoch")
+    metadata = raw.get("metadata")
+    if not isinstance(metadata, Mapping):
+        raise GenerationCheckpointError("generation checkpoint payload metadata is missing")
+    return epoch, metadata
+
+
+def _validate_pointer_target(
+    run_root: str | Path,
+    path: str | Path,
+    *,
+    expected_epoch: int | None = None,
+    expected_checkpoint_sha256: str | None = None,
+    expected_provenance_sha256: str | None = None,
+    expected_variant_fingerprint: str | None = None,
+    expected_selection_metric_name: str | None = None,
+    expected_selection_metric_value: float | None = None,
+) -> tuple[Path, GenerationCheckpointManifest, int]:
+    relative = _relative_run_path(run_root, path)
+    epoch = _epoch_from_checkpoint_path(relative, canonical_only=True)
+    if expected_epoch is not None and epoch != _positive_epoch(expected_epoch, field="pointer epoch"):
+        raise GenerationCheckpointError("generation checkpoint pointer epoch disagrees with its path")
+    checkpoint_path = _run_root_path(run_root, relative)
+    if not checkpoint_path.is_file():
+        raise GenerationCheckpointError(f"generation checkpoint pointer target is missing: {relative}")
+    manifest = _read_manifest(_manifest_path(checkpoint_path), checkpoint_path)
+    if manifest.epoch is None:
+        raise GenerationCheckpointError("canonical generation checkpoint sidecar epoch is missing")
+    if manifest.epoch != epoch:
+        raise GenerationCheckpointError("generation checkpoint sidecar epoch disagrees with its path")
+    payload_epoch, payload_metadata = _payload_identity(checkpoint_path)
+    if payload_epoch is not None and payload_epoch != epoch:
+        raise GenerationCheckpointError("generation checkpoint payload epoch disagrees with its path")
+    metadata_epoch = payload_metadata.get("epoch")
+    if metadata_epoch is not None and _positive_epoch(metadata_epoch, field="payload epoch") != epoch:
+        raise GenerationCheckpointError("generation checkpoint payload metadata epoch disagrees with its path")
+    payload_provenance = payload_metadata.get("provenance")
+    if not isinstance(payload_provenance, Mapping):
+        raise GenerationCheckpointError("generation checkpoint payload provenance is missing")
+    normalized_payload_provenance = _validated_provenance(payload_provenance)
+    payload_provenance_sha256 = payload_metadata.get("provenance_sha256") or sha256_json(normalized_payload_provenance)
+    if _sha256(payload_provenance_sha256, field="payload provenance_sha256") != _sha256(manifest.provenance_sha256, field="sidecar provenance_sha256"):
+        raise GenerationCheckpointError("generation checkpoint provenance SHA does not match its payload and sidecar")
+    if str(payload_metadata.get("variant_fingerprint", manifest.variant_fingerprint)) != str(manifest.variant_fingerprint):
+        raise GenerationCheckpointError("generation checkpoint payload variant fingerprint does not match its sidecar")
+    if str(payload_metadata.get("selection_metric_name", manifest.selection_metric_name)) != str(manifest.selection_metric_name):
+        raise GenerationCheckpointError("generation checkpoint payload selection metric name does not match its sidecar")
+    payload_metric = _finite_metric(payload_metadata.get("selection_metric_value"))
+    if manifest.selection_metric_value is not None and payload_metric is not None:
+        if not math.isclose(float(payload_metric), float(manifest.selection_metric_value), rel_tol=0.0, abs_tol=1e-12):
+            raise GenerationCheckpointError("generation checkpoint payload selection metric does not match its sidecar")
+    observed_hash = _sha256(sha256_file(checkpoint_path), field="checkpoint_sha256")
+    sidecar_hash = _sha256(manifest.checkpoint_sha256, field="sidecar checkpoint_sha256")
+    if observed_hash != sidecar_hash:
+        raise GenerationCheckpointError("generation checkpoint content hash does not match its sidecar")
+    if expected_checkpoint_sha256 is not None and observed_hash != _sha256(expected_checkpoint_sha256, field="pointer checkpoint_sha256"):
+        raise GenerationCheckpointError("generation checkpoint pointer SHA does not match its target")
+    sidecar_provenance = _sha256(manifest.provenance_sha256, field="sidecar provenance_sha256")
+    if expected_provenance_sha256 is not None and sidecar_provenance != _sha256(expected_provenance_sha256, field="pointer provenance_sha256"):
+        raise GenerationCheckpointError("generation checkpoint pointer provenance SHA does not match its sidecar")
+    if expected_variant_fingerprint is not None and str(manifest.variant_fingerprint) != str(expected_variant_fingerprint):
+        raise GenerationCheckpointError("generation checkpoint pointer variant fingerprint does not match its sidecar")
+    if expected_selection_metric_name is not None and str(manifest.selection_metric_name) != str(expected_selection_metric_name):
+        raise GenerationCheckpointError("generation checkpoint pointer selection metric name does not match its sidecar")
+    if expected_selection_metric_value is not None and manifest.selection_metric_value is not None:
+        observed_metric = _finite_metric(manifest.selection_metric_value)
+        expected_metric = _finite_metric(expected_selection_metric_value, allow_none=False)
+        if observed_metric is None or not math.isclose(observed_metric, expected_metric, rel_tol=0.0, abs_tol=1e-12):
+            raise GenerationCheckpointError("generation checkpoint pointer selection metric value does not match its sidecar")
+    return checkpoint_path, manifest, epoch
+
+
+def write_generation_checkpoint_pointer(
+    run_root: str | Path,
+    kind: str,
+    path: str | Path,
+    *,
+    selection_metric_name: str = GENERATION_SELECTION_METRIC_NAME,
+    selection_metric_value: float | None = None,
+    variant_fingerprint: str | None = None,
+) -> dict[str, Any]:
+    """Atomically publish one tiny pointer to an immutable epoch payload."""
+    if kind not in GENERATION_CHECKPOINT_POINTER_KINDS:
+        raise GenerationCheckpointError(f"unsupported generation checkpoint pointer kind: {kind}")
+    if not str(selection_metric_name).strip():
+        raise GenerationCheckpointError("generation checkpoint pointer selection metric name is missing")
+    metric = _finite_metric(selection_metric_value)
+    checkpoint_path, manifest, epoch = _validate_pointer_target(
+        run_root,
+        path,
+        expected_selection_metric_name=None,
+    )
+    normalized_variant = str(variant_fingerprint or manifest.variant_fingerprint).strip()
+    if not normalized_variant or normalized_variant == "NOT_PROVIDED":
+        raise GenerationCheckpointError("generation checkpoint pointer variant fingerprint is missing")
+    if manifest.variant_fingerprint != normalized_variant:
+        raise GenerationCheckpointError("generation checkpoint pointer variant fingerprint does not match its sidecar")
+    sidecar_metric_name = str(manifest.selection_metric_name)
+    if sidecar_metric_name != str(selection_metric_name):
+        raise GenerationCheckpointError("generation checkpoint pointer selection metric name does not match its sidecar")
+    sidecar_metric = _finite_metric(manifest.selection_metric_value)
+    if metric is not None and sidecar_metric is not None:
+        if not math.isclose(sidecar_metric, metric, rel_tol=0.0, abs_tol=1e-12):
+            raise GenerationCheckpointError("generation checkpoint pointer selection metric value does not match its sidecar")
+    elif sidecar_metric is not None:
+        # A caller may omit the metric when the canonical sidecar already
+        # contains it.  The pointer still records the verified value.
+        metric = sidecar_metric
+    pointer = {
+        "schema_version": GENERATION_CHECKPOINT_POINTER_SCHEMA_VERSION,
+        "path": checkpoint_path.relative_to(Path(run_root).resolve()).as_posix(),
+        "epoch": epoch,
+        "checkpoint_sha256": _sha256(sha256_file(checkpoint_path), field="checkpoint_sha256"),
+        "provenance_sha256": _sha256(manifest.provenance_sha256, field="provenance_sha256"),
+        "variant_fingerprint": normalized_variant,
+        "selection_metric_name": str(selection_metric_name),
+        "selection_metric_value": metric,
+    }
+    atomic_write_json(_pointer_path(run_root, kind), pointer)
+    return pointer
+
+
+def _legacy_pointer_record(run_root: str | Path, kind: str, path: Path) -> dict[str, Any]:
+    """Describe an old physical best/latest file without rewriting it."""
+    relative = _relative_run_path(run_root, path)
+    if not path.is_file():
+        raise GenerationCheckpointError(f"legacy generation checkpoint is missing: {relative}")
+    epoch: int | None = None
+    metric: float | None = None
+    manifest_path = _manifest_path(path)
+    if manifest_path.exists():
+        manifest = _read_manifest(manifest_path, path)
+        epoch = manifest.epoch
+        metric = manifest.selection_metric_value
+        provenance_sha256 = manifest.provenance_sha256
+        variant_fingerprint = manifest.variant_fingerprint
+        metric_name = manifest.selection_metric_name
+    else:
+        try:
+            try:
+                raw = torch.load(path, map_location="cpu", weights_only=False)
+            except TypeError:
+                raw = torch.load(path, map_location="cpu")
+        except Exception:
+            raw = None
+        state = raw.get("state", {}) if isinstance(raw, Mapping) else {}
+        if isinstance(state, Mapping) and state.get("epoch") is not None:
+            try:
+                epoch = _positive_epoch(state.get("epoch"), field="legacy epoch")
+            except GenerationCheckpointError:
+                epoch = None
+        provenance_sha256 = "NOT_PROVIDED"
+        variant_fingerprint = "NOT_PROVIDED"
+        metric_name = GENERATION_SELECTION_METRIC_NAME
+    if epoch is None:
+        # Legacy physical files did not always persist an epoch.  Readers can
+        # still load them, but pointer consumers must not claim a false epoch.
+        epoch = 0
+    return {
+        "schema_version": GENERATION_CHECKPOINT_POINTER_SCHEMA_VERSION,
+        "path": relative,
+        "epoch": epoch,
+        "checkpoint_sha256": _sha256(sha256_file(path), field="checkpoint_sha256"),
+        "provenance_sha256": provenance_sha256,
+        "variant_fingerprint": variant_fingerprint,
+        "selection_metric_name": metric_name,
+        "selection_metric_value": metric,
+        "legacy": True,
+    }
+
+
+def read_generation_checkpoint_pointer(
+    run_root: str | Path,
+    kind: str,
+    *,
+    allow_legacy: bool = True,
+) -> dict[str, Any]:
+    """Read and fully validate a latest/best pointer, with legacy fallback."""
+    pointer_path = _pointer_path(run_root, kind)
+    if not pointer_path.exists():
+        if allow_legacy:
+            legacy_path = Path(run_root) / "checkpoints" / kind / "model.pt"
+            if legacy_path.exists():
+                return _legacy_pointer_record(run_root, kind, legacy_path)
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer is missing")
+    try:
+        raw = json.loads(pointer_path.read_text(encoding="utf-8"))
+    except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer is unreadable: {exc}") from exc
+    if not isinstance(raw, Mapping):
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer must be a JSON object")
+    required = (
+        "schema_version",
+        "path",
+        "epoch",
+        "checkpoint_sha256",
+        "provenance_sha256",
+        "variant_fingerprint",
+        "selection_metric_name",
+        "selection_metric_value",
+    )
+    missing = [field for field in required if field not in raw]
+    if missing:
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer is missing fields: {missing}")
+    try:
+        schema_version = int(raw["schema_version"])
+    except (TypeError, ValueError) as exc:
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer schema is invalid") from exc
+    if schema_version != GENERATION_CHECKPOINT_POINTER_SCHEMA_VERSION:
+        raise GenerationCheckpointError(f"unsupported generation checkpoint pointer schema: {schema_version}")
+    path_value = raw["path"]
+    if not isinstance(path_value, str) or not path_value.strip():
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer path is missing")
+    relative = Path(path_value).as_posix()
+    if Path(path_value).is_absolute() or relative != path_value.replace("\\", "/"):
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer path must be a normalized relative path")
+    epoch = _positive_epoch(raw["epoch"], field="pointer epoch")
+    checkpoint_sha256 = _sha256(raw["checkpoint_sha256"], field="pointer checkpoint_sha256")
+    provenance_sha256 = _sha256(raw["provenance_sha256"], field="pointer provenance_sha256")
+    variant_fingerprint = str(raw["variant_fingerprint"]).strip()
+    if not variant_fingerprint:
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer variant fingerprint is missing")
+    metric_name = str(raw["selection_metric_name"]).strip()
+    if not metric_name:
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer selection metric name is missing")
+    metric = _finite_metric(raw["selection_metric_value"])
+    checkpoint_path, manifest, target_epoch = _validate_pointer_target(
+        run_root,
+        relative,
+        expected_epoch=epoch,
+        expected_checkpoint_sha256=checkpoint_sha256,
+        expected_provenance_sha256=provenance_sha256,
+        expected_variant_fingerprint=variant_fingerprint,
+        expected_selection_metric_name=metric_name,
+        expected_selection_metric_value=metric,
+    )
+    if target_epoch != epoch:
+        raise GenerationCheckpointError(f"generation checkpoint {kind} pointer epoch disagrees with its path")
+    return {
+        "schema_version": schema_version,
+        "path": checkpoint_path.relative_to(Path(run_root).resolve()).as_posix(),
+        "epoch": epoch,
+        "checkpoint_sha256": checkpoint_sha256,
+        "provenance_sha256": provenance_sha256,
+        "variant_fingerprint": variant_fingerprint,
+        "selection_metric_name": metric_name,
+        "selection_metric_value": metric,
+    }
+
+
+def resolve_generation_checkpoint_pointer(
+    run_root: str | Path,
+    kind: str,
+    *,
+    allow_legacy: bool = True,
+) -> Path:
+    """Resolve a validated pointer to its physical payload path."""
+    pointer = read_generation_checkpoint_pointer(run_root, kind, allow_legacy=allow_legacy)
+    return _run_root_path(run_root, pointer["path"])
+
+
+# Concise aliases are useful to stage/executor callers and keep the public
+# surface discoverable for existing integrations.
+read_checkpoint_pointer = read_generation_checkpoint_pointer
+write_checkpoint_pointer = write_generation_checkpoint_pointer
+resolve_checkpoint_pointer = resolve_generation_checkpoint_pointer
 
 
 def _provenance_matches(

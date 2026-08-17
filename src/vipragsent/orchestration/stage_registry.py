@@ -44,7 +44,15 @@ from ..training.class_weights import (
 )
 from ..training.config_resolver import persist_resolved_training_config, resolve_training_config
 from ..training.engine import TrainingConfig, TrainingEngine
-from ..training.generation_checkpoint import is_real_dataset_hash
+from ..training.generation_checkpoint import (
+    GENERATION_CHECKPOINT_POINTER_KINDS,
+    GENERATION_SELECTION_METRIC_NAME,
+    is_real_dataset_hash,
+    read_generation_checkpoint_pointer,
+    resolve_generation_checkpoint_pointer,
+    save_generation_checkpoint,
+    write_generation_checkpoint_pointer,
+)
 from ..training.optimizers import build_optimizer
 from ..training.schedulers import build_scheduler
 from .approval import validate_approval_record
@@ -257,27 +265,30 @@ def _selected_dev_artifacts_reusable(run_root: Path) -> bool:
         run_root / "judge/dev_judge_responses.jsonl",
         run_root / "metrics/dev_reasoning_metrics.json",
         run_root / "reasoning/dev_chunks_manifest.json",
-        run_root / "checkpoints/best/model.pt",
     )
     if not all(path.exists() for path in (selection_path, marker_path, *required)):
         return False
     try:
         selection = _load_mapping(selection_path)
         marker = _load_mapping(marker_path)
+        best_pointer = read_generation_checkpoint_pointer(run_root, "best", allow_legacy=True)
+        best_checkpoint = run_root / best_pointer["path"]
         selected = selection.get("dev_artifacts", {})
         return (
             marker.get("status") == "PASS"
             and selected.get("epoch") == marker.get("epoch")
             and selection.get("best_epoch") == marker.get("epoch")
             and str(selection.get("sha256") or selection.get("checkpoint_sha256")) == marker.get("checkpoint_sha256")
-            and sha256_file(required[5]) == marker.get("checkpoint_sha256")
+            and str(best_pointer.get("checkpoint_sha256", "")).upper() == str(marker.get("checkpoint_sha256", "")).upper()
+            and best_checkpoint.is_file()
+            and sha256_file(best_checkpoint) == marker.get("checkpoint_sha256")
             and sha256_file(required[0]) == marker.get("reasoning_sha256")
             and sha256_file(required[1]) == marker.get("predictions_sha256")
             and sha256_file(required[2]) == marker.get("judge_sha256")
             and sha256_file(required[3]) == marker.get("metrics_sha256")
             and sha256_file(required[4]) == marker.get("chunks_manifest_sha256")
         )
-    except (OSError, TypeError, ValueError, KeyError):
+    except (GenerationCheckpointError, OSError, TypeError, ValueError, KeyError):
         return False
 
 
@@ -769,16 +780,43 @@ def _fixture_cot_reasoning_stage(context: RunContext, entry: RunEntry, stage: st
         atomic_write_json(run_root / "training/optimizer_summary.json", {"executor_kind": "generation_trainable", "optimizer": "fixture_generation_optimizer", "classifier_heads": 0, "direct_label_target": False})
         atomic_write_json(run_root / "training/scheduler_summary.json", {"scheduler": "fixture_generation_scheduler", "additional_training": True})
         atomic_write_json(run_root / "training/resource_usage.json", {"fixture": True, "successful_gpu_hours": 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": 0.0, "optimizer_steps": 1})
-        for name in ("best", "latest"):
-            path = run_root / f"checkpoints/{name}/model.pt"
-            path.parent.mkdir(parents=True, exist_ok=True)
-            torch.save({"executor_kind": "generation_trainable", "variant_id": spec.variant_id, "synthetic_results": True}, path)
-        digest = sha256_file(run_root / "checkpoints/best/model.pt")
-        atomic_write_json(run_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "executor_kind": "generation_trainable", "synthetic_results": True, "checkpoint_sha256": digest, "best": "checkpoints/best/model.pt", "latest": "checkpoints/latest/model.pt", "prompt_hash": _load_mapping(context.root / "configs/experiments/generation_reasoning_protocol.yaml").get("generation_prompt_hash"), "rationale_source_hash": "fixture-source"})
-        atomic_write_json(run_root / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": digest, "best_epoch": 1})
+        variant_fingerprint = sha256_json({"system_id": entry.system_id, "variant": spec.variant_id, "fixture": True})
+        fixture_model = torch.nn.Linear(1, 1)
+        fixture_provenance = {
+            "model": {"class": "torch.nn.modules.linear.Linear"},
+            "model_artifact": {"identity": "fixture-generation-model@local"},
+            "tokenizer_artifact": {"identity": "fixture-generation-tokenizer@local"},
+            "dataset": {"identity": "fixture-generation", "hash": "fixture-data"},
+            "data_hash": "fixture-data",
+            "optimizer": {"class": "fixture", "param_group_count": 0},
+            "scheduler": {"class": "fixture"},
+            "rng": {"seed": entry.seed, "streams": ["python", "numpy", "torch"]},
+            "data_order": {"sample_ids": []},
+            "config": {"executor": "generation_trainable", "variant": spec.variant_id},
+            "model_environment": {"device": "cpu", "dtype": "float32"},
+        }
+        epoch_path = run_root / "checkpoints/epoch_0001/model.pt"
+        fixture_manifest = save_generation_checkpoint(
+            epoch_path,
+            fixture_model,
+            None,
+            None,
+            {"epoch": 1, "selection_metric": None, "data_order": []},
+            fixture_provenance,
+            metadata={"executor_kind": "generation_trainable", "variant_id": spec.variant_id, "synthetic_results": True},
+            fixture_mode=True,
+            epoch=1,
+            variant_fingerprint=variant_fingerprint,
+            selection_metric_name=GENERATION_SELECTION_METRIC_NAME,
+        )
+        latest_pointer = write_generation_checkpoint_pointer(run_root, "latest", "checkpoints/epoch_0001/model.pt", variant_fingerprint=variant_fingerprint)
+        best_pointer = write_generation_checkpoint_pointer(run_root, "best", "checkpoints/epoch_0001/model.pt", selection_metric_value=0.0, variant_fingerprint=variant_fingerprint)
+        digest = str(best_pointer["checkpoint_sha256"])
+        atomic_write_json(run_root / "checkpoints/checkpoint_manifest.json", {"status": "PASS", "executor_kind": "generation_trainable", "synthetic_results": True, "checkpoint_sha256": digest, "best": best_pointer["path"], "latest": latest_pointer["path"], "best_pointer": "checkpoints/best_checkpoint.json", "latest_pointer": "checkpoints/latest_checkpoint.json", "best_checkpoint_sha256": digest, "latest_checkpoint_sha256": latest_pointer["checkpoint_sha256"], "provenance_sha256": fixture_manifest.provenance_sha256, "variant_fingerprint": variant_fingerprint, "best_epoch": 1, "latest_epoch": 1, "prompt_hash": _load_mapping(context.root / "configs/experiments/generation_reasoning_protocol.yaml").get("generation_prompt_hash"), "rationale_source_hash": "fixture-source"})
+        atomic_write_json(run_root / "selection/best_checkpoint.json", {"status": "PASS", "path": best_pointer["path"], "sha256": digest, "best_epoch": 1, "selection_metric": GENERATION_SELECTION_METRIC_NAME, "selection_metric_name": GENERATION_SELECTION_METRIC_NAME, "value": 0.0, "checkpoint_path": best_pointer["path"], "checkpoint_sha256": digest})
         atomic_write_json(run_root / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": 0.0})
         atomic_write_json(run_root / "selection/thresholds.json", {"status": "NOT_APPLICABLE", "reason": "reasoning judge emits strict binary labels"})
-        return StageOutcome.passed(summary={"executor_kind": "generation_trainable", "generation_only": True, "synthetic_results": True}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json"))
+        return StageOutcome.passed(summary={"executor_kind": "generation_trainable", "generation_only": True, "synthetic_results": True}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "checkpoints/epoch_0001/model.pt", "checkpoints/epoch_0001/model.pt.manifest.json", "checkpoints/latest_checkpoint.json", "checkpoints/best_checkpoint.json", "selection/best_checkpoint.json"))
     if stage == "generate_dev_reasoning":
         rows = [{**row, "split": "dev", "generated_reasoning": "phân tích dấu hiệu ngôn ngữ trong câu", "generation_status": "PASS", "truncated": False, "failure_reason": None} for row in _fixture_reasoning_rows(entry, "dev")]
         atomic_write_text(run_root / "reasoning/dev_reasoning.jsonl", "".join(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n" for row in rows))
@@ -807,15 +845,25 @@ def _fixture_cot_reasoning_stage(context: RunContext, entry: RunEntry, stage: st
         return StageOutcome.passed(summary=metrics, expected_files=("metrics/dev_reasoning_metrics.json",))
     if stage == "freeze_selection":
         metrics_path = run_root / "metrics/dev_reasoning_metrics.json"
-        checkpoint_path = run_root / "checkpoints/best/model.pt"
-        if not metrics_path.exists() or not checkpoint_path.exists():
+        if not metrics_path.exists():
             return StageOutcome.blocked("cot-only selection requires checkpoint and judged dev metrics")
         metrics = _load_mapping(metrics_path)
-        digest = sha256_file(checkpoint_path)
-        atomic_write_json(run_root / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": digest, "best_epoch": 1, "primary_metric": metrics.get("primary_macro_f1", 0.0)})
+        try:
+            pointer = read_generation_checkpoint_pointer(run_root, "best", allow_legacy=False)
+            pointer = write_generation_checkpoint_pointer(
+                run_root,
+                "best",
+                pointer["path"],
+                selection_metric_value=float(metrics.get("primary_macro_f1", 0.0)),
+                variant_fingerprint=str(pointer["variant_fingerprint"]),
+            )
+        except GenerationCheckpointError as exc:
+            return StageOutcome.blocked(str(exc))
+        digest = str(pointer["checkpoint_sha256"])
+        atomic_write_json(run_root / "selection/best_checkpoint.json", {"status": "PASS", "path": pointer["path"], "sha256": digest, "best_epoch": int(pointer["epoch"]), "selection_metric": GENERATION_SELECTION_METRIC_NAME, "selection_metric_name": GENERATION_SELECTION_METRIC_NAME, "value": metrics.get("primary_macro_f1", 0.0), "primary_metric": metrics.get("primary_macro_f1", 0.0), "checkpoint_path": pointer["path"], "checkpoint_sha256": digest})
         atomic_write_json(run_root / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": metrics.get("primary_macro_f1", 0.0), "test_access": False})
         atomic_write_json(run_root / "selection/thresholds.json", {"status": "NOT_APPLICABLE", "reason": "reasoning judge emits strict binary labels; no dev threshold tuning"})
-        atomic_write_json(run_root / "selection/freeze_manifest.json", {"frozen": True, "checkpoint_sha256": digest, "dev_metric": metrics.get("primary_macro_f1", 0.0), "test_access": False})
+        atomic_write_json(run_root / "selection/freeze_manifest.json", {"frozen": True, "checkpoint": {"path": pointer["path"], "sha256": digest, "checkpoint_sha256": digest, "epoch": pointer["epoch"]}, "checkpoint_sha256": digest, "dev_metric": metrics.get("primary_macro_f1", 0.0), "test_access": False})
         return StageOutcome.passed(summary={"frozen": True, "best_dev_metric": metrics.get("primary_macro_f1", 0.0), "test_access": False}, expected_files=("selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "selection/freeze_manifest.json"))
     if stage == "generate_test_reasoning":
         if not (run_root / "selection/freeze_manifest.json").exists():
@@ -976,31 +1024,45 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
             # The canonical post-training checkpoint is the generation
             # identity for this epoch.  Save it before DEV inference so the
             # generation contract never falls back to hashing live weights.
-            epoch_checkpoint = executor.write_checkpoint(
-                f"checkpoints/epoch_{epoch}/model.pt",
+            epoch_path = f"checkpoints/epoch_{epoch:04d}/model.pt"
+            epoch_checkpoint = executor.write_epoch_checkpoint(
+                epoch,
                 optimizer=optimizer,
                 scheduler=scheduler,
-                epoch=epoch,
                 selection_metric=None,
             )
+            latest_pointer = executor.write_checkpoint_pointer(
+                "latest",
+                epoch_path,
+                selection_metric_value=None,
+            )
+            if str(latest_pointer["checkpoint_sha256"]) != str(epoch_checkpoint):
+                return StageOutcome.blocked("latest generation checkpoint pointer SHA does not match the epoch payload")
             generated_dev = executor.generate_reasoning_split("dev", dev_records, artifact_root=epoch_root)
             gold_dev = {str(row["sample_id"]): row["gold"] for row in dev_records}
             dev_predictions, _ = executor.judge_reasoning_split("dev", generated_dev, gold_dev, artifact_root=epoch_root)
             dev_metrics = executor.compute_split_metrics("dev", dev_predictions, artifact_root=epoch_root)
             latest_epoch = epoch
             latest_metric = float(dev_metrics["primary_macro_f1"])
+            latest_pointer = executor.write_checkpoint_pointer(
+                "latest",
+                epoch_path,
+                selection_metric_value=latest_metric,
+            )
             history[-1]["dev_primary_macro_f1"] = float(dev_metrics["primary_macro_f1"])
             if float(dev_metrics["primary_macro_f1"]) > best_metric:
                 best_metric = float(dev_metrics["primary_macro_f1"])
                 best_epoch = epoch
-                best_hash = executor.write_checkpoint("checkpoints/best/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=epoch, selection_metric=best_metric)
+                best_pointer = executor.write_checkpoint_pointer("best", epoch_path, selection_metric_value=best_metric)
+                best_hash = str(best_pointer["checkpoint_sha256"])
             atomic_write_json(Path(context.run_root) / f"metrics/dev_reasoning_metrics_epoch_{epoch}.json", dev_metrics | {"checkpoint_sha256": epoch_checkpoint})
-        best_checkpoint = Path(context.run_root) / "checkpoints/best/model.pt"
         if latest_epoch < 1:
             return StageOutcome.blocked("generation run completed without a latest checkpoint epoch")
-        # Preserve the last completed model/optimizer state independently of
-        # the selected best checkpoint.  Resume must consume this latest file.
-        latest_hash = executor.write_checkpoint("checkpoints/latest/model.pt", optimizer=optimizer, scheduler=scheduler, epoch=latest_epoch, selection_metric=latest_metric)
+        latest_hash = str(latest_pointer["checkpoint_sha256"])
+        if not best_hash:
+            best_pointer = executor.write_checkpoint_pointer("best", f"checkpoints/epoch_{best_epoch:04d}/model.pt", selection_metric_value=best_metric)
+            best_hash = str(best_pointer["checkpoint_sha256"])
+        best_checkpoint = resolve_generation_checkpoint_pointer(context.run_root, "best", allow_legacy=False)
         try:
             executor.load_checkpoint(best_checkpoint, expected_sha256=best_hash)
         except GenerationCheckpointError as exc:
@@ -1009,13 +1071,14 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         atomic_write_text(Path(context.run_root) / "training/history.csv", "epoch,train_loss,optimizer_steps,dev_primary_macro_f1\n" + "\n".join(f"{row.get('epoch')},{row.get('train_loss')},{row.get('optimizer_steps')},{row.get('dev_primary_macro_f1', '')}" for row in history) + "\n")
         manifest = executor.write_checkpoint_manifest(best_epoch=best_epoch, selection_metric=best_metric, latest_epoch=latest_epoch, latest_selection_metric=latest_metric, rationale_source_hash=str(source_report.get("source_sha256", "NOT_PROVIDED")))
         dev_artifacts = executor.publish_dev_artifacts(best_epoch)
-        atomic_write_json(Path(context.run_root) / "selection/best_checkpoint.json", {"status": "PASS", "path": "checkpoints/best/model.pt", "sha256": best_hash, "best_epoch": best_epoch, "selection_metric": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "checkpoint_sha256": best_hash, "dev_artifacts": dev_artifacts})
-        atomic_write_json(Path(context.run_root) / "selection/selection_metric.json", {"name": "full_split_macro_pragmatic_f1_all_zero_fallback_dev", "value": best_metric, "best_epoch": best_epoch})
+        best_pointer = read_generation_checkpoint_pointer(context.run_root, "best", allow_legacy=False)
+        atomic_write_json(Path(context.run_root) / "selection/best_checkpoint.json", {"status": "PASS", "path": best_pointer["path"], "sha256": best_hash, "best_epoch": best_epoch, "selection_metric": GENERATION_SELECTION_METRIC_NAME, "selection_metric_name": GENERATION_SELECTION_METRIC_NAME, "value": best_metric, "checkpoint_path": best_pointer["path"], "checkpoint_sha256": best_hash, "dev_artifacts": dev_artifacts})
+        atomic_write_json(Path(context.run_root) / "selection/selection_metric.json", {"name": GENERATION_SELECTION_METRIC_NAME, "value": best_metric, "best_epoch": best_epoch})
         atomic_write_json(Path(context.run_root) / "selection/thresholds.json", {"status": "NOT_APPLICABLE", "reason": "reasoning judge emits strict binary labels; no dev threshold tuning"})
         atomic_write_json(Path(context.run_root) / "training/optimizer_summary.json", optimizer_summary | {"executor_kind": "generation_trainable", "classifier_heads": 0})
         atomic_write_json(Path(context.run_root) / "training/scheduler_summary.json", scheduler_summary | {"executor_kind": "generation_trainable"})
         atomic_write_json(Path(context.run_root) / "training/resource_usage.json", {"successful_gpu_hours": 0.0, "failed_or_retried_gpu_hours": 0.0, "peak_vram_gb": 0.0, "synthetic_results": False})
-        return StageOutcome.passed(summary={"history": history, "rationale_source": source_report, "best_epoch": best_epoch, "best_dev_metric": best_metric, "latest_epoch": latest_epoch, "latest_checkpoint_sha256": latest_hash, "checkpoint_manifest": manifest}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "checkpoints/load_report.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"))
+        return StageOutcome.passed(summary={"history": history, "rationale_source": source_report, "best_epoch": best_epoch, "best_dev_metric": best_metric, "latest_epoch": latest_epoch, "latest_checkpoint_sha256": latest_hash, "checkpoint_manifest": manifest}, expected_files=("training/history.json", "training/history.csv", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "checkpoints/latest_checkpoint.json", "checkpoints/best_checkpoint.json", "checkpoints/load_report.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json"))
     if stage in {"generate_dev_reasoning", "generate_test_reasoning"}:
         split = "dev" if stage.startswith("generate_dev") else "test"
         if split == "dev" and _selected_dev_artifacts_reusable(Path(context.run_root)):
@@ -1494,6 +1557,15 @@ def _freeze_selection(context: RunContext, entry: RunEntry) -> StageOutcome:
     threshold_payload = json.loads(thresholds.read_text(encoding="utf-8"))
     if not payload.get("sha256") or not threshold_payload:
         return StageOutcome.failed("selection freeze contains incomplete checkpoint or threshold values")
+    if entry.system_id == "cot_only_vistral":
+        try:
+            pointer = read_generation_checkpoint_pointer(run_root, "best", allow_legacy=True)
+            selected_path = run_root / str(payload.get("path") or payload.get("checkpoint_path") or "")
+            resolved_path = run_root / str(pointer["path"])
+            if selected_path.resolve() != resolved_path.resolve() or str(pointer.get("checkpoint_sha256", "")).upper() != str(payload.get("sha256", "")).upper():
+                return StageOutcome.failed("selection freeze checkpoint does not match the verified best pointer")
+        except (GenerationCheckpointError, OSError, ValueError) as exc:
+            return StageOutcome.failed(f"selection freeze checkpoint pointer is invalid: {exc}")
     atomic_write_json(run_root / "selection/freeze_manifest.json", {"frozen": True, "frozen_at": utc_now(), "checkpoint": payload, "thresholds": threshold_payload, "config_hash": sha256_file(run_root / "config_snapshot.yaml"), "dev_prediction_hash": sha256_file(run_root / "predictions/dev_predictions.jsonl") if (run_root / "predictions/dev_predictions.jsonl").exists() else ""})
     return StageOutcome.passed(summary={"frozen": True, "best_checkpoint": payload.get("path"), "threshold_count": len(threshold_payload)}, expected_files=("selection/freeze_manifest.json",))
 
@@ -1566,6 +1638,24 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         **expected_inference_provenance(entry.system_id, execution_kind=entry.execution_kind),
     })
     checkpoint_manifest = _load_mapping(run_root / "checkpoints/checkpoint_manifest.json")
+    generation_pointer_data: dict[str, Any] = {}
+    if entry.system_id == "cot_only_vistral":
+        try:
+            best_pointer = read_generation_checkpoint_pointer(run_root, "best", allow_legacy=True)
+            latest_pointer = read_generation_checkpoint_pointer(run_root, "latest", allow_legacy=True)
+            generation_pointer_data = {
+                "best_checkpoint_pointer": "checkpoints/best_checkpoint.json" if not best_pointer.get("legacy") else "NOT_APPLICABLE_LEGACY",
+                "latest_checkpoint_pointer": "checkpoints/latest_checkpoint.json" if not latest_pointer.get("legacy") else "NOT_APPLICABLE_LEGACY",
+                "best_checkpoint_path": best_pointer["path"],
+                "latest_checkpoint_path": latest_pointer["path"],
+                "best_checkpoint_sha256": best_pointer["checkpoint_sha256"],
+                "latest_checkpoint_sha256": latest_pointer["checkpoint_sha256"],
+                "best_checkpoint_provenance_sha256": best_pointer.get("provenance_sha256", "NOT_PROVIDED"),
+                "latest_checkpoint_provenance_sha256": latest_pointer.get("provenance_sha256", "NOT_PROVIDED"),
+                "variant_fingerprint": best_pointer.get("variant_fingerprint", "NOT_PROVIDED"),
+            }
+        except GenerationCheckpointError as exc:
+            return StageOutcome.blocked(f"generation checkpoint pointer validation failed: {exc}")
     resolved_config = _load_mapping(run_root / "training/resolved_training_config.json")
     class_weight_path = run_root / "training/class_weights.json"
     manifest.update({
@@ -1576,6 +1666,7 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         "q3_budget": entry.budget if entry.research_question == "Q3" else "NOT_APPLICABLE",
         "generation_protocol_id": _load_mapping(context.root / "configs/experiments/generation_reasoning_protocol.yaml").get("protocol_version", "NOT_APPLICABLE") if entry.system_id in {"cot_only_vistral", "explanation_only_vistral"} else "NOT_APPLICABLE",
         "provenance_contract_version": 1,
+        **generation_pointer_data,
     })
     atomic_write_json(manifest_path, manifest)
     metrics_path = run_root / "metrics.json"
@@ -1607,7 +1698,7 @@ def _validate_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
     elif entry.execution_kind == ExecutionKind.COMPONENT_BUNDLE.value:
         required = ["components/state.json", "components/events.jsonl", "components/component_manifest.json", "components/combined_prediction_manifest.json", "training/resource_usage.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_metrics.json", "metrics/test_metrics.json"]
     elif entry.system_id == "cot_only_vistral":
-        required = ["training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "selection/freeze_manifest.json", "reasoning/dev_reasoning.jsonl", "reasoning/test_reasoning.jsonl", "judge/dev_judge_responses.jsonl", "judge/test_judge_responses.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_reasoning_metrics.json", "metrics/test_reasoning_metrics.json"]
+        required = ["training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "checkpoints/latest_checkpoint.json", "checkpoints/best_checkpoint.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "selection/freeze_manifest.json", "reasoning/dev_reasoning.jsonl", "reasoning/test_reasoning.jsonl", "judge/dev_judge_responses.jsonl", "judge/test_judge_responses.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_reasoning_metrics.json", "metrics/test_reasoning_metrics.json"]
     elif entry.system_id == "explanation_only_vistral":
         required = ["source/source_provenance.json", "reasoning/dev_reasoning.jsonl", "reasoning/test_reasoning.jsonl", "judge/dev_judge_responses.jsonl", "judge/test_judge_responses.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_reasoning_metrics.json", "metrics/test_reasoning_metrics.json"]
     elif entry.research_question == "Q1b":
@@ -1639,6 +1730,12 @@ def _validate_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         source = _load_mapping(run_root / "source/source_provenance.json")
         source_payload = {"system_id": entry.system_id, **source}
         missing.extend(validate_inference_provenance(source_payload, source="source_provenance", allow_fixture_parser=context.fixture))
+    if entry.system_id == "cot_only_vistral":
+        for kind in GENERATION_CHECKPOINT_POINTER_KINDS:
+            try:
+                read_generation_checkpoint_pointer(run_root, kind, allow_legacy=True)
+            except GenerationCheckpointError as exc:
+                missing.append(f"{kind} generation checkpoint pointer: {exc}")
     approval = json.loads((run_root / "approval_status.json").read_text(encoding="utf-8")) if (run_root / "approval_status.json").exists() else {}
     if approval.get("status") != "PENDING_USER_APPROVAL":
         missing.append("approval is not pending")

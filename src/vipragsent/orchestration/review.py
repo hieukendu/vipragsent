@@ -8,6 +8,7 @@ from typing import Any
 import yaml
 
 from ..hashing import sha256_file, sha256_json
+from ..training.generation_checkpoint import GenerationCheckpointError, read_generation_checkpoint_pointer
 from .contracts import ExecutionKind, RunContext, RunEntry
 from .provenance import expected_inference_provenance, validate_inference_provenance
 from .q1b_dependencies import (
@@ -68,6 +69,27 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
     thresholds = _load_json(run_root / "selection/thresholds.json", {})
     checkpoint = _load_json(run_root / "selection/best_checkpoint.json", {})
     checkpoint_manifest = _load_json(run_root / "checkpoints/checkpoint_manifest.json", {})
+    checkpoint_pointer: dict[str, Any] | None = None
+    if entry.system_id == "cot_only_vistral":
+        try:
+            # The review is an approval boundary: resolve and validate the
+            # canonical pointer before copying its identity into the summary.
+            # Legacy physical files remain readable through the explicit
+            # fallback in the pointer reader.
+            checkpoint_pointer = read_generation_checkpoint_pointer(run_root, "best", allow_legacy=True)
+        except GenerationCheckpointError as exc:
+            raise ValueError(f"generation best checkpoint pointer is invalid: {exc}") from exc
+        checkpoint = {
+            **checkpoint,
+            "path": checkpoint_pointer["path"],
+            "checkpoint_path": checkpoint_pointer["path"],
+            "sha256": checkpoint_pointer["checkpoint_sha256"],
+            "checkpoint_sha256": checkpoint_pointer["checkpoint_sha256"],
+            "best_epoch": checkpoint_pointer["epoch"],
+            "value": checkpoint_pointer["selection_metric_value"],
+            "provenance_sha256": checkpoint_pointer["provenance_sha256"],
+            "variant_fingerprint": checkpoint_pointer["variant_fingerprint"],
+        }
     artifacts = artifact_hashes(run_root)
     prediction_hashes = {name: digest for name, digest in artifacts.items() if name.startswith("predictions/")}
     data_manifest = context.root / "data/manifests/dataset_manifest.json"
@@ -159,6 +181,13 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
             "truncation_rate": test.get("truncation_rate", "NOT_APPLICABLE"),
             "judge_usage": judge_usage,
             "judge_cache_statistics": {key: judge_usage.get(key, 0) for key in ("judge_cache_hits", "judge_cache_misses", "judge_retry_count", "judge_request_count")},
+            "checkpoint_pointer_path": (
+                "checkpoints/best_checkpoint.json"
+                if checkpoint_pointer is not None and not checkpoint_pointer.get("legacy")
+                else "NOT_APPLICABLE_LEGACY"
+            ),
+            "checkpoint_provenance_sha256": checkpoint.get("provenance_sha256", "NOT_PROVIDED"),
+            "checkpoint_variant_fingerprint": checkpoint.get("variant_fingerprint", "NOT_PROVIDED"),
             "additional_training": entry.system_id == "cot_only_vistral",
             "direct_classification_outputs_used": False,
             "inference_output_source": "judge_of_generated_reasoning" if entry.system_id == "cot_only_vistral" else "judge_of_rationale_decoder_output",
@@ -225,6 +254,14 @@ def build_review_summary(context: RunContext, entry: RunEntry, state: Mapping[st
         fields.update({field: "NOT_APPLICABLE" for field in TRAINABLE_FIELDS})
         fields["not_applicable_reason"] = "This entry does not create a new trainable checkpoint under its locked execution_kind."
         fields["changed_components"] = changed_components_against_full_phobert(context.root, entry.system_id) if (context.root / "configs/experiments/system_execution_registry.yaml").exists() else "NOT_APPLICABLE"
+    if entry.system_id == "cot_only_vistral" and checkpoint_pointer is not None:
+        # Generation is a separate execution kind, so the generic
+        # non-trainable applicability branch above would otherwise replace
+        # these two identity fields with NOT_APPLICABLE.
+        fields.update({
+            "checkpoint_path": checkpoint["path"],
+            "checkpoint_sha256": checkpoint["sha256"],
+        })
     if entry.research_question == "Q4":
         fields.update({
             "per_label_pragmatic_ece": q4.get("per_label_pragmatic_ece", "NOT_APPLICABLE"),
