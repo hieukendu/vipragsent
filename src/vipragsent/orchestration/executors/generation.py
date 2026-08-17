@@ -4,6 +4,8 @@ import hashlib
 import inspect
 import json
 import math
+import re
+import time
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import contextmanager
 from pathlib import Path
@@ -917,6 +919,153 @@ class ReasoningGenerationExecutor:
 
     run_fixture_generation_equivalence = fixture_generation_equivalence
 
+    def profile_generation_batches(
+        self,
+        split: str,
+        records: Iterable[Mapping[str, Any]],
+        *,
+        candidate_batch_sizes: Sequence[int] = SUPPORTED_GENERATION_BATCH_SIZES,
+        sample_count: int = 8,
+    ) -> dict[str, Any]:
+        """Measure production-equivalent generation batches on a DEV sample.
+
+        The profile deliberately calls the same batched decoder used by the
+        real generation path.  It writes no reasoning artifacts and therefore
+        cannot promote a profiling result into scientific output.  Batch sizes
+        above one are eligible only when their decoded rows are byte-for-byte
+        equivalent to batch-one output and their measured throughput is at
+        least five percent better.
+        """
+        if not self.fixture_mode and split != "dev":
+            raise GenerationPersistenceError("production generation profiling is DEV-only")
+        candidates = tuple(int(value) for value in candidate_batch_sizes)
+        if candidates != SUPPORTED_GENERATION_BATCH_SIZES:
+            raise ValueError("generation profiling must evaluate candidate batches 1, 2, and 4 in order")
+        rows = [dict(record) for record in records]
+        if not rows:
+            raise GenerationPersistenceError("generation profiling requires a non-empty DEV split")
+        if sample_count < 1:
+            raise ValueError("generation profiling sample_count must be positive")
+        sample = rows[: int(sample_count)]
+        sample_ids = [str(row["sample_id"]) for row in sample]
+        source_identity = self._canonical_checkpoint_identity or self._loaded_checkpoint_identity
+        checkpoint_sha256 = str((source_identity or {}).get("checkpoint_sha256", "NOT_PROVIDED")).upper()
+        if not self.fixture_mode and not re.fullmatch(r"[0-9A-F]{64}", checkpoint_sha256):
+            raise GenerationPersistenceError("production generation profiling requires an exact checkpoint SHA")
+
+        decoding_is_deterministic = not bool(self.protocol["decoding"].get("do_sample", False))
+
+        def memory_snapshot() -> dict[str, Any]:
+            if self.device.type != "cuda":
+                return {"available": False, "reason": "non_cuda_profile"}
+            try:
+                free, total = torch.cuda.mem_get_info(self.device)
+                return {
+                    "available": True,
+                    "free_bytes": int(free),
+                    "total_bytes": int(total),
+                }
+            except (RuntimeError, TypeError, ValueError) as exc:
+                return {"available": False, "reason": f"cuda_memory_query_failed:{type(exc).__name__}"}
+
+        def projection(generated: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+            return [
+                {
+                    key: row.get(key)
+                    for key in ("sample_id", "generated_reasoning", "generation_status", "failure_reason", "truncated")
+                }
+                for row in generated
+            ]
+
+        baseline_projection: list[dict[str, Any]] | None = None
+        candidate_reports: list[dict[str, Any]] = []
+        with reversible_inference_context(self.model):
+            for candidate in candidates:
+                if self.device.type == "cuda":
+                    try:
+                        torch.cuda.empty_cache()
+                        torch.cuda.reset_peak_memory_stats(self.device)
+                    except (RuntimeError, TypeError, ValueError):
+                        pass
+                before_memory = memory_snapshot()
+                started = time.perf_counter()
+                generated: list[dict[str, Any]] = []
+                error: str | None = None
+                try:
+                    for start in range(0, len(sample), candidate):
+                        generated.extend(self._generate_batch(split, sample[start : start + candidate]))
+                    if self.device.type == "cuda":
+                        torch.cuda.synchronize(self.device)
+                except (GenerationRecordError, GenerationPersistenceError, RuntimeError, ValueError) as exc:
+                    error = f"{type(exc).__name__}: {exc}"
+                elapsed = max(time.perf_counter() - started, 1e-9)
+                after_memory = memory_snapshot()
+                peak_allocated = None
+                if self.device.type == "cuda":
+                    try:
+                        peak_allocated = int(torch.cuda.max_memory_allocated(self.device))
+                    except (RuntimeError, TypeError, ValueError):
+                        peak_allocated = None
+                current_projection = projection(generated) if error is None else []
+                if candidate == 1 and error is None:
+                    baseline_projection = current_projection
+                equivalent = candidate == 1 or (
+                    decoding_is_deterministic
+                    and baseline_projection is not None
+                    and current_projection == baseline_projection
+                )
+                total_bytes = after_memory.get("total_bytes") or before_memory.get("total_bytes")
+                memory_safe = error is None
+                if total_bytes and peak_allocated is not None:
+                    memory_safe = memory_safe and peak_allocated <= int(float(total_bytes) * 0.90)
+                throughput = float(len(sample) / elapsed) if error is None else 0.0
+                candidate_reports.append(
+                    {
+                        "batch_size": candidate,
+                        "status": "PASS" if error is None else "FAIL",
+                        "error": error,
+                        "elapsed_seconds": elapsed,
+                        "throughput_samples_per_second": throughput,
+                        "output_sha256": sha256_json(current_projection) if error is None else None,
+                        "equivalent_to_batch_one": equivalent,
+                        "memory_safe": memory_safe,
+                        "memory_before": before_memory,
+                        "memory_after": after_memory,
+                        "peak_allocated_bytes": peak_allocated,
+                    }
+                )
+
+        baseline = next((item for item in candidate_reports if item["batch_size"] == 1), None)
+        baseline_throughput = float((baseline or {}).get("throughput_samples_per_second") or 0.0)
+        for item in candidate_reports:
+            item["materially_beneficial"] = bool(
+                item["status"] == "PASS"
+                and item["memory_safe"]
+                and item["equivalent_to_batch_one"]
+                and (item["batch_size"] == 1 or float(item["throughput_samples_per_second"]) >= baseline_throughput * 1.05)
+            )
+        eligible = [item for item in candidate_reports if item["materially_beneficial"]]
+        selected = max((int(item["batch_size"]) for item in eligible), default=1)
+        baseline_ok = bool(baseline and baseline["status"] == "PASS" and baseline["memory_safe"])
+        return {
+            "status": "PASS" if baseline_ok else "FAIL",
+            "profiled": True,
+            "approved": baseline_ok,
+            "split": split,
+            "sample_count": len(sample),
+            "sample_ids_sha256": sha256_json(sample_ids),
+            "input_record_digest": sha256_json([_canonical_generation_value(row) for row in sample]),
+            "candidate_batch_sizes": list(candidates),
+            "selected_batch_size": selected,
+            "selection_rule": "highest safe deterministic candidate with >=5% measured throughput gain over batch one",
+            "deterministic_decoding": decoding_is_deterministic,
+            "checkpoint_sha256": checkpoint_sha256,
+            "variant_fingerprint": self.variant_fingerprint,
+            "candidate_results": candidate_reports,
+        }
+
+    run_generation_profile = profile_generation_batches
+
     @staticmethod
     def _sequence(value: Any, *, dtype: torch.dtype) -> torch.Tensor:
         tensor = value if isinstance(value, torch.Tensor) else torch.tensor(value, dtype=dtype)
@@ -1250,6 +1399,9 @@ class ReasoningGenerationExecutor:
         scheduler: Any | None = None,
         expected_data_order: Sequence[str] | None = None,
         restore_training_state: bool = True,
+        allow_legacy_v2_production: bool = False,
+        legacy_metadata: Mapping[str, Any] | None = None,
+        expected_epoch: int | None = None,
     ) -> dict[str, Any]:
         """Load a canonical generation checkpoint with exact resume identity checks."""
         checkpoint_path, pointer = self._resolve_checkpoint_reference(path)
@@ -1304,6 +1456,8 @@ class ReasoningGenerationExecutor:
             production_provenance_required=self.production_provenance_required,
             fixture_mode=self.fixture_mode,
             observed_checkpoint_sha256=observed_hash,
+            allow_legacy_v2_production=allow_legacy_v2_production,
+            legacy_metadata=legacy_metadata,
         )
         report = loaded.checkpoint.report.as_dict()
         report.update({
@@ -1312,7 +1466,13 @@ class ReasoningGenerationExecutor:
             "legacy_fixture_migration": loaded.checkpoint.report.legacy_compatibility,
             "run_state": dict(loaded.run_state),
             "provenance": loaded.manifest.provenance if loaded.manifest is not None else None,
+            "legacy_production_migration": bool(allow_legacy_v2_production),
         })
+        observed_epoch = report["run_state"].get("epoch") if isinstance(report.get("run_state"), Mapping) else None
+        if expected_epoch is not None and observed_epoch != int(expected_epoch):
+            raise GenerationCheckpointError(
+                f"generation checkpoint epoch mismatch: expected {int(expected_epoch)}, observed {observed_epoch}"
+            )
         self._loaded_checkpoint_identity = {"checkpoint_sha256": observed_hash}
         self._canonical_checkpoint_identity = None
         return report

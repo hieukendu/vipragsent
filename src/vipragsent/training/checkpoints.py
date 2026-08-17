@@ -320,6 +320,9 @@ def load_checkpoint(
     min_match_ratio: float = 0.5,
     report_path: str | Path | None = None,
     restore_rng: Callable[[Mapping[str, Any]], None] = _restore_rng_state,
+    expected_metadata: Mapping[str, Any] | None = None,
+    compare_metadata_fields: Sequence[str] | None = None,
+    legacy_compatibility: bool = False,
 ) -> CheckpointLoadResult:
     """Load a checkpoint only after proving that it targets this model.
 
@@ -338,6 +341,25 @@ def load_checkpoint(
         if isinstance(exc, CheckpointContractError):
             raise
         raise CheckpointContractError(f"unable to read checkpoint {path}: {exc}") from exc
+
+    if expected_metadata is not None:
+        metadata = payload.get("metadata")
+        if not isinstance(metadata, Mapping):
+            raise CheckpointContractError("checkpoint metadata is required for compatibility validation")
+        fields = tuple(compare_metadata_fields or expected_metadata)
+        missing_metadata = [field for field in fields if field not in metadata or field not in expected_metadata]
+        mismatched_metadata = [
+            field
+            for field in fields
+            if field not in missing_metadata and metadata.get(field) != expected_metadata.get(field)
+        ]
+        if missing_metadata or mismatched_metadata:
+            details = []
+            if missing_metadata:
+                details.append(f"missing metadata fields: {missing_metadata}")
+            if mismatched_metadata:
+                details.append(f"metadata identity mismatch: {mismatched_metadata}")
+            raise CheckpointContractError("; ".join(details))
 
     state = payload["model_state_dict"]
     incoming_keys = set(state)
@@ -358,7 +380,7 @@ def load_checkpoint(
     report = CheckpointLoadReport(
         path=str(path),
         schema_version=int(payload.get("schema_version", 0)),
-        legacy_compatibility=legacy,
+        legacy_compatibility=legacy or legacy_compatibility,
         status="PASS",
         matched_keys=tuple(matched),
         missing_keys=missing,
