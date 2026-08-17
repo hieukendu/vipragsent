@@ -5,7 +5,6 @@ import shutil
 from pathlib import Path
 
 import pytest
-import torch
 import yaml
 from torch import nn
 
