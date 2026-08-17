@@ -1,21 +1,17 @@
 {
-  "schema_version": 2,
-  "governing_overlay": {
-    "version": "V27",
+  "schema_version": 3,
+  "governing_spec": {
+    "version": "V28",
     "source_kind": "external_pasted_attachment",
     "source_name": "pasted-text-1.txt",
-    "sha256": "d77f564135d9196ff88e1da24a0fb15fd7600c9a19041d0f7097cfd5850a4580",
-    "purpose": "bounded debugging, correction, whole-repository review, convergence, and PR delivery"
+    "sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
+    "purpose": "persistent Manager, parallel Workers, integration, independent Sentinel review, repair, re-review, and exact PR convergence"
   },
   "scientific_authority": {
-    "version": "V26",
-    "recorded_sha256": "457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0",
-    "exact_bytes_available_in_current_attachment": false,
-    "interpretation": "V26 remains authoritative for science; V27 is an execution and review overlay. No missing V26 rule is inferred."
+    "prior_protocol_overlay": "V27/V26 artifacts remain historical inputs",
+    "interpretation": "V28 governs the execution and completion gates; no missing scientific rule is inferred."
   },
-  "verified_at": "2026-08-16T19:42:54Z",
-  "manager_head_at_recording": "23332af0bf5454958ea48b630ef43a4e45a61feb",
-  "reviewed_code_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
-  "artifact_commit": "REPORT_ONLY_DESCENDANT_OF_REVIEWED_CODE_HEAD",
-  "head_semantics": "The code review binds to reviewed_code_head; only report files are committed afterward."
+  "verified_at": "2026-08-17T00:00:00Z",
+  "integrated_source_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
+  "head_semantics": "The final remote PR head, current-head CI, and fresh Sentinel review must be recorded after the evidence push; prior exact-head reports are historical only."
 }

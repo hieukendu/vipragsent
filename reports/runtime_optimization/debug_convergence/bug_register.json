@@ -1,10 +1,12 @@
 {
   "schema_version": 3,
-  "as_of": "2026-08-16T19:53:58Z",
-  "manager_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
-  "reviewed_code_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
-  "artifact_commit": "REPORT_ONLY_DESCENDANT_OF_REVIEWED_CODE_HEAD",
-  "artifact_head_semantics": "Code review and evidence bind to reviewed_code_head; the report commit is a report-only descendant and does not change source behavior.",
+  "as_of": "2026-08-17T01:01:06Z",
+  "manager_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
+  "reviewed_code_head": "PENDING_FINAL_EXACT_HEAD_SENTINEL",
+  "integrated_source_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
+  "prior_reviewed_code_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+  "artifact_commit": "V28_FIX_WAVE_EVIDENCE_PENDING_PUSH",
+  "artifact_head_semantics": "The integrated source head is recorded separately; the final exact PR head must be revalidated after the evidence push.",
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "pr": {
     "number": 10,
@@ -12,25 +14,27 @@
     "draft": false,
     "base": "main",
     "head": "codex/naacl-runtime-optimization",
-    "last_remote_ci_run": 31968069469,
-    "last_remote_ci_conclusion": "SUCCESS",
-    "last_remote_ci_head_sha": "23332af0bf5454958ea48b630ef43a4e45a61feb",
-    "last_remote_ci_is_stale": false,
-    "fresh_remote_ci_required": false
+    "last_remote_ci_run": 31983563069,
+    "last_remote_ci_conclusion": "IN_PROGRESS",
+    "last_remote_ci_head_sha": "acc6467864bcea299862f5b0e29c7247cef7afde",
+    "last_remote_ci_is_stale": true,
+    "fresh_remote_ci_required": true
   },
-  "review_status": "PASS",
-  "final_gate_status": "PASS",
+  "review_status": "PENDING",
+  "final_gate_status": "OPEN_PENDING_EXACT_HEAD_REVIEW",
   "last_remote_ci": {
-    "run_id": 31968069469,
+    "run_id": 31983563069,
     "workflow": "cpu-ci",
-    "head_sha": "23332af0bf5454958ea48b630ef43a4e45a61feb",
-    "status": "completed",
-    "conclusion": "success",
-    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31968069469"
+    "head_sha": "acc6467864bcea299862f5b0e29c7247cef7afde",
+    "status": "in_progress",
+    "conclusion": null,
+    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31983563069"
   },
   "evidence": {
-    "fresh_remote_ci": "PASS; cpu-ci run 31968069469",
-    "fresh_remote_ci_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+    "fresh_remote_ci": "IN_PROGRESS; cpu-ci run 31983563069",
+    "fresh_remote_ci_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
+    "fresh_exact_head_sentinel": "PENDING_AFTER_EVIDENCE_PUSH",
+    "sentinel_report": "reports/v28/final_sentinel_review.json",
     "final_runtime_integration_audit": "PASS",
     "final_readiness_consistency": "PASS"
   },
@@ -358,6 +362,70 @@
       "regression_tests": [
         "external-retention source-gate tests"
       ]
+    },
+    {
+      "bug_id": "SENTINEL-001",
+      "severity": "HIGH",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "reports/CI/PR binding",
+      "assigned_worker": "Manager",
+      "symptoms": "Final reports and PR body were bound to an older source head while PR HEAD had advanced.",
+      "root_cause": "Report-only descendants were treated as implicitly covered instead of requiring exact-head review and evidence refresh.",
+      "fix_branch": "codex/naacl-runtime-optimization",
+      "regression_test": "exact-head report consistency and PR metadata audit",
+      "closure_reason": "V28 report/PR dossier refreshed; pending final evidence-push CI and exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "SENTINEL-002",
+      "severity": "HIGH",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "generation persistence",
+      "assigned_worker": "GENE-V28",
+      "fix_branch": "codex/v28-fix-generation",
+      "files": ["src/vipragsent/orchestration/generation_persistence.py", "src/vipragsent/orchestration/executors/generation.py"],
+      "symptoms": "Committed generation rows were reused by sample_id without complete identity validation.",
+      "root_cause": "Generation chunk manifests lacked canonical source/model/checkpoint/config/data/record provenance.",
+      "regression_test": "changed identity and record-order negative cases",
+      "closure_reason": "Integrated in acc6467864bcea299862f5b0e29c7247cef7afde; targeted negatives pass; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "SENTINEL-003",
+      "severity": "HIGH",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "Azure execution safety",
+      "assigned_worker": "AZURE-V28",
+      "fix_branch": "codex/v28-fix-azure",
+      "files": ["src/vipragsent/azure/async_judge.py", "src/vipragsent/azure/client.py", "src/vipragsent/orchestration/stage_registry.py"],
+      "symptoms": "Production Azure loops lacked enforceable global request/attempt/token/concurrency/spend ceilings and accepted oversized actual usage.",
+      "root_cause": "Only per-request or estimated prompt-token limits were enforced.",
+      "regression_test": "global budget preflight and actual-usage overrun negatives",
+      "closure_reason": "Integrated in a9f0159, fc53143, bc64fd9, and acc6467; actual-usage and global-ceiling regressions pass; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "SENTINEL-004",
+      "severity": "MEDIUM",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "Azure cache/retry",
+      "assigned_worker": "AZURE-V28",
+      "fix_branch": "codex/v28-fix-azure",
+      "files": ["src/vipragsent/azure/async_judge.py"],
+      "symptoms": "Retryable transport failures were persisted and replayed as permanent cached failures.",
+      "root_cause": "Cache lookup accepted any record with a valid field regardless of retryability.",
+      "regression_test": "cross-run outage recovery after a transient 5xx",
+      "closure_reason": "Integrated in bc64fd9; cross-run transient-failure recovery passes; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "SENTINEL-005",
+      "severity": "MEDIUM",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "NAACL profile validation",
+      "assigned_worker": "PROFILE-V28",
+      "fix_branch": "codex/v28-fix-profile",
+      "files": ["src/vipragsent/runtime/naacl_profile.py", "reports/runtime_optimization/naacl_balanced_profile.json"],
+      "symptoms": "The checked-in JSON listed retained Azure under exclusions while YAML retained its four rows.",
+      "root_cause": "Profile validator did not enforce report exclusion parity with source policy.",
+      "regression_test": "contradictory-report negative case and exact-profile positive case",
+      "closure_reason": "Integrated in a9f0159; exact profile parity regressions pass; pending exact-head Sentinel re-review."
     }
   ],
   "review_history": [
@@ -432,20 +500,27 @@
       "verdict": "PASS",
       "scope": "scoped CI audit contract fix",
       "actionable_findings": []
+    },
+    {
+      "round": 7,
+      "reviewer": "Kant",
+      "reviewed_head": "0430fbd57e881346e139385f2ee409beb56ccf2a",
+      "verdict": "FAIL",
+      "actionable_findings": ["SENTINEL-001", "SENTINEL-002", "SENTINEL-003", "SENTINEL-004", "SENTINEL-005"]
     }
   ],
   "closure_summary": {
     "open_critical": 0,
-    "open_high": 0,
-    "open_medium": 0,
+    "open_high": 3,
+    "open_medium": 2,
     "open_low": 0,
-    "code_findings_closed": true,
-    "report_findings_closed": true,
-    "remote_ci_gate_open": false
+    "code_findings_closed": "PENDING_SENTINEL_REVIEW",
+    "report_findings_closed": "PENDING_SENTINEL_REVIEW",
+    "remote_ci_gate_open": true
   },
   "local_evidence": {
-    "broad_cpu_mock_only": "331 passed in 70.76s",
-    "targeted_approval_source_suite": "55 passed",
+    "broad_cpu_mock_only": "346 passed",
+    "targeted_approval_source_suite": "PASS; impacted generation/explanation/Azure/profile suites",
     "fixture_dag": "PASS",
     "execution_registry": "PASS",
     "schemas": "PASS",

@@ -1,0 +1,39 @@
+{
+  "schema_version": 2,
+  "spec_version": "V28",
+  "spec_sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
+  "pr": 10,
+  "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
+  "integrated_source_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
+  "status": "PENDING_FINAL_EXACT_HEAD_SENTINEL",
+  "final_pass": false,
+  "historical_review": {
+    "reviewer": "Kant",
+    "reviewed_head": "0430fbd57e881346e139385f2ee409beb56ccf2a",
+    "status": "FAIL",
+    "findings": ["SENTINEL-001", "SENTINEL-002", "SENTINEL-003", "SENTINEL-004", "SENTINEL-005"]
+  },
+  "repair_wave": {
+    "SENTINEL-001": "evidence dossier refreshed; exact final head pending",
+    "SENTINEL-002": "fixed in generation/explanation provenance contract",
+    "SENTINEL-003": "fixed in bounded async/sync Azure safety ledgers",
+    "SENTINEL-004": "fixed by excluding retryable failures from cache reuse",
+    "SENTINEL-005": "fixed by enforced profile/report exclusion parity"
+  },
+  "local_evidence": {
+    "broad_cpu_mock_only": "346 passed",
+    "impacted_regressions": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "remote_ci": {"head_sha": "PENDING_EVIDENCE_PUSH", "status": "PENDING", "conclusion": null},
+  "safety": {
+    "production_actions_taken": false,
+    "azure_requests": false,
+    "huggingface_mutation": false,
+    "model_download": false,
+    "process_control": false,
+    "merge": false
+  }
+}

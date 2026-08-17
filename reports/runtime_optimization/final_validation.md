@@ -1,35 +1,34 @@
-# Final validation — V27 code-only runtime optimization
+# V28 final validation dossier
 
-- Governing overlay: V27, SHA-256 `d77f564135d9196ff88e1da24a0fb15fd7600c9a19041d0f7097cfd5850a4580`.
-- Scientific authority: V26 remains authoritative, recorded digest `457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0`.
+This dossier is maintained with exact-head semantics. The integrated source repair head is `acc6467864bcea299862f5b0e29c7247cef7afde`; the final PR head, current-head CI run, and final Sentinel verdict are recorded after the evidence push in `reports/v28/`.
 
-## Scope and identity
+## Scope and safety
 
-- Manager branch: `codex/naacl-runtime-optimization`.
-- Reviewed code head: `23332af0bf5454958ea48b630ef43a4e45a61feb`.
+- Governing specification: V28, SHA-256 `47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96`.
 - Base: `fb40c91a7c39ac575db2bd71d9957f0e89069b3e`.
-- The convergence artifacts are a report-only descendant of the reviewed code head; no source behavior changes occur in that descendant.
-- Production worktree `/root/vipragsent` was not edited or controlled.
-- No production, Azure, Hugging Face, model-download, benchmark, process-control, TEST-environment, or merge action occurred.
+- PR: #10, branch `codex/naacl-runtime-optimization`, target `main`.
+- The user worktree `/root/vipragsent` and its paused historical run were preserved.
+- No production, Azure, Hugging Face, model-download, benchmark, TEST, process-control, or merge action occurred.
 
-## Scientific invariants
+## Local evidence
 
-- Q3 retains 36 local cells plus four seedless Azure rows; XLM-R and budgets `64/256` remain explicit exclusions.
-- Q1b remains evaluation-only and binds canonical producer identity, checkpoint/seed, graph/source digests, strict training-prohibition fields, and complete approval records through source, retention, review, and aggregation.
-- Q2 retains exactly six variants across the three locked seeds.
-- Shared GPU occupancy is serialized by default; only the validated PhoBERT pair exception is allowed.
-- Generation speedup divides duration by exact factors 1.0/1.5/2.0/2.5/3.0/4.0.
-- `latest` preserves the last completed epoch independently of persisted `best` selection.
-- Explicit source adapters require hash-bound approved runs; injected predictors are fixture-only.
+- Broad CPU/mock-only suite: **346 passed** with server, GPU, live-Azure, and model-download tests excluded.
+- Generation, explanation-runtime, Azure safety/cache, and NAACL profile regression suites: **PASS**.
+- `compileall`: **PASS**.
+- Ruff: **PASS**.
+- `git diff --check`: **PASS**.
 
-## Checks
+## V28 completion-gate status
 
-- Targeted approval/source suite: **55 passed**.
-- Broad CPU/mock-only suite: **331 passed in 70.76 seconds**.
-- Fixture DAG, execution registry, schemas, sequential prompts, NAACL profile validation, production implementation audit, and final production correctness audit: **PASS**.
-- Compilation, `git diff --check`, Ruff 0.6.9, and Ruff 0.16.3: **PASS**.
-- Fresh GitHub Actions `cpu-ci` run `31968069469` passed on exact reviewed code head `23332af0bf5454958ea48b630ef43a4e45a61feb`; the previous remote Ruff failure (`31958375122`) is stale.
+| Gate | Status | Evidence boundary |
+|---|---|---|
+| R1 exact baseline/inventory | PASS for policy/profile; live campaign baseline remains read-only | Frozen protocol and profile validators |
+| R2 runtime correctness | PASS for CPU/mock and negative-path regressions | No real-model launch claimed |
+| R3 protocol/inventory fidelity | PASS | 36 local + 4 seedless Azure rows; exclusion parity enforced |
+| R4 measured optimization | NOT MEASURED | No speedup/concurrency credit claimed |
+| R5 training correctness | PASS for tested contracts | Production launch remains conditional |
+| R6 evaluation correctness | PASS for tested contracts | Live Azure/model evaluation not run |
+| R7 external cost bound | BOUNDED CODE PATH | Actual live pricing/usage remains unobserved |
+| R8 artifact reproducibility | PASS for new contract; paused-run reuse BLOCKED | Historical code identity requires reconciliation |
 
-## Gate result
-
-`PROJECTED_GATE_CONDITIONAL` for campaign readiness; code review, CI, and PR synchronization are complete. This code-only task does not claim measured campaign readiness. PR #10 is ready for review and was **not merged**.
+Overall campaign readiness is `PROJECTED_GATE_CONDITIONAL`, not a measured performance claim. The PR remains open and unmerged.

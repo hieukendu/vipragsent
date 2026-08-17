@@ -1,227 +1,52 @@
-schema_version: 1
-prompt:
-  version: V27
-  sha256: d77f564135d9196ff88e1da24a0fb15fd7600c9a19041d0f7097cfd5850a4580
-  governing_overlay: true
+schema_version: 2
+spec:
+  version: V28
+  sha256: 47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96
   source: reports/runtime_optimization/debug_convergence/governing_prompt_provenance.json
-  v26_authoritative_sha256: 457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0
-  v26_exact_bytes_available: false
-  interpretation: V26 remains authoritative for science; V27 supplies bounded debugging and delivery rules.
-phase: FINAL_DEBUG_CONVERGENCE
-status: FINAL_REVIEW_CLOSED_REMOTE_CI_GREEN
+phase: V28_FIX_WAVE_INTEGRATED
+status: PENDING_EXACT_HEAD_CI_AND_SENTINEL
 identity:
-  status: LIVE_CODE_IDENTITY_UNCERTAIN
-  isolated_base: /root/vipragsent-runtime-opt
-  isolated_commit: fb40c91a7c39ac575db2bd71d9957f0e89069b3e
+  base_sha: fb40c91a7c39ac575db2bd71d9957f0e89069b3e
+  integrated_source_head: acc6467864bcea299862f5b0e29c7247cef7afde
+  final_pr_head: PENDING_EVIDENCE_PUSH
   production_worktree: /root/vipragsent
-  production_worktree_dirty: true
-  isolated_worktree_source_clean_commit: true
-  isolated_worktree_report_files_present: true
-  source_clean_assertion: "commit fb40c91a7c39ac575db2bd71d9957f0e89069b3e; worktree itself intentionally contains Wave-0 reports"
-  run_state_code_tree: a670b1ca9af0a6921b2f0d7f194bfa29fe568c6d
-  run_state_source_fingerprint: 2daf51d98fa18b076a4020dada95dcbf8320304abcc0440b684a99291ec6500e
-  run_manifest_code_commit: a765b2bca625ff66cf97dc608eacb3a3c63553b5
-  reuse_identity_status: BLOCKED_PENDING_RECONCILIATION
-checkpoint_provenance:
-  local_path: results/runs/q1a_cot_only_vistral_20260521/checkpoints/epoch_2/model.pt
-  bytes: 4942818023
-  sha256: d3fe7e99bb0758e527c4967fe2a8502c722fce8d86cd7664ea776440a3b41a77
-  hf_repo: Thundergod2007/vipragsent-vistral7b-checkpoints
-  hf_path: q1a_cot_only_vistral_20260521/checkpoints/epoch_2/model.pt
-  hf_revision: 1aadf557a77853cf19946a747f9fe5c40a8288b0
-  remote_verified: true
-  verification: read_only_local_sha256_and_remote_metadata
-run_binding:
-  model_revision: d331b64e61b935cc43c2b3010ae9fb4fde599b45
-  tokenizer_revision: d331b64e61b935cc43c2b3010ae9fb4fde599b45
-  config_hash: 3F6AF966D078AF57CC8989269380B2DD1C44D2402540AD21E9B5C419A8743642
-  data_hash: B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9
-  processed_fingerprint: 7C39BEEBC462D1F9076F5DF1565E924BD884263D5503F23398BD83A6BF4205EB
+  production_worktree_untouched: true
+  paused_run_reuse: BLOCKED_PENDING_RECONCILIATION
 decisions:
   - id: D001
     decision: preserve_paused_run
-    basis: safely paused after epoch 2; active PID none; next run allowed NO
+    basis: active process absent; persisted state is stale and next run is not allowed
   - id: D002
-    decision: audit_read_only
-    basis: no source, production, Azure, HF, benchmark, or process-control actions
+    decision: keep_validation_cpu_mock_only
+    basis: no production, TEST, Azure, Hugging Face, model-download, or benchmark action was authorized
   - id: D003
-    decision: use_isolated_base_only_for_future_review
-    basis: production worktree is dirty and must not be changed
+    decision: require_exact_head_recheck
+    basis: every source and evidence push invalidates prior CI/review binding
+  - id: D004
+    decision: enforce_generation_contract
+    basis: source/model/tokenizer/checkpoint/config/dataset/record identity is mandatory for production resume
+  - id: D005
+    decision: enforce_azure_global_safety
+    basis: logical/attempt/token/concurrency/spend ceilings and actual-usage checks are fail-closed
 blockers:
   - id: P0-001
     priority: P0
-    text: LIVE_CODE_IDENTITY_UNCERTAIN; paused process is absent
-  - id: P0-002
-    priority: P0
-    text: production worktree is dirty; source changes must be preserved and live identity is not attributable to the clean base
+    text: fresh exact-head Sentinel review is pending after the V28 repair wave
   - id: P1-001
     priority: P1
-    text: telemetry is PARTIAL on H100 MIG 2g.20gb
+    text: current-head GitHub Actions run must pass after the evidence push
   - id: P1-002
     priority: P1
-    text: state is RUNNING_STALE while approval is PENDING_USER_APPROVAL and next run is NO
-  - id: P2-001
-    priority: P2
-    text: no runtime optimization benchmark is authorized or available in Wave 0
+    text: no numeric runtime ETA or speedup credit without authorized measurements
+  - id: P1-003
+    priority: P1
+    text: historical paused-run source identity remains unresolved
 evidence_quality:
-  strong: [prompt_sha256, isolated_base_commit, paused_after_epoch_2, active_pid_none, checkpoint_local_and_hf_path_read_only_verification]
-  partial: [telemetry]
-  unresolved: [loaded_code_identity, stale-state reconciliation]
+  strong: [spec_sha256, integrated_source_head, local_cpu_mock_suite, worker_regressions]
+  partial: [GPU_telemetry, live_runtime_throughput, live_Azure_usage]
+  unresolved: [final_pr_head, current_head_CI, fresh_exact_head_Sentinel]
 manager_acceptance:
-  status: WAVE0_ACCEPTED
-  accepted_at: 2026-08-16T12:44:00Z
-  sentinel_review: PASS
-  sentinel_review_round: 2
-  sentinel_review_json_sha256: 98bdaa4357988d0100a5588a0fa7be8030fe3dced83c0f917d05029e241bc3c5
-  decision_register_input_sha256: 0b746cdd0f16b9392f6c2d0f889e620c4b16a73e5eeea1d487b0deb571415cf6
-  baseline_critical_path_json_sha256: 56909f51f5cc09f47799231d4f59d5a9681d6d10fa3fe4bdf4858794cf51fbc4
-  baseline_critical_path_md_sha256: 49fb21fe02b2100db7a29e9b5f685702bac4034cf1e9a3b708778df54ad58564
-  optimization_opportunity_register_json_sha256: a9f2caf3946542ebb6460c865ea6fdbc7890d92d81268f740b06aa882a51a017
-  optimization_opportunity_register_md_sha256: b4b078f64a0374a503479a74c657e4c15994d8aaa6733eaa3ce7813187e82815
-  source_environment_fingerprint:
-    base_commit: fb40c91a7c39ac575db2bd71d9957f0e89069b3e
-    run_state_tree: a670b1ca9af0a6921b2f0d7f194bfa29fe568c6d
-    run_state_source_fingerprint: 2daf51d98fa18b076a4020dada95dcbf8320304abcc0440b684a99291ec6500e
-    production_worktree_dirty: true
-    live_code_identity: LIVE_CODE_IDENTITY_UNCERTAIN
-    python: 3.11.0rc1
-    torch: 2.4.0+cu124
-    transformers: 4.46.3
-    hardware: H100 MIG 2g.20gb
-    telemetry: PARTIAL
-  unresolved_blockers:
-    - P0 live code identity is uncertain; checkpoint/HF reuse remains BLOCKED_PENDING_RECONCILIATION.
-    - P0 production worktree is dirty; no user changes may be discarded or edited.
-    - P1 GPU telemetry is partial; no measured speedup or resource capacity claim is allowed.
-    - P2 real benchmark and real Azure calls are forbidden in this phase.
-  builder_dag:
-    - id: B1
-      roles: [LUNA_COT_RESUME, LUNA_CHECKPOINT_RECOVERY]
-      dependency: sequential; shared checkpoint contract
-      ownership: generation checkpoint/resume slice and tiny exactness fixtures
-    - id: B2
-      roles: [LUNA_GENERATION_ENGINE]
-      dependency: after B1 checkpoint contract
-      ownership: batched inference, stopping, chunk persistence, equivalence fixtures
-    - id: B3
-      roles: [LUNA_HF_REUSE, LUNA_AZURE_PIPELINE, LUNA_SCHEDULER]
-      dependency: disjoint modules with Manager/Sentinel review-gated interfaces
-      ownership: read-only reuse state, mock judge queue/cache, resource-aware dry-run policy
-  path_specific_blocked: [O-P1-01]
-  non_blocking_open_findings: [M-001, L-001]
-wave1_acceptance:
-  status: WAVE1_ACCEPTED_FOR_MANAGER_INTEGRATION
-  sentinel_review: PASS
-  sentinel_review_round: 4
-  sentinel_review_json_sha256: 26644758a5984432cdc5439ed280c6db50900d8cf252a75c5b5f4883529ca148
-  reviewed_builder_heads:
-    cot_checkpoint_resume: beb823d0f0e2e65cfee88b26ce5da03916adc821
-    read_only_reuse: 4b721704448b3781b6ff6a379f4c5bb208f575b7
-    naacl_profile: 371b8717160be7e8a9be04eda0ca95415096ea76
-  manager_integration_head: ca7b9d3285120bb8bda994ce90abecdb02571e5e
-  manager_integration_tree: 6d1a0494ab975009a364b4804b24e8df89e19c13
-  targeted_tests:
-    cot: "35 passed cache-free"
-    profile_q1b: "19 passed cache-free"
-    reuse: "13 passed cache-free"
-  accepted_medium_residuals:
-    - COT-M001: separate atomic checkpoint payload and sidecar; loader fails closed on missing/mismatched sidecar
-    - PROFILE-M002: Azure Q3 exclusion is test/report protected but not standalone-validator enforced
-  forbidden_actions_confirmed: [real_model_or_data_run, benchmark, Azure_call, HF_mutation, process_control]
-wave2_acceptance:
-  status: WAVE2_ACCEPTED_FOR_MANAGER_INTEGRATION
-  sentinel_review: PASS
-  sentinel_review_round: 2
-  sentinel_review_md_sha256: ae4edbd93f959d4ef019ee04367cc6be1c9212416032cbbc3d548a41b9427780
-  sentinel_review_json_sha256: eff8f87c98a326bfb0acc9e465c5b0f49a67db67f52f05a503f3eeecdbc33b84
-  digest_revalidated_at: 2026-08-16T19:18:12Z
-  digest_reacceptance: MANAGER_REACCEPTED_CURRENT_CHECKED_IN_BYTES
-  reviewed_builder_chain:
-    initial: 89c4d51
-    stage_wiring: 74586d5
-    final_rework: 6488e02
-    builder_final_full: 2cf464b7d63a9dd65777b04a00bc885684e8336e
-  manager_integration_head: 6488e02
-  accepted_medium_residuals:
-    - GEN-M001-R: independent epoch-checkpoint hash and source-root binding remain future hardening
-  accepted_low_residuals:
-    - GEN-L001: fixture-only stage adapters retain direct torch.save
-  tests:
-    generation_and_luna: "33 passed cache-free"
-    red_team_and_preexperiment: "26 passed cache-free"
-    builder_full_cache_free: "263 passed"
-  forbidden_actions_confirmed: [real_model_or_data_run, benchmark, Azure_call, HF_mutation, process_control]
-hf_reuse_audit:
-  status: READ_ONLY_CURRENT_METADATA_CAPTURED
-  as_of: 2026-08-16T14:26:19Z
-  report_json: reports/runtime_optimization/hf_reuse_audit.json
-  report_md: reports/runtime_optimization/hf_reuse_audit.md
-  repositories:
-    experiment_artifacts: 7afa8164aa5224688f430ee8e30283e72e462d77
-    phobert: 14097061c088f3deefe8ea6d9288d77755f36b5a
-    vistral7b: 1aadf557a77853cf19946a747f9fe5c40a8288b0
-    xlmr: d004da4621be813a1f3ce8ef3d171dce6102fbe2
-    sailor7b: 6af58b4c754d08f9d6316aef58c239bca60397ed
-  checkpoint_blob_downloads: 0
-  mutations: 0
-  global_decision: NO_AUTOMATIC_REUSE
-  blocker: LIVE_CODE_IDENTITY_UNCERTAIN_AND_APPROVAL_BINDINGS_INCOMPLETE
-wave3_acceptance:
-  status: WAVE3_ACCEPTED_FOR_MANAGER_INTEGRATION
-  sentinel_review: PASS
-  sentinel_review_md_sha256: 0cd49fb28505b992bde44826384375fe248e2842b7d25fee093f3a31daa4774d
-  sentinel_review_json_sha256: a7c62f20877e95d9d9bdbcb112106d60a06904ea3d093ce0918d76ac9d454d8d
-  reviewed_builder_heads:
-    azure: e728d8abea7265a0c25b5bff1cee3b752bd1aaa3
-    explanation: 54b56cbef13302a948e9aecbea60c3982f41a792
-    scheduler_estimator_initial: 9b100c85518d05987d9a1bbe8d246d3627c82484
-    scheduler_estimator_final: 0cec7982ca412b4fe1b9efc50dc6e07e7f5ba2ec
-  manager_integration_commits:
-    azure: fbd4a4c
-    explanation: 12a6616
-    scheduler_estimator_initial: d3886d1
-    scheduler_estimator_rework: b8394b3
-  tests:
-    azure: "11 passed cache-free"
-    explanation: "6 passed cache-free in independent review; Builder self-test 17 passed"
-    scheduler_estimator: "12 passed cache-free after rework"
-    total_independent_sentinel: "29 passed"
-  findings: []
-  forbidden_actions_confirmed: [real_model_or_data_run, benchmark, Azure_call, HF_mutation, process_control]
-final_validation:
-  status: PROJECTED_GATE_CONDITIONAL
-  final_validation_report: reports/runtime_optimization/final_validation.md
-  production_launch_readiness: reports/runtime_optimization/production_launch_readiness.md
-  rollback: reports/runtime_optimization/rollback.md
-  runtime_estimate_before: reports/runtime_optimization/runtime_estimate_before.json
-  runtime_estimate_after: reports/runtime_optimization/runtime_estimate_after.json
-  runtime_estimate_after_md: reports/runtime_optimization/runtime_estimate_after.md
-  second_live_snapshot_json: reports/runtime_optimization/live_state_snapshot_after.json
-  second_live_snapshot_sha256: ed1e6cdc08a92151a9665ce2e5835d3813d3fba399b5f2702dbfa445ee17aaa4
-  safe_cpu_mock_matrix: "331 passed in 70.76s"
-  targeted_approval_source_suite: "55 passed"
-  reviewed_code_head: 23332af0bf5454958ea48b630ef43a4e45a61feb
-  artifact_commit: REPORT_ONLY_DESCENDANT_OF_REVIEWED_CODE_HEAD
-  measured_gate_pass: false
-  remaining_blockers:
-    - LIVE_CODE_IDENTITY_UNCERTAIN
-    - production_worktree_dirty
-    - partial_gpu_telemetry
-    - real_profile_required_before_campaign_authorization
-current_delivery:
-  manager_head: 23332af0bf5454958ea48b630ef43a4e45a61feb
-  reviewed_code_head: 23332af0bf5454958ea48b630ef43a4e45a61feb
-  artifact_commit: REPORT_ONLY_DESCENDANT_OF_REVIEWED_CODE_HEAD
-  base_sha: fb40c91a7c39ac575db2bd71d9957f0e89069b3e
-  branch: codex/naacl-runtime-optimization
-  pr_number: 10
-  remote_head_before_push: c2e78c62ee51c7566629930b3b0a115920735f30
-  final_review: PASS
-  local_ruff: PASS
-  remote_ci: PASS
-  remote_ci_run_id: 31968069469
-  remote_ci_head_sha: 23332af0bf5454958ea48b630ef43a4e45a61feb
-  remote_ci_conclusion: success
-  required_bug_register: reports/runtime_optimization/debug_convergence/bug_register.json
-  required_final_bug_review: reports/runtime_optimization/debug_convergence/final_bug_review.json
+  status: FIX_WAVE_INTEGRATED
+  sentinel_review: PENDING
+  production_actions_taken: false
   pr_was_not_merged: true
