@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "spec_version": "V30",
+  "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
+  "pr": 10,
+  "base_branch": "main",
+  "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+  "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
+  "status": "PASS",
+  "final_pass": true,
+  "independent_sentinel": {
+    "status": "PASS",
+    "reviewer": "independent affected-scope Sentinel (Laplace)",
+    "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+    "findings": {
+      "implementation": "PASS",
+      "R1": "PASS",
+      "R2": "PASS",
+      "R3": "PASS",
+      "R4": "PASS",
+      "protocol_invariants": "PASS",
+      "tests_and_static_validation": "PASS",
+      "eta_arithmetic": "PASS",
+      "closure_artifacts": "PASS"
+    },
+    "blockers": []
+  },
+  "findings": {
+    "R1_transactional_reconcile": "PASS",
+    "R2_validated_source_receipt": "PASS",
+    "R3_canonical_checkpoint_pointers": "PASS",
+    "R4_exact_reuse_resume_blocked": "PASS",
+    "inherited_protocol_invariants": "PASS",
+    "exact_head_validation": "PASS",
+    "report_consistency": "PASS",
+    "eta_arithmetic": "PASS"
+  },
+  "local_validation": {
+    "independent_focused_tests": "119 passed",
+    "manager_focused_tests": "111 passed",
+    "permitted_cpu_mock_suite": "453 passed",
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "remote_validation": {
+    "workflow": "cpu-ci",
+    "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+    "run_id": 31999651740,
+    "job_id": 95297452139,
+    "status": "COMPLETED",
+    "conclusion": "SUCCESS",
+    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+  },
+  "eta": {
+    "before_hours": 1336,
+    "before_days": 55.7,
+    "central_after_hours": 970,
+    "central_after_days": 40.4,
+    "conservative_hours": 1523,
+    "conservative_days": 63.5,
+    "modeled_savings_hours": 366,
+    "exact_reuse_resume_blocked_credit_hours": 0,
+    "under_30_days": false,
+    "measured_speedup_credit_hours": 0,
+    "conclusion": "No further safe optimization is supported without changing the accepted scientific experiment or obtaining authorized throughput evidence."
+  },
+  "scientific_invariants": {
+    "protocol_changed": false,
+    "test_access_changed": false,
+    "q3_local_cartesian_product_preserved": true,
+    "q3_seedless_azure_rows_preserved": true,
+    "q1b_remains_evaluation_only": true,
+    "dev_selects_test_reports": true,
+    "real_execution_taken": false
+  },
+  "safety": {
+    "production_training": false,
+    "gpu_workload": false,
+    "live_azure": false,
+    "model_download": false,
+    "huggingface_mutation": false,
+    "test_data_profiling": false,
+    "process_control": false,
+    "merge": false
+  },
+  "closure": {
+    "v28": "CLOSED_BY_DESCENDANT_REPAIR",
+    "v29": "CLOSED_BY_DESCENDANT_REPAIR",
+    "v29_historical_p2": "PRESERVED_AS_DEFERRED; RESOLVED_BY_V30_R3",
+    "final_report_files": [
+      "reports/v30/remaining_fixes.json",
+      "reports/v30/remaining_fixes.md",
+      "reports/v30/runtime_estimate_heuristic.json",
+      "reports/v30/runtime_estimate_heuristic.md",
+      "reports/v30/final_sentinel_review.json",
+      "reports/v30/final_sentinel_review.md",
+      "reports/v29/final_sentinel_review.json",
+      "reports/v29/final_sentinel_review.md",
+      "reports/v28/final_sentinel_review.json",
+      "reports/v28/final_sentinel_review.md"
+    ]
+  },
+  "report_binding": {
+    "exact_source_head_semantics": "The exact source/PR head independently reviewed. The final closure commit is report-only and does not alter implementation.",
+    "report_only_descendant": true
+  }
+}

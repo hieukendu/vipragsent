@@ -2,9 +2,9 @@
   "schema_version": 1,
   "spec_version": "V30",
   "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
-  "status": "DRAFT_PENDING_EXACT_HEAD_CI_AND_SENTINEL",
+  "status": "FINAL_PASS",
   "estimate_kind": "HEURISTIC_ENGINEERING_ESTIMATE_NOT_MEASURED_RUNTIME_PROOF",
-  "exact_source_head": "f438a61a078e713cfa94c5624b6b0e19b719651e",
+  "exact_source_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
   "frozen_workload_counts": {
     "retained_rows_total": 80,
     "q3_local_rows": 36,
@@ -73,8 +73,51 @@
     "The estimate must be recalculated if authorized throughput or queue telemetry changes."
   ],
   "pending_validation": {
-    "exact_head_ci": "PENDING",
-    "independent_sentinel": "PENDING",
-    "final_head_rebinding_required": true
+    "exact_head_ci": "PASS",
+    "exact_head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+    "independent_sentinel": "PASS",
+    "independent_sentinel_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+    "final_head_rebinding_required": false,
+    "report_only_descendant": true
+  },
+  "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
+  "validation": {
+    "remote": {
+      "workflow": "cpu-ci",
+      "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "run_id": 31999651740,
+      "job_id": 95297452139,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+    },
+    "sentinel": {
+      "status": "PASS",
+      "reviewer": "independent affected-scope Sentinel (Laplace)",
+      "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "findings": {
+        "implementation": "PASS",
+        "R1": "PASS",
+        "R2": "PASS",
+        "R3": "PASS",
+        "R4": "PASS",
+        "protocol_invariants": "PASS",
+        "tests_and_static_validation": "PASS",
+        "eta_arithmetic": "PASS",
+        "closure_artifacts": "PASS"
+      },
+      "blockers": []
+    },
+    "local": {
+      "focused_tests": "119 passed (independent Sentinel)",
+      "cpu_mock_suite": "453 passed",
+      "ruff": "PASS",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    }
+  },
+  "report_binding": {
+    "exact_source_head_semantics": "The implementation head validated by the exact-head CI and independent Sentinel; this closure update is report-only.",
+    "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b"
   }
 }

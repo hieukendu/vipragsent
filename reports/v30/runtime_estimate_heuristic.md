@@ -1,11 +1,11 @@
-# V30 heuristic runtime estimate draft
+# V30 heuristic runtime estimate
 
 ## Scope and evidence boundary
 
 This is an analytical engineering estimate, not a measured runtime proof. It
-is bound to source head
-f438a61a078e713cfa94c5624b6b0e19b719651e; exact-head CI and the independent
-Sentinel review are still pending.
+is bound to exact source/implementation head `79b0a925479ee5255aab6e2fa799b1867542cd10` (implementation
+commit `66d4e6bd5a29e7986027afa8da045151b369235b`). Exact-head CI and the independent Sentinel
+both passed; the closure commit is report-only.
 
 The frozen balanced profile contains 80 retained rows: 36 local Q3 rows, 4
 seedless Azure Q3 comparison rows, 18 Q2 rows, and 22 Q1b evaluation-only
@@ -77,6 +77,11 @@ was performed.
 
 ## Validation state
 
-This is a draft bound to the exact source head above. Exact-head CI and the
-independent affected-scope Sentinel are PENDING; the final report must be
-rewritten if either the source head or evidence head changes.
+- Exact-head CI: **PASS**, run `31999651740`, job `95297452139`, on
+  `79b0a925479ee5255aab6e2fa799b1867542cd10` ([run link](https://github.com/hieukendu/vipragsent/actions/runs/31999651740)).
+- Independent affected-scope Sentinel: **PASS** on `79b0a925479ee5255aab6e2fa799b1867542cd10`.
+- Arithmetic: **PASS** — 1,336 - 366 = 970 hours; 970 / 24 = 40.4 days;
+  conservative case 1,523 / 24 = 63.5 days.
+- Under-30-day target: **false**.
+- Further safe optimization without changing the accepted experiment:
+  **none supported by evidence**.
