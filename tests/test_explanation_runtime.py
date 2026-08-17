@@ -57,6 +57,21 @@ class _TinyFullModel(nn.Module):
         raise AssertionError("classification/full forward path must not be used")
 
 
+class _ModelWideRuntimeErrorBackbone(nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+        self.anchor = nn.Parameter(torch.ones(1))
+
+    def forward(self, input_ids: torch.Tensor, attention_mask: torch.Tensor) -> SimpleNamespace:
+        raise RuntimeError("model-wide explanation runtime failure")
+
+
+class _ModelWideRuntimeErrorFullModel(_TinyFullModel):
+    def __init__(self) -> None:
+        super().__init__()
+        self.backbone = _ModelWideRuntimeErrorBackbone()
+
+
 class _Tokenizer:
     pad_token_id = 0
     bos_token_id = 1
@@ -171,6 +186,26 @@ def test_runtime_is_inference_only_and_does_not_call_full_forward(tmp_path: Path
         runtime.train()
     with pytest.raises(ExplanationRuntimeError, match="cannot create an optimizer"):
         runtime.create_optimizer()
+
+
+def test_model_wide_runtime_error_propagates_without_complete_manifest_or_jsonl(tmp_path: Path) -> None:
+    checkpoint = tmp_path / "source.pt"
+    checkpoint.write_bytes(b"approved-source")
+    run_root = tmp_path / "run"
+    runtime = ExplanationOnlyRuntime(
+        _ModelWideRuntimeErrorFullModel(),
+        _Tokenizer(),
+        _request(run_root, checkpoint),
+        run_root=run_root,
+    )
+
+    with pytest.raises(RuntimeError, match="model-wide explanation runtime failure"):
+        runtime.generate_reasoning_split("dev", _records())
+
+    manifest = json.loads((run_root / "reasoning/dev_chunks_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["complete"] is False
+    assert manifest["chunks"] == []
+    assert not (run_root / "reasoning/dev_reasoning.jsonl").exists()
 
 
 def test_source_checkpoint_mismatch_and_unauthorized_fallback_are_rejected(tmp_path: Path) -> None:

@@ -42,6 +42,10 @@ class GenerationProtocolConflict(RuntimeError):
     pass
 
 
+class GenerationRecordError(ValueError):
+    """A generation failure attributable to one input record or its decoding."""
+
+
 GENERATION_CHECKPOINT_SCHEMA_VERSION = 2
 SUPPORTED_GENERATION_BATCH_SIZES = (1, 2, 4)
 
@@ -616,23 +620,32 @@ class ReasoningGenerationExecutor:
         if isinstance(value, str):
             return value
         if not hasattr(self.tokenizer, "decode"):
-            raise ValueError("a tokenizer with decode() is required")
-        return str(self.tokenizer.decode(value, skip_special_tokens=True))
+            raise GenerationPersistenceError("a tokenizer with decode() is required")
+        try:
+            return str(self.tokenizer.decode(value, skip_special_tokens=True))
+        except (IndexError, KeyError, TypeError, ValueError) as exc:
+            raise GenerationRecordError("tokenizer could not decode generated tokens") from exc
 
     def _record_inputs(self, record: Mapping[str, Any]) -> tuple[torch.Tensor, torch.Tensor]:
         if "input_ids" in record:
-            input_ids = record["input_ids"]
-            attention_mask = record.get("attention_mask")
-            input_ids = input_ids if isinstance(input_ids, torch.Tensor) else torch.tensor(input_ids, dtype=torch.long)
-            if input_ids.ndim == 1:
-                input_ids = input_ids.unsqueeze(0)
-            if attention_mask is None:
-                attention_mask = torch.ones_like(input_ids)
-            attention_mask = attention_mask if isinstance(attention_mask, torch.Tensor) else torch.tensor(attention_mask, dtype=torch.long)
-            if attention_mask.ndim == 1:
-                attention_mask = attention_mask.unsqueeze(0)
-            return input_ids, attention_mask
-        return _encode_text(self.tokenizer, str(record.get("prompt_text", record.get("text", ""))))
+            try:
+                input_ids = record["input_ids"]
+                attention_mask = record.get("attention_mask")
+                input_ids = input_ids if isinstance(input_ids, torch.Tensor) else torch.tensor(input_ids, dtype=torch.long)
+                if input_ids.ndim == 1:
+                    input_ids = input_ids.unsqueeze(0)
+                if attention_mask is None:
+                    attention_mask = torch.ones_like(input_ids)
+                attention_mask = attention_mask if isinstance(attention_mask, torch.Tensor) else torch.tensor(attention_mask, dtype=torch.long)
+                if attention_mask.ndim == 1:
+                    attention_mask = attention_mask.unsqueeze(0)
+                return input_ids, attention_mask
+            except (IndexError, KeyError, TypeError, ValueError) as exc:
+                raise GenerationRecordError("generation record has invalid token inputs") from exc
+        try:
+            return _encode_text(self.tokenizer, str(record.get("prompt_text", record.get("text", ""))))
+        except (IndexError, KeyError, TypeError, ValueError) as exc:
+            raise GenerationRecordError("generation record could not be encoded") from exc
 
     def _inference_batch(self, records: Sequence[Mapping[str, Any]]) -> dict[str, torch.Tensor]:
         if not records:
@@ -644,12 +657,12 @@ class ReasoningGenerationExecutor:
             input_row = input_ids.squeeze(0).to(dtype=torch.long)
             mask_row = attention_mask.squeeze(0).to(dtype=torch.long)
             if input_row.ndim != 1 or mask_row.ndim != 1:
-                raise ValueError("generation inference records must contain one-dimensional token rows")
+                raise GenerationRecordError("generation inference records must contain one-dimensional token rows")
             if input_row.numel() != mask_row.numel():
-                raise ValueError("generation input and attention-mask lengths must match")
+                raise GenerationRecordError("generation input and attention-mask lengths must match")
             active = mask_row.to(dtype=torch.bool)
             if not bool(active.any()):
-                raise ValueError("generation inference records must contain at least one active token")
+                raise GenerationRecordError("generation inference records must contain at least one active token")
             inputs.append(input_row[active])
             masks.append(torch.ones(int(active.sum()), dtype=torch.long))
         max_length = max(int(row.numel()) for row in inputs)
@@ -733,13 +746,13 @@ class ReasoningGenerationExecutor:
                 batch_records = records[start : start + selected_batch_size]
                 try:
                     chunk = self._generate_batch(split, batch_records)
-                except Exception:
+                except GenerationRecordError:
                     # A single bad sample must not discard successful neighbors.
                     chunk = []
                     for record in batch_records:
                         try:
                             chunk.extend(self._generate_batch(split, [record]))
-                        except Exception as exc:
+                        except GenerationRecordError as exc:
                             chunk.append(self._generation_failure(split, record, exc))
                 rows.extend(chunk)
                 if on_chunk is not None:

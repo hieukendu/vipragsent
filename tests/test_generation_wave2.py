@@ -14,6 +14,7 @@ from vipragsent.evaluation.reasoning_judge import ReasoningJudge
 from vipragsent.hashing import sha256_file
 from vipragsent.orchestration.executors.generation import (
     GenerationPersistenceError,
+    GenerationRecordError,
     ReasoningGenerationExecutor,
     reversible_inference_context,
     select_generation_batch_size,
@@ -32,9 +33,14 @@ class _BatchFixtureModel(nn.Module):
     def generate(self, *, input_ids: torch.Tensor, attention_mask: torch.Tensor, **_: object) -> torch.Tensor:
         self.generate_calls.append((int(input_ids.size(0)), attention_mask.detach().cpu().clone()))
         if self.fail_token is not None and bool((input_ids == self.fail_token).any()):
-            raise RuntimeError("fixture sample failure")
+            raise GenerationRecordError("fixture sample failure")
         continuation = torch.tensor([[7, 8, 2]] * input_ids.size(0), dtype=torch.long)
         return torch.cat((input_ids.cpu(), continuation), dim=1)
+
+
+class _ModelWideRuntimeErrorModel(_BatchFixtureModel):
+    def generate(self, *, input_ids: torch.Tensor, attention_mask: torch.Tensor, **_: object) -> torch.Tensor:
+        raise RuntimeError("model-wide runtime failure")
 
 
 class _BatchFixtureTokenizer:
@@ -163,6 +169,22 @@ def test_batched_generation_pads_stops_preserves_failures_and_resumes(tmp_path: 
     assert resumed_model.generate_calls == []
 
 
+def test_model_wide_runtime_error_propagates_and_leaves_manifest_incomplete(tmp_path: Path) -> None:
+    executor = _executor(
+        tmp_path,
+        _ModelWideRuntimeErrorModel(),
+        profile={"status": "PASS", "selected_batch_size": 2, "profiled": True},
+    )
+
+    with pytest.raises(RuntimeError, match="model-wide runtime failure"):
+        executor.generate_reasoning_split("dev", _records()[:2])
+
+    manifest = json.loads((executor.run_root / "reasoning/dev_chunks_manifest.json").read_text(encoding="utf-8"))
+    assert manifest["complete"] is False
+    assert manifest["chunks"] == []
+    assert not (executor.run_root / "reasoning/dev_reasoning.jsonl").exists()
+
+
 def test_fixture_equivalence_harness_covers_candidate_batches(tmp_path: Path) -> None:
     executor = _executor(tmp_path, _BatchFixtureModel())
     report = executor.fixture_generation_equivalence("dev", _records()[:2])
@@ -261,6 +283,38 @@ def test_generation_store_requires_contract_outside_explicit_fixture_or_legacy_m
         GenerationChunkStore(tmp_path / "production", "dev", ["a"])
     GenerationChunkStore(tmp_path / "fixture", "dev", ["a"], fixture_mode=True)
     GenerationChunkStore(tmp_path / "legacy", "dev", ["a"], legacy_mode=True)
+
+
+def test_production_contract_recurses_identity_values_and_accepts_canonical_config(tmp_path: Path) -> None:
+    contract = {
+        "contract_version": 1,
+        "source_identity": {"run_id": "run-1", "source": "checkpoint-1"},
+        "code_identity": {"commit": "commit-1", "source_fingerprint": "source-1"},
+        "model_identity": {"identity": "model@revision-1"},
+        "tokenizer_identity": {"identity": "tokenizer@revision-1"},
+        "checkpoint_identity": {"checkpoint_sha256": "A" * 64},
+        "config_identity": {
+            "config_hash": "config-1",
+            "protocol": {"protocol_id": "protocol-1", "decoding": {"do_sample": False}},
+            "generation_profile": None,
+        },
+        "dataset_identity": {"identity": "dataset-1", "hash": "B" * 64},
+        "split": "dev",
+        "data_hash": "B" * 64,
+        "input_record_digest": "C" * 64,
+        "record_order_digest": "D" * 64,
+        "seed": 20260521,
+        "system_identity": {"system_id": "cot_only_vistral"},
+        "budget": "full",
+    }
+    GenerationChunkStore(tmp_path / "valid", "dev", ["a"], generation_contract=contract)
+
+    invalid = {
+        **contract,
+        "source_identity": {"nested": {"identity": "NOT_PROVIDED"}},
+    }
+    with pytest.raises(GenerationPersistenceError, match="source_identity"):
+        GenerationChunkStore(tmp_path / "invalid", "dev", ["a"], generation_contract=invalid)
 
 
 def test_chunk_commit_is_idempotent_and_rejects_rewrites(tmp_path: Path) -> None:

@@ -64,6 +64,10 @@ class ExplanationRuntimeError(RuntimeError):
     """The explanation-only contract or artifact state is unsafe."""
 
 
+class ExplanationRecordError(ExplanationRuntimeError):
+    """An explanation failure attributable to one input record or its decoding."""
+
+
 ExplanationContractError = ExplanationRuntimeError
 
 
@@ -603,19 +607,22 @@ class ExplanationOnlyRuntime:
 
     def _record_inputs(self, record: Mapping[str, Any]) -> tuple[torch.Tensor, torch.Tensor]:
         if "input_ids" not in record:
-            raise ExplanationRuntimeError("explanation records require input_ids")
-        input_ids = record["input_ids"]
-        attention = record.get("attention_mask")
-        input_ids = input_ids if isinstance(input_ids, torch.Tensor) else torch.tensor(input_ids, dtype=torch.long)
-        if input_ids.ndim == 1:
-            input_ids = input_ids.unsqueeze(0)
-        attention = torch.ones_like(input_ids) if attention is None else attention
-        attention = attention if isinstance(attention, torch.Tensor) else torch.tensor(attention, dtype=torch.long)
-        if attention.ndim == 1:
-            attention = attention.unsqueeze(0)
-        if input_ids.shape != attention.shape or input_ids.size(0) != 1:
-            raise ExplanationRuntimeError("explanation records must contain one [1, time] input and mask")
-        return input_ids.to(dtype=torch.long), attention.to(dtype=torch.long)
+            raise ExplanationRecordError("explanation records require input_ids")
+        try:
+            input_ids = record["input_ids"]
+            attention = record.get("attention_mask")
+            input_ids = input_ids if isinstance(input_ids, torch.Tensor) else torch.tensor(input_ids, dtype=torch.long)
+            if input_ids.ndim == 1:
+                input_ids = input_ids.unsqueeze(0)
+            attention = torch.ones_like(input_ids) if attention is None else attention
+            attention = attention if isinstance(attention, torch.Tensor) else torch.tensor(attention, dtype=torch.long)
+            if attention.ndim == 1:
+                attention = attention.unsqueeze(0)
+            if input_ids.shape != attention.shape or input_ids.size(0) != 1:
+                raise ExplanationRecordError("explanation records must contain one [1, time] input and mask")
+            return input_ids.to(dtype=torch.long), attention.to(dtype=torch.long)
+        except (IndexError, KeyError, TypeError, ValueError) as exc:
+            raise ExplanationRecordError("explanation record has invalid token inputs") from exc
 
     def _inference_batch(self, records: Sequence[Mapping[str, Any]]) -> dict[str, torch.Tensor]:
         if not records:
@@ -626,7 +633,7 @@ class ExplanationOnlyRuntime:
             ids, mask = self._record_inputs(record)
             active = mask.squeeze(0).bool()
             if not bool(active.any()):
-                raise ExplanationRuntimeError("explanation records must contain an active token")
+                raise ExplanationRecordError("explanation records must contain an active token")
             rows.append(ids.squeeze(0)[active])
             masks.append(torch.ones(int(active.sum()), dtype=torch.long))
         width = max(int(row.numel()) for row in rows)
@@ -652,7 +659,10 @@ class ExplanationOnlyRuntime:
             return ids.strip()
         if not callable(getattr(self.tokenizer, "decode", None)):
             raise ExplanationRuntimeError("explanation inference requires tokenizer.decode")
-        return str(self.tokenizer.decode(ids, skip_special_tokens=True)).strip()
+        try:
+            return str(self.tokenizer.decode(ids, skip_special_tokens=True)).strip()
+        except (IndexError, KeyError, TypeError, ValueError) as exc:
+            raise ExplanationRecordError("tokenizer could not decode rationale tokens") from exc
 
     def _row(self, split: str, record: Mapping[str, Any], decoded: torch.Tensor) -> dict[str, Any]:
         values = decoded.detach().cpu().tolist()
@@ -814,12 +824,12 @@ class ExplanationOnlyRuntime:
                 batch_records = pending[start : start + selected]
                 try:
                     chunk = self._generate_batch(split, batch_records)
-                except Exception:
+                except ExplanationRecordError:
                     chunk = []
                     for record in batch_records:
                         try:
                             chunk.extend(self._generate_batch(split, [record]))
-                        except Exception as exc:
+                        except ExplanationRecordError as exc:
                             chunk.append(self._failure_row(split, record, exc))
                 entry = store.commit(chunk)
                 # The callback is deliberately after GenerationChunkStore.commit.
