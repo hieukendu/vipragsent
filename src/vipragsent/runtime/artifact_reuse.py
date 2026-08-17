@@ -199,7 +199,22 @@ def canonical_hash(value: Any) -> str:
 
 
 def _is_uncertain(value: Any) -> bool:
-    return value is None or value == "" or value == "unknown" or value is False
+    if value is None or value is False:
+        return True
+    if not isinstance(value, str):
+        return False
+    normalized = value.strip().lower().replace("-", "_").replace(" ", "_")
+    return normalized in {
+        "",
+        "unknown",
+        "none",
+        "null",
+        "not_provided",
+        "not_applicable",
+        "n_a",
+        "na",
+        "live_code_identity_uncertain",
+    }
 
 
 def _same_value(left: Any, right: Any) -> bool:
@@ -243,6 +258,15 @@ def _extract_binding(metadata: Mapping[str, Any], side: str) -> tuple[dict[str, 
 
     for name in sorted(keys - _ALLOWED_METADATA_FIELDS, key=str):
         issues.append(f"EXTRA_FIELD:{side}:{name}")
+    # Preserve the V29 fail-closed rule for legacy optional digest fields.
+    # They are not substitutes for the R4 binding fields, but if supplied
+    # they must still be canonical SHA-256 values and cannot silently weaken
+    # an otherwise exact comparison.
+    for name in HASH_FIELDS:
+        value = metadata.get(name)
+        if name in metadata and not _is_uncertain(value):
+            if not isinstance(value, str | bytes) or not _SHA256_RE.fullmatch(str(value)):
+                issues.append(f"INVALID_SHA256:{side}:{name}")
     return binding, list(dict.fromkeys(issues))
 
 
@@ -449,6 +473,20 @@ def decide_reuse(
         if _same_value(local_binding[name], remote_binding[name]):
             matched.append(name)
         else:
+            mismatched.append(name)
+
+    # Legacy digest fields remain comparison-bearing when both records carry
+    # them.  New callers should use the canonical R4 *_sha binding fields;
+    # this bridge prevents an old equal-SHA shortcut from becoming permissive
+    # during migration.
+    for name in HASH_FIELDS:
+        if name not in local_metadata or name not in remote_metadata:
+            continue
+        left = local_metadata[name]
+        right = remote_metadata[name]
+        if _is_uncertain(left) or _is_uncertain(right):
+            continue
+        if _SHA256_RE.fullmatch(str(left)) and _SHA256_RE.fullmatch(str(right)) and left != right:
             mismatched.append(name)
 
     if live_code_identity is not None:

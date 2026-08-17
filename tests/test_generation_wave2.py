@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import shutil
+from copy import deepcopy
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -414,6 +415,32 @@ def test_generation_chunk_store_reconciles_only_external_append_and_detects_muta
     chunk_path.write_text('{"generated_reasoning":"tampered","sample_id":"a"}\n', encoding="utf-8")
     with pytest.raises(GenerationPersistenceError, match="missing or corrupt"):
         second.mark_complete()
+
+
+def test_generation_chunk_store_reconciliation_is_transactional_on_corrupt_append(tmp_path: Path) -> None:
+    store = GenerationChunkStore(tmp_path, "dev", ["a", "b"], fixture_mode=True)
+    store.commit([{"sample_id": "a", "generated_reasoning": "a"}])
+
+    external = GenerationChunkStore(tmp_path, "dev", ["a", "b"], fixture_mode=True)
+    external.commit([{"sample_id": "b", "generated_reasoning": "b"}])
+    chunk_path = tmp_path / "reasoning/dev_chunks/chunk_000001.jsonl"
+    chunk_path.write_text('{"generated_reasoning":"corrupt","sample_id":"b"}\n', encoding="utf-8")
+
+    before_failure = deepcopy(store.__dict__)
+    with pytest.raises(GenerationPersistenceError, match="missing or corrupt"):
+        store.mark_complete()
+    assert store.__dict__ == before_failure
+
+    with pytest.raises(GenerationPersistenceError, match="missing or corrupt"):
+        store.mark_complete()
+    assert store.__dict__ == before_failure
+
+    chunk_path.write_text('{"generated_reasoning":"b","sample_id":"b"}\n', encoding="utf-8")
+    store.mark_complete()
+
+    assert store.committed_sample_ids() == {"a", "b"}
+    assert store.next_index() == 2
+    assert json.loads(store.manifest_path.read_text(encoding="utf-8"))["complete"] is True
 
 
 def test_generation_chunk_store_rejects_out_of_order_and_noncontiguous_appends(tmp_path: Path) -> None:

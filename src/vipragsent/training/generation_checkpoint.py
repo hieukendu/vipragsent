@@ -353,27 +353,6 @@ def save_generation_checkpoint(
     return manifest
 
 
-def _payload_identity(path: Path) -> tuple[int | None, Mapping[str, Any]]:
-    """Read payload metadata needed to validate a pointer identity."""
-    try:
-        try:
-            raw = torch.load(path, map_location="cpu", weights_only=False)
-        except TypeError:
-            raw = torch.load(path, map_location="cpu")
-    except Exception as exc:
-        raise GenerationCheckpointError(f"generation checkpoint payload is unreadable: {path}") from exc
-    if not isinstance(raw, Mapping):
-        raise GenerationCheckpointError("generation checkpoint payload must be a mapping")
-    state = raw.get("run_state")
-    epoch = None
-    if isinstance(state, Mapping) and state.get("epoch") is not None:
-        epoch = _positive_epoch(state.get("epoch"), field="run_state epoch")
-    metadata = raw.get("metadata")
-    if not isinstance(metadata, Mapping):
-        raise GenerationCheckpointError("generation checkpoint payload metadata is missing")
-    return epoch, metadata
-
-
 def _validate_pointer_target(
     run_root: str | Path,
     path: str | Path,
@@ -397,27 +376,6 @@ def _validate_pointer_target(
         raise GenerationCheckpointError("canonical generation checkpoint sidecar epoch is missing")
     if manifest.epoch != epoch:
         raise GenerationCheckpointError("generation checkpoint sidecar epoch disagrees with its path")
-    payload_epoch, payload_metadata = _payload_identity(checkpoint_path)
-    if payload_epoch is not None and payload_epoch != epoch:
-        raise GenerationCheckpointError("generation checkpoint payload epoch disagrees with its path")
-    metadata_epoch = payload_metadata.get("epoch")
-    if metadata_epoch is not None and _positive_epoch(metadata_epoch, field="payload epoch") != epoch:
-        raise GenerationCheckpointError("generation checkpoint payload metadata epoch disagrees with its path")
-    payload_provenance = payload_metadata.get("provenance")
-    if not isinstance(payload_provenance, Mapping):
-        raise GenerationCheckpointError("generation checkpoint payload provenance is missing")
-    normalized_payload_provenance = _validated_provenance(payload_provenance)
-    payload_provenance_sha256 = payload_metadata.get("provenance_sha256") or sha256_json(normalized_payload_provenance)
-    if _sha256(payload_provenance_sha256, field="payload provenance_sha256") != _sha256(manifest.provenance_sha256, field="sidecar provenance_sha256"):
-        raise GenerationCheckpointError("generation checkpoint provenance SHA does not match its payload and sidecar")
-    if str(payload_metadata.get("variant_fingerprint", manifest.variant_fingerprint)) != str(manifest.variant_fingerprint):
-        raise GenerationCheckpointError("generation checkpoint payload variant fingerprint does not match its sidecar")
-    if str(payload_metadata.get("selection_metric_name", manifest.selection_metric_name)) != str(manifest.selection_metric_name):
-        raise GenerationCheckpointError("generation checkpoint payload selection metric name does not match its sidecar")
-    payload_metric = _finite_metric(payload_metadata.get("selection_metric_value"))
-    if manifest.selection_metric_value is not None and payload_metric is not None:
-        if not math.isclose(float(payload_metric), float(manifest.selection_metric_value), rel_tol=0.0, abs_tol=1e-12):
-            raise GenerationCheckpointError("generation checkpoint payload selection metric does not match its sidecar")
     observed_hash = _sha256(sha256_file(checkpoint_path), field="checkpoint_sha256")
     sidecar_hash = _sha256(manifest.checkpoint_sha256, field="sidecar checkpoint_sha256")
     if observed_hash != sidecar_hash:
@@ -479,7 +437,7 @@ def write_generation_checkpoint_pointer(
         "schema_version": GENERATION_CHECKPOINT_POINTER_SCHEMA_VERSION,
         "path": checkpoint_path.relative_to(Path(run_root).resolve()).as_posix(),
         "epoch": epoch,
-        "checkpoint_sha256": _sha256(sha256_file(checkpoint_path), field="checkpoint_sha256"),
+        "checkpoint_sha256": _sha256(manifest.checkpoint_sha256, field="checkpoint_sha256"),
         "provenance_sha256": _sha256(manifest.provenance_sha256, field="provenance_sha256"),
         "variant_fingerprint": normalized_variant,
         "selection_metric_name": str(selection_metric_name),
