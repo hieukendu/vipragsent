@@ -148,6 +148,32 @@ def _relative_run_path(run_root: str | Path, path: str | Path) -> str:
     return resolved.relative_to(root).as_posix()
 
 
+def _relative_pointer_path(run_root: str | Path, path: str | Path) -> str:
+    """Normalize a pointer path without resolving an in-root symlink.
+
+    Canonical epoch aliases are intentionally symlinks when a historical
+    payload is migrated.  Resolving the alias here would turn
+    ``epoch_0002`` back into the legacy ``epoch_2`` spelling and make the
+    canonical-only pointer contract reject the migration.  The resolved
+    target is still checked by ``_run_root_path`` so an alias cannot escape
+    the run root.
+    """
+    root = Path(run_root).resolve()
+    candidate = Path(path)
+    if candidate.is_absolute():
+        try:
+            relative = candidate.relative_to(root)
+        except ValueError as exc:
+            raise GenerationCheckpointError("generation checkpoint path is outside the run root") from exc
+    else:
+        relative = candidate
+    normalized = relative.as_posix()
+    if not normalized or Path(normalized).is_absolute():
+        raise GenerationCheckpointError("generation checkpoint pointer path must be relative to the run root")
+    _run_root_path(root, normalized)
+    return normalized
+
+
 def _pointer_path(run_root: str | Path, kind: str) -> Path:
     if kind not in GENERATION_CHECKPOINT_POINTER_KINDS:
         raise GenerationCheckpointError(f"unsupported generation checkpoint pointer kind: {kind}")
@@ -364,6 +390,60 @@ def save_generation_checkpoint(
     return manifest
 
 
+def write_generation_checkpoint_manifest_for_existing(
+    path: str | Path,
+    *,
+    observed_checkpoint_sha256: str,
+    provenance: Mapping[str, Any],
+    epoch: int,
+    variant_fingerprint: str,
+    selection_metric_name: str = GENERATION_SELECTION_METRIC_NAME,
+    selection_metric_value: float | None = None,
+) -> GenerationCheckpointManifest:
+    """Seal an already-existing payload with one V30 metadata sidecar.
+
+    This is the narrow migration primitive for a historical schema-2 payload
+    that has a separately proven source identity.  It never rewrites or copies
+    the payload; the caller supplies the digest already observed at the
+    migration boundary so the physical file is not hashed a second time.
+    """
+    checkpoint_path = Path(path)
+    if not checkpoint_path.is_file():
+        raise GenerationCheckpointError(f"generation checkpoint is missing: {checkpoint_path}")
+    normalized_provenance = _validated_provenance(provenance)
+    observed = _sha256(observed_checkpoint_sha256, field="observed checkpoint_sha256")
+    normalized_hash = _sha256(observed_checkpoint_sha256, field="checkpoint_sha256")
+    if observed != normalized_hash:
+        raise GenerationCheckpointError("existing generation checkpoint digest is inconsistent")
+    normalized_epoch = _positive_epoch(epoch)
+    normalized_variant = str(variant_fingerprint).strip()
+    if not normalized_variant or normalized_variant == "NOT_PROVIDED":
+        raise GenerationCheckpointError("generation checkpoint migration variant fingerprint is missing")
+    normalized_metric_name = str(selection_metric_name).strip()
+    if not normalized_metric_name:
+        raise GenerationCheckpointError("generation checkpoint migration selection metric name is missing")
+    normalized_metric = _finite_metric(selection_metric_value)
+    manifest = GenerationCheckpointManifest(
+        GENERATION_CHECKPOINT_SCHEMA_VERSION,
+        normalized_hash,
+        normalized_provenance,
+        sha256_json(normalized_provenance),
+        normalized_epoch,
+        normalized_variant,
+        normalized_metric_name,
+        normalized_metric,
+    )
+    atomic_write_json(_manifest_path(checkpoint_path), manifest.as_dict())
+    verified = _read_manifest(
+        _manifest_path(checkpoint_path),
+        checkpoint_path,
+        observed_checkpoint_sha256=observed,
+    )
+    if verified.as_dict() != manifest.as_dict():
+        raise GenerationCheckpointError("existing generation checkpoint sidecar verification failed")
+    return verified
+
+
 def _validate_pointer_target(
     run_root: str | Path,
     path: str | Path,
@@ -375,11 +455,14 @@ def _validate_pointer_target(
     expected_selection_metric_name: str | None = None,
     expected_selection_metric_value: float | None = None,
 ) -> tuple[Path, GenerationCheckpointManifest, int]:
-    relative = _relative_run_path(run_root, path)
+    # Preserve the lexical canonical path when it is a symlink to a legacy
+    # payload; resolving it here would erase the zero padding required by the
+    # V30 pointer contract.
+    relative = _relative_pointer_path(run_root, path)
     epoch = _epoch_from_checkpoint_path(relative, canonical_only=True)
     if expected_epoch is not None and epoch != _positive_epoch(expected_epoch, field="pointer epoch"):
         raise GenerationCheckpointError("generation checkpoint pointer epoch disagrees with its path")
-    checkpoint_path = _run_root_path(run_root, relative)
+    checkpoint_path = Path(run_root).resolve() / relative
     if not checkpoint_path.is_file():
         raise GenerationCheckpointError(f"generation checkpoint pointer target is missing: {relative}")
     observed_hash = _sha256(sha256_file(checkpoint_path), field="checkpoint_sha256")
@@ -450,7 +533,9 @@ def write_generation_checkpoint_pointer(
         metric = sidecar_metric
     pointer = {
         "schema_version": GENERATION_CHECKPOINT_POINTER_SCHEMA_VERSION,
-        "path": checkpoint_path.relative_to(Path(run_root).resolve()).as_posix(),
+        # Keep the canonical lexical path, even when its payload is a
+        # symlink to a legacy checkpoint during V30 migration.
+        "path": _relative_pointer_path(run_root, path),
         "epoch": epoch,
         "checkpoint_sha256": _sha256(manifest.checkpoint_sha256, field="checkpoint_sha256"),
         "provenance_sha256": _sha256(manifest.provenance_sha256, field="provenance_sha256"),
@@ -583,7 +668,7 @@ def read_generation_checkpoint_pointer(
         raise GenerationCheckpointError(f"generation checkpoint {kind} pointer epoch disagrees with its path")
     return {
         "schema_version": schema_version,
-        "path": checkpoint_path.relative_to(Path(run_root).resolve()).as_posix(),
+        "path": relative,
         "epoch": epoch,
         "checkpoint_sha256": checkpoint_sha256,
         "provenance_sha256": provenance_sha256,
@@ -641,6 +726,8 @@ def load_generation_checkpoint(
     production_provenance_required: bool = False,
     fixture_mode: bool = False,
     observed_checkpoint_sha256: str | None = None,
+    allow_legacy_v2_production: bool = False,
+    legacy_metadata: Mapping[str, Any] | None = None,
 ) -> GenerationCheckpointLoadResult:
     """Validate identity/integrity, then delegate loading to canonical primitives."""
     checkpoint_path = Path(path)
@@ -648,6 +735,14 @@ def load_generation_checkpoint(
         raise GenerationCheckpointError("legacy loading requires explicit fixture_mode=True")
     if production_provenance_required and expected_provenance is None:
         raise GenerationCheckpointError("production generation checkpoint load requires expected provenance")
+    if allow_legacy_v2_production and not production_provenance_required:
+        raise GenerationCheckpointError("historical schema-2 production compatibility requires production provenance")
+    if allow_legacy_v2_production and expected_provenance is None:
+        raise GenerationCheckpointError("historical schema-2 production compatibility requires expected provenance")
+    if allow_legacy_v2_production and not legacy_metadata:
+        raise GenerationCheckpointError("historical schema-2 production compatibility requires external metadata")
+    if allow_legacy_v2_production and allow_legacy_fixture:
+        raise GenerationCheckpointError("historical schema-2 production compatibility cannot use fixture mode")
     if fixture_mode and not _model_is_cpu(model):
         raise GenerationCheckpointError("fixture/legacy generation checkpoint mode requires a CPU model")
     manifest_path = _manifest_path(checkpoint_path)
@@ -660,19 +755,28 @@ def load_generation_checkpoint(
             observed_checkpoint_sha256=observed_checkpoint_sha256,
         )
     except GenerationCheckpointError:
-        # A canonical checkpoint without its sidecar is never loadable.  Only
-        # an explicitly opted-in historical fixture may use this recovery path.
-        if manifest_path.exists() or not allow_legacy_fixture:
+        # A canonical checkpoint without its sidecar is never loadable by the
+        # normal path.  The only production exception is the explicit,
+        # receipt-backed migration of a historical schema-2 payload.
+        if manifest_path.exists() or not (allow_legacy_fixture or allow_legacy_v2_production):
             raise
-        is_legacy, legacy_provenance = _legacy_payload_info(checkpoint_path)
-        if not is_legacy:
-            raise GenerationCheckpointError("canonical generation checkpoint cannot load without its sidecar manifest")
-        if expected_provenance is not None:
-            expected = _validated_provenance(expected_provenance)
-            if legacy_provenance is None:
-                raise GenerationCheckpointError("legacy checkpoint lacks validated provenance for identity checking")
-            if not _provenance_matches(legacy_provenance, expected, compare_provenance_fields):
-                raise GenerationCheckpointError("legacy generation checkpoint provenance identity mismatch")
+        if allow_legacy_v2_production:
+            # The canonical primitive below proves schema-2 shape and loads
+            # the optimizer/scheduler/RNG in the same single payload read.
+            # These flat metadata fields are the historical checkpoint's
+            # externally auditable identity boundary; the full V30 provenance
+            # is supplied by the migration receipt/current executor.
+            legacy_provenance = _validated_provenance(expected_provenance or {})
+        else:
+            is_legacy, legacy_provenance = _legacy_payload_info(checkpoint_path)
+            if not is_legacy:
+                raise GenerationCheckpointError("canonical generation checkpoint cannot load without its sidecar manifest")
+            if expected_provenance is not None:
+                expected = _validated_provenance(expected_provenance)
+                if legacy_provenance is None:
+                    raise GenerationCheckpointError("legacy checkpoint lacks validated provenance for identity checking")
+                if not _provenance_matches(legacy_provenance, expected, compare_provenance_fields):
+                    raise GenerationCheckpointError("legacy generation checkpoint provenance identity mismatch")
     if manifest is not None and expected_provenance is not None:
         expected = _validated_provenance(expected_provenance)
         if not _provenance_matches(manifest.provenance, expected, compare_provenance_fields):
@@ -700,6 +804,9 @@ def load_generation_checkpoint(
         "restore_training_state": restore_training_state,
         "allow_legacy_fixture": allow_legacy_fixture,
         "report_path": report_path,
+        "expected_metadata": dict(legacy_metadata or {}) if allow_legacy_v2_production else None,
+        "compare_metadata_fields": tuple(legacy_metadata or {}) if allow_legacy_v2_production else None,
+        "legacy_compatibility": allow_legacy_v2_production,
     }
     if restore_rng is not None:
         kwargs["restore_rng"] = restore_rng

@@ -534,6 +534,12 @@ def test_generation_checkpoint_restores_all_resume_state_and_rng_streams(tmp_pat
     )
     assert report["run_state"]["epoch"] == 1
     assert report["run_state"]["data_order"] == order
+    assert report["optimizer_state_present"] is True
+    assert report["optimizer_restored"] is True
+    assert report["scheduler_state_present"] is True
+    assert report["scheduler_restored"] is True
+    assert report["rng_state_present"] is True
+    assert report["rng_restore"]["restored"] is True
     assert restored_scheduler.last_epoch == scheduler.last_epoch
     assert restored_optimizer.state
     assert random.random() == expected_python

@@ -33,12 +33,14 @@ server = [
   "py-vncorenlp==0.1.4",
 ]
 data = [
+  "datasets>=5.0",
   "openpyxl>=3.1",
   "kaggle>=1.6",
   "huggingface-hub>=0.25",
 ]
 viz = [
   "matplotlib>=3.8",
+  "seaborn>=0.13",
 ]
 dev = [
   "pytest>=8.0",

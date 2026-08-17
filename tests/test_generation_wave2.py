@@ -17,6 +17,10 @@ from vipragsent.orchestration.executors.generation import (
     GenerationPersistenceError,
     GenerationRecordError,
     ReasoningGenerationExecutor,
+    _classify_generation_contention,
+    _generation_memory_evidence,
+    _generation_profile_may_probe_higher_batch,
+    _select_generation_profile_batch,
     reversible_inference_context,
     select_generation_batch_size,
 )
@@ -37,6 +41,25 @@ class _BatchFixtureModel(nn.Module):
             raise GenerationRecordError("fixture sample failure")
         continuation = torch.tensor([[7, 8, 2]] * input_ids.size(0), dtype=torch.long)
         return torch.cat((input_ids.cpu(), continuation), dim=1)
+
+
+class _BatchDependentFixtureModel(_BatchFixtureModel):
+    def generate(self, *, input_ids: torch.Tensor, attention_mask: torch.Tensor, **kwargs: object) -> torch.Tensor:
+        generated = super().generate(input_ids=input_ids, attention_mask=attention_mask, **kwargs)
+        if input_ids.size(0) > 1:
+            generated[:, -3] += 1
+        return generated
+
+
+class _BatchTwoFailureMustNotProbeFourModel(_BatchFixtureModel):
+    def generate(self, *, input_ids: torch.Tensor, attention_mask: torch.Tensor, **kwargs: object) -> torch.Tensor:
+        batch_size = int(input_ids.size(0))
+        if batch_size == 2:
+            self.generate_calls.append((batch_size, attention_mask.detach().cpu().clone()))
+            raise RuntimeError("CUDA out of memory")
+        if batch_size == 4:
+            raise AssertionError("batch 4 must not be physically probed after batch 2 rejection")
+        return super().generate(input_ids=input_ids, attention_mask=attention_mask, **kwargs)
 
 
 class _ModelWideRuntimeErrorModel(_BatchFixtureModel):
@@ -133,11 +156,220 @@ def test_generation_batch_requires_passing_profile_and_defaults_safe() -> None:
     assert select_generation_batch_size() == 1
     with pytest.raises(GenerationPersistenceError, match="explicit passing"):
         select_generation_batch_size(requested=2)
-    assert select_generation_batch_size({"status": "PASS", "selected_batch_size": 2, "profiled": True}) == 2
+    assert select_generation_batch_size(
+        {
+            "status": "PASS",
+            "selected_batch_size": 2,
+            "profiled": True,
+            "approved": True,
+            "contention_status": "CLEAN",
+        }
+    ) == 2
     with pytest.raises(GenerationPersistenceError, match="profiled/approved evidence"):
         select_generation_batch_size({"status": "PASS", "selected_batch_size": 2})
     with pytest.raises(GenerationPersistenceError):
         select_generation_batch_size({"status": "BLOCKED", "selected_batch_size": 2})
+    with pytest.raises(GenerationPersistenceError, match="approval-quality"):
+        select_generation_batch_size(
+            {
+                "status": "PASS",
+                "selected_batch_size": 2,
+                "profiled": True,
+                "approved": False,
+            }
+        )
+    with pytest.raises(GenerationPersistenceError, match="clean contention"):
+        select_generation_batch_size(
+            {
+                "status": "PASS",
+                "selected_batch_size": 2,
+                "profiled": True,
+                "approved": True,
+                "contention_status": "CONTENDED",
+            }
+        )
+
+
+def _profile_candidate(
+    batch_size: int,
+    throughput: float,
+    *,
+    status: str = "PASS",
+    memory_safe: bool = True,
+    equivalent: bool = True,
+) -> dict[str, object]:
+    return {
+        "batch_size": batch_size,
+        "status": status,
+        "memory_safe": memory_safe,
+        "equivalent_to_batch_one": equivalent,
+        "throughput_samples_per_second": throughput,
+    }
+
+
+def test_generation_profile_batch_four_compares_with_batch_two() -> None:
+    reports = [
+        _profile_candidate(1, 1.00),
+        _profile_candidate(2, 1.30),
+        _profile_candidate(4, 1.32),
+    ]
+    selected, baseline_ok = _select_generation_profile_batch(reports)
+    assert baseline_ok is True
+    assert selected == 2
+    assert reports[1]["previous_accepted_batch_size"] == 1
+    assert reports[2]["previous_accepted_batch_size"] == 2
+    assert reports[2]["throughput_gain_vs_batch_one"] == pytest.approx(0.32)
+    assert reports[2]["throughput_gain_vs_previous_accepted"] == pytest.approx(1.32 / 1.30 - 1.0)
+    assert reports[2]["materially_beneficial"] is False
+
+
+def test_generation_profile_batch_four_is_selected_when_it_beats_batch_two() -> None:
+    reports = [
+        _profile_candidate(1, 1.00),
+        _profile_candidate(2, 1.30),
+        _profile_candidate(4, 1.60),
+    ]
+    selected, _ = _select_generation_profile_batch(reports)
+    assert selected == 4
+    assert reports[2]["previous_accepted_batch_size"] == 2
+    assert reports[2]["materially_beneficial"] is True
+
+
+def test_generation_profile_rejected_batch_two_blocks_batch_four_shortcut() -> None:
+    reports = [
+        _profile_candidate(1, 1.00),
+        _profile_candidate(2, 1.30, status="FAIL", memory_safe=False),
+        _profile_candidate(4, 1.60),
+    ]
+    selected, _ = _select_generation_profile_batch(reports)
+    assert selected == 1
+    assert reports[2]["previous_accepted_batch_size"] is None
+    assert reports[2]["throughput_gain_vs_previous_accepted"] is None
+    assert reports[2]["materially_beneficial"] is False
+
+
+def test_generation_profile_accepted_batch_two_allows_batch_four_probe() -> None:
+    reports = [_profile_candidate(1, 1.00), _profile_candidate(2, 1.30)]
+    may_probe, reason = _generation_profile_may_probe_higher_batch(reports, lower_batch_size=2)
+    assert may_probe is True
+    assert reason is None
+
+
+@pytest.mark.parametrize(
+    ("candidate", "expected_reason"),
+    [
+        (_profile_candidate(2, 1.30, status="FAIL", memory_safe=False), "LOWER_BATCH_NOT_ACCEPTED"),
+        (_profile_candidate(2, 1.30, memory_safe=False), "LOWER_BATCH_NOT_ACCEPTED"),
+        (_profile_candidate(2, 1.30, equivalent=False), "LOWER_BATCH_NOT_ACCEPTED"),
+        (_profile_candidate(2, 1.04), "LOWER_BATCH_NOT_ACCEPTED"),
+    ],
+)
+def test_generation_profile_rejected_batch_two_disallows_batch_four_probe(
+    candidate: dict[str, object],
+    expected_reason: str,
+) -> None:
+    reports = [_profile_candidate(1, 1.00), candidate]
+    may_probe, reason = _generation_profile_may_probe_higher_batch(reports, lower_batch_size=2)
+    assert may_probe is False
+    assert reason == expected_reason
+
+
+def test_generation_profile_invalid_batch_one_disallows_higher_probe() -> None:
+    reports = [_profile_candidate(1, 0.0, status="FAIL", memory_safe=False)]
+    may_probe, reason = _generation_profile_may_probe_higher_batch(reports, lower_batch_size=1)
+    assert may_probe is False
+    assert reason == "LOWER_BATCH_NOT_ACCEPTED"
+
+
+def test_generation_profile_memory_evidence_requires_conservative_headroom() -> None:
+    total = 20 * (1024**3)
+    evidence = _generation_memory_evidence(
+        cuda_available=True,
+        error=None,
+        total_visible_vram_bytes=total,
+        free_vram_before_probe=4 * (1024**3),
+        free_vram_after_probe=3 * (1024**3),
+        peak_allocated_bytes=8 * (1024**3),
+        peak_reserved_bytes=9 * (1024**3),
+    )
+    assert evidence["memory_safe"] is True
+    assert evidence["peak_allocated_bytes"] == 8 * (1024**3)
+    assert evidence["peak_reserved_bytes"] == 9 * (1024**3)
+    assert evidence["required_memory_headroom_bytes"] == 2 * (1024**3)
+    assert evidence["memory_headroom_bytes"] == 3 * (1024**3)
+
+    unsafe = _generation_memory_evidence(
+        cuda_available=True,
+        error=None,
+        total_visible_vram_bytes=total,
+        free_vram_before_probe=2 * (1024**3),
+        free_vram_after_probe=1 * (1024**3),
+        peak_allocated_bytes=8 * (1024**3),
+        peak_reserved_bytes=9 * (1024**3),
+    )
+    assert unsafe["memory_safe"] is False
+
+
+def test_generation_profile_contention_classification_is_fail_closed() -> None:
+    clean = _classify_generation_contention(
+        total_visible_vram_bytes=20 * (1024**3),
+        free_vram_bytes=18 * (1024**3),
+        process_reserved_bytes=2 * (1024**3),
+    )
+    contended = _classify_generation_contention(
+        total_visible_vram_bytes=20 * (1024**3),
+        free_vram_bytes=10 * (1024**3),
+        process_reserved_bytes=2 * (1024**3),
+    )
+    unknown = _classify_generation_contention(
+        total_visible_vram_bytes=20 * (1024**3),
+        free_vram_bytes=None,
+        process_reserved_bytes=2 * (1024**3),
+    )
+    assert clean["status"] == "CLEAN"
+    assert contended["status"] == "CONTENDED"
+    assert unknown["status"] == "UNKNOWN"
+
+
+def test_generation_profile_records_memory_and_contention_evidence_on_cpu_fixture(tmp_path: Path) -> None:
+    executor = _executor(tmp_path, _BatchFixtureModel())
+    profile = executor.profile_generation_batches("dev", _records()[:2], sample_count=2)
+    assert profile["contention_status"] == "CLEAN"
+    assert profile["approved"] is True
+    assert set(profile["candidate_batch_sizes"]) == {1, 2, 4}
+    for candidate in profile["candidate_results"]:
+        assert "peak_allocated_bytes" in candidate
+        assert "peak_reserved_bytes" in candidate
+        assert "memory_headroom_bytes" in candidate
+        assert "required_memory_headroom_bytes" in candidate
+        assert "contention_status" in candidate
+
+
+def test_generation_profile_rejects_deterministic_mismatch(tmp_path: Path) -> None:
+    executor = _executor(tmp_path, _BatchDependentFixtureModel())
+    profile = executor.profile_generation_batches("dev", _records()[:2], sample_count=2)
+    assert profile["selected_batch_size"] == 1
+    assert profile["candidate_results"][1]["equivalent_to_batch_one"] is False
+    assert profile["candidate_results"][2]["status"] == "NOT_ELIGIBLE"
+    assert profile["candidate_results"][2]["probe_attempted"] is False
+
+
+def test_generation_profile_does_not_probe_batch_four_after_batch_two_failure(tmp_path: Path) -> None:
+    model = _BatchTwoFailureMustNotProbeFourModel()
+    executor = _executor(tmp_path, model)
+    profile = executor.profile_generation_batches("dev", _records(), sample_count=4)
+    candidate_results = {int(row["batch_size"]): row for row in profile["candidate_results"]}
+
+    assert profile["candidate_batch_sizes"] == [1, 2, 4]
+    assert profile["selected_batch_size"] == 1
+    assert candidate_results[1]["status"] == "PASS"
+    assert candidate_results[2]["status"] == "FAIL"
+    assert candidate_results[4]["status"] == "NOT_ELIGIBLE"
+    assert candidate_results[4]["probe_attempted"] is False
+    assert candidate_results[4]["not_eligible_reason"] == "LOWER_BATCH_NOT_ACCEPTED"
+    assert candidate_results[4]["blocked_by_batch_size"] == 2
+    assert candidate_results[4]["contention_status"] == "NOT_PROBED"
+    assert not any(batch_size == 4 for batch_size, _ in model.generate_calls)
 
 
 def test_reversible_inference_context_restores_training_and_cache(tmp_path: Path) -> None:
@@ -152,7 +384,11 @@ def test_reversible_inference_context_restores_training_and_cache(tmp_path: Path
 
 def test_batched_generation_pads_stops_preserves_failures_and_resumes(tmp_path: Path) -> None:
     model = _BatchFixtureModel(fail_token=9)
-    executor = _executor(tmp_path, model, profile={"status": "PASS", "selected_batch_size": 2, "profiled": True})
+    executor = _executor(
+        tmp_path,
+        model,
+        profile={"status": "PASS", "selected_batch_size": 2, "profiled": True, "approved": True, "contention_status": "CLEAN"},
+    )
     records = _records()
     first = executor.generate_reasoning_split("dev", records)
     assert [row["sample_id"] for row in first] == ["a", "b", "bad", "d"]
@@ -164,7 +400,11 @@ def test_batched_generation_pads_stops_preserves_failures_and_resumes(tmp_path: 
     assert (executor.run_root / "reasoning/dev_chunks_manifest.json").exists()
 
     resumed_model = _BatchFixtureModel(fail_token=9)
-    resumed = _executor(tmp_path, resumed_model, profile={"status": "PASS", "selected_batch_size": 2, "profiled": True})
+    resumed = _executor(
+        tmp_path,
+        resumed_model,
+        profile={"status": "PASS", "selected_batch_size": 2, "profiled": True, "approved": True, "contention_status": "CLEAN"},
+    )
     second = resumed.generate_reasoning_split("dev", records)
     assert second == first
     assert resumed_model.generate_calls == []
@@ -174,7 +414,7 @@ def test_model_wide_runtime_error_propagates_and_leaves_manifest_incomplete(tmp_
     executor = _executor(
         tmp_path,
         _ModelWideRuntimeErrorModel(),
-        profile={"status": "PASS", "selected_batch_size": 2, "profiled": True},
+        profile={"status": "PASS", "selected_batch_size": 2, "profiled": True, "approved": True, "contention_status": "CLEAN"},
     )
 
     with pytest.raises(RuntimeError, match="model-wide runtime failure"):
@@ -211,7 +451,11 @@ def test_left_padded_causal_generation_is_equivalent_for_batch_1_2_4(tmp_path: P
 
 
 def test_committed_chunk_rejects_changed_rows(tmp_path: Path) -> None:
-    executor = _executor(tmp_path, _BatchFixtureModel(), profile={"status": "PASS", "selected_batch_size": 2, "profiled": True})
+    executor = _executor(
+        tmp_path,
+        _BatchFixtureModel(),
+        profile={"status": "PASS", "selected_batch_size": 2, "profiled": True, "approved": True, "contention_status": "CLEAN"},
+    )
     executor.generate_reasoning_split("dev", _records()[:2])
     manifest = json.loads((executor.run_root / "reasoning/dev_chunks_manifest.json").read_text(encoding="utf-8"))
     assert manifest["complete"] is True

@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Any
 
 from ..atomic import atomic_write_json, atomic_write_text
+from ..data.loaders import load_vipragsent
+from ..training.generation_checkpoint import is_real_dataset_hash
 from .contracts import RunContext, RunEntry, RunStatus, StageStatus
 from .run_store import RunStore, artifact_hashes, utc_now
 from .stage_registry import (
@@ -52,6 +54,30 @@ def _outcome_error(status: str, message: str) -> dict[str, Any]:
     return {"status": status, "error": message, "blockers": [message]}
 
 
+def _generation_data_identity(root: Path, run_root: Path) -> tuple[str, str]:
+    """Resolve the exact dataset identity for a generation context.
+
+    A resumed run inherits the hash recorded by its validated checkpoint
+    loader report.  A new run binds to the frozen processed split fingerprint.
+    This keeps historical resume provenance stable without allowing an
+    unvalidated placeholder to reach the production executor.
+    """
+    load_report = run_root / "checkpoints/load_report.json"
+    if load_report.exists():
+        try:
+            payload = json.loads(load_report.read_text(encoding="utf-8"))
+        except (OSError, TypeError, ValueError, json.JSONDecodeError):
+            payload = {}
+        provenance = payload.get("provenance") if isinstance(payload, Mapping) else None
+        candidate = provenance.get("data_hash") if isinstance(provenance, Mapping) else None
+        if is_real_dataset_hash(candidate):
+            return str(candidate).upper(), "validated_checkpoint_loader_report"
+    bundle = load_vipragsent(root / "data/processed/vipragsent")
+    if not is_real_dataset_hash(bundle.fingerprint):
+        raise RuntimeError("frozen processed dataset fingerprint is not a canonical SHA-256 digest")
+    return str(bundle.fingerprint).upper(), "frozen_processed_split_fingerprint"
+
+
 def execute_single_run(
     root: str | Path,
     entry_mapping: Mapping[str, Any] | RunEntry,
@@ -84,7 +110,11 @@ def execute_single_run(
     state_path = store_root / entry.run_id / "state.json"
     # The documented two-command workflow is preflight followed by all. That second command continues the same run.
     continue_existing = stage == "all" and state_path.exists()
-    context = RunContext(root, entry, fixture=fixture, dry_run=dry_run, metadata={"resume": resume or continue_existing})
+    metadata: dict[str, Any] = {"resume": resume or continue_existing}
+    if not fixture and entry.execution_kind == "generation":
+        data_hash, data_hash_source = _generation_data_identity(root, store_root / entry.run_id)
+        metadata.update({"data_hash": data_hash, "dataset_identity": data_hash, "data_hash_source": data_hash_source})
+    context = RunContext(root, entry, fixture=fixture, dry_run=dry_run, metadata=metadata)
     store = RunStore(context)
     state = store.initialize(resume=resume or continue_existing)
     if resume or continue_existing:
