@@ -4,31 +4,31 @@
   "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
   "pr": 10,
   "base_branch": "main",
-  "exact_source_head": "f438a61a078e713cfa94c5624b6b0e19b719651e",
-  "status": "DRAFT_PENDING_EXACT_HEAD_CI_AND_SENTINEL",
-  "final_pass": false,
-  "overall_completion_percent": 60.0,
-  "completion_basis": "Four V30 implementation packets are present, the heuristic evidence draft is present, and the existing PR remains open; exact-head validation and independent Sentinel closure are still pending.",
+  "exact_source_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+  "status": "FINAL_PASS",
+  "final_pass": true,
+  "overall_completion_percent": 100,
+  "completion_basis": "R1-R4 implementation packets, independent focused tests, the permitted CPU/mock suite, static checks, exact-head GitHub CI, and an independent affected-scope Sentinel all pass. The remaining V28/V29 closure entries are closed by this V30 descendant; no production execution or unmeasured runtime claim is made.",
   "gates": {
-    "R1_transactional_reconcile": "IMPLEMENTED_PENDING_VALIDATION",
-    "R2_checkpoint_hash_once_and_source_receipt": "IMPLEMENTED_PENDING_VALIDATION",
-    "R3_checkpoint_dedup_pointers": "IMPLEMENTED_PENDING_VALIDATION",
-    "R4_exact_reuse_resume": "IMPLEMENTED_PENDING_VALIDATION",
-    "targeted_tests": "PENDING",
-    "cpu_mock_suite": "PENDING",
-    "ruff": "PENDING",
-    "compileall": "PENDING",
-    "git_diff_check": "PENDING",
-    "exact_head_ci": "PENDING",
-    "sentinel": "PENDING",
-    "v28_v29_closure": "DRAFT_PENDING_EXACT_HEAD_CI_AND_SENTINEL",
+    "R1_transactional_reconcile": "PASS",
+    "R2_checkpoint_hash_once_and_source_receipt": "PASS",
+    "R3_checkpoint_dedup_pointers": "PASS",
+    "R4_exact_reuse_resume": "PASS",
+    "targeted_tests": "PASS",
+    "cpu_mock_suite": "PASS",
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS",
+    "exact_head_ci": "PASS",
+    "sentinel": "PASS",
+    "v28_v29_closure": "PASS",
     "pull_request": "OPEN_UNMERGED"
   },
   "remaining_fixes": [
     {
       "id": "R1",
       "title": "Transactional generation-manifest reconciliation",
-      "status": "IMPLEMENTED_PENDING_VALIDATION",
+      "status": "PASS",
       "files": [
         "src/vipragsent/orchestration/generation_persistence.py",
         "tests/test_generation_wave2.py"
@@ -39,7 +39,7 @@
     {
       "id": "R2",
       "title": "One-time validated explanation source identity",
-      "status": "IMPLEMENTED_PENDING_VALIDATION",
+      "status": "PASS",
       "files": [
         "src/vipragsent/orchestration/executors/explanation_reuse.py",
         "src/vipragsent/orchestration/explanation_runtime.py",
@@ -52,7 +52,7 @@
     {
       "id": "R3",
       "title": "Canonical checkpoint files with tiny selection pointers",
-      "status": "IMPLEMENTED_PENDING_VALIDATION",
+      "status": "PASS",
       "files": [
         "src/vipragsent/training/generation_checkpoint.py",
         "src/vipragsent/orchestration/executors/generation.py",
@@ -64,7 +64,7 @@
     {
       "id": "R4",
       "title": "Exact artifact reuse and resume classification",
-      "status": "IMPLEMENTED_PENDING_VALIDATION",
+      "status": "PASS",
       "files": [
         "src/vipragsent/runtime/artifact_reuse.py",
         "tests/test_artifact_reuse.py"
@@ -115,15 +115,82 @@
     "historical_runtime_anchor_report_sha256": "19716836e17c215de9b4c811b60785278cc4cfe5055e93ab87c353ddf7894a9f"
   },
   "pending_validation": {
-    "exact_head": "f438a61a078e713cfa94c5624b6b0e19b719651e",
-    "ci": "PENDING",
-    "independent_sentinel": "PENDING",
-    "final_report_head_update_required": true
+    "exact_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+    "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
+    "ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "run_id": 31999651740,
+      "job_id": 95297452139,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+    },
+    "independent_sentinel": {
+      "status": "PASS",
+      "reviewer": "independent affected-scope Sentinel (Laplace)",
+      "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "findings": {
+        "implementation": "PASS",
+        "R1": "PASS",
+        "R2": "PASS",
+        "R3": "PASS",
+        "R4": "PASS",
+        "protocol_invariants": "PASS",
+        "tests_and_static_validation": "PASS",
+        "eta_arithmetic": "PASS",
+        "closure_artifacts": "PASS"
+      },
+      "blockers": []
+    },
+    "final_report_head_update_required": false,
+    "report_only_descendant": true
   },
   "pull_request": {
     "url": "https://github.com/hieukendu/vipragsent/pull/10",
     "state": "OPEN",
     "merged": false,
     "duplicate_pr": false
+  },
+  "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
+  "validation": {
+    "local": {
+      "focused_tests": "119 passed (independent Sentinel)",
+      "manager_focused_tests": "111 passed",
+      "cpu_mock_suite": "453 passed",
+      "ruff": "PASS",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    },
+    "remote": {
+      "workflow": "cpu-ci",
+      "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "run_id": 31999651740,
+      "job_id": 95297452139,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+    },
+    "sentinel": {
+      "status": "PASS",
+      "reviewer": "independent affected-scope Sentinel (Laplace)",
+      "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "findings": {
+        "implementation": "PASS",
+        "R1": "PASS",
+        "R2": "PASS",
+        "R3": "PASS",
+        "R4": "PASS",
+        "protocol_invariants": "PASS",
+        "tests_and_static_validation": "PASS",
+        "eta_arithmetic": "PASS",
+        "closure_artifacts": "PASS"
+      },
+      "blockers": []
+    }
+  },
+  "report_binding": {
+    "exact_source_head_semantics": "The exact source/PR head reviewed by CI and Sentinel. The eventual closure commit contains reports only and does not alter this implementation head.",
+    "report_only_source_descendant": true
   }
 }

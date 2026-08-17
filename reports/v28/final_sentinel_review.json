@@ -5,13 +5,19 @@
   "pr": 10,
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
-  "status": "V30_DESCENDANT_CLOSURE_PENDING_EXACT_HEAD_CI_AND_SENTINEL",
-  "final_pass": false,
+  "status": "CLOSED_BY_V30_DESCENDANT_REPAIR",
+  "final_pass": true,
   "historical_review": {
     "reviewer": "Kant",
     "reviewed_head": "0430fbd57e881346e139385f2ee409beb56ccf2a",
     "status": "FAIL",
-    "findings": ["SENTINEL-001", "SENTINEL-002", "SENTINEL-003", "SENTINEL-004", "SENTINEL-005"]
+    "findings": [
+      "SENTINEL-001",
+      "SENTINEL-002",
+      "SENTINEL-003",
+      "SENTINEL-004",
+      "SENTINEL-005"
+    ]
   },
   "repair_wave": {
     "SENTINEL-001": "evidence dossier refreshed for source head 168254eb5df094924a49f0363d2403af4c87b35c; live PR-head verification pending",
@@ -28,9 +34,32 @@
     "impacted_regressions": "PASS",
     "compileall": "PASS",
     "ruff": "PASS",
-    "git_diff_check": "PASS"
+    "git_diff_check": "PASS",
+    "v30_descendant": {
+      "focused_tests": "119 passed (independent Sentinel)",
+      "cpu_mock_suite": "453 passed",
+      "ruff": "PASS",
+      "compileall": "PASS",
+      "git_diff_check": "PASS"
+    }
   },
-  "remote_ci": {"head_sha": "168254eb5df094924a49f0363d2403af4c87b35c", "run_id": 31988858252, "job_id": 95268598734, "status": "COMPLETED", "conclusion": "SUCCESS", "url": "https://github.com/hieukendu/vipragsent/actions/runs/31988858252"},
+  "remote_ci": {
+    "head_sha": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "run_id": 31988858252,
+    "job_id": 95268598734,
+    "status": "COMPLETED",
+    "conclusion": "SUCCESS",
+    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31988858252",
+    "v30_descendant": {
+      "workflow": "cpu-ci",
+      "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "run_id": 31999651740,
+      "job_id": 95297452139,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+    }
+  },
   "safety": {
     "production_actions_taken": false,
     "azure_requests": false,
@@ -39,19 +68,46 @@
     "process_control": false,
     "merge": false
   },
-  "next_state": "V30_DRAFT_EXACT_HEAD_CI_AND_SENTINEL",
+  "next_state": "CLOSED_BY_V30_DESCENDANT_REPAIR",
   "descendant_closure": {
     "version": "V30",
-    "source_head": "f438a61a078e713cfa94c5624b6b0e19b719651e",
-    "status": "PENDING_EXACT_HEAD_CI_AND_SENTINEL",
+    "source_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+    "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
+    "status": "CLOSED_BY_DESCENDANT_REPAIR",
     "ci": {
-      "status": "PENDING",
-      "head_sha": "f438a61a078e713cfa94c5624b6b0e19b719651e"
+      "workflow": "cpu-ci",
+      "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "run_id": 31999651740,
+      "job_id": 95297452139,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
     },
     "sentinel": {
-      "status": "PENDING",
-      "head_sha": "f438a61a078e713cfa94c5624b6b0e19b719651e"
+      "status": "PASS",
+      "reviewer": "independent affected-scope Sentinel (Laplace)",
+      "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+      "findings": {
+        "implementation": "PASS",
+        "R1": "PASS",
+        "R2": "PASS",
+        "R3": "PASS",
+        "R4": "PASS",
+        "protocol_invariants": "PASS",
+        "tests_and_static_validation": "PASS",
+        "eta_arithmetic": "PASS",
+        "closure_artifacts": "PASS"
+      },
+      "blockers": []
     },
-    "final_pass": false
+    "final_pass": true,
+    "report_only_descendant": true
+  },
+  "final_closure": {
+    "status": "PASS",
+    "historical_review_status": "FAIL",
+    "historical_findings_preserved": true,
+    "descendant_repairs_validated": true,
+    "protocol_changed": false
   }
 }
