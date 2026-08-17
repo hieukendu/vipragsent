@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import inspect
 import json
-import hashlib
 import math
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from contextlib import contextmanager
@@ -208,9 +208,9 @@ def _canonical_generation_value(value: Any) -> Any:
         }
     if isinstance(value, Mapping):
         return {str(key): _canonical_generation_value(item) for key, item in value.items()}
-    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
         return [_canonical_generation_value(item) for item in value]
-    if value is None or isinstance(value, (str, int, float, bool)):
+    if value is None or isinstance(value, str | int | float | bool):
         return value
     raise GenerationPersistenceError(f"generation input record contains a non-canonical value: {type(value).__name__}")
 
