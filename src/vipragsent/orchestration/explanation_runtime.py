@@ -4,11 +4,9 @@ This module is intentionally an adapter around the Wave-2 generation
 contracts.  It does not introduce a second checkpoint or chunk format:
 ``GenerationChunkStore`` remains the commit boundary and the generation
 batch-policy/context helpers remain the source of truth for inference
-execution.
-
-The runtime is not wired into the existing stage registry.  That is
-deliberate: Task H describes a future execution path and existing/legacy
-artifacts must remain untouched.
+execution.  The production explanation stage registry routes through this
+runtime; legacy artifacts remain preserved under their separate artifact
+root and are never reinterpreted as canonical runtime chunks.
 """
 
 from __future__ import annotations
