@@ -5,8 +5,11 @@
   "pr": 10,
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
   "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
-  "status": "V30_AUXILIARY_CORRECTION_PENDING",
-  "final_pass": false,
+  "status": "CLOSED_BY_V30_DESCENDANT_REPAIR",
+  "final_pass": true,
+  "completion_percent": 100,
+  "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
   "historical_review": {
     "reviewer": "Kant",
     "reviewed_head": "0430fbd57e881346e139385f2ee409beb56ccf2a",
@@ -36,8 +39,9 @@
     "ruff": "PASS",
     "git_diff_check": "PASS",
     "v30_descendant": {
-      "focused_tests": "119 passed (independent Sentinel)",
-      "cpu_mock_suite": "453 passed",
+      "r5_focused_tests": "11 passed",
+      "focused_tests": "172 passed",
+      "cpu_mock_suite": "PASS",
       "ruff": "PASS",
       "compileall": "PASS",
       "git_diff_check": "PASS"
@@ -81,32 +85,43 @@
     "version": "V30",
     "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
     "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
-    "status": "PENDING_AUXILIARY_EXACT_HEAD_CI_AND_SENTINEL",
+    "status": "FINAL_PASS",
     "ci": {
       "workflow": "cpu-ci",
       "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
       "run_id": 32001664211,
-      "status": "IN_PROGRESS",
-      "conclusion": null,
+      "job_id": 95303031902,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
       "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
     },
     "sentinel": {
-      "status": "PENDING",
-      "reviewed_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003"
+      "status": "PASS",
+      "reviewed_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "reviewer": "Independent exact-head V30 Sentinel"
     },
-    "final_pass": false
+    "final_pass": true,
+    "report_head_ci": {
+      "head_sha": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "run_id": 32002103939,
+      "job_id": 95304262130,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32002103939"
+    }
   },
   "final_closure": {
-    "status": "PENDING_AUXILIARY_REVALIDATION",
-    "historical_review_status": "FAIL",
+    "status": "FINAL_PASS",
+    "historical_review_status": "FAIL_PRESERVED",
     "historical_findings_preserved": true,
     "protocol_changed": false
   },
   "auxiliary_correction": {
     "id": "R5",
-    "status": "IMPLEMENTED_PENDING_VALIDATION",
+    "status": "PASS",
     "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
     "focused_tests": "11 passed",
-    "required_revalidation": true
+    "required_revalidation": false
   }
 }

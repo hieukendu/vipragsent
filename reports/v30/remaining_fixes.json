@@ -5,24 +5,25 @@
   "pr": 10,
   "base_branch": "main",
   "exact_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
-  "status": "DRAFT_PENDING_AUXILIARY_EXACT_HEAD_CI_AND_SENTINEL",
-  "final_pass": false,
-  "overall_completion_percent": 85,
-  "completion_basis": "R1-R4 remain implemented; auxiliary R5 checkpoint-hash deduplication is implemented with focused regressions. The corrected workload-by-topology ETA is drafted, while exact-head CI and the post-correction independent Sentinel are pending.",
+  "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+  "status": "FINAL_PASS",
+  "final_pass": true,
+  "overall_completion_percent": 100,
+  "completion_basis": "R1-R5 are implemented and validated. The corrected workload-by-topology ETA is bound to the exact source implementation head, source-head CI and reviewed report-head CI are green, and the independent Sentinel evidence is PASS with no blockers.",
   "gates": {
     "R1_transactional_reconcile": "PASS",
     "R2_checkpoint_hash_once_and_source_receipt": "PASS",
     "R3_checkpoint_dedup_pointers": "PASS",
     "R4_exact_reuse_resume": "PASS",
-    "R5_checkpoint_hash_deduplication": "IMPLEMENTED_PENDING_VALIDATION",
-    "targeted_tests": "PASS_FOCUSED_PENDING_FULL_REVALIDATION",
-    "cpu_mock_suite": "PENDING",
-    "ruff": "PENDING",
-    "compileall": "PENDING",
-    "git_diff_check": "PENDING",
-    "exact_head_ci": "PENDING",
-    "sentinel": "PENDING",
-    "v28_v29_closure": "PENDING_AUXILIARY_REBINDING",
+    "R5_checkpoint_hash_deduplication": "PASS",
+    "targeted_tests": "PASS",
+    "cpu_mock_suite": "PASS",
+    "ruff": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS",
+    "exact_head_ci": "PASS",
+    "sentinel": "PASS",
+    "v28_v29_closure": "PASS",
     "pull_request": "OPEN_UNMERGED"
   },
   "remaining_fixes": [
@@ -76,7 +77,7 @@
     {
       "id": "R5",
       "title": "One physical checkpoint hash per validation boundary",
-      "status": "IMPLEMENTED_PENDING_VALIDATION",
+      "status": "PASS",
       "files": [
         "src/vipragsent/training/generation_checkpoint.py",
         "src/vipragsent/orchestration/executors/generation.py",
@@ -127,20 +128,46 @@
     "balanced_profile_report_sha256": "5fd4f39ad3daa6a9b78ad5dd0a804a22f5e119edf7a8e7d63a6095daa57dd9db",
     "historical_runtime_anchor_report_sha256": "19716836e17c215de9b4c811b60785278cc4cfe5055e93ab87c353ddf7894a9f"
   },
-  "pending_validation": {
-    "exact_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "pending_validation": null,
+  "final_validation": {
     "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
-    "ci": {
+    "source_head_ci": {
       "workflow": "cpu-ci",
       "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
       "run_id": 32001664211,
-      "status": "IN_PROGRESS",
-      "conclusion": null,
+      "job_id": 95303031902,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
       "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
     },
-    "independent_sentinel": "PENDING",
-    "final_report_head_update_required": true,
-    "auxiliary_correction": "R5"
+    "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+    "report_head_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "run_id": 32002103939,
+      "job_id": 95304262130,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32002103939"
+    },
+    "independent_sentinel": {
+      "status": "PASS",
+      "reviewer": "Independent exact-head V30 Sentinel",
+      "reviewed_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "findings": {
+        "R1_R4": "PASS",
+        "R5_hash_deduplication": "PASS",
+        "corrected_eta": "PASS",
+        "scientific_protocol": "PASS",
+        "tests_static_ci": "PASS",
+        "v28_v29_closure": "PASS",
+        "pull_request": "OPEN_UNMERGED"
+      },
+      "blockers": []
+    },
+    "auxiliary_correction": "R5",
+    "final_report_head_semantics": "The reviewed report head is the last report-only evidence head before this final dossier update; the source implementation head is unchanged and is the exact code-validation binding. The PR head and its post-update CI are verified separately in the delivery record."
   },
   "pull_request": {
     "url": "https://github.com/hieukendu/vipragsent/pull/10",
@@ -151,6 +178,8 @@
   "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
   "validation": {
     "focused_checkpoint_hash_tests": "11 passed",
+    "focused_regression_suite": "172 passed",
+    "permitted_cpu_mock_suite": "PASS",
     "source_static_checks": "PASS",
     "prior_parent_ci": {
       "head_sha": "3334d98575f373eaa12f64cbf336748f531ccc66",
@@ -160,7 +189,11 @@
     }
   },
   "report_binding": {
-    "exact_source_head_semantics": "Source implementation head after auxiliary R5 correction; all prior CI/Sentinel evidence is historical until this SHA is revalidated.",
-    "parent_report_head": "3334d98575f373eaa12f64cbf336748f531ccc66"
+    "exact_source_head_semantics": "Source implementation head after auxiliary R5 correction; source-head CI and independent Sentinel evidence are green for this SHA.",
+    "parent_report_head": "3334d98575f373eaa12f64cbf336748f531ccc66",
+    "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+    "source_head_ci": "PASS",
+    "report_head_ci": "PASS",
+    "final_report_is_report_only_descendant": true
   }
 }

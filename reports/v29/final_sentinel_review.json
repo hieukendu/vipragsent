@@ -5,8 +5,9 @@
   "pr": 10,
   "base_branch": "main",
   "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
-  "status": "V30_AUXILIARY_CORRECTION_PENDING",
-  "final_pass": false,
+  "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+  "status": "FINAL_PASS_V30_DESCENDANT_CLOSURE",
+  "final_pass": true,
   "findings": {
     "P0-1": "PASS",
     "P0-2": "PASS",
@@ -28,10 +29,11 @@
     "scientific_invariants_unchanged": true,
     "q1b_evaluation_only": true,
     "frozen_test_access_unchanged": true,
-    "exact_head_ci_green": false,
-    "final_report_head_review": false,
+    "exact_head_ci_green": true,
+    "final_report_head_review": true,
     "v30_descendant_r1_r4_pass": true,
-    "v30_r5_hash_dedup_pending": true
+    "v30_r5_hash_dedup_pending": false,
+    "v30_descendant_r5_pass": true
   },
   "local_validation": {
     "v29_focused_tests": "75 passed",
@@ -40,8 +42,9 @@
     "compileall": "PASS",
     "diff_check": "PASS",
     "v30_descendant": {
-      "focused_tests": "119 passed (independent Sentinel)",
-      "cpu_mock_suite": "453 passed",
+      "r5_focused_tests": "11 passed",
+      "focused_tests": "172 passed",
+      "cpu_mock_suite": "PASS",
       "ruff": "PASS",
       "compileall": "PASS",
       "diff_check": "PASS"
@@ -91,20 +94,31 @@
     "version": "V30",
     "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
     "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
-    "status": "PENDING_AUXILIARY_EXACT_HEAD_CI_AND_SENTINEL",
+    "status": "FINAL_PASS",
     "ci": {
       "workflow": "cpu-ci",
       "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
       "run_id": 32001664211,
-      "status": "IN_PROGRESS",
-      "conclusion": null,
+      "job_id": 95303031902,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
       "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
     },
     "sentinel": {
-      "status": "PENDING",
-      "reviewed_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003"
+      "status": "PASS",
+      "reviewed_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "reviewer": "Independent exact-head V30 Sentinel"
     },
-    "final_pass": false
+    "final_pass": true,
+    "report_head_ci": {
+      "head_sha": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "run_id": 32002103939,
+      "job_id": 95304262130,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32002103939"
+    }
   },
   "safety": {
     "production_training": false,
@@ -116,16 +130,17 @@
     "merge": false
   },
   "final_closure": {
-    "status": "PENDING_AUXILIARY_REVALIDATION",
+    "status": "FINAL_PASS",
     "historical_v29_p2_status": "DEFERRED",
-    "v30_r3_status": "IMPLEMENTED_ON_PARENT_AND_REQUIRES_REBINDING",
+    "v30_r3_status": "PASS_ON_V30_DESCENDANT",
+    "v30_r5_status": "PASS_ON_V30_DESCENDANT",
     "protocol_changed": false
   },
   "auxiliary_correction": {
     "id": "R5",
-    "status": "IMPLEMENTED_PENDING_VALIDATION",
+    "status": "PASS",
     "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
     "focused_tests": "11 passed",
-    "required_revalidation": true
+    "required_revalidation": false
   }
 }

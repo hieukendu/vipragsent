@@ -82,7 +82,7 @@
         "PASS only with no actionable correctness finding"
       ],
       "assigned_worker": "Kant (independent Sentinel)",
-      "state": "HISTORICAL_FAIL_PRESERVED; V30_AUXILIARY_REVIEW_REQUIRED"
+      "state": "HISTORICAL_FAIL_PRESERVED; V30_DESCENDANT_FINAL_PASS"
     },
     {
       "task_id": "V28-FIX-AND-REVIEW",
@@ -102,7 +102,7 @@
         "fresh Sentinel review"
       ],
       "assigned_worker": "Manager assigns after findings",
-      "state": "INTEGRATED; HISTORICAL_FINDINGS_FIXED; V30_AUXILIARY_REVIEW_REQUIRED"
+      "state": "INTEGRATED; HISTORICAL_FINDINGS_FIXED; V30_DESCENDANT_FINAL_PASS"
     },
     {
       "task_id": "V28-PR-CONVERGENCE",
@@ -124,13 +124,16 @@
         "required PR evidence present"
       ],
       "assigned_worker": "Manager",
-      "state": "V30_AUXILIARY_CORRECTION_IN_PROGRESS"
+      "state": "V30_DESCENDANT_FINAL_PASS"
     }
   ],
   "auxiliary_correction": {
     "id": "R5",
     "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
-    "status": "IMPLEMENTED_PENDING_EXACT_HEAD_CI_AND_SENTINEL",
-    "focused_tests": "11 passed"
+    "status": "PASS",
+    "focused_tests": "11 passed",
+    "source_head_ci": "cpu-ci run 32001664211/job 95303031902 success",
+    "report_head_ci": "cpu-ci run 32002103939/job 95304262130 success",
+    "sentinel": "PASS"
   }
 }

@@ -1,11 +1,13 @@
-# V30 runtime estimate — corrected topology draft
+# V30 runtime estimate — corrected topology final evidence
 
 ## Required classification
 
 **HEURISTIC ENGINEERING ESTIMATE — NOT A MEASURED RUNTIME PROOF**
 
-This estimate is bound to source implementation head `64945bc0fb4f154f59062647b1c91cb9c4dfa003`. It uses
-the frozen execution topology, registry, dataset counts, locked training
+This final estimate is bound to source implementation head
+`64945bc0fb4f154f59062647b1c91cb9c4dfa003`. The reviewed report evidence
+head is `3de2d5c1c9a34dbe7030f86a65cf22978751048`. It uses the frozen execution
+topology, registry, dataset counts, locked training
 configuration, model family, executor kind, optimizer steps, and explicit
 unit-cost assumptions. No runtime proof, GPU benchmark, TEST access, live
 Azure call, model download, or Hugging Face mutation was performed.
@@ -78,5 +80,8 @@ generation, so the historical reasoning-generation anchor is excluded.
 
 ## Validation state
 
-R5 focused tests are **11 passed**. Source-head CI for `64945bc0fb4f154f59062647b1c91cb9c4dfa003` and the
-fresh independent Sentinel are **PENDING**. Parent-head CI is historical.
+R5 focused tests are **11 passed**; the final focused regression set passed
+**172 tests**. Source-head CI for `64945bc0fb4f154f59062647b1c91cb9c4dfa003`
+is green in run `32001664211`/job `95303031902`; the reviewed report-head CI
+is green in run `32002103939`/job `95304262130`. The independent exact-head
+Sentinel is PASS with no blockers. Parent-head evidence is historical.
