@@ -236,7 +236,12 @@ def _validated_provenance(value: Mapping[str, Any]) -> dict[str, Any]:
         raise GenerationCheckpointError(f"generation provenance is not JSON serializable: {exc}") from exc
 
 
-def _read_manifest(path: Path, checkpoint_path: Path) -> GenerationCheckpointManifest:
+def _read_manifest(
+    path: Path,
+    checkpoint_path: Path,
+    *,
+    observed_checkpoint_sha256: str | None = None,
+) -> GenerationCheckpointManifest:
     if not path.exists():
         raise GenerationCheckpointError(f"generation checkpoint sidecar manifest is missing: {path}")
     try:
@@ -258,7 +263,8 @@ def _read_manifest(path: Path, checkpoint_path: Path) -> GenerationCheckpointMan
         raise GenerationCheckpointError(f"unsupported generation checkpoint manifest schema: {manifest.schema_version}")
     if manifest.provenance_sha256 != sha256_json(manifest.provenance):
         raise GenerationCheckpointError("generation checkpoint provenance hash mismatch")
-    if manifest.checkpoint_sha256 != sha256_file(checkpoint_path):
+    observed = sha256_file(checkpoint_path) if observed_checkpoint_sha256 is None else str(observed_checkpoint_sha256)
+    if str(manifest.checkpoint_sha256).upper() != observed.upper():
         raise GenerationCheckpointError("generation checkpoint content hash mismatch")
     if not manifest.variant_fingerprint:
         raise GenerationCheckpointError("generation checkpoint variant fingerprint is missing")
@@ -333,9 +339,10 @@ def save_generation_checkpoint(
         rng_state=rng_state,
     )
     save_checkpoint(checkpoint_path, payload)
+    checkpoint_sha256 = sha256_file(checkpoint_path)
     manifest = GenerationCheckpointManifest(
         GENERATION_CHECKPOINT_SCHEMA_VERSION,
-        sha256_file(checkpoint_path),
+        checkpoint_sha256,
         normalized,
         sha256_json(normalized),
         normalized_epoch,
@@ -347,7 +354,11 @@ def save_generation_checkpoint(
     # Verify both atomic outputs before making the checkpoint eligible for a
     # latest/best pointer.  A pointer must never reference a partially written
     # or stale canonical payload.
-    verified = _read_manifest(_manifest_path(checkpoint_path), checkpoint_path)
+    verified = _read_manifest(
+        _manifest_path(checkpoint_path),
+        checkpoint_path,
+        observed_checkpoint_sha256=checkpoint_sha256,
+    )
     if verified.checkpoint_sha256 != manifest.checkpoint_sha256 or verified.provenance_sha256 != manifest.provenance_sha256:
         raise GenerationCheckpointError("generation checkpoint sidecar verification failed")
     return manifest
@@ -371,12 +382,16 @@ def _validate_pointer_target(
     checkpoint_path = _run_root_path(run_root, relative)
     if not checkpoint_path.is_file():
         raise GenerationCheckpointError(f"generation checkpoint pointer target is missing: {relative}")
-    manifest = _read_manifest(_manifest_path(checkpoint_path), checkpoint_path)
+    observed_hash = _sha256(sha256_file(checkpoint_path), field="checkpoint_sha256")
+    manifest = _read_manifest(
+        _manifest_path(checkpoint_path),
+        checkpoint_path,
+        observed_checkpoint_sha256=observed_hash,
+    )
     if manifest.epoch is None:
         raise GenerationCheckpointError("canonical generation checkpoint sidecar epoch is missing")
     if manifest.epoch != epoch:
         raise GenerationCheckpointError("generation checkpoint sidecar epoch disagrees with its path")
-    observed_hash = _sha256(sha256_file(checkpoint_path), field="checkpoint_sha256")
     sidecar_hash = _sha256(manifest.checkpoint_sha256, field="sidecar checkpoint_sha256")
     if observed_hash != sidecar_hash:
         raise GenerationCheckpointError("generation checkpoint content hash does not match its sidecar")
@@ -455,8 +470,10 @@ def _legacy_pointer_record(run_root: str | Path, kind: str, path: Path) -> dict[
     epoch: int | None = None
     metric: float | None = None
     manifest_path = _manifest_path(path)
+    checkpoint_sha256: str | None = None
     if manifest_path.exists():
         manifest = _read_manifest(manifest_path, path)
+        checkpoint_sha256 = manifest.checkpoint_sha256
         epoch = manifest.epoch
         metric = manifest.selection_metric_value
         provenance_sha256 = manifest.provenance_sha256
@@ -479,6 +496,7 @@ def _legacy_pointer_record(run_root: str | Path, kind: str, path: Path) -> dict[
         provenance_sha256 = "NOT_PROVIDED"
         variant_fingerprint = "NOT_PROVIDED"
         metric_name = GENERATION_SELECTION_METRIC_NAME
+        checkpoint_sha256 = sha256_file(path)
     if epoch is None:
         # Legacy physical files did not always persist an epoch.  Readers can
         # still load them, but pointer consumers must not claim a false epoch.
@@ -487,7 +505,7 @@ def _legacy_pointer_record(run_root: str | Path, kind: str, path: Path) -> dict[
         "schema_version": GENERATION_CHECKPOINT_POINTER_SCHEMA_VERSION,
         "path": relative,
         "epoch": epoch,
-        "checkpoint_sha256": _sha256(sha256_file(path), field="checkpoint_sha256"),
+        "checkpoint_sha256": _sha256(checkpoint_sha256, field="checkpoint_sha256"),
         "provenance_sha256": provenance_sha256,
         "variant_fingerprint": variant_fingerprint,
         "selection_metric_name": metric_name,
@@ -622,6 +640,7 @@ def load_generation_checkpoint(
     restore_hooks: Mapping[str, Callable[[Any], None]] | None = None,
     production_provenance_required: bool = False,
     fixture_mode: bool = False,
+    observed_checkpoint_sha256: str | None = None,
 ) -> GenerationCheckpointLoadResult:
     """Validate identity/integrity, then delegate loading to canonical primitives."""
     checkpoint_path = Path(path)
@@ -635,7 +654,11 @@ def load_generation_checkpoint(
     manifest: GenerationCheckpointManifest | None = None
     legacy_provenance: dict[str, Any] | None = None
     try:
-        manifest = _read_manifest(manifest_path, checkpoint_path)
+        manifest = _read_manifest(
+            manifest_path,
+            checkpoint_path,
+            observed_checkpoint_sha256=observed_checkpoint_sha256,
+        )
     except GenerationCheckpointError:
         # A canonical checkpoint without its sidecar is never loadable.  Only
         # an explicitly opted-in historical fixture may use this recovery path.

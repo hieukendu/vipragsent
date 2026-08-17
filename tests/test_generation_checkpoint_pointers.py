@@ -145,6 +145,50 @@ def test_epoch_payload_is_written_once_and_pointers_share_it(tmp_path: Path, mon
     assert read_generation_checkpoint_pointer(run_root, "best")["selection_metric_value"] == pytest.approx(0.75)
 
 
+def test_checkpoint_hash_is_once_per_validation_boundary(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    calls: list[Path] = []
+    original_hash = checkpoint_module.sha256_file
+
+    def counting_hash(path: str | Path) -> str:
+        calls.append(Path(path))
+        return original_hash(path)
+
+    monkeypatch.setattr(checkpoint_module, "sha256_file", counting_hash)
+    run_root = tmp_path / "run"
+    _save_epoch(run_root, 1, selection_metric=0.75)
+    checkpoint_path = run_root / canonical_generation_epoch_path(1)
+    assert calls == [checkpoint_path]
+
+    calls.clear()
+    write_generation_checkpoint_pointer(
+        run_root,
+        "latest",
+        canonical_generation_epoch_path(1),
+        selection_metric_value=0.75,
+        variant_fingerprint="variant-v1",
+    )
+    assert calls == [checkpoint_path]
+
+
+def test_pointer_hash_is_reused_by_checkpoint_load(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    executor = _executor(tmp_path)
+    path = canonical_generation_epoch_path(1)
+    executor.write_epoch_checkpoint(1, selection_metric=0.75)
+    executor.write_checkpoint_pointer("latest", path, selection_metric_value=0.75)
+
+    calls: list[Path] = []
+    original_hash = checkpoint_module.sha256_file
+
+    def counting_hash(path: str | Path) -> str:
+        calls.append(Path(path))
+        return original_hash(path)
+
+    monkeypatch.setattr(checkpoint_module, "sha256_file", counting_hash)
+    report = executor.load_latest_checkpoint(restore_training_state=False)
+    assert report["run_state"]["epoch"] == 1
+    assert calls == [executor.run_root / path]
+
+
 def test_pointer_updates_move_only_tiny_metadata(tmp_path: Path) -> None:
     run_root = tmp_path / "run"
     _save_epoch(run_root, 1, selection_metric=0.7)
