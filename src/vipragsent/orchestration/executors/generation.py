@@ -1460,6 +1460,10 @@ class ReasoningGenerationExecutor:
             legacy_metadata=legacy_metadata,
         )
         report = loaded.checkpoint.report.as_dict()
+        payload = loaded.checkpoint.payload
+        optimizer_state_present = payload.get("optimizer_state_dict") is not None
+        scheduler_state_present = payload.get("scheduler_state_dict") is not None
+        rng_state_present = bool(payload.get("rng_state"))
         report.update({
             "checkpoint_sha256": observed_hash,
             "checkpoint_pointer": pointer,
@@ -1467,6 +1471,19 @@ class ReasoningGenerationExecutor:
             "run_state": dict(loaded.run_state),
             "provenance": loaded.manifest.provenance if loaded.manifest is not None else None,
             "legacy_production_migration": bool(allow_legacy_v2_production),
+            # ``load_generation_checkpoint`` only returns after the canonical
+            # loader has successfully restored these states.  Surface the
+            # exact evidence so V30 resume receipts cannot confuse a missing
+            # report field with a skipped restore.
+            "optimizer_state_present": optimizer_state_present,
+            "optimizer_restored": bool(restore_training_state and optimizer is not None and optimizer_state_present),
+            "scheduler_state_present": scheduler_state_present,
+            "scheduler_restored": bool(restore_training_state and scheduler is not None and scheduler_state_present),
+            "rng_state_present": rng_state_present,
+            "rng_restore": {
+                "restored": bool(restore_training_state and rng_state_present),
+                "streams": sorted(str(key) for key in payload.get("rng_state", {}) if isinstance(payload.get("rng_state"), Mapping)),
+            },
         })
         observed_epoch = report["run_state"].get("epoch") if isinstance(report.get("run_state"), Mapping) else None
         if expected_epoch is not None and observed_epoch != int(expected_epoch):
