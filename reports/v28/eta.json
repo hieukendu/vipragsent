@@ -2,7 +2,7 @@
   "schema_version": 1,
   "goal_id": "VIPRAGSENT_V28",
   "timestamp": "2026-08-17T01:01:06Z",
-  "status": "EVIDENCE_REFRESHED_PENDING_FINAL_EXACT_HEAD_SENTINEL",
+  "status": "V30_AUXILIARY_CORRECTION_PENDING",
   "central_estimate_hours": null,
   "optimistic_hours": null,
   "conservative_hours": null,
@@ -26,8 +26,25 @@
     "azure_cache_and_ceiling_regressions": "65 passed",
     "targeted_suite": "exact-head targeted suite passed",
     "runtime_estimate_artifact": "reports/runtime_optimization/runtime_estimate_after.json",
-    "campaign_status": "PROJECTED_GATE_CONDITIONAL"
+    "campaign_status": "PROJECTED_GATE_CONDITIONAL",
+    "parent_report_head": "3334d98575f373eaa12f64cbf336748f531ccc66",
+    "parent_ci": "cpu-ci run 32000485665 success",
+    "auxiliary_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "auxiliary_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "run_id": 32001664211,
+      "status": "IN_PROGRESS",
+      "conclusion": null,
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
+    }
   },
-  "next_update_trigger": "evidence-push CI result, fresh exact-head Sentinel result, or authorized DEV-only measurement",
-  "eta_not_fabricated": true
+  "next_update_trigger": "auxiliary-correction exact-head CI and fresh independent Sentinel",
+  "eta_not_fabricated": true,
+  "descendant_closure": {
+    "version": "V30",
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "status": "PENDING_AUXILIARY_EXACT_HEAD_CI_AND_SENTINEL",
+    "final_pass": false
+  }
 }

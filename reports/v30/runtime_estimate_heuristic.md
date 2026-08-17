@@ -1,87 +1,82 @@
-# V30 heuristic runtime estimate
+# V30 runtime estimate — corrected topology draft
 
-## Scope and evidence boundary
+## Required classification
 
-This is an analytical engineering estimate, not a measured runtime proof. It
-is bound to exact source/implementation head `79b0a925479ee5255aab6e2fa799b1867542cd10` (implementation
-commit `66d4e6bd5a29e7986027afa8da045151b369235b`). Exact-head CI and the independent Sentinel
-both passed; the closure commit is report-only.
+**HEURISTIC ENGINEERING ESTIMATE — NOT A MEASURED RUNTIME PROOF**
 
-The frozen balanced profile contains 80 retained rows: 36 local Q3 rows, 4
-seedless Azure Q3 comparison rows, 18 Q2 rows, and 22 Q1b evaluation-only
-consumers. The estimate treats 54 rows/units as training-applicable and 40
-Q3 rows as generation rows. Q1b has zero optimizer steps.
+This estimate is bound to source implementation head `64945bc0fb4f154f59062647b1c91cb9c4dfa003`. It uses
+the frozen execution topology, registry, dataset counts, locked training
+configuration, model family, executor kind, optimizer steps, and explicit
+unit-cost assumptions. No runtime proof, GPU benchmark, TEST access, live
+Azure call, model download, or Hugging Face mutation was performed.
 
-No exact V30 REUSE, RESUME, or persisted BLOCKED status is present. All three
-counts are zero and receive zero saved-time credit.
+## Methodology
 
-## Historical anchor
+```
+estimated wall clock
+= sum(topology-specific workload-unit costs)
+  + unavoidable serial overhead
+  - exact reuse/resume credit
+  - eliminated redundant I/O
+  - safe dependency overlap
+```
 
-The only timing anchor is the repository's historical approximately 49-hour
-run for a 1,999-example Vistral DEV split. It is used as a rough proxy for
-the 24 retained local 7B Q3 cells only. It is not a measurement of this
-source head, and no new benchmark or profiling workload was run.
+Exact REUSE, RESUME, and persisted BLOCKED counts are zero, so no time credit
+is claimed. The prior approximately 49-hour anchor is not transferable to
+retained Q3 classification/multitask training and is excluded from the
+arithmetic.
 
-## Model
+## Workload breakdown
 
-The pre-optimization proxy is:
+| Scope | Topology | Units | Step topology | Central h | Conservative h |
+| --- | --- | ---: | --- | ---: | ---: |
+| Q3 PhoBERT | single-model classification | 12 cells | 2,500 optimizer steps/cell | 12.0 | 18.0 |
+| Q3 Vistral pragmatic SFT | 7B classification SFT | 12 cells | 1,500 steps/cell | 96.0 | 144.0 |
+| Q3 full ViPragSent Vistral | 7B multitask + rationale training; inference off | 12 cells | 1,500 steps/cell | 132.0 | 192.0 |
+| Q3 Azure | external 8-shot comparison | 4 rows | no optimizer | 3.0 external | 8.0 external |
+| Q2 single joint | five variants × three seeds | 15 cells | 2,500 steps/cell | 15.0 | 22.5 |
+| Q2 no_multitask | eight independent components × three seeds | 24 units | 2,500 steps/component | 18.0 | 30.0 |
+| Q1b seeded consumers | evaluation-only | 21 consumers | optimizer_steps = 0 | 3.15 | 6.3 |
+| Q1b Azure output | external approved output | 1 consumer | no optimizer | 0.5 external | 1.0 external |
+| serial orchestration/QA | preflight, checkpoints, DEV freeze, TEST/export | one campaign | dependency-bound | 24.0 | 48.0 |
 
-- 24 local 7B Q3 cells × 49 hours = 1,176 hours;
-- 30 smaller training-applicable units × 2 hours = 60 hours;
-- 4 Azure rows plus 22 Q1b evaluation consumers × 2 hours = 52 hours;
-- serial gates and QA = 48 hours.
+Raw central total is **303.65 hours**. Raw conservative total is
+**469.8 hours**. The corrected R5 pointer/hash work removes an estimated
+1 hour of redundant hashing and 1 hour of redundant checkpoint-copy work in
+the campaign model; safe dependency overlap credits 18 central hours. A
+separate 180-hour conservative contingency covers queueing, throughput
+uncertainty, and incomplete telemetry.
 
-That yields 1,336 hours, or 55.7 days, before modeled optimization effects.
-
-The central case models 366 hours of conditional savings:
-
-- generation batching and removal of per-record launch overhead: 300 hours;
-- removal of historical persistence rereads: 40 hours;
-- repeated checkpoint hashing: 1 hour;
-- duplicate large latest/best checkpoint copies: 1 hour;
-- exact artifact reuse/resume: 0 hours;
-- safe independent CPU/I/O/smaller-work overlap: 24 hours.
-
-The resulting central estimate is 970 hours, or 40.4 days. The batching
-factor is deliberately below theoretical linear scaling; padding, decoding,
-memory pressure, and scheduler overhead remain.
-
-The conservative estimate is 1,523 hours, or 63.5 days. It gives no exact
-reuse/resume credit, does not assume concurrent 7B jobs on one constrained
-allocation, and retains a campaign-level contingency for queueing, serial
-gates, and unresolved throughput variability.
+## Result
 
 | Estimate | Hours | Days |
 | --- | ---: | ---: |
-| Before optimization proxy | 1,336 | 55.7 |
-| Central post-optimization heuristic | 970 | 40.4 |
-| Conservative post-optimization heuristic | 1,523 | 63.5 |
+| Corrected central | 283.65 | **11.82** |
+| Corrected conservative | 647.8 | **26.99** |
 
-The central estimate does not defensibly fit the requested 30-day target.
-The report therefore records the minimum credible modeled result and the
-remaining bottleneck rather than inventing a <=30-day claim. Further reduction
-would require changing the accepted scientific cells, seeds, provenance,
-selection, or TEST semantics, or obtaining authorized throughput evidence.
+Local GPU server contribution is 276.15 central hours / 412.8 conservative
+hours (**11.51 / 17.20 days**). Azure/external contribution is 3.5 / 9.0
+hours (**0.15 / 0.38 days**) and is not placed on the local GPU critical path.
 
-## Critical path and limitations
+The critical path is the 24 retained local Vistral 7B classification/multitask
+training cells, followed by DEV selection/freeze and downstream TEST. Q1b is
+evaluation-only. No retained V30 Q3 row is autoregressive reasoning
+generation, so the historical reasoning-generation anchor is excluded.
 
-The dominant path is the 24 retained local 7B Q3 training/generation cells,
-followed by DEV judging/persistence, DEV selection and freeze, and later TEST
-evaluation/export. Q1b remains evaluation-only and cannot be treated as
-training savings.
+## Assumptions and limitations
 
-The 4-5 GB checkpoint and 100-200 MB/s storage assumptions are used only to
-bound I/O/hash/copy savings. They do not imply measured device throughput.
-No live Azure request, production run, model download, or real-model benchmark
-was performed.
+- Q3/Q2 counts use 7,998 training records, locked epochs, effective batches,
+  and gradient accumulation from `configs/runtime/training.yaml`.
+- PhoBERT and Vistral unit costs are planning assumptions, not measured
+  throughput.
+- `no_multitask` is counted as eight independent component-training units per
+  seed, not one cell.
+- Azure rows are external latency only; they are not local 7B GPU training.
+- Exact reuse/resume/blocked credit is zero.
+- Central and conservative values must be recalculated when authorized
+  throughput or queue telemetry exists.
 
 ## Validation state
 
-- Exact-head CI: **PASS**, run `31999651740`, job `95297452139`, on
-  `79b0a925479ee5255aab6e2fa799b1867542cd10` ([run link](https://github.com/hieukendu/vipragsent/actions/runs/31999651740)).
-- Independent affected-scope Sentinel: **PASS** on `79b0a925479ee5255aab6e2fa799b1867542cd10`.
-- Arithmetic: **PASS** — 1,336 - 366 = 970 hours; 970 / 24 = 40.4 days;
-  conservative case 1,523 / 24 = 63.5 days.
-- Under-30-day target: **false**.
-- Further safe optimization without changing the accepted experiment:
-  **none supported by evidence**.
+R5 focused tests are **11 passed**. Source-head CI for `64945bc0fb4f154f59062647b1c91cb9c4dfa003` and the
+fresh independent Sentinel are **PENDING**. Parent-head CI is historical.

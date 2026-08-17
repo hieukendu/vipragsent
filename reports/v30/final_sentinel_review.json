@@ -4,10 +4,10 @@
   "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
   "pr": 10,
   "base_branch": "main",
-  "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-  "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
-  "status": "PASS",
-  "final_pass": true,
+  "reviewed_head": "3334d98575f373eaa12f64cbf336748f531ccc66",
+  "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "status": "SUPERSEDED_BY_AUXILIARY_CORRECTION",
+  "final_pass": false,
   "independent_sentinel": {
     "status": "PASS",
     "reviewer": "independent affected-scope Sentinel (Laplace)",
@@ -31,9 +31,10 @@
     "R3_canonical_checkpoint_pointers": "PASS",
     "R4_exact_reuse_resume_blocked": "PASS",
     "inherited_protocol_invariants": "PASS",
-    "exact_head_validation": "PASS",
+    "exact_head_validation": "PENDING_ON_AUXILIARY_SOURCE_HEAD",
     "report_consistency": "PASS",
-    "eta_arithmetic": "PASS"
+    "eta_arithmetic": "PASS",
+    "R5_checkpoint_hash_deduplication": "IMPLEMENTED_PENDING_VALIDATION"
   },
   "local_validation": {
     "independent_focused_tests": "119 passed",
@@ -44,26 +45,36 @@
     "git_diff_check": "PASS"
   },
   "remote_validation": {
-    "workflow": "cpu-ci",
-    "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-    "run_id": 31999651740,
-    "job_id": 95297452139,
-    "status": "COMPLETED",
-    "conclusion": "SUCCESS",
-    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+    "historical_parent": {
+      "workflow": "cpu-ci",
+      "head_sha": "3334d98575f373eaa12f64cbf336748f531ccc66",
+      "run_id": 32000485665,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32000485665"
+    },
+    "auxiliary_source": {
+      "workflow": "cpu-ci",
+      "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "run_id": 32001664211,
+      "status": "IN_PROGRESS",
+      "conclusion": null,
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
+    }
   },
   "eta": {
-    "before_hours": 1336,
-    "before_days": 55.7,
-    "central_after_hours": 970,
-    "central_after_days": 40.4,
-    "conservative_hours": 1523,
-    "conservative_days": 63.5,
-    "modeled_savings_hours": 366,
+    "before_hours": 303.65,
+    "before_days": 12.65,
+    "central_after_hours": 283.65,
+    "central_after_days": 11.82,
+    "conservative_hours": 647.8,
+    "conservative_days": 26.99,
+    "modeled_savings_hours": 20,
     "exact_reuse_resume_blocked_credit_hours": 0,
-    "under_30_days": false,
+    "under_30_days": true,
     "measured_speedup_credit_hours": 0,
-    "conclusion": "No further safe optimization is supported without changing the accepted scientific experiment or obtaining authorized throughput evidence."
+    "methodology": "bottom_up_topology_specific_unit_costs; heuristic engineering estimate; not measured runtime proof",
+    "historical_reasoning_anchor_included": false
   },
   "scientific_invariants": {
     "protocol_changed": false,
@@ -85,8 +96,8 @@
     "merge": false
   },
   "closure": {
-    "v28": "CLOSED_BY_DESCENDANT_REPAIR",
-    "v29": "CLOSED_BY_DESCENDANT_REPAIR",
+    "v28": "PENDING_AUXILIARY_REBINDING",
+    "v29": "PENDING_AUXILIARY_REBINDING",
     "v29_historical_p2": "PRESERVED_AS_DEFERRED; RESOLVED_BY_V30_R3",
     "final_report_files": [
       "reports/v30/remaining_fixes.json",
@@ -99,10 +110,18 @@
       "reports/v29/final_sentinel_review.md",
       "reports/v28/final_sentinel_review.json",
       "reports/v28/final_sentinel_review.md"
-    ]
+    ],
+    "status": "PENDING_AUXILIARY_EXACT_HEAD_CI_AND_SENTINEL"
   },
   "report_binding": {
-    "exact_source_head_semantics": "The exact source/PR head independently reviewed. The final closure commit is report-only and does not alter implementation.",
-    "report_only_descendant": true
+    "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "parent_report_head": "3334d98575f373eaa12f64cbf336748f531ccc66",
+    "superseded_by_auxiliary_correction": true
+  },
+  "auxiliary_correction": {
+    "id": "R5",
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "focused_tests": "11 passed",
+    "status": "IMPLEMENTED_PENDING_VALIDATION"
   }
 }

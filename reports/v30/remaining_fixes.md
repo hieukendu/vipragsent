@@ -1,79 +1,65 @@
-# ViPragSent V30 remaining-fixes evidence
+# ViPragSent V30 auxiliary-correction evidence draft
 
 ## Binding
 
-This final evidence is bound to exact source/implementation head
-`79b0a925479ee5255aab6e2fa799b1867542cd10`, with implementation code at `66d4e6bd5a29e7986027afa8da045151b369235b`.
-The exact-head GitHub CI run and the independent affected-scope Sentinel both
-passed. The eventual closure commit is report-only and does not change the
-implementation head.
+This draft is bound to source implementation head `64945bc0fb4f154f59062647b1c91cb9c4dfa003`. The
+previous parent report head was `3334d98575f373eaa12f64cbf336748f531ccc66`; its CI is historical for
+this auxiliary source change. V30 R1-R4 remain PASS. Auxiliary R5
+(one physical checkpoint hash per validation boundary) is implemented and has
+focused regression coverage, but exact-head CI and the fresh independent
+Sentinel are pending.
 
-The existing PR is PR #10
-(https://github.com/hieukendu/vipragsent/pull/10). It remains open, unmerged,
-and is the single PR for this branch.
+PR #10 remains the single open, unmerged PR:
+https://github.com/hieukendu/vipragsent/pull/10.
 
-## Frozen profile
+## R5 checkpoint-hash correction
 
-The policy-only balanced profile retains 80 rows:
+The save-sidecar verification, canonical pointer validation, and pointer-based
+load path now carry an observed checkpoint SHA-256 downstream instead of
+rehashing the same multi-GB payload. The physical hash still occurs when the
+boundary has no observed digest, and pointer, sidecar, provenance, epoch,
+variant, metric, path, and corrupt-content checks remain fail-closed.
 
-- Q3: 36 local rows and 4 seedless Azure comparison rows;
-- Q2: 18 rows (six variants across three seeds);
-- Q1b: 22 evaluation-only consumers.
+Focused regressions: **11 passed**, including exact one-hash counts for save,
+pointer publication, and pointer-based load.
 
-The 54 training-applicable rows/units are the 36 local Q3 rows plus the 18
-Q2 rows. Q1b has zero optimizer steps. XLM-R Q3 and budgets 64 and 256
-remain excluded. The profile is default-off, execution-disabled, and
-real execution is prohibited.
+## Corrected ETA scope
 
-No V30 time credit is claimed:
+The prior draft's broad 7B reasoning-generation anchor is not used as a
+multiplier for retained V30 Q3 cells. The retained Q3 topology is:
 
-- exact REUSE: 0;
-- exact RESUME: 0;
-- persisted V30 BLOCKED: 0;
-- saved-time credit: 0 hours.
+- 12 `phobert_pragmatic_finetune` classification cells;
+- 12 `vistral_pragmatic_sft` classification SFT cells;
+- 12 `vipragsent_full_vistral` multitask+rationale-training cells with
+  `rationale_inference=false`;
+- 4 Azure comparison rows, external latency only.
 
-The absence of status credit is deliberate. A policy row is not a completed
-run, and historical blocked rows do not become savings.
+Q2 is split into 15 single-joint PhoBERT cells and 24 independent
+`no_multitask` component units. Q1b remains evaluation-only with
+`optimizer_steps=0); no Q1b training cost is included.
 
-## Implementation packets
+The corrected heuristic report is
+`reports/v30/runtime_estimate_heuristic.json/.md`. It is explicitly a
+**HEURISTIC ENGINEERING ESTIMATE — NOT A MEASURED RUNTIME PROOF**:
 
-- **R1 — PASS:** transactional, append-delta generation-manifest reconciliation
-  validates candidate state before publication and leaves the in-memory store
-  unchanged on corrupt external append.
-- **R2 — PASS:** explanation artifacts use a one-time physically verified
-  source receipt; artifact-only stages validate the receipt without rehashing
-  or loading the checkpoint payload.
-- **R3 — PASS:** canonical epoch checkpoints use tiny atomic latest/best
-  selection pointers with exact path, epoch, SHA, sidecar, provenance, variant,
-  and metric validation; legacy readers remain available.
-- **R4 — PASS:** reuse requires the complete exact provenance binding, while
-  paused work can resume and uncertain or conflicting work blocks.
+- central: **11.82 days**;
+- conservative: **26.99 days**;
+- local GPU server contribution: 11.51 central / 17.20 conservative days;
+- Azure/external contribution: 0.15 central / 0.38 conservative days;
+- under-30-day: **true under the stated planning assumptions**.
 
-## Validation
+The historical approximately 49-hour Vistral autoregressive reasoning DEV
+anchor is recorded but excluded: no retained V30 Q3 row uses
+`rationale_inference=true` or the `generation_trainable` executor.
 
-- Independent focused validation: **119 passed**.
-- Manager focused validation: **111 passed**.
-- Permitted CPU/mock suite: **453 passed**.
-- `ruff check src tests`: **PASS**.
-- `python -m compileall -q src`: **PASS**.
-- `git diff --check`: **PASS**.
-- Exact-head GitHub Actions `cpu-ci`: run
-  `31999651740`, job `95297452139`, **SUCCESS** on `79b0a925479ee5255aab6e2fa799b1867542cd10`
-  ([run link](https://github.com/hieukendu/vipragsent/actions/runs/31999651740)).
-- Independent Sentinel: **PASS** on `79b0a925479ee5255aab6e2fa799b1867542cd10`; no closure blockers.
+## Invariants and safety
 
-## Scientific and safety boundary
+Q3/Q2/Q1b rows, seeds, budgets, DEV selection, TEST isolation, approval
+requirements, and Q1b evaluation-only semantics are unchanged. No production
+training, GPU benchmark/profiling, TEST access, live Azure request, model
+download, Hugging Face mutation, process-control action, or merge occurred.
 
-The accepted Q3/Q2/Q1b protocol, seeds, budgets, DEV selection, TEST
-isolation, approval requirements, and fail-closed behavior are unchanged.
-No production training, GPU workload, live Azure request, model download,
-Hugging Face mutation, process-control action, TEST-data profiling, or merge
-was performed.
+## Pending revalidation
 
-## Closure state
-
-V28's historical failure remains preserved. V29's historical P2 deferral
-remains preserved, while V30 R3 implements and validates the descendant
-pointer repair. V28 and V29 descendant closures are **PASS**. Overall V30
-completion is **100% for the code/report validation scope**; it does not claim
-that the real-model experiment has been executed.
+Exact source-head CI and an independent scoped Sentinel must revalidate
+`64945bc0fb4f154f59062647b1c91cb9c4dfa003`; all parent-head evidence is historical until then.
