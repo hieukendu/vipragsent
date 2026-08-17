@@ -3,12 +3,14 @@ spec:
   version: V28
   sha256: 47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96
   source: reports/runtime_optimization/debug_convergence/governing_prompt_provenance.json
-phase: V28_FIX_WAVE_INTEGRATED
-status: PENDING_EXACT_HEAD_CI_AND_SENTINEL
+phase: V28_EVIDENCE_REFRESHED
+status: PENDING_FINAL_EXACT_HEAD_SENTINEL
 identity:
   base_sha: fb40c91a7c39ac575db2bd71d9957f0e89069b3e
-  integrated_source_head: acc6467864bcea299862f5b0e29c7247cef7afde
-  final_pr_head: PENDING_EVIDENCE_PUSH
+  integrated_source_head: 168254eb5df094924a49f0363d2403af4c87b35c
+  exact_code_ci_head: 168254eb5df094924a49f0363d2403af4c87b35c
+  exact_code_ci_run: 31988858252
+  final_pr_head: PENDING_LIVE_PR_HEAD_VERIFICATION
   production_worktree: /root/vipragsent
   production_worktree_untouched: true
   paused_run_reuse: BLOCKED_PENDING_RECONCILIATION
@@ -34,7 +36,7 @@ blockers:
     text: fresh exact-head Sentinel review is pending after the V28 repair wave
   - id: P1-001
     priority: P1
-    text: current-head GitHub Actions run must pass after the evidence push
+    text: evidence-push PR head needs its own current-head CI record after the report refresh
   - id: P1-002
     priority: P1
     text: no numeric runtime ETA or speedup credit without authorized measurements
@@ -44,9 +46,9 @@ blockers:
 evidence_quality:
   strong: [spec_sha256, integrated_source_head, local_cpu_mock_suite, worker_regressions]
   partial: [GPU_telemetry, live_runtime_throughput, live_Azure_usage]
-  unresolved: [final_pr_head, current_head_CI, fresh_exact_head_Sentinel]
+  unresolved: [final_pr_head_after_evidence_push, fresh_exact_head_Sentinel]
 manager_acceptance:
-  status: FIX_WAVE_INTEGRATED
+  status: EVIDENCE_REFRESHED
   sentinel_review: PENDING
   production_actions_taken: false
   pr_was_not_merged: true

@@ -2,7 +2,7 @@
   "schema_version": 1,
   "goal_id": "VIPRAGSENT_V28",
   "timestamp": "2026-08-17T01:01:06Z",
-  "status": "FIX_WAVE_INTEGRATED_PENDING_EXACT_HEAD_EVIDENCE",
+  "status": "EVIDENCE_REFRESHED_PENDING_FINAL_EXACT_HEAD_SENTINEL",
   "central_estimate_hours": null,
   "optimistic_hours": null,
   "conservative_hours": null,
@@ -20,9 +20,10 @@
     "A numeric campaign ETA is not defensible until authorized DEV measurements and exact remaining inventory are bound."
   ],
   "evidence": {
-    "exact_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
-    "current_head_ci": "cpu-ci run 31983563069 in progress",
-    "broad_cpu_mock": "346 passed",
+    "exact_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "current_head_ci": "cpu-ci run 31988858252 success for exact code head",
+    "broad_cpu_mock": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
     "targeted_suite": "exact-head targeted suite passed",
     "runtime_estimate_artifact": "reports/runtime_optimization/runtime_estimate_after.json",
     "campaign_status": "PROJECTED_GATE_CONDITIONAL"

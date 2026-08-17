@@ -1,6 +1,6 @@
 # V28 finding-driven convergence checkpoint
 
-The integrated source repair head is `acc6467864bcea299862f5b0e29c7247cef7afde`. This checkpoint supersedes the stale V27 final-pass claim and remains pending a fresh independent Sentinel review of the final pushed PR head.
+The integrated source repair head is `168254eb5df094924a49f0363d2403af4c87b35c`. This checkpoint supersedes the stale V27 final-pass claim. GitHub `cpu-ci` run `31988858252` (job `95268598734`) completed successfully for that code head; a fresh independent Sentinel review of the live PR head remains pending.
 
 The five findings from the prior exact-head review were addressed in disjoint scopes:
 

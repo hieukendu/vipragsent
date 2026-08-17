@@ -2,7 +2,7 @@
   "schema_version": 1,
   "goal_id": "VIPRAGSENT_V28",
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
-  "current_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
+  "current_head": "168254eb5df094924a49f0363d2403af4c87b35c",
   "nodes": [
     {
       "task_id": "V28-DISCOVERY",
@@ -42,7 +42,7 @@
       "read_scope": "current PR checkout",
       "runtime_resource": "CPU/mock only",
       "risk": "report-only head divergence",
-      "acceptance_tests": ["346 CPU/mock tests pass", "targeted suite pass", "compileall", "Ruff", "git diff --check", "current-head cpu-ci"],
+      "acceptance_tests": ["389 CPU/mock tests pass", "65 Azure/cache/ceiling regressions pass", "targeted suite pass", "compileall", "Ruff", "git diff --check", "exact code-head cpu-ci run 31988858252"],
       "assigned_worker": "Manager",
       "state": "COMPLETED"
     },
@@ -72,7 +72,7 @@
       "risk": "symptom patch or ownership collision",
       "acceptance_tests": ["targeted regression", "impacted integration", "fresh Sentinel review"],
       "assigned_worker": "Manager assigns after findings",
-      "state": "INTEGRATED; SENTINEL-001..005 FIXED_PENDING_REVIEW"
+      "state": "INTEGRATED; SENTINEL-001..005 AND F-002/F-003 FIXED_PENDING_REVIEW"
     },
     {
       "task_id": "V28-PR-CONVERGENCE",
@@ -86,7 +86,7 @@
       "risk": "stale CI or report binding",
       "acceptance_tests": ["PR head equals tested/reviewed SHA", "CI green", "no blocking threads", "required PR evidence present"],
       "assigned_worker": "Manager",
-      "state": "PENDING_EVIDENCE_PUSH_CI_AND_SENTINEL"
+      "state": "EVIDENCE_REFRESHED; FINAL_SENTINEL_PENDING"
     }
   ]
 }

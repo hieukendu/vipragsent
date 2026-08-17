@@ -4,8 +4,8 @@
   "spec_sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
   "pr": 10,
   "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
-  "integrated_source_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
-  "status": "PENDING_FINAL_EXACT_HEAD_SENTINEL",
+  "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "status": "EVIDENCE_REFRESHED_PENDING_FINAL_EXACT_HEAD_SENTINEL",
   "final_pass": false,
   "historical_review": {
     "reviewer": "Kant",
@@ -14,20 +14,23 @@
     "findings": ["SENTINEL-001", "SENTINEL-002", "SENTINEL-003", "SENTINEL-004", "SENTINEL-005"]
   },
   "repair_wave": {
-    "SENTINEL-001": "evidence dossier refreshed; exact final head pending",
+    "SENTINEL-001": "evidence dossier refreshed for source head 168254eb5df094924a49f0363d2403af4c87b35c; live PR-head verification pending",
     "SENTINEL-002": "fixed in generation/explanation provenance contract",
     "SENTINEL-003": "fixed in bounded async/sync Azure safety ledgers",
     "SENTINEL-004": "fixed by excluding retryable failures from cache reuse",
-    "SENTINEL-005": "fixed by enforced profile/report exclusion parity"
+    "SENTINEL-005": "fixed by enforced profile/report exclusion parity",
+    "F-002": "fixed by finite spend and strict integer ceiling validation in sync/async Azure safety configs",
+    "F-003": "fixed by embedded cache-key and request-identity validation in the sync Azure cache"
   },
   "local_evidence": {
-    "broad_cpu_mock_only": "346 passed",
+    "broad_cpu_mock_only": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
     "impacted_regressions": "PASS",
     "compileall": "PASS",
     "ruff": "PASS",
     "git_diff_check": "PASS"
   },
-  "remote_ci": {"head_sha": "PENDING_EVIDENCE_PUSH", "status": "PENDING", "conclusion": null},
+  "remote_ci": {"head_sha": "168254eb5df094924a49f0363d2403af4c87b35c", "run_id": 31988858252, "job_id": 95268598734, "status": "COMPLETED", "conclusion": "SUCCESS", "url": "https://github.com/hieukendu/vipragsent/actions/runs/31988858252"},
   "safety": {
     "production_actions_taken": false,
     "azure_requests": false,
@@ -35,5 +38,6 @@
     "model_download": false,
     "process_control": false,
     "merge": false
-  }
+  },
+  "next_state": "FINAL_EXACT_HEAD_SENTINEL_REVIEW"
 }

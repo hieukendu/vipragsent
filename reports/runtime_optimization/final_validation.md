@@ -1,6 +1,6 @@
 # V28 final validation dossier
 
-This dossier is maintained with exact-head semantics. The integrated source repair head is `acc6467864bcea299862f5b0e29c7247cef7afde`; the final PR head, current-head CI run, and final Sentinel verdict are recorded after the evidence push in `reports/v28/`.
+This dossier is maintained with exact-head semantics. The integrated source repair head is `168254eb5df094924a49f0363d2403af4c87b35c`; exact code-head `cpu-ci` run `31988858252` (job `95268598734`) is green. The live PR head after the evidence push and final Sentinel verdict remain to be recorded from GitHub.
 
 ## Scope and safety
 
@@ -12,7 +12,8 @@ This dossier is maintained with exact-head semantics. The integrated source repa
 
 ## Local evidence
 
-- Broad CPU/mock-only suite: **346 passed** with server, GPU, live-Azure, and model-download tests excluded.
+- Broad CPU/mock-only suite: **389 passed** with server, GPU, live-Azure, and model-download tests excluded.
+- Azure/cache/ceiling focused regressions: **65 passed**.
 - Generation, explanation-runtime, Azure safety/cache, and NAACL profile regression suites: **PASS**.
 - `compileall`: **PASS**.
 - Ruff: **PASS**.

@@ -3,8 +3,9 @@
   "spec_version": "V28",
   "spec_sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
   "status": "PROJECTED_GATE_CONDITIONAL",
-  "integrated_source_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
-  "exact_final_pr_head": "PENDING_EVIDENCE_PUSH",
+  "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "exact_final_pr_head": "PENDING_LIVE_PR_HEAD_VERIFICATION",
+  "exact_code_ci": {"run_id": 31988858252, "head_sha": "168254eb5df094924a49f0363d2403af4c87b35c", "conclusion": "SUCCESS"},
   "measured_speedup_credit": 0,
   "dependency_safe_overlap_credit": 0,
   "numeric_campaign_eta_days": null,
@@ -18,7 +19,8 @@
     "report/config exclusion parity"
   ],
   "local_validation": {
-    "broad_cpu_mock_only": "346 passed",
+    "broad_cpu_mock_only": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
     "impacted_regressions": "PASS",
     "compileall": "PASS",
     "ruff": "PASS",

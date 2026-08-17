@@ -1,5 +1,5 @@
 # V28 Sentinel review dossier
 
-The prior exact-head Sentinel review of `0430fbd57e881346e139385f2ee409beb56ccf2a` found `SENTINEL-001` through `SENTINEL-005`. Those findings drove the repair wave integrated at source head `acc6467864bcea299862f5b0e29c7247cef7afde`.
+The prior exact-head Sentinel review found `SENTINEL-001` through `SENTINEL-005`, followed by F-002/F-003 Azure findings. The complete repair wave is integrated at source head `168254eb5df094924a49f0363d2403af4c87b35c`.
 
-This file is intentionally marked `PENDING_FINAL_EXACT_HEAD_SENTINEL` until the evidence commit is pushed and a fresh independent Sentinel reviews the resulting PR head. It must not be read as a final pass. Local evidence is green: 346 CPU/mock-only tests, impacted regression suites, compilation, Ruff, and diff check.
+The evidence refresh records the exact successful `cpu-ci` run `31988858252` (job `95268598734`) for that source head. A fresh independent Sentinel must still review the resulting live PR head; this dossier is not yet a final pass. Local evidence is green: 389 CPU/mock-only tests, 65 Azure/cache/ceiling regressions, compilation, Ruff, and diff check.
