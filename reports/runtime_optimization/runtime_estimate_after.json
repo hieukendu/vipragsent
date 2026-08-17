@@ -1,89 +1,38 @@
 {
-  "schema_version": 1,
-  "as_of": "2026-08-16T19:42:54Z",
-  "reviewed_code_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
-  "artifact_commit": "REPORT_ONLY_DESCENDANT_OF_REVIEWED_CODE_HEAD",
+  "schema_version": 4,
+  "spec_version": "V28",
+  "spec_sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
   "status": "PROJECTED_GATE_CONDITIONAL",
-  "prompt_sha256": "457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0",
-  "source_hashes": {
-    "live_state_snapshot_after": "ed1e6cdc08a92151a9665ce2e5835d3813d3fba399b5f2702dbfa445ee17aaa4",
-    "inventory_before": "a04f1612b232e29aeb81525bec0c7a9fe41a722e1f4042fdc2e23734f019ae96",
-    "baseline_critical_path": "56909f51f5cc09f47799231d4f59d5a9681d6d10fa3fe4bdf4858794cf51fbc4",
-    "naacl_profile": "4f79260e620cf1758e857648d13edb1453015459f4a69cd4898566b79dc465ed",
-    "hf_reuse_audit": "current report in this commit; read-only only"
-  },
-  "environment": {
-    "python": "3.11.0rc1",
-    "torch": "2.4.0+cu124",
-    "transformers": "4.46.3",
-    "hardware": "H100 MIG 2g.20gb",
-    "telemetry": "PARTIAL",
-    "visible_allocation_is_full_a100": false
-  },
-  "live_state_credit": {
-    "run_id": "q1a_cot_only_vistral_20260521",
-    "epoch_2_credit_once": true,
-    "next_persisted_boundary": "epoch_3 training/DEV path, not launched",
-    "identity_status": "LIVE_CODE_IDENTITY_UNCERTAIN",
-    "automatic_resume_or_reuse": false
-  },
-  "task_a_status_counts": {
-    "REUSE": 0,
-    "RESUME": 0,
-    "TRAIN": 0,
-    "EVALUATE_ONLY": 22,
-    "ARTIFACT_ONLY": 0,
-    "NOT_SCHEDULED_NAACL_BALANCED": 54,
-    "BLOCKED": 86,
-    "note": "Conservative code-only classification; no row is promoted to REUSE or RESUME without exact compatibility and approval evidence."
-  },
-  "implemented_opportunities": {
-    "O-P0-01": "checkpoint/resume boundary and provenance contract; no numeric credit until identity is reconciled",
-    "O-P0-02": "profile-gated reversible generation batching; speedup remains unmeasured",
-    "O-P0-03": "atomic/idempotent incremental chunks committed before judge; replay reduction is not numerically claimed",
-    "O-P1-02": "bounded mock Azure queue/cache/retry/finalizer; real throughput remains unmeasured",
-    "O-P1-03": "default-off resource-aware scheduler with dependency-safe overlap; no overlap credit without current DAG/timings",
-    "O-P2-01": "CPU-only estimator/reporting; audit-only"
-  },
-  "generation_sensitivity_per_1999_dev_split_hours": [
-    {"speedup": 1.0, "reference_hours": 49.0, "status":"historical_reference"},
-    {"speedup": 1.5, "reference_hours": 32.6667, "status":"projected_not_measured"},
-    {"speedup": 2.0, "reference_hours": 24.5, "status":"projected_not_measured"},
-    {"speedup": 2.5, "reference_hours": 19.6, "status":"projected_not_measured"},
-    {"speedup": 3.0, "reference_hours": 16.3333, "status":"projected_not_measured"},
-    {"speedup": 4.0, "reference_hours": 12.25, "status":"projected_not_measured"}
+  "integrated_source_head": "acc6467864bcea299862f5b0e29c7247cef7afde",
+  "exact_final_pr_head": "PENDING_EVIDENCE_PUSH",
+  "measured_speedup_credit": 0,
+  "dependency_safe_overlap_credit": 0,
+  "numeric_campaign_eta_days": null,
+  "reason_numeric_eta_is_null": "No authorized real-model or live-Azure throughput measurement exists, and the persisted paused run has unresolved code identity.",
+  "implemented_runtime_contracts": [
+    "checkpoint/resume identity contract",
+    "profile-gated generation batching",
+    "atomic resumable generation chunks",
+    "bounded async judge queue/cache/retry/finalizer",
+    "bounded synchronous Azure request/attempt/token/concurrency/spend ledger",
+    "report/config exclusion parity"
   ],
-  "phobert_concurrency_sensitivity": {
-    "1": "central-policy default; no real profile required",
-    "2": "conditional only after validated profile with aggregate throughput gain >=25%; no credit now"
+  "local_validation": {
+    "broad_cpu_mock_only": "346 passed",
+    "impacted_regressions": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS",
+    "git_diff_check": "PASS"
   },
-  "central": {
-    "remaining_wall_clock_days": null,
-    "status": "CONDITIONAL_NOT_NUMERIC",
-    "condition": "requires authorized DEV-only Vistral profile, Azure throughput/queue profile, exact remaining inventory, and reconciled live identity"
-  },
-  "conservative": {
-    "remaining_wall_clock_days": null,
-    "status": "CONDITIONAL_NOT_NUMERIC",
-    "condition": "use PhoBERT concurrency 1, no unmeasured generation credit, bounded Azure throughput, and include storage/backup/review waits"
-  },
-  "lower_bound_vs_scheduler_makespan": {
-    "lower_bound_minutes": null,
-    "policy_makespan_minutes": null,
-    "reason": "The scheduler model is implemented and fixture-tested, but production stage durations and current complete inventory are unavailable without forbidden execution/profile work."
-  },
-  "gate": {
+  "readiness": {
     "status": "PROJECTED_GATE_CONDITIONAL",
-    "measured_gate_pass": false,
-    "target": "central <=30 days; conservative <=35 days",
-    "exact_next_measurement": "authorized fixed DEV-only Vistral generation profile plus dedicated non-TEST training-shaped PhoBERT profile and bounded mock-to-production Azure transport accounting"
-  },
-  "reconciliation": {
-    "baseline_remaining": null,
-    "proven_reuse_or_elimination_credit": 0,
-    "measured_speedup_credit": 0,
-    "dependency_safe_overlap_credit": 0,
-    "new_required_overhead": "profile/identity/storage/authorization work remains",
-    "no_double_counting": true
+    "R1": "policy/profile evidence only; live baseline not run",
+    "R2": "CPU/mock correctness PASS; launch conditional",
+    "R3": "PASS",
+    "R4": "not measured",
+    "R5": "CPU/mock PASS; launch conditional",
+    "R6": "CPU/mock PASS; live evaluation not run",
+    "R7": "bounded code path; live usage unobserved",
+    "R8": "new artifacts reproducible; historical run reuse blocked"
   }
 }
