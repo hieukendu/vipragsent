@@ -1,0 +1,12 @@
+{
+  "schema_version": 1,
+  "prompt_sha256": "457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0",
+  "policy": "read-only candidate reuse only after exact identity/provenance verification",
+  "rows": [
+    {"asset":"epoch-2 local checkpoint","reuse":"candidate_blocked","evidence":"path=results/runs/q1a_cot_only_vistral_20260521/checkpoints/epoch_2/model.pt; bytes=4942818023; sha256=d3fe7e99bb0758e527c4967fe2a8502c722fce8d86cd7664ea776440a3b41a77; state_json records it","gate":"reconcile live code/source/config/model/data identity; no training/evaluation reuse claim yet"},
+    {"asset":"epoch-2 HF checkpoint at exact remote path","reuse":"candidate_blocked","evidence":"repo=Thundergod2007/vipragsent-vistral7b-checkpoints; path=q1a_cot_only_vistral_20260521/checkpoints/epoch_2/model.pt; revision=1aadf557a77853cf19946a747f9fe5c40a8288b0; remote_verified=true","gate":"read-only only; no mutation; reconcile identity before any reuse"},
+    {"asset":"run-to-source binding","reuse":"blocked","evidence":"state code_commit=fb40c91a7c39ac575db2bd71d9957f0e89069b3e but run_manifest code_commit=a765b2bca625ff66cf97dc608eacb3a3c63553b5; paused process absent","gate":"preserve LIVE_CODE_IDENTITY_UNCERTAIN"},
+    {"asset":"production source/worktree","reuse":"do not modify","evidence":"dirty worktree","gate":"preserve user changes"},
+    {"asset":"runtime telemetry","reuse":"partial only","evidence":"telemetry PARTIAL","gate":"do not treat as complete baseline"}
+  ]
+}

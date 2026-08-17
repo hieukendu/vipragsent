@@ -1,0 +1,33 @@
+{
+  "schema_version": 4,
+  "spec_version": "V28",
+  "spec_sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
+  "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "status": "EVIDENCE_REFRESHED_PENDING_FINAL_EXACT_HEAD_SENTINEL",
+  "engineering_remaining_hours": null,
+  "profiling_remaining_hours": null,
+  "campaign_remaining_hours": null,
+  "largest_uncertainty": "No authorized real-model throughput/concurrency profile or live Azure usage exists; the paused historical run also has unresolved code identity.",
+  "eta_not_fabricated": true,
+  "local_evidence": {
+    "broad_cpu_mock_only": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
+    "impacted_generation_explanation_azure_profile": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "remote_evidence": {
+    "head_sha": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "run_id": 31988858252,
+    "job_id": 95268598734,
+    "workflow": "cpu-ci",
+    "status": "SUCCESS"
+  },
+  "campaign_gate": {
+    "status": "PROJECTED_GATE_CONDITIONAL",
+    "measured_speedup_credit": 0,
+    "dependency_safe_overlap_credit": 0,
+    "condition": "authorized DEV-only measurements and exact source/checkpoint reconciliation are required before numeric campaign claims"
+  }
+}

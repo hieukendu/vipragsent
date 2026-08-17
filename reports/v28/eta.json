@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "goal_id": "VIPRAGSENT_V28",
+  "timestamp": "2026-08-17T01:01:06Z",
+  "status": "CLOSED_BY_V30_DESCENDANT_REPAIR",
+  "final_pass": true,
+  "central_estimate_hours": 283.65,
+  "central_estimate_days": 11.82,
+  "optimistic_hours": 283.65,
+  "conservative_hours": 647.8,
+  "conservative_estimate_days": 26.99,
+  "engineering_remaining_hours": 0,
+  "profiling_remaining_hours": null,
+  "campaign_remaining_hours": null,
+  "largest_uncertainty": "Throughput, queueing, hardware availability, sequence lengths, and Azure latency remain unmeasured; the displayed values are explicit heuristic planning bounds, not runtime proof.",
+  "inventory_confidence": "HIGH_FOR_POLICY_PROFILE",
+  "throughput_confidence": "UNKNOWN",
+  "reuse_confidence": "LOW; persisted run identity is mismatched/uncertain",
+  "scheduler_confidence": "HIGH_FOR_CPU/MOCK_FAILURE_PATHS",
+  "assumptions": [
+    "The exact-head Sentinel review completes without actionable findings.",
+    "No production, TEST, Azure, Hugging Face, model-download, or benchmark action is inferred from code-only evidence.",
+    "The numeric ETA is a bottom-up heuristic bound, not a measured campaign result."
+  ],
+  "evidence": {
+    "exact_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "current_head_ci": "cpu-ci run 32001664211/job 95303031902 success for exact source implementation head",
+    "broad_cpu_mock": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
+    "targeted_suite": "exact-head targeted suite passed",
+    "runtime_estimate_artifact": "reports/v30/runtime_estimate_heuristic.json",
+    "campaign_status": "HEURISTIC_ESTIMATE_FINAL_PASS_UNDER_EXPLICIT_ASSUMPTIONS",
+    "parent_report_head": "3334d98575f373eaa12f64cbf336748f531ccc66",
+    "parent_ci": "cpu-ci run 32000485665 success",
+    "auxiliary_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "auxiliary_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "run_id": 32001664211,
+      "job_id": 95303031902,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
+    },
+    "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+    "report_head_ci": "cpu-ci run 32002103939/job 95304262130 success",
+    "sentinel": "PASS"
+  },
+  "next_update_trigger": "none; recalculate only after authorized throughput telemetry or a changed execution profile",
+  "eta_not_fabricated": true,
+  "descendant_closure": {
+    "version": "V30",
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "status": "FINAL_PASS",
+    "final_pass": true
+  }
+}

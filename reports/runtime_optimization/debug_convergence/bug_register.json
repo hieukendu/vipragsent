@@ -1,0 +1,575 @@
+{
+  "schema_version": 3,
+  "as_of": "2026-08-17T02:50:00Z",
+  "manager_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "reviewed_code_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "prior_reviewed_code_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+  "artifact_commit": "SOURCE_HEAD_168254E_REMOTE_CI_GREEN_FINAL_SENTINEL_PENDING",
+  "artifact_head_semantics": "The integrated source head is recorded separately; the final exact PR head must be revalidated after the evidence push.",
+  "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
+  "pr": {
+    "number": 10,
+    "state": "OPEN",
+    "draft": false,
+    "base": "main",
+    "head": "codex/naacl-runtime-optimization",
+    "last_remote_ci_run": 31988858252,
+    "last_remote_ci_conclusion": "SUCCESS",
+    "last_remote_ci_head_sha": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "last_remote_ci_is_stale": false,
+    "fresh_remote_ci_required": false
+  },
+  "review_status": "PENDING",
+  "final_gate_status": "OPEN_PENDING_EXACT_HEAD_REVIEW",
+  "last_remote_ci": {
+    "run_id": 31988858252,
+    "workflow": "cpu-ci",
+    "head_sha": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "status": "completed",
+    "conclusion": "success",
+    "job_id": 95268598734,
+    "url": "https://github.com/hieukendu/vipragsent/actions/runs/31988858252"
+  },
+  "evidence": {
+    "fresh_remote_ci": "SUCCESS; cpu-ci run 31988858252",
+    "fresh_remote_ci_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+    "fresh_exact_head_sentinel": "PENDING_FINAL_EXACT_HEAD_SENTINEL",
+    "sentinel_report": "reports/v28/final_sentinel_review.json",
+    "final_runtime_integration_audit": "PASS",
+    "final_readiness_consistency": "PASS"
+  },
+  "bugs": [
+    {
+      "bug_id": "BUG-KNOWN-001",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Q3 profile retains exactly 36 local cells plus four seedless Azure rows and validates the complete authorized inventory.",
+      "fix_commits": [
+        "183126ecf888c86c679da8fac9e66321617f1f20"
+      ],
+      "regression_tests": [
+        "Q3/profile validators"
+      ]
+    },
+    {
+      "bug_id": "BUG-KNOWN-002",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Shared GPU occupancy is serialized except for the validated PhoBERT pair; scheduler adversarial tests pass.",
+      "fix_commits": [
+        "11a81af"
+      ],
+      "regression_tests": [
+        "scheduler regression suite"
+      ]
+    },
+    {
+      "bug_id": "BUG-KNOWN-003",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Generation duration uses exact 49/S factors for 1.0x through 4.0x; monotonicity tests pass.",
+      "fix_commits": [
+        "fe97f24"
+      ],
+      "regression_tests": [
+        "estimator regression suite"
+      ]
+    },
+    {
+      "bug_id": "BUG-KNOWN-004",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Both local Ruff versions and fresh cpu-ci run 31968069469 on 23332af0bf5454958ea48b630ef43a4e45a61feb pass.",
+      "fix_commits": [
+        "0c5bca2"
+      ],
+      "regression_tests": [
+        "local Ruff 0.6.9 and 0.16.3"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-001",
+      "severity": "CRITICAL",
+      "status": "CLOSED",
+      "closure_evidence": "Q3 rejects the legacy Cartesian shape and enforces the retained profile slice.",
+      "fix_commits": [
+        "bf3f439"
+      ],
+      "regression_tests": [
+        "Q3 profile aggregation tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-002",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Q1b producer/consumer bindings and the Q2 six-variant-by-three-seed matrix are exact.",
+      "fix_commits": [
+        "6b7520b"
+      ],
+      "regression_tests": [
+        "profile aggregation tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-003",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Explanation-only production reuse requires an approved exact source identity.",
+      "fix_commits": [
+        "75de775"
+      ],
+      "regression_tests": [
+        "explanation runtime tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-004",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Production checkpoint dataset identities require canonical SHA-256 values.",
+      "fix_commits": [
+        "75de775"
+      ],
+      "regression_tests": [
+        "generation checkpoint tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-005",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "closure_evidence": "Resume validates persisted best-selection metadata and checkpoint ordering.",
+      "fix_commits": [
+        "0446c86"
+      ],
+      "regression_tests": [
+        "generation resume tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-006",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "All convergence artifacts identify the reviewed code head and explicitly separate report-only descendants.",
+      "fix_commits": [
+        "REPORT_REFRESH"
+      ],
+      "regression_tests": [
+        "cross-file artifact consistency"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-007",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Q1b predictor, external-retention outputs, and review summaries emit canonical producer provenance.",
+      "fix_commits": [
+        "e0c502a"
+      ],
+      "regression_tests": [
+        "Q1b dependency and fixture-chain tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-008",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Q1b graph/source digests are mandatory, exact, and conflict-resistant across nested payloads.",
+      "fix_commits": [
+        "e0c502a"
+      ],
+      "regression_tests": [
+        "Q1b digest/conflict tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-009",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Q1b training-prohibition booleans, counters, and applicability fields are strict and explicit.",
+      "fix_commits": [
+        "12eec37"
+      ],
+      "regression_tests": [
+        "Q1b training-prohibition tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-010",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Q3 Azure seed remains literal JSON null; empty and sentinel substitutions are rejected.",
+      "fix_commits": [
+        "e0c502a"
+      ],
+      "regression_tests": [
+        "Q3 seed semantics tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-011",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Q3 validates the complete authorized source inventory before filtering the retained slice.",
+      "fix_commits": [
+        "e0c502a"
+      ],
+      "regression_tests": [
+        "Q3 inventory-integrity tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-012",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "closure_evidence": "latest preserves the last completed epoch independently of persisted best selection.",
+      "fix_commits": [
+        "e0c502a"
+      ],
+      "regression_tests": [
+        "generation latest-checkpoint tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-013",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "closure_evidence": "Fixture coverage exercises predictor → external retention → review propagation and resume history.",
+      "fix_commits": [
+        "12eec37"
+      ],
+      "regression_tests": [
+        "Q1b and generation integration tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-014",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Missing Q1b training-prohibition fields now block aggregation.",
+      "fix_commits": [
+        "12eec37"
+      ],
+      "regression_tests": [
+        "explicit-field regression test"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-015",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Q1b seed types are strict integers for local rows and literal null for Azure.",
+      "fix_commits": [
+        "12eec37"
+      ],
+      "regression_tests": [
+        "type-coercion regression test"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-016",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Malformed null/empty and conflicting alias provenance occurrences block aggregation.",
+      "fix_commits": [
+        "12eec37"
+      ],
+      "regression_tests": [
+        "nested provenance regression test"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-017",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Explanation reuse validates the complete approval record and bound hashes.",
+      "fix_commits": [
+        "12eec37"
+      ],
+      "regression_tests": [
+        "approval-binding tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-018",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "closure_evidence": "Non-advancing resume targets are rejected and persisted metrics remain defined.",
+      "fix_commits": [
+        "12eec37"
+      ],
+      "regression_tests": [
+        "resume no-op regression test"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-019",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "closure_evidence": "Resume loads and appends existing history instead of overwriting it.",
+      "fix_commits": [
+        "12eec37"
+      ],
+      "regression_tests": [
+        "resume history regression test"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-020",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "closure_evidence": "Direct Q1b source resolution uses the full approval validator.",
+      "fix_commits": [
+        "12eec37"
+      ],
+      "regression_tests": [
+        "Q1b source-resolution tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-021",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Final aggregation uses the full approval validator and fails closed on malformed or inconsistent state.",
+      "fix_commits": [
+        "fe2fa8e"
+      ],
+      "regression_tests": [
+        "aggregation approval regression test"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-022",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "All source consumers require APPROVED state fields and full approval validation; legacy production export is rejected.",
+      "fix_commits": [
+        "98be525, 1618133"
+      ],
+      "regression_tests": [
+        "approval-consumer and adapter tests"
+      ]
+    },
+    {
+      "bug_id": "BUG-REV-023",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "closure_evidence": "Injected Q1b predictors require explicit fixture_mode=True and cannot enter production paths.",
+      "fix_commits": [
+        "1618133"
+      ],
+      "regression_tests": [
+        "external-retention source-gate tests"
+      ]
+    },
+    {
+      "bug_id": "SENTINEL-001",
+      "severity": "HIGH",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "reports/CI/PR binding",
+      "assigned_worker": "Manager",
+      "symptoms": "Final reports and PR body were bound to an older source head while PR HEAD had advanced.",
+      "root_cause": "Report-only descendants were treated as implicitly covered instead of requiring exact-head review and evidence refresh.",
+      "fix_branch": "codex/naacl-runtime-optimization",
+      "regression_test": "exact-head report consistency and PR metadata audit",
+      "closure_reason": "V28 report/PR dossier refreshed; pending final evidence-push CI and exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "SENTINEL-002",
+      "severity": "HIGH",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "generation persistence",
+      "assigned_worker": "GENE-V28",
+      "fix_branch": "codex/v28-fix-generation",
+      "files": ["src/vipragsent/orchestration/generation_persistence.py", "src/vipragsent/orchestration/executors/generation.py"],
+      "symptoms": "Committed generation rows were reused by sample_id without complete identity validation.",
+      "root_cause": "Generation chunk manifests lacked canonical source/model/checkpoint/config/data/record provenance.",
+      "regression_test": "changed identity and record-order negative cases",
+      "closure_reason": "Integrated in 168254e; targeted negatives pass; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "SENTINEL-003",
+      "severity": "HIGH",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "Azure execution safety",
+      "assigned_worker": "AZURE-V28",
+      "fix_branch": "codex/v28-fix-azure",
+      "files": ["src/vipragsent/azure/async_judge.py", "src/vipragsent/azure/client.py", "src/vipragsent/orchestration/stage_registry.py"],
+      "symptoms": "Production Azure loops lacked enforceable global request/attempt/token/concurrency/spend ceilings and accepted oversized actual usage.",
+      "root_cause": "Only per-request or estimated prompt-token limits were enforced.",
+      "regression_test": "global budget preflight and actual-usage overrun negatives",
+      "closure_reason": "Integrated in a9f0159, fc53143, bc64fd9, and 168254e; actual-usage, finite-ceiling, and global-ceiling regressions pass; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "SENTINEL-004",
+      "severity": "MEDIUM",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "Azure cache/retry",
+      "assigned_worker": "AZURE-V28",
+      "fix_branch": "codex/v28-fix-azure",
+      "files": ["src/vipragsent/azure/async_judge.py"],
+      "symptoms": "Retryable transport failures were persisted and replayed as permanent cached failures.",
+      "root_cause": "Cache lookup accepted any record with a valid field regardless of retryability.",
+      "regression_test": "cross-run outage recovery after a transient 5xx",
+      "closure_reason": "Integrated in bc64fd9; cross-run transient-failure recovery passes; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "SENTINEL-005",
+      "severity": "MEDIUM",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "NAACL profile validation",
+      "assigned_worker": "PROFILE-V28",
+      "fix_branch": "codex/v28-fix-profile",
+      "files": ["src/vipragsent/runtime/naacl_profile.py", "reports/runtime_optimization/naacl_balanced_profile.json"],
+      "symptoms": "The checked-in JSON listed retained Azure under exclusions while YAML retained its four rows.",
+      "root_cause": "Profile validator did not enforce report exclusion parity with source policy.",
+      "regression_test": "contradictory-report negative case and exact-profile positive case",
+      "closure_reason": "Integrated in a9f0159; exact profile parity regressions pass; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "F-002",
+      "severity": "HIGH",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "Azure safety configuration",
+      "assigned_worker": "DARWIN",
+      "fix_branch": "codex/naacl-runtime-optimization",
+      "files": ["src/vipragsent/azure/client.py", "src/vipragsent/azure/async_judge.py"],
+      "symptoms": "NaN/Inf spend ceilings and non-integral integer ceilings were accepted.",
+      "root_cause": "Ceiling validation only compared values after permissive coercion and did not require finite spend values.",
+      "regression_test": "direct and mapping/config finite-spend and strict-integer negatives",
+      "closure_reason": "Fixed in 168254e; sync and async Azure ceiling regressions pass; pending exact-head Sentinel re-review."
+    },
+    {
+      "bug_id": "F-003",
+      "severity": "MEDIUM",
+      "status": "FIXED_PENDING_REVIEW",
+      "component": "synchronous Azure cache identity",
+      "assigned_worker": "DARWIN",
+      "fix_branch": "codex/naacl-runtime-optimization",
+      "files": ["src/vipragsent/azure/client.py"],
+      "symptoms": "A cache file at the requested path could be reused despite an embedded key or request-identity mismatch.",
+      "root_cause": "AzureCache.get checked the path and model/version but not the persisted cache key and request identity.",
+      "regression_test": "embedded-key poisoning and prompt/schema/input/deployment identity negatives",
+      "closure_reason": "Fixed in 168254e; sync cache poisoning and identity regressions pass; pending exact-head Sentinel re-review."
+    }
+  ],
+  "review_history": [
+    {
+      "round": 0,
+      "reviewer": "Dalton",
+      "verdict": "PASS",
+      "scope": "read-only baseline review"
+    },
+    {
+      "round": 1,
+      "reviewer": "Dalton",
+      "verdict": "FAIL",
+      "findings_closed": [
+        "BUG-REV-001",
+        "BUG-REV-002",
+        "BUG-REV-003",
+        "BUG-REV-004",
+        "BUG-REV-005",
+        "BUG-REV-006"
+      ]
+    },
+    {
+      "round": 2,
+      "reviewer": "Dalton",
+      "verdict": "FAIL",
+      "findings_closed": [
+        "BUG-REV-007",
+        "BUG-REV-008",
+        "BUG-REV-009",
+        "BUG-REV-010",
+        "BUG-REV-011",
+        "BUG-REV-012",
+        "BUG-REV-013",
+        "BUG-REV-014",
+        "BUG-REV-015",
+        "BUG-REV-016",
+        "BUG-REV-017",
+        "BUG-REV-018",
+        "BUG-REV-019",
+        "BUG-REV-020"
+      ]
+    },
+    {
+      "round": 3,
+      "reviewer": "Dalton",
+      "verdict": "FAIL",
+      "findings_closed": [
+        "BUG-REV-021"
+      ]
+    },
+    {
+      "round": 4,
+      "reviewer": "Dalton",
+      "verdict": "FAIL",
+      "findings_closed": [
+        "BUG-REV-022",
+        "BUG-REV-023"
+      ]
+    },
+    {
+      "round": 5,
+      "reviewer": "Dalton",
+      "reviewed_head": "16181334b5d00a6e3f622dffa826575a1b18915d",
+      "verdict": "PASS",
+      "actionable_findings": []
+    },
+    {
+      "round": 6,
+      "reviewer": "Dalton",
+      "reviewed_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+      "verdict": "PASS",
+      "scope": "scoped CI audit contract fix",
+      "actionable_findings": []
+    },
+    {
+      "round": 7,
+      "reviewer": "Kant",
+      "reviewed_head": "0430fbd57e881346e139385f2ee409beb56ccf2a",
+      "verdict": "FAIL",
+      "actionable_findings": ["SENTINEL-001", "SENTINEL-002", "SENTINEL-003", "SENTINEL-004", "SENTINEL-005"]
+    }
+  ],
+  "closure_summary": {
+    "open_critical": 0,
+    "open_high": 4,
+    "open_medium": 3,
+    "open_low": 0,
+    "code_findings_closed": "PENDING_SENTINEL_REVIEW",
+    "report_findings_closed": "PENDING_SENTINEL_REVIEW",
+    "remote_ci_gate_open": true
+  },
+  "local_evidence": {
+    "broad_cpu_mock_only": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
+    "targeted_approval_source_suite": "PASS; impacted generation/explanation/Azure/profile suites",
+    "fixture_dag": "PASS",
+    "execution_registry": "PASS",
+    "schemas": "PASS",
+    "sequential_prompts": "PASS",
+    "naacl_profile": "PASS; 36 local Q3 cells + 4 Azure rows = 40 retained rows",
+    "production_implementation_audit": "PASS",
+    "final_production_correctness_audit": "PASS; CI_STATUS=NOT_RUN locally; remote cpu-ci PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS",
+    "ruff_0_6_9": "PASS",
+    "ruff_0_16_3": "PASS",
+    "science_hashes": "UNCHANGED"
+  },
+  "safety": {
+    "production_actions_taken": false,
+    "azure_request_made": false,
+    "hf_mutation": false,
+    "model_download_or_benchmark_run": false,
+    "process_control": false,
+    "test_environment_used": false,
+    "production_worktree_edited": false,
+    "pr_merged": false
+  }
+}

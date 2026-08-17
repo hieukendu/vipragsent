@@ -165,7 +165,7 @@ def render_review_summary(payload: Mapping[str, Any]) -> str:
     lines = ["# Sequential Run Review Summary", ""]
     for field in REVIEW_FIELDS:
         value = payload.get(field)
-        if isinstance(value, (dict, list)):
+        if isinstance(value, dict | list):
             rendered = json.dumps(value, ensure_ascii=False, sort_keys=True)
         else:
             rendered = "NOT_APPLICABLE" if value is None else str(value)

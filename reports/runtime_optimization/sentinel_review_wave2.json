@@ -1,0 +1,125 @@
+{
+  "schema_version": 2,
+  "review": "LUNA_SENTINEL independent Wave-2 generation review",
+  "wave": "WAVE-2",
+  "round": 2,
+  "decision": "PASS",
+  "pass_rule": "PASS requires zero open CRITICAL or HIGH findings.",
+  "base": "522689971dd4dba39d111887aeb1483466fe40b8",
+  "branch": {
+    "path": "/root/vipragsent-runtime-opt-generation",
+    "name": "codex/naacl-opt/generation",
+    "head": "2cf464b7d63a9dd65777b04a00bc885684e8336e",
+    "clean": true
+  },
+  "chain": [
+    {
+      "commit": "efe09a31769d753da9611201c4ee7b940557b2ce",
+      "parent": "522689971dd4dba39d111887aeb1483466fe40b8",
+      "subject": "Optimize generation with profiled batching and resumable chunks"
+    },
+    {
+      "commit": "f3cba05b7885979f184d0b88f8f57fe6245014e3",
+      "parent": "efe09a31769d753da9611201c4ee7b940557b2ce",
+      "subject": "Integrate profiled generation and reuse selected dev artifacts"
+    },
+    {
+      "commit": "2cf464b7d63a9dd65777b04a00bc885684e8336e",
+      "parent": "f3cba05b7885979f184d0b88f8f57fe6245014e3",
+      "subject": "Fix variable-length generation padding and reuse validation"
+    }
+  ],
+  "findings": [
+    {
+      "id": "GEN-H001",
+      "severity": "HIGH",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Variable-length decoder-only inference batches were right-padded.",
+      "closure": "_inference_batch now compacts active tokens and left-pads; _generate_batch slices after the common padded input length. A causal fixture whose continuation depends on each row's last active token passes batch 1/2/4 equivalence."
+    },
+    {
+      "id": "GEN-M002",
+      "severity": "MEDIUM",
+      "status": "CLOSED",
+      "blocking": false,
+      "summary": "Batch >1 evidence was previously permissive when omitted.",
+      "closure": "Batch >1 now requires an explicit True profiled, measured, or approved field; a missing profile still resolves to safe batch one."
+    },
+    {
+      "id": "GEN-M001",
+      "severity": "MEDIUM",
+      "status": "CLOSED_SUBSTANTIALLY",
+      "blocking": false,
+      "summary": "DEV reuse lacked complete selected-artifact binding.",
+      "closure": "Reuse now checks best_epoch, selected/best checkpoint hash, reasoning/prediction/judge hashes, metrics hash, and chunk-manifest hash; the marker test covers validation and tamper rejection."
+    },
+    {
+      "id": "GEN-M001-R",
+      "severity": "MEDIUM",
+      "status": "OPEN_ACCEPTED",
+      "blocking": false,
+      "summary": "The selected epoch checkpoint file and source_root are not independently cross-checked during reuse.",
+      "rationale": "The best checkpoint hash, best_epoch, and all published DEV artifact hashes are bound and fail closed under normal publication. This is additional provenance hardening, not an acceptance blocker.",
+      "exact_fix": "Publish and verify the hash of checkpoints/epoch_<best_epoch>/model.pt and require source_root == epochs/epoch_<best_epoch>."
+    },
+    {
+      "id": "GEN-L001",
+      "severity": "LOW",
+      "status": "OPEN_ACCEPTED",
+      "blocking": false,
+      "summary": "Fixture-only stage adapters retain direct torch.save calls.",
+      "rationale": "Production/trainable generation uses the canonical checkpoint helper; no duplicate production serializer was introduced."
+    }
+  ],
+  "requirement_checks": {
+    "decoder_safe_left_padding": "PASS",
+    "continuation_slicing": "PASS",
+    "causal_variable_length_equivalence_batch_1_2_4": "PASS",
+    "explicit_true_evidence_for_batch_gt_1": "PASS",
+    "safe_default_batch_one": "PASS",
+    "atomic_idempotent_chunk_resume": "PASS",
+    "committed_before_judge": "PASS",
+    "dev_best_epoch_checkpoint_metrics_chunk_binding": "PASS_WITH_GEN-M001-R",
+    "per_sample_stopping": "PASS",
+    "reversible_context": "PASS",
+    "test_sealing": "PASS",
+    "duplicate_production_serializer": "PASS",
+    "benchmark_or_external_effects": "PASS"
+  },
+  "tests": [
+    {
+      "command_scope": "tests/test_generation_wave2.py tests/test_luna_max_01_generation.py",
+      "result": "33 passed",
+      "cache_free": true
+    },
+    {
+      "command_scope": "tests/test_luna_max_08_red_team.py tests/test_preexperiment_closure.py",
+      "result": "26 passed",
+      "cache_free": true
+    },
+    {
+      "command_scope": "Python compilation and git diff --check",
+      "result": "passed",
+      "cache_free": true
+    }
+  ],
+  "external_execution": {
+    "network": false,
+    "azure": false,
+    "huggingface": false,
+    "real_model_or_data": false,
+    "benchmark": false
+  },
+  "reviewed_paths": [
+    "src/vipragsent/orchestration/executors/generation.py",
+    "src/vipragsent/orchestration/generation_persistence.py",
+    "src/vipragsent/orchestration/stage_registry.py",
+    "tests/test_generation_wave2.py",
+    "tests/test_luna_max_01_generation.py"
+  ],
+  "report_files": [
+    "/root/vipragsent-runtime-opt/reports/runtime_optimization/sentinel_review_wave2.md",
+    "/root/vipragsent-runtime-opt/reports/runtime_optimization/sentinel_review_wave2.json"
+  ]
+}

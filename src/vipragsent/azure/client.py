@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import re
+import threading
 import time
 import uuid
 from collections.abc import Callable, Mapping
@@ -13,11 +15,41 @@ from typing import Any
 
 from ..atomic import atomic_write_json, exclusive_lock
 from ..hashing import sha256_json
+from ..profiling import azure_successful_usage_cost
 from .schemas import validate_rationale_output, validate_structured_output
 
 RETRYABLE_STATUS_CODES = frozenset({408, 429, 500, 502, 503, 504})
 AZURE_TRANSPORT_TIMEOUT_SECONDS = 300.0
 _MISSING = object()
+
+
+def _coerce_integer_ceiling(value: Any, field_name: str, *, minimum: int) -> int:
+    if isinstance(value, bool):
+        raise ValueError(f"{field_name} must be a finite integer")
+    if isinstance(value, float) and (not math.isfinite(value) or not value.is_integer()):
+        raise ValueError(f"{field_name} must be a finite integer")
+    try:
+        normalized = int(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"{field_name} must be a finite integer") from exc
+    if normalized != value:
+        raise ValueError(f"{field_name} must be a finite integer")
+    if normalized < minimum:
+        requirement = "positive" if minimum > 0 else "non-negative"
+        raise ValueError(f"{field_name} must be {requirement}")
+    return normalized
+
+
+def _coerce_finite_nonnegative(value: Any, field_name: str) -> float:
+    if isinstance(value, bool):
+        raise ValueError(f"{field_name} must be a finite non-negative number")
+    try:
+        normalized = float(value)
+    except (TypeError, ValueError, OverflowError) as exc:
+        raise ValueError(f"{field_name} must be a finite non-negative number") from exc
+    if not math.isfinite(normalized) or normalized < 0:
+        raise ValueError(f"{field_name} must be a finite non-negative number")
+    return normalized
 
 
 @dataclass(frozen=True)
@@ -71,6 +103,388 @@ class AzureStructuredOutputError(ValueError):
         self.content_filter = content_filter
 
 
+class AzureSafetyBudgetError(RuntimeError):
+    """A finite Azure safety ceiling rejected a request or its actual usage."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        stop_reason: str | None = None,
+        telemetry: Mapping[str, Any] | None = None,
+    ) -> None:
+        super().__init__(message)
+        self.stop_reason = stop_reason
+        self.telemetry = dict(telemetry or {})
+
+
+class AzureSafetyLedgerState:
+    """Thread-safe stop state shared by synchronous and asynchronous Azure use.
+
+    Token and spend ceilings are safety boundaries, not recoverable request
+    failures.  Once an actual response crosses one, this state latches and
+    every later admission is rejected.  A caller can also cancel the state
+    explicitly; cancellation never overwrites an earlier overrun reason.
+    """
+
+    def __init__(self) -> None:
+        self.tripped = False
+        self.cancelled = False
+        self.stop_reason: str | None = None
+        self.overrun_count = 0
+        self.overrun_reason: str | None = None
+        self.overrun: dict[str, Any] | None = None
+        self._lock = threading.RLock()
+
+    @property
+    def stopped(self) -> bool:
+        with self._lock:
+            return self.tripped or self.cancelled or self.stop_reason is not None
+
+    @property
+    def is_tripped(self) -> bool:
+        return self.tripped
+
+    @property
+    def is_cancelled(self) -> bool:
+        return self.cancelled
+
+    @property
+    def final_stop_reason(self) -> str | None:
+        with self._lock:
+            return self.stop_reason
+
+    def trip(self, reason: str, *, details: Mapping[str, Any] | None = None, overrun: bool = False) -> bool:
+        """Latch the first safety stop and return whether this call won."""
+
+        with self._lock:
+            if self.tripped or self.cancelled:
+                return False
+            # A non-overrun admission stop may already have been observed by
+            # a producer while an admitted request is still in flight.  An
+            # actual usage overrun upgrades that provisional stop to the
+            # authoritative latched reason.
+            if self.stop_reason is not None and not overrun:
+                return False
+            self.tripped = True
+            self.stop_reason = str(reason)
+            if overrun:
+                self.overrun_count = 1
+                self.overrun_reason = str(reason)
+                self.overrun = dict(details or {}) | {"reason": str(reason)}
+            return True
+
+    def stop(self, reason: str) -> bool:
+        """Latch a non-overrun admission stop without marking an overrun."""
+
+        with self._lock:
+            if self.tripped or self.cancelled or self.stop_reason is not None:
+                return False
+            self.stop_reason = str(reason)
+            return True
+
+    def cancel(self, reason: str = "safety_ledger_cancelled") -> bool:
+        with self._lock:
+            if self.tripped or self.cancelled or self.stop_reason is not None:
+                return False
+            self.cancelled = True
+            self.stop_reason = str(reason)
+            return True
+
+    def snapshot(self) -> dict[str, Any]:
+        with self._lock:
+            return {
+                "safety_tripped": self.tripped,
+                "safety_cancelled": self.cancelled,
+                "safety_stop_reason": self.stop_reason,
+                "safety_overrun_count": self.overrun_count,
+                "safety_overrun_reason": self.overrun_reason,
+                "safety_overrun": dict(self.overrun) if self.overrun is not None else None,
+                # Short aliases make the state useful to callers that persist
+                # a compact telemetry record.
+                "tripped": self.tripped,
+                "cancelled": self.cancelled,
+                "stop_reason": self.stop_reason,
+                "overrun_count": self.overrun_count,
+                "overrun_reason": self.overrun_reason,
+            }
+
+    @property
+    def overrun_telemetry(self) -> dict[str, Any] | None:
+        snapshot = self.snapshot()
+        value = snapshot.get("safety_overrun")
+        return dict(value) if isinstance(value, Mapping) else None
+
+
+@dataclass(frozen=True)
+class AzureSafetyCeilings:
+    """Finite, process-wide ceilings for one production Azure execution."""
+
+    max_logical_requests: int = 100_000
+    max_transport_attempts: int = 500_000
+    max_input_tokens: int = 50_000_000
+    max_output_tokens: int = 50_000_000
+    max_total_tokens: int = 100_000_000
+    max_concurrency: int = 32
+    max_verified_spend_usd: float = 100.0
+    allow_unknown_spend: bool = False
+    max_retry_per_request: int = 4
+    # Accept the plural spelling used by some caller configuration while
+    # retaining the singular spelling from the safety specification.
+    max_retries_per_request: int | None = None
+
+    def __post_init__(self) -> None:
+        for field_name in (
+            "max_logical_requests",
+            "max_transport_attempts",
+            "max_input_tokens",
+            "max_output_tokens",
+            "max_total_tokens",
+            "max_concurrency",
+        ):
+            value = _coerce_integer_ceiling(getattr(self, field_name), field_name, minimum=1)
+            object.__setattr__(self, field_name, value)
+        object.__setattr__(self, "max_verified_spend_usd", _coerce_finite_nonnegative(self.max_verified_spend_usd, "max_verified_spend_usd"))
+        for field_name in ("max_retry_per_request", "max_retries_per_request"):
+            value = getattr(self, field_name)
+            if value is not None:
+                object.__setattr__(self, field_name, _coerce_integer_ceiling(value, field_name, minimum=0))
+
+    @property
+    def retry_ceiling(self) -> int:
+        values = [int(self.max_retry_per_request)]
+        if self.max_retries_per_request is not None:
+            values.append(int(self.max_retries_per_request))
+        return min(values)
+
+    @classmethod
+    def from_mapping(cls, value: Mapping[str, Any] | None) -> AzureSafetyCeilings:
+        if not value:
+            return cls()
+        payload = dict(value)
+        aliases = {
+            "max_requests": "max_logical_requests",
+            "max_attempts": "max_transport_attempts",
+            "max_tokens": "max_total_tokens",
+            "max_spend_usd": "max_verified_spend_usd",
+            "max_retries_per_request": "max_retry_per_request",
+        }
+        for source, target in aliases.items():
+            if source in payload and target not in payload:
+                payload[target] = payload[source]
+        return cls(**{field: payload[field] for field in cls.__dataclass_fields__ if field in payload})
+
+
+@dataclass(frozen=True)
+class _AzureAttemptReservation:
+    input_estimate: int
+    output_ceiling: int
+
+
+class AzureSafetyLedger:
+    """Thread-safe actual-usage ledger shared by all calls in one execution."""
+
+    def __init__(self, ceilings: AzureSafetyCeilings | None = None, *, state: AzureSafetyLedgerState | None = None) -> None:
+        self.ceilings = ceilings or AzureSafetyCeilings()
+        self.state = state or AzureSafetyLedgerState()
+        self.logical_requests = 0
+        self.transport_attempts = 0
+        self.input_tokens = 0
+        self.output_tokens = 0
+        self.total_tokens = 0
+        self.verified_spend_usd = 0.0
+        self.unknown_spend_count = 0
+        self.active = 0
+        self._reserved_input = 0
+        self._reserved_output = 0
+        self.cancelled_attempts = 0
+        self._lock = threading.RLock()
+
+    @property
+    def tripped(self) -> bool:
+        return self.state.tripped
+
+    @property
+    def cancelled(self) -> bool:
+        return self.state.cancelled
+
+    @property
+    def stop_reason(self) -> str | None:
+        return self.state.final_stop_reason
+
+    @property
+    def final_stop_reason(self) -> str | None:
+        return self.state.final_stop_reason
+
+    @property
+    def stopped_reason(self) -> str | None:
+        return self.state.final_stop_reason
+
+    @property
+    def is_tripped(self) -> bool:
+        return self.state.tripped
+
+    @property
+    def is_cancelled(self) -> bool:
+        return self.state.cancelled
+
+    @property
+    def overrun(self) -> dict[str, Any] | None:
+        snapshot = self.state.snapshot()
+        value = snapshot.get("safety_overrun")
+        return dict(value) if isinstance(value, Mapping) else None
+
+    def telemetry(self) -> dict[str, Any]:
+        with self._lock:
+            counters = {
+                "logical_requests": self.logical_requests,
+                "transport_attempts": self.transport_attempts,
+                "input_tokens": self.input_tokens,
+                "output_tokens": self.output_tokens,
+                "total_tokens": self.total_tokens,
+                "verified_spend_usd": self.verified_spend_usd,
+                "unknown_spend_count": self.unknown_spend_count,
+                "active": self.active,
+                "cancelled_attempts": self.cancelled_attempts,
+            }
+        return counters | self.state.snapshot()
+
+    def snapshot(self) -> dict[str, Any]:
+        return self.telemetry()
+
+    def cancel(self, reason: str = "safety_ledger_cancelled") -> None:
+        self.state.cancel(reason)
+
+    def _budget_error(self, message: str) -> AzureSafetyBudgetError:
+        telemetry = self.telemetry()
+        return AzureSafetyBudgetError(message, stop_reason=self.stop_reason, telemetry=telemetry)
+
+    def _reject_if_admission_stopped(self) -> None:
+        reason = self.stop_reason
+        if reason is not None:
+            raise self._budget_error(f"Azure safety ledger stopped: {reason}")
+
+    def _reject_if_hard_stopped(self) -> None:
+        if self.state.tripped or self.state.cancelled:
+            reason = self.stop_reason or "safety_ledger_stopped"
+            raise self._budget_error(f"Azure safety ledger stopped: {reason}")
+
+    def _stop_for_admission(self, reason: str, message: str) -> None:
+        self.state.stop(reason)
+        raise self._budget_error(message)
+
+    def _trip_for_overrun(self, reason: str, message: str, details: Mapping[str, Any]) -> None:
+        self.state.trip(reason, details={"message": message, **dict(details)}, overrun=True)
+        raise self._budget_error(message)
+
+    def effective_retry_count(self, retries: int, requested_ceiling: int | None = None) -> int:
+        if isinstance(retries, bool) or retries < 0:
+            raise ValueError("retries must be non-negative")
+        ceiling = self.ceilings.retry_ceiling
+        if requested_ceiling is not None:
+            if isinstance(requested_ceiling, bool) or requested_ceiling < 0:
+                raise ValueError("max_retry_per_request must be non-negative")
+            ceiling = min(ceiling, int(requested_ceiling))
+        # Leave one transport-attempt slot for another logical request when a
+        # global attempt ceiling has more than one slot.  A one-attempt global
+        # budget necessarily permits its single admitted attempt.
+        available_attempts = self.ceilings.max_transport_attempts
+        if available_attempts > 1:
+            available_attempts -= 1
+        ceiling = min(ceiling, max(0, available_attempts - 1))
+        return min(int(retries), ceiling)
+
+    def reserve_logical(self) -> None:
+        with self._lock:
+            self._reject_if_admission_stopped()
+            if self.logical_requests >= self.ceilings.max_logical_requests:
+                raise self._budget_error("Azure logical-request ceiling exhausted")
+            self.logical_requests += 1
+
+    def enter(self) -> None:
+        with self._lock:
+            self._reject_if_admission_stopped()
+            if self.active >= self.ceilings.max_concurrency:
+                self._stop_for_admission("concurrency_ceiling_exhausted", "Azure concurrency ceiling exhausted")
+            self.active += 1
+
+    def leave(self) -> None:
+        with self._lock:
+            self.active = max(0, self.active - 1)
+
+    def reserve_attempt(self, input_estimate: int, output_ceiling: int) -> _AzureAttemptReservation:
+        estimate = max(0, int(input_estimate))
+        output = max(0, int(output_ceiling))
+        with self._lock:
+            self._reject_if_admission_stopped()
+            if self.transport_attempts >= self.ceilings.max_transport_attempts:
+                self._stop_for_admission("transport_attempt_ceiling_exhausted", "Azure transport-attempt ceiling exhausted")
+            if self.input_tokens + self._reserved_input + estimate > self.ceilings.max_input_tokens:
+                self._stop_for_admission("input_token_ceiling_preflight", "Azure input-token ceiling preflight failed")
+            if self.output_tokens + self._reserved_output + output > self.ceilings.max_output_tokens:
+                self._stop_for_admission("output_token_ceiling_preflight", "Azure output-token ceiling preflight failed")
+            if self.total_tokens + self._reserved_input + self._reserved_output + estimate + output > self.ceilings.max_total_tokens:
+                self._stop_for_admission("total_token_ceiling_preflight", "Azure total-token ceiling preflight failed")
+            self.transport_attempts += 1
+            self._reserved_input += estimate
+            self._reserved_output += output
+            return _AzureAttemptReservation(estimate, output)
+
+    def cancel_attempt(self, reservation: _AzureAttemptReservation) -> None:
+        with self._lock:
+            self._reserved_input = max(0, self._reserved_input - reservation.input_estimate)
+            self._reserved_output = max(0, self._reserved_output - reservation.output_ceiling)
+            self.cancelled_attempts += 1
+
+    def commit_attempt(self, reservation: _AzureAttemptReservation, usage: Mapping[str, Any] | None) -> dict[str, Any]:
+        cost = azure_successful_usage_cost(usage)
+        input_tokens = cost.get("input_tokens")
+        output_tokens = cost.get("output_tokens")
+        with self._lock:
+            self._reserved_input = max(0, self._reserved_input - reservation.input_estimate)
+            self._reserved_output = max(0, self._reserved_output - reservation.output_ceiling)
+            self._reject_if_hard_stopped()
+            if input_tokens is None or output_tokens is None or cost.get("request_cost_usd") is None:
+                self.unknown_spend_count += 1
+                if not self.ceilings.allow_unknown_spend:
+                    self.state.trip("unknown_usage", details={"message": "Azure spend is unknown because response usage is incomplete"})
+                    raise self._budget_error("Azure spend is unknown because response usage is incomplete")
+                # Explicit diagnostic/fixture opt-ins still consume the full
+                # reservation so omitted usage cannot bypass token ceilings.
+                input_tokens = reservation.input_estimate
+                output_tokens = reservation.output_ceiling
+                total_tokens = input_tokens + output_tokens
+                self.input_tokens += input_tokens
+                self.output_tokens += output_tokens
+                self.total_tokens += total_tokens
+                return {"spend_status": "UNKNOWN", "accounted_input_tokens": input_tokens, "accounted_output_tokens": output_tokens, "accounted_total_tokens": total_tokens, **cost}
+            input_tokens = int(input_tokens)
+            output_tokens = int(output_tokens)
+            total_tokens = input_tokens + output_tokens
+            if self.input_tokens + input_tokens > self.ceilings.max_input_tokens:
+                self._trip_for_overrun("actual_input_token_ceiling_exceeded", "Azure input-token ceiling exceeded by actual usage", {"input_tokens": input_tokens})
+            if self.output_tokens + output_tokens > self.ceilings.max_output_tokens:
+                self._trip_for_overrun("actual_output_token_ceiling_exceeded", "Azure output-token ceiling exceeded by actual usage", {"output_tokens": output_tokens})
+            if self.total_tokens + total_tokens > self.ceilings.max_total_tokens:
+                self._trip_for_overrun("actual_total_token_ceiling_exceeded", "Azure total-token ceiling exceeded by actual usage", {"total_tokens": total_tokens})
+            spend = float(cost["request_cost_usd"])
+            if self.verified_spend_usd + spend > self.ceilings.max_verified_spend_usd:
+                self._trip_for_overrun("actual_verified_spend_ceiling_exceeded", "Azure verified-spend ceiling exceeded by actual usage", {"spend_usd": spend})
+            self.input_tokens += input_tokens
+            self.output_tokens += output_tokens
+            self.total_tokens += total_tokens
+            self.verified_spend_usd += spend
+            return {"spend_status": "VERIFIED", **cost}
+
+    def preflight_logical_requests(self, count: int) -> None:
+        if count < 0:
+            raise ValueError("logical request count must be non-negative")
+        with self._lock:
+            self._reject_if_admission_stopped()
+            if self.logical_requests + count > self.ceilings.max_logical_requests:
+                self._stop_for_admission("logical_request_ceiling_preflight", "Azure logical-request ceiling preflight failed")
+
+
 def _status_code(exc: Exception) -> int | None:
     value = getattr(exc, "status_code", None) or getattr(exc, "status", None)
     try:
@@ -118,9 +532,9 @@ def _extract_structured_candidate(value: Any) -> Any:
             return value["parsed"]
         if "labels" in value:
             return value["labels"]
-        if "output_text" in value and isinstance(value["output_text"], (str, bytes, bytearray)) and value["output_text"].strip():
+        if "output_text" in value and isinstance(value["output_text"], str | bytes | bytearray) and value["output_text"].strip():
             return value["output_text"]
-        if "text" in value and isinstance(value["text"], (str, bytes, bytearray)):
+        if "text" in value and isinstance(value["text"], str | bytes | bytearray):
             return value["text"]
         for key in ("output", "response", "content"):
             if key in value:
@@ -128,13 +542,13 @@ def _extract_structured_candidate(value: Any) -> Any:
                 if candidate is not _MISSING:
                     return candidate
         return _MISSING
-    if isinstance(value, (list, tuple)):
+    if isinstance(value, list | tuple):
         for item in value:
             candidate = _extract_structured_candidate(item)
             if candidate is not _MISSING:
                 return candidate
         return _MISSING
-    if isinstance(value, (str, bytes, bytearray)):
+    if isinstance(value, str | bytes | bytearray):
         return value
     return _MISSING
 
@@ -144,7 +558,7 @@ def extract_responses_structured_output(payload: Any) -> Any:
     candidate = _extract_structured_candidate(_response_mapping(payload))
     if candidate is _MISSING:
         raise AzureStructuredOutputError("Responses API payload has no structured output", payload=_response_mapping(payload))
-    if isinstance(candidate, (bytes, bytearray)):
+    if isinstance(candidate, bytes | bytearray):
         candidate = bytes(candidate).decode("utf-8")
     for _ in range(3):
         if isinstance(candidate, Mapping):
@@ -223,7 +637,7 @@ def _normalize_usage(value: Any) -> dict[str, Any]:
 
 
 def _is_retryable(exc: Exception) -> bool:
-    if isinstance(exc, (TimeoutError, ConnectionError)):
+    if isinstance(exc, TimeoutError | ConnectionError):
         return True
     if isinstance(exc, AzureRetryableError):
         return exc.status_code is None or exc.status_code in RETRYABLE_STATUS_CODES
@@ -244,7 +658,14 @@ class AzureCache:
     def path_for(self, key: str) -> Path:
         return self.root / f"{key}.json"
 
-    def get(self, key: str, *, expected_model_family: str, expected_model_version: str) -> dict[str, Any] | None:
+    def get(
+        self,
+        key: str,
+        *,
+        expected_model_family: str,
+        expected_model_version: str,
+        expected_request_identity: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
         path = self.path_for(key)
         if not path.exists():
             return None
@@ -254,12 +675,35 @@ class AzureCache:
             return None
         if not isinstance(record, Mapping):
             return None
+        if record.get("cache_key") != key:
+            return None
+        if record.get("cacheable") is False or record.get("failure_kind") == "retryable_transport":
+            return None
+        # Records written by older clients did not distinguish terminal
+        # validation failures from exhausted transport failures.  Never reuse
+        # that ambiguous request-level failure as a production answer.
+        if record.get("valid") is False and record.get("invalid_stage") == "judge_request":
+            return None
         observed_model = str(record.get("observed_model", ""))
         observed_version = str(record.get("observed_model_version", ""))
         if not observed_model or not observed_version:
             return None
         if expected_model_family.casefold() not in observed_model.casefold() or observed_version != expected_model_version:
             return None
+        if expected_request_identity is not None:
+            expected_identity = dict(expected_request_identity)
+            persisted_identity = record.get("request_identity")
+            if persisted_identity is not None:
+                if not isinstance(persisted_identity, Mapping):
+                    return None
+                if any(persisted_identity.get(name, _MISSING) != value for name, value in expected_identity.items()):
+                    return None
+            # These fields predate the complete request_identity object.  A
+            # legacy record may omit newer fields, but an embedded field must
+            # never contradict the request that is about to be reused.
+            for field_name in ("prompt_hash", "schema_hash", "input_payload_hash", "deployment"):
+                if field_name in expected_identity and field_name in record and record[field_name] != expected_identity[field_name]:
+                    return None
         return record
 
     def put(self, key: str, record: Mapping[str, Any]) -> Path:
@@ -272,10 +716,27 @@ class AzureCache:
 class AzureResponsesClient:
     """Azure Responses API v1 client with injectable transport and idempotent cache."""
 
-    def __init__(self, settings: AzureSettings, transport: Callable[..., Any] | None = None, *, cache: AzureCache | None = None) -> None:
+    def __init__(
+        self,
+        settings: AzureSettings,
+        transport: Callable[..., Any] | None = None,
+        *,
+        cache: AzureCache | None = None,
+        safety: AzureSafetyCeilings | None = None,
+        safety_ledger: AzureSafetyLedger | None = None,
+    ) -> None:
         self.settings = settings
         self.transport = transport
         self.cache = cache
+        self.safety = safety or (safety_ledger.ceilings if safety_ledger is not None else AzureSafetyCeilings())
+        self.safety_ledger = safety_ledger or AzureSafetyLedger(self.safety)
+
+    def preflight_logical_requests(self, count: int) -> None:
+        self.safety_ledger.preflight_logical_requests(count)
+
+    @property
+    def safety_telemetry(self) -> dict[str, Any]:
+        return self.safety_ledger.telemetry()
 
     def _default_transport(self, **kwargs: Any) -> Mapping[str, Any]:
         try:
@@ -303,6 +764,7 @@ class AzureResponsesClient:
         prompt_hash: str,
         schema_hash: str,
         demonstration_manifest_hash: str | None,
+        request_identity: Mapping[str, Any],
         request_id: str,
         retry_count: int,
         cache_key: str | None,
@@ -330,6 +792,8 @@ class AzureResponsesClient:
             "prompt_hash": prompt_hash,
             "schema_hash": schema_hash,
             "demonstration_manifest_hash": demonstration_manifest_hash,
+            "input_payload_hash": request_identity.get("input_payload_hash"),
+            "request_identity": dict(request_identity),
             "request_timestamp": datetime.now(UTC).isoformat(),
             "retry_count": retry_count,
             "usage": _normalize_usage(payload.get("usage", {})),
@@ -338,10 +802,21 @@ class AzureResponsesClient:
             "cache_hit": False,
         }
 
-    def _cache_get(self, key: str | None, *, expected_version: str) -> dict[str, Any] | None:
+    def _cache_get(
+        self,
+        key: str | None,
+        *,
+        expected_version: str,
+        expected_request_identity: Mapping[str, Any],
+    ) -> dict[str, Any] | None:
         if key is None or self.cache is None:
             return None
-        cached = self.cache.get(key, expected_model_family=self.settings.model_family, expected_model_version=expected_version)
+        cached = self.cache.get(
+            key,
+            expected_model_family=self.settings.model_family,
+            expected_model_version=expected_version,
+            expected_request_identity=expected_request_identity,
+        )
         return dict(cached) | {"cache_hit": True, "retry_count": cached.get("retry_count", 0)} if cached is not None else None
 
     def _cache_put(self, key: str | None, record: Mapping[str, Any]) -> None:
@@ -365,6 +840,52 @@ class AzureResponsesClient:
         return_invalid: bool = False,
         terminal_invalid_stage: str = "structured_response",
         retries: int = 4,
+        max_retry_per_request: int | None = None,
+        sleep: Callable[[float], None] = time.sleep,
+    ) -> dict[str, Any]:
+        """Execute one bounded logical request through the shared safety ledger."""
+        self.safety_ledger.reserve_logical()
+        self.safety_ledger.enter()
+        try:
+            return self._create_structured(
+                prompt=prompt,
+                task=task,
+                schema=schema,
+                max_output_tokens=max_output_tokens,
+                sample_id=sample_id,
+                input_payload=input_payload,
+                demonstration_manifest_hash=demonstration_manifest_hash,
+                expected_model_version=expected_model_version,
+                cache_identity=cache_identity,
+                cache_key=cache_key,
+                output_validator=output_validator,
+                return_invalid=return_invalid,
+                terminal_invalid_stage=terminal_invalid_stage,
+                retries=retries,
+                max_retry_per_request=max_retry_per_request,
+                sleep=sleep,
+            )
+        finally:
+            self.safety_ledger.leave()
+
+    def _create_structured(
+        self,
+        *,
+        prompt: str,
+        task: str,
+        schema: dict[str, Any],
+        max_output_tokens: int,
+        sample_id: str | None = None,
+        input_payload: Any | None = None,
+        demonstration_manifest_hash: str | None = None,
+        expected_model_version: str | None = None,
+        cache_identity: Mapping[str, Any] | None = None,
+        cache_key: str | None = None,
+        output_validator: Callable[[Mapping[str, Any]], Mapping[str, Any]] | None = None,
+        return_invalid: bool = False,
+        terminal_invalid_stage: str = "structured_response",
+        retries: int = 4,
+        max_retry_per_request: int | None = None,
         sleep: Callable[[float], None] = time.sleep,
     ) -> dict[str, Any]:
         if not schema.get("strict", True):
@@ -375,6 +896,7 @@ class AzureResponsesClient:
             raise ValueError("max_output_tokens must be positive")
         if retries < 0:
             raise ValueError("retries must be non-negative")
+        retries = self.safety_ledger.effective_retry_count(retries, max_retry_per_request)
         expected_version = expected_model_version or self.settings.expected_model_version
         schema_hash = sha256_json(schema)
         prompt_hash = sha256_json({"prompt": prompt})
@@ -393,7 +915,7 @@ class AzureResponsesClient:
             "cache_identity": dict(cache_identity or {}),
         }
         resolved_cache_key = cache_key or (self.cache.key(identity) if self.cache else None)
-        cached = self._cache_get(resolved_cache_key, expected_version=expected_version)
+        cached = self._cache_get(resolved_cache_key, expected_version=expected_version, expected_request_identity=identity)
         if cached is not None:
             return cached
         transport = self.transport or self._default_transport
@@ -402,12 +924,18 @@ class AzureResponsesClient:
         retry_count = 0
         last_payload: dict[str, Any] = {}
         for attempt in range(retries + 1):
+            reservation = self.safety_ledger.reserve_attempt(max(1, len(prompt.split())), max_output_tokens)
             try:
                 payload = _response_mapping(transport(input=prompt, text={"format": {"type": "json_schema", "name": f"vipragsent_{task}", "strict": True, "schema": schema["schema"]}}, max_output_tokens=max_output_tokens, temperature=0, metadata={"request_id": request_id, "prompt_hash": prompt_hash, "schema_hash": schema_hash, "cache_key": resolved_cache_key, **dict(cache_identity or {})}))
                 last_payload = payload
                 transport_error = _payload_transport_error(payload)
                 if transport_error is not None:
                     raise transport_error
+                # The estimate above is only admission control.  Actual
+                # response usage is authoritative and is checked before any
+                # result can be persisted or reused.
+                safety_usage = self.safety_ledger.commit_attempt(reservation, _normalize_usage(payload.get("usage", {})))
+                reservation = None
                 content_filter = _content_filter_reason(payload)
                 if content_filter is not None:
                     raise AzureStructuredOutputError("Azure response was terminated by content filtering", payload=payload, content_filter=content_filter)
@@ -427,20 +955,25 @@ class AzureResponsesClient:
                     raise AzureStructuredOutputError(f"Azure response model mismatch: {observed_model}", payload=payload)
                 if observed_version and observed_version != expected_version:
                     raise AzureStructuredOutputError(f"Azure response version mismatch: {observed_version}", payload=payload)
-                record = self._record(labels=labels, payload=payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=True)
+                record = self._record(labels=labels, payload=payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_identity=identity, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=True) | safety_usage | {"cacheable": True, "failure_kind": None}
                 self._cache_put(resolved_cache_key, record)
                 return record
+            except AzureSafetyBudgetError:
+                raise
             except AzureStructuredOutputError as exc:
                 if not return_invalid:
                     raise
-                record = self._record(labels=None, payload=exc.payload or last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage=terminal_invalid_stage, invalid_reason=str(exc), content_filter=exc.content_filter)
+                record = self._record(labels=None, payload=exc.payload or last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_identity=identity, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage=terminal_invalid_stage, invalid_reason=str(exc), content_filter=exc.content_filter) | {"cacheable": True, "failure_kind": "terminal_semantic"}
                 self._cache_put(resolved_cache_key, record)
                 return record
             except Exception as exc:
+                if reservation is not None:
+                    self.safety_ledger.cancel_attempt(reservation)
+                    reservation = None
                 if not _is_retryable(exc):
                     if not return_invalid:
                         raise
-                    record = self._record(labels=None, payload=last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage="judge_request", invalid_reason=str(exc))
+                    record = self._record(labels=None, payload=last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_identity=identity, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage="judge_request", invalid_reason=str(exc)) | {"cacheable": True, "failure_kind": "terminal_transport"}
                     self._cache_put(resolved_cache_key, record)
                     return record
                 last_error = exc
@@ -450,8 +983,9 @@ class AzureResponsesClient:
                 delay = _retry_after(exc)
                 sleep(min(60.0, delay if delay is not None else (2, 4, 8, 16)[min(attempt, 3)]))
         if return_invalid:
-            record = self._record(labels=None, payload=last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage="judge_request", invalid_reason=str(last_error or "unknown Azure error"))
-            self._cache_put(resolved_cache_key, record)
+            record = self._record(labels=None, payload=last_payload, expected_version=expected_version, prompt_hash=prompt_hash, schema_hash=schema_hash, demonstration_manifest_hash=demonstration_manifest_hash, request_identity=identity, request_id=request_id, retry_count=retry_count, cache_key=resolved_cache_key, valid=False, invalid_stage="judge_request", invalid_reason=str(last_error or "unknown Azure error"))
+            if last_error is not None and not _is_retryable(last_error):
+                self._cache_put(resolved_cache_key, record | {"cacheable": True, "failure_kind": "terminal_transport"})
             return record
         message = str(last_error or "unknown Azure error")
         if self.settings.api_key:

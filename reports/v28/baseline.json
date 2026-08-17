@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "spec_version": "V28",
+  "spec_sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
+  "timestamp": "2026-08-17T00:27:22Z",
+  "repository": "hieukendu/vipragsent",
+  "default_branch": "main",
+  "target_branch": "main",
+  "current_local_branch": "codex/naacl-runtime-optimization",
+  "current_local_head": "0430fbd57e881346e139385f2ee409beb56ccf2a",
+  "current_local_tree": "8ae0fea69626e8c248b54d1226a496fb1d85ce52",
+  "main_head": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
+  "pr_10": {
+    "state": "OPEN",
+    "draft": false,
+    "base": "main",
+    "base_sha": "fb40c91a7c39ac575db2bd71d9957f0e89069b3e",
+    "head_branch": "codex/naacl-runtime-optimization",
+    "head_sha": "0430fbd57e881346e139385f2ee409beb56ccf2a",
+    "mergeable": true,
+    "merge_state": "CLEAN",
+    "url": "https://github.com/hieukendu/vipragsent/pull/10"
+  },
+  "relevant_open_prs": [
+    {
+      "number": 10,
+      "title": "Add code-only NAACL runtime optimization contracts",
+      "head": "codex/naacl-runtime-optimization",
+      "state": "OPEN",
+      "draft": false
+    },
+    {
+      "number": 9,
+      "title": "Harden generation checkpoint resume and refresh artifacts",
+      "head": "agent/generation-checkpoint-resume-artifacts",
+      "state": "OPEN",
+      "draft": true
+    }
+  ],
+  "worktrees": {
+    "manager": {
+      "path": "/root/vipragsent-runtime-opt",
+      "branch": "codex/naacl-runtime-optimization",
+      "head": "0430fbd57e881346e139385f2ee409beb56ccf2a",
+      "clean": true
+    },
+    "user_production": {
+      "path": "/root/vipragsent",
+      "branch": "agent/generation-checkpoint-resume-artifacts",
+      "head": "eb4ceb43fc098948fca90283fcdac1fef2f26bdb",
+      "clean": true,
+      "untouched": true
+    },
+    "additional_worktrees_present": true,
+    "additional_worktree_count": 19,
+    "worker_or_review_paths_preserved": true
+  },
+  "dirty_files": [],
+  "untracked_files": [],
+  "active_processes": {
+    "matching_vipragsent_processes": [],
+    "unrelated_processes_observed": [
+      "PID 975388 mechsparse evaluate under /root/mechsparse",
+      "three defunct python3 processes"
+    ],
+    "process_control_performed": false
+  },
+  "checkpoint_state": {
+    "run_id": "q1a_cot_only_vistral_20260521",
+    "run_status": "RUNNING_STALE",
+    "approval_status": "PENDING_USER_APPROVAL",
+    "runtime_status": "SAFELY_PAUSED",
+    "active_process_pid": null,
+    "last_valid_checkpoint": "results/runs/q1a_cot_only_vistral_20260521/checkpoints/epoch_1/model.pt",
+    "checkpoint_sha256": "27f81249de067555827099334acb999f009d0d5970df333e855be231f36fc7c0",
+    "next_run_allowed": "NO",
+    "identity_status": "BLOCKED; persisted state and manifest contain historical code identities that do not match the current integration head"
+  },
+  "artifact_state": {
+    "remote_backup_status": "PASS",
+    "checkpoint_overwrite_or_delete_performed": false,
+    "huggingface_mutation_performed": false,
+    "azure_request_performed": false,
+    "test_outputs": "CPU/mock-only validation only"
+  },
+  "environment_fingerprint": {
+    "manager_system_python": "/usr/bin/python 3.10.12",
+    "compatible_validation_python": "/root/vipragsent/.venv/bin/python 3.11.0rc1",
+    "hardware_observed": "NVIDIA H100 80GB HBM3 MIG 2g.20gb",
+    "gpu_telemetry": "PARTIAL / insufficient permissions",
+    "disk_available": "approximately 5.8 TB",
+    "secrets_logged": false
+  },
+  "ci_state": {
+    "workflow": "cpu-ci",
+    "run_id": 31968957735,
+    "head_sha": "0430fbd57e881346e139385f2ee409beb56ccf2a",
+    "status": "completed",
+    "conclusion": "success"
+  },
+  "review_state_at_baseline": {
+    "pr_comments": 0,
+    "inline_review_threads": 0,
+    "submitted_reviews": 0,
+    "fresh_exact_head_sentinel": "IN_PROGRESS"
+  },
+  "source_lineage": {
+    "prior_reviewed_code_head": "23332af0bf5454958ea48b630ef43a4e45a61feb",
+    "current_head_delta": "report-only convergence metadata; no production source files changed",
+    "campaign_gate_status": "PROJECTED_GATE_CONDITIONAL"
+  }
+}

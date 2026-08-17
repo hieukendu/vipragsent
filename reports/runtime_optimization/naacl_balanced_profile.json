@@ -1,0 +1,479 @@
+{
+  "schema_version": 1,
+  "profile_id": "LUNA_NAACL_PROFILE",
+  "profile_name": "naacl_balanced_runtime_profile",
+  "status": "POLICY_ONLY_READY_AFTER_WAVE0_ACCEPTED",
+  "activation": {
+    "prerequisite": "WAVE0_ACCEPTED",
+    "default_enabled": false,
+    "execution_enabled": false,
+    "activation_requires_explicit_opt_in": true,
+    "real_execution": "PROHIBITED"
+  },
+  "source": {
+    "status": "current_audited_source",
+    "read_only": true,
+    "no_run_data_consumed": true,
+    "configs": [
+      "configs/experiments/q3/system_aliases.yaml",
+      "configs/experiments/q3/protocol.yaml",
+      "configs/experiments/q2/protocol.yaml",
+      "configs/experiments/q1b/producer_registry.yaml",
+      "configs/experiments/q1b/checkpoint_matrix.yaml"
+    ],
+    "audits": [
+      "reports/system_execution_registry_audit.json",
+      "reports/runtime_self_review.json",
+      "reports/final_runtime_integration_audit.json"
+    ]
+  },
+  "protocol_sources": {
+    "files": [
+      {
+        "path": "configs/experiments/q3/system_aliases.yaml",
+        "sha256": "D9862086827E7F5FEA80C887AD26EDCAF8EF07FBF899F2032E0750A19FC6D238"
+      },
+      {
+        "path": "configs/experiments/q3/protocol.yaml",
+        "sha256": "67D5DD80154F399CC23262D6E425B3CBCBB56138629A1DDBF0A1ADBF96B51F7D"
+      },
+      {
+        "path": "configs/experiments/q2/protocol.yaml",
+        "sha256": "F1B2F06EE059C9C999AD96ED9D6AA354465B914F3D6EA444EB9F7D72DC6CE70C"
+      },
+      {
+        "path": "src/vipragsent/constants.py",
+        "sha256": "2E9A973555A2278920A2D5A49C09E378157C31E19E12054FB8AF8C0C368DCCCF"
+      }
+    ],
+    "sha256": "AE255C19D686857824EE5801279A70C9F786277675056938194FDEBAD5AAC307"
+  },
+  "q3_azure_sources": {
+    "files": [
+      {
+        "path": "configs/experiments/q3/system_aliases.yaml",
+        "sha256": "D9862086827E7F5FEA80C887AD26EDCAF8EF07FBF899F2032E0750A19FC6D238"
+      },
+      {
+        "path": "configs/experiments/q3/protocol.yaml",
+        "sha256": "67D5DD80154F399CC23262D6E425B3CBCBB56138629A1DDBF0A1ADBF96B51F7D"
+      },
+      {
+        "path": "configs/experiments/system_execution_registry.yaml",
+        "sha256": "1DE8DF8823815FD0DE96EFA3887A5319ABA3997DDF94E1ACE93022F0B86EC3B1"
+      },
+      {
+        "path": "src/vipragsent/orchestration/inventory.py",
+        "sha256": "B076A4C8EEF2F7EFD993C60B4DC37C9AFBFA99AAFD3FB5F43E6FC6D4F435E5AC"
+      }
+    ],
+    "sha256": "9298646E6075A4A76F1BEF3EA8327B171AC9FDBDF775E6582DD72A15B55C8FD4"
+  },
+  "protocol_binding": {
+    "q3": {
+      "alias_systems": [
+        "phobert_pragmatic_finetune",
+        "xlmr_pragmatic_finetune",
+        "vistral_pragmatic_sft",
+        "azure_gpt41_mini_8shot",
+        "vipragsent_full_vistral"
+      ],
+      "excluded_budgets": ["64", "256"],
+      "excluded_systems": ["xlmr_pragmatic_finetune"],
+      "expected_cell_count": 36,
+      "local_cell_count": 36,
+      "primary_metric": "sarcasm_binary_macro_f1",
+      "retained_budgets": ["32", "128", "512", "full"],
+      "retained_systems": [
+        "phobert_pragmatic_finetune",
+        "vistral_pragmatic_sft",
+        "vipragsent_full_vistral"
+      ],
+      "seeds": [20260521, 20260522, 20260523],
+      "source_budgets": ["32", "64", "128", "256", "512", "full"],
+      "azure_comparison": {
+        "system_id": "azure_gpt41_mini_8shot",
+        "budgets": ["32", "128", "512", "full"],
+        "seed": null,
+        "seed_axis": "absent",
+        "expected_row_count": 4,
+        "row_source": "generated_q3_inventory_and_azure_registry",
+        "comparison_kind": "protocol_defined_reduced_comparison",
+        "rows": [
+          {"system_id": "azure_gpt41_mini_8shot", "budget": "32", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_32"},
+          {"system_id": "azure_gpt41_mini_8shot", "budget": "128", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_128"},
+          {"system_id": "azure_gpt41_mini_8shot", "budget": "512", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_512"},
+          {"system_id": "azure_gpt41_mini_8shot", "budget": "full", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_full"}
+        ],
+        "row_summary": {"local_cell_count": 36, "azure_row_count": 4, "total_row_count": 40, "azure_seed": null}
+      },
+      "expected_total_row_count": 40,
+      "inventory_q3_row_count": 78
+    },
+    "q2": {
+      "expected_variant_count": 6,
+      "retained_variants": [
+        "full",
+        "no_emotion_auxiliary",
+        "no_polarity_auxiliary",
+        "no_rationale",
+        "no_multitask",
+        "no_uncertainty_weighting"
+      ],
+      "seeds": [20260521, 20260522, 20260523],
+      "source_variants": [
+        "full",
+        "no_emotion_auxiliary",
+        "no_polarity_auxiliary",
+        "no_rationale",
+        "no_multitask",
+        "no_uncertainty_weighting"
+      ]
+    }
+  },
+  "q3": {
+    "systems": ["phobert_pragmatic_finetune", "vistral_pragmatic_sft", "vipragsent_full_vistral"],
+    "budgets": [32, 128, 512, "full"],
+    "seeds": [20260521, 20260522, 20260523],
+    "expected_cell_count": 36,
+    "local_cell_count": 36,
+    "azure_comparison": {
+      "system_id": "azure_gpt41_mini_8shot",
+      "budgets": ["32", "128", "512", "full"],
+      "seed": null,
+      "seed_axis": "absent",
+      "expected_row_count": 4,
+      "row_source": "generated_q3_inventory_and_azure_registry",
+      "comparison_kind": "protocol_defined_reduced_comparison",
+      "rows": [
+        {"system_id": "azure_gpt41_mini_8shot", "budget": "32", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_32"},
+        {"system_id": "azure_gpt41_mini_8shot", "budget": "128", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_128"},
+        {"system_id": "azure_gpt41_mini_8shot", "budget": "512", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_512"},
+        {"system_id": "azure_gpt41_mini_8shot", "budget": "full", "seed": null, "run_id": "q3_azure_gpt41_mini_8shot_full"}
+      ],
+      "row_summary": {"local_cell_count": 36, "azure_row_count": 4, "total_row_count": 40, "azure_seed": null}
+    },
+    "expected_total_row_count": 40,
+    "selection_metric": "sarcasm_binary_macro_f1"
+  },
+  "q2": {
+    "seeds": [20260521, 20260522, 20260523],
+    "variants": ["full", "no_emotion_auxiliary", "no_polarity_auxiliary", "no_rationale", "no_multitask", "no_uncertainty_weighting"],
+    "expected_seed_count": 3
+  },
+  "q1b": {
+    "execution_kind": "evaluation_only",
+    "training_applicability": "NOT_APPLICABLE",
+    "seeds": [20260521, 20260522, 20260523],
+    "official_external_tests_only": true,
+    "approved_source_required": true,
+    "optimizer_steps": 0,
+    "dependency_policy": {
+      "resolve_exact_approved_producer": true,
+      "same_seed_required": true,
+      "checkpoint_key_must_match_consumer": true,
+      "missing_source_action": "block_profile_aggregation"
+    },
+    "digests": {
+      "graph_sha256": "2A2F68246C654150EBF6AE06AFEA4CDDB39339B995F66A0502477E10EDC82858",
+      "source_sha256": "A324E294FF0387EE5DFF42DE9E6F57E6049C30175A96B7934260AC32E1DBBA62"
+    },
+    "dependency_binding": {
+      "consumer_count": 22,
+      "graph_edge_count": 21,
+      "profile_edge_count": 22,
+      "seeded_consumer_count": 21,
+      "seedless_consumer_count": 1,
+      "consumer_edges": [
+        {
+          "checkpoint_key": "azure_gpt41_mini:dedicated_prompts",
+          "consumer_id": "q1b_azure_gpt41_mini",
+          "consumer_system_id": "azure_gpt41_mini",
+          "expected_checkpoint_key": "azure_gpt41_mini:dedicated_prompts",
+          "graph_coverage_producer_kind": "self",
+          "graph_edge": false,
+          "produced_checkpoint_key": "azure_gpt41_mini:dedicated_prompts",
+          "producer_id": "azure_gpt41_mini_dedicated_prompts",
+          "producer_kind": "approved_azure_output",
+          "producer_run_id": "azure_gpt41_mini_dedicated_prompts",
+          "relation": "approved_output_from_graph_coverage",
+          "seed": null
+        },
+        {
+          "checkpoint_key": "phobert_emo_single:20260521",
+          "consumer_id": "q1b_phobert_emo_single_20260521",
+          "consumer_system_id": "phobert_emo_single",
+          "expected_checkpoint_key": "phobert_emo_single:20260521",
+          "graph_edge": true,
+          "produced_checkpoint_key": "phobert_emo_single:20260521",
+          "producer_id": "q1b_train_phobert_emo_single",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_phobert_emo_single:20260521",
+          "seed": 20260521
+        },
+        {
+          "checkpoint_key": "phobert_emo_single:20260522",
+          "consumer_id": "q1b_phobert_emo_single_20260522",
+          "consumer_system_id": "phobert_emo_single",
+          "expected_checkpoint_key": "phobert_emo_single:20260522",
+          "graph_edge": true,
+          "produced_checkpoint_key": "phobert_emo_single:20260522",
+          "producer_id": "q1b_train_phobert_emo_single",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_phobert_emo_single:20260522",
+          "seed": 20260522
+        },
+        {
+          "checkpoint_key": "phobert_emo_single:20260523",
+          "consumer_id": "q1b_phobert_emo_single_20260523",
+          "consumer_system_id": "phobert_emo_single",
+          "expected_checkpoint_key": "phobert_emo_single:20260523",
+          "graph_edge": true,
+          "produced_checkpoint_key": "phobert_emo_single:20260523",
+          "producer_id": "q1b_train_phobert_emo_single",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_phobert_emo_single:20260523",
+          "seed": 20260523
+        },
+        {
+          "checkpoint_key": "phobert_multitask_8head:20260521",
+          "consumer_id": "q1b_phobert_multitask_8head_20260521",
+          "consumer_system_id": "phobert_multitask_8head",
+          "expected_checkpoint_key": "phobert_multitask_8head:20260521",
+          "graph_edge": true,
+          "produced_checkpoint_key": "phobert_multitask_8head:20260521",
+          "producer_id": "q1b_train_phobert_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_phobert_multitask_8head:20260521",
+          "seed": 20260521
+        },
+        {
+          "checkpoint_key": "phobert_multitask_8head:20260522",
+          "consumer_id": "q1b_phobert_multitask_8head_20260522",
+          "consumer_system_id": "phobert_multitask_8head",
+          "expected_checkpoint_key": "phobert_multitask_8head:20260522",
+          "graph_edge": true,
+          "produced_checkpoint_key": "phobert_multitask_8head:20260522",
+          "producer_id": "q1b_train_phobert_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_phobert_multitask_8head:20260522",
+          "seed": 20260522
+        },
+        {
+          "checkpoint_key": "phobert_multitask_8head:20260523",
+          "consumer_id": "q1b_phobert_multitask_8head_20260523",
+          "consumer_system_id": "phobert_multitask_8head",
+          "expected_checkpoint_key": "phobert_multitask_8head:20260523",
+          "graph_edge": true,
+          "produced_checkpoint_key": "phobert_multitask_8head:20260523",
+          "producer_id": "q1b_train_phobert_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_phobert_multitask_8head:20260523",
+          "seed": 20260523
+        },
+        {
+          "checkpoint_key": "phobert_pol_single:20260521",
+          "consumer_id": "q1b_phobert_pol_single_20260521",
+          "consumer_system_id": "phobert_pol_single",
+          "expected_checkpoint_key": "phobert_pol_single:20260521",
+          "graph_edge": true,
+          "produced_checkpoint_key": "phobert_pol_single:20260521",
+          "producer_id": "q1b_train_phobert_pol_single",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_phobert_pol_single:20260521",
+          "seed": 20260521
+        },
+        {
+          "checkpoint_key": "phobert_pol_single:20260522",
+          "consumer_id": "q1b_phobert_pol_single_20260522",
+          "consumer_system_id": "phobert_pol_single",
+          "expected_checkpoint_key": "phobert_pol_single:20260522",
+          "graph_edge": true,
+          "produced_checkpoint_key": "phobert_pol_single:20260522",
+          "producer_id": "q1b_train_phobert_pol_single",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_phobert_pol_single:20260522",
+          "seed": 20260522
+        },
+        {
+          "checkpoint_key": "phobert_pol_single:20260523",
+          "consumer_id": "q1b_phobert_pol_single_20260523",
+          "consumer_system_id": "phobert_pol_single",
+          "expected_checkpoint_key": "phobert_pol_single:20260523",
+          "graph_edge": true,
+          "produced_checkpoint_key": "phobert_pol_single:20260523",
+          "producer_id": "q1b_train_phobert_pol_single",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_phobert_pol_single:20260523",
+          "seed": 20260523
+        },
+        {
+          "checkpoint_key": "sailor_multitask_8head:20260521",
+          "consumer_id": "q1b_sailor_multitask_8head_20260521",
+          "consumer_system_id": "sailor_multitask_8head",
+          "expected_checkpoint_key": "sailor_multitask_8head:20260521",
+          "graph_edge": true,
+          "produced_checkpoint_key": "sailor_multitask_8head:20260521",
+          "producer_id": "q1b_train_sailor_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_sailor_multitask_8head:20260521",
+          "seed": 20260521
+        },
+        {
+          "checkpoint_key": "sailor_multitask_8head:20260522",
+          "consumer_id": "q1b_sailor_multitask_8head_20260522",
+          "consumer_system_id": "sailor_multitask_8head",
+          "expected_checkpoint_key": "sailor_multitask_8head:20260522",
+          "graph_edge": true,
+          "produced_checkpoint_key": "sailor_multitask_8head:20260522",
+          "producer_id": "q1b_train_sailor_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_sailor_multitask_8head:20260522",
+          "seed": 20260522
+        },
+        {
+          "checkpoint_key": "sailor_multitask_8head:20260523",
+          "consumer_id": "q1b_sailor_multitask_8head_20260523",
+          "consumer_system_id": "sailor_multitask_8head",
+          "expected_checkpoint_key": "sailor_multitask_8head:20260523",
+          "graph_edge": true,
+          "produced_checkpoint_key": "sailor_multitask_8head:20260523",
+          "producer_id": "q1b_train_sailor_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_sailor_multitask_8head:20260523",
+          "seed": 20260523
+        },
+        {
+          "checkpoint_key": "vipragsent_full_phobert:20260521",
+          "consumer_id": "q1b_vipragsent_full_phobert_20260521",
+          "consumer_system_id": "vipragsent_full_phobert",
+          "expected_checkpoint_key": "vipragsent_full_phobert:20260521",
+          "graph_edge": true,
+          "produced_checkpoint_key": "vipragsent_full_phobert:20260521",
+          "producer_id": "q1b_train_vipragsent_full_phobert",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_vipragsent_full_phobert:20260521",
+          "seed": 20260521
+        },
+        {
+          "checkpoint_key": "vipragsent_full_phobert:20260522",
+          "consumer_id": "q1b_vipragsent_full_phobert_20260522",
+          "consumer_system_id": "vipragsent_full_phobert",
+          "expected_checkpoint_key": "vipragsent_full_phobert:20260522",
+          "graph_edge": true,
+          "produced_checkpoint_key": "vipragsent_full_phobert:20260522",
+          "producer_id": "q1b_train_vipragsent_full_phobert",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_vipragsent_full_phobert:20260522",
+          "seed": 20260522
+        },
+        {
+          "checkpoint_key": "vipragsent_full_phobert:20260523",
+          "consumer_id": "q1b_vipragsent_full_phobert_20260523",
+          "consumer_system_id": "vipragsent_full_phobert",
+          "expected_checkpoint_key": "vipragsent_full_phobert:20260523",
+          "graph_edge": true,
+          "produced_checkpoint_key": "vipragsent_full_phobert:20260523",
+          "producer_id": "q1b_train_vipragsent_full_phobert",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_vipragsent_full_phobert:20260523",
+          "seed": 20260523
+        },
+        {
+          "checkpoint_key": "vistral_multitask_8head:20260521",
+          "consumer_id": "q1b_vistral_multitask_8head_20260521",
+          "consumer_system_id": "vistral_multitask_8head",
+          "expected_checkpoint_key": "vistral_multitask_8head:20260521",
+          "graph_edge": true,
+          "produced_checkpoint_key": "vistral_multitask_8head:20260521",
+          "producer_id": "q1b_train_vistral_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_vistral_multitask_8head:20260521",
+          "seed": 20260521
+        },
+        {
+          "checkpoint_key": "vistral_multitask_8head:20260522",
+          "consumer_id": "q1b_vistral_multitask_8head_20260522",
+          "consumer_system_id": "vistral_multitask_8head",
+          "expected_checkpoint_key": "vistral_multitask_8head:20260522",
+          "graph_edge": true,
+          "produced_checkpoint_key": "vistral_multitask_8head:20260522",
+          "producer_id": "q1b_train_vistral_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_vistral_multitask_8head:20260522",
+          "seed": 20260522
+        },
+        {
+          "checkpoint_key": "vistral_multitask_8head:20260523",
+          "consumer_id": "q1b_vistral_multitask_8head_20260523",
+          "consumer_system_id": "vistral_multitask_8head",
+          "expected_checkpoint_key": "vistral_multitask_8head:20260523",
+          "graph_edge": true,
+          "produced_checkpoint_key": "vistral_multitask_8head:20260523",
+          "producer_id": "q1b_train_vistral_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_vistral_multitask_8head:20260523",
+          "seed": 20260523
+        },
+        {
+          "checkpoint_key": "xlmr_multitask_8head:20260521",
+          "consumer_id": "q1b_xlmr_multitask_8head_20260521",
+          "consumer_system_id": "xlmr_multitask_8head",
+          "expected_checkpoint_key": "xlmr_multitask_8head:20260521",
+          "graph_edge": true,
+          "produced_checkpoint_key": "xlmr_multitask_8head:20260521",
+          "producer_id": "q1b_train_xlmr_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_xlmr_multitask_8head:20260521",
+          "seed": 20260521
+        },
+        {
+          "checkpoint_key": "xlmr_multitask_8head:20260522",
+          "consumer_id": "q1b_xlmr_multitask_8head_20260522",
+          "consumer_system_id": "xlmr_multitask_8head",
+          "expected_checkpoint_key": "xlmr_multitask_8head:20260522",
+          "graph_edge": true,
+          "produced_checkpoint_key": "xlmr_multitask_8head:20260522",
+          "producer_id": "q1b_train_xlmr_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_xlmr_multitask_8head:20260522",
+          "seed": 20260522
+        },
+        {
+          "checkpoint_key": "xlmr_multitask_8head:20260523",
+          "consumer_id": "q1b_xlmr_multitask_8head_20260523",
+          "consumer_system_id": "xlmr_multitask_8head",
+          "expected_checkpoint_key": "xlmr_multitask_8head:20260523",
+          "graph_edge": true,
+          "produced_checkpoint_key": "xlmr_multitask_8head:20260523",
+          "producer_id": "q1b_train_xlmr_multitask_8head",
+          "producer_kind": "trainable_checkpoint",
+          "producer_run_id": "q1b_train_xlmr_multitask_8head:20260523",
+          "seed": 20260523
+        }
+      ]
+    }
+  },
+  "aggregation": {
+    "profile_aware": true,
+    "include_only_profile_cells": true,
+    "missing_cell_action": "fail_closed",
+    "synthetic_or_fixture_rows": "forbidden",
+    "q1b_requires_resolved_dependencies": true
+  },
+  "exclusions": {
+    "q3_systems": ["xlmr_pragmatic_finetune"],
+    "q3_budgets": [64, 256],
+    "real_execution": "PROHIBITED"
+  },
+  "invariants": [
+    "audited_source_immutable",
+    "q3_local_cartesian_design",
+    "q3_budget_exclusions",
+    "q3_xlmr_exclusion",
+    "q1b_no_training",
+    "q1b_dependency_integrity",
+    "no_execution",
+    "no_fixture_contamination"
+  ]
+}

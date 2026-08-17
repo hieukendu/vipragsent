@@ -141,7 +141,25 @@ def _approved_source(root: Path, frozen_ids: list[str]) -> None:
     RunStore(context).write_checksums()
     summary_hash = sha256_file(run_root / "review_summary.json")
     checksum_hash = sha256_file(run_root / "checksums.sha256")
-    _write_json(run_root / "approval_status.json", {"run_id": RUN_ID, "status": "APPROVED", "record": {"review_summary_sha256": summary_hash, "artifact_checksum_file_sha256": checksum_hash}})
+    timestamp = "2026-08-16T00:00:00Z"
+    _write_json(
+        run_root / "approval_status.json",
+        {
+            "run_id": RUN_ID,
+            "status": "APPROVED",
+            "approved_by": "fixture-reviewer",
+            "approved_at": timestamp,
+            "record": {
+                "run_id": RUN_ID,
+                "decision": "approve",
+                "review_note": "fixture approval",
+                "approved_or_rejected_by": "fixture-reviewer",
+                "timestamp": timestamp,
+                "review_summary_sha256": summary_hash,
+                "artifact_checksum_file_sha256": checksum_hash,
+            },
+        },
+    )
 
 
 def test_official_promotion_merges_recovery_and_preserves_original_failure_history(tmp_path: Path) -> None:

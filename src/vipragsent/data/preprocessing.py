@@ -99,7 +99,7 @@ class VnCoreNLPSegmenter:
             value = self.client(text)
         else:
             raise RuntimeBlocked("Configured VnCoreNLP client has no word-segmentation method")
-        if isinstance(value, (list, tuple)):
+        if isinstance(value, list | tuple):
             value = " ".join(str(sentence).strip() for sentence in value if str(sentence).strip())
         if not isinstance(value, str) or not value.strip():
             raise RuntimeBlocked("VnCoreNLP returned an empty segmentation")

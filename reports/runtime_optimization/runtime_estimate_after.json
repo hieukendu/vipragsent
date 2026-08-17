@@ -1,0 +1,40 @@
+{
+  "schema_version": 4,
+  "spec_version": "V28",
+  "spec_sha256": "47866393782c0e761c2556849413e6f73c4c0f4ee77e8660e31102a89007ce96",
+  "status": "PROJECTED_GATE_CONDITIONAL",
+  "integrated_source_head": "168254eb5df094924a49f0363d2403af4c87b35c",
+  "exact_final_pr_head": "PENDING_LIVE_PR_HEAD_VERIFICATION",
+  "exact_code_ci": {"run_id": 31988858252, "head_sha": "168254eb5df094924a49f0363d2403af4c87b35c", "conclusion": "SUCCESS"},
+  "measured_speedup_credit": 0,
+  "dependency_safe_overlap_credit": 0,
+  "numeric_campaign_eta_days": null,
+  "reason_numeric_eta_is_null": "No authorized real-model or live-Azure throughput measurement exists, and the persisted paused run has unresolved code identity.",
+  "implemented_runtime_contracts": [
+    "checkpoint/resume identity contract",
+    "profile-gated generation batching",
+    "atomic resumable generation chunks",
+    "bounded async judge queue/cache/retry/finalizer",
+    "bounded synchronous Azure request/attempt/token/concurrency/spend ledger",
+    "report/config exclusion parity"
+  ],
+  "local_validation": {
+    "broad_cpu_mock_only": "389 passed",
+    "azure_cache_and_ceiling_regressions": "65 passed",
+    "impacted_regressions": "PASS",
+    "compileall": "PASS",
+    "ruff": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "readiness": {
+    "status": "PROJECTED_GATE_CONDITIONAL",
+    "R1": "policy/profile evidence only; live baseline not run",
+    "R2": "CPU/mock correctness PASS; launch conditional",
+    "R3": "PASS",
+    "R4": "not measured",
+    "R5": "CPU/mock PASS; launch conditional",
+    "R6": "CPU/mock PASS; live evaluation not run",
+    "R7": "bounded code path; live usage unobserved",
+    "R8": "new artifacts reproducible; historical run reuse blocked"
+  }
+}

@@ -1,0 +1,139 @@
+schema_version: 1
+profile_id: LUNA_NAACL_PROFILE
+profile_name: naacl_balanced_runtime_profile
+activation:
+  prerequisite: WAVE0_ACCEPTED
+  default_enabled: false
+  execution_enabled: false
+  activation_requires_explicit_opt_in: true
+  real_execution: PROHIBITED
+  purpose: scientific_traceability_policy_artifact
+source:
+  status: current_audited_source
+  registry: configs/experiments/q3/system_aliases.yaml
+  q3_aliases: configs/experiments/q3/system_aliases.yaml
+  q3_protocol: configs/experiments/q3/protocol.yaml
+  q2_protocol: configs/experiments/q2/protocol.yaml
+  seed_source: src/vipragsent/constants.py
+  q1b_producer_registry: configs/experiments/q1b/producer_registry.yaml
+  q1b_checkpoint_matrix: configs/experiments/q1b/checkpoint_matrix.yaml
+  audit_reports:
+    - reports/system_execution_registry_audit.json
+    - reports/runtime_self_review.json
+    - reports/final_runtime_integration_audit.json
+  source_is_read_only: true
+  no_run_data_consumed: true
+scope:
+  research_questions: [Q1b, Q2, Q3]
+  benchmark_or_experiment: false
+  real_execution: PROHIBITED
+q3:
+  status: retained_local_subset
+  systems:
+    - phobert_pragmatic_finetune
+    - vistral_pragmatic_sft
+    - vipragsent_full_vistral
+  paper_labels: [PhoBERT, Vistral, full ViPragSent]
+  budgets: [32, 128, 512, full]
+  seeds: [20260521, 20260522, 20260523]
+  expected_cell_count: 36
+  local_cell_count: 36
+  selection_metric: sarcasm_binary_macro_f1
+  threshold_tuning: per_seed_and_budget_on_fixed_dev
+  mask_source: data/processed/q3_low_resource_sarcasm
+  azure_comparison:
+    system_id: azure_gpt41_mini_8shot
+    budgets: [32, 128, 512, full]
+    seed: null
+    seed_axis: absent
+    expected_row_count: 4
+    row_source: generated_q3_inventory_and_azure_registry
+    comparison_kind: protocol_defined_reduced_comparison
+  expected_total_row_count: 40
+q2:
+  status: retained
+  seeds: [20260521, 20260522, 20260523]
+  variants: [full, no_emotion_auxiliary, no_polarity_auxiliary, no_rationale, no_multitask, no_uncertainty_weighting]
+  expected_variant_count: 6
+  variants_source: configs/experiments/q2/protocol.yaml
+  expected_seed_count: 3
+q1b:
+  status: evaluation_only
+  training_applicability: NOT_APPLICABLE
+  execution_kind: evaluation_only
+  seeds: [20260521, 20260522, 20260523]
+  official_external_tests_only: true
+  approved_source_required: true
+  optimizer_steps: 0
+  dependency_policy:
+    resolve_exact_approved_producer: true
+    same_seed_required: true
+    checkpoint_key_must_match_consumer: true
+    missing_source_action: block_profile_aggregation
+  dependency_binding:
+    validator: src/vipragsent/runtime/naacl_profile.py
+    graph_builder: src/vipragsent/orchestration/q1b_dependencies.py
+    expected_consumer_count: 22
+    expected_graph_edge_count: 21
+    expected_profile_edge_count: 22
+    expected_seeded_consumer_count: 21
+    expected_seedless_consumer_count: 1
+    azure_approved_output_seed: null
+    fail_closed_on: [graph_digest, source_digest, consumer_id, producer_id, producer_kind, checkpoint_key, seed]
+  producer_registry: configs/experiments/q1b/producer_registry.yaml
+  checkpoint_matrix: configs/experiments/q1b/checkpoint_matrix.yaml
+aggregation:
+  profile_aware: true
+  include_only_profile_cells: true
+  q3:
+    aggregate_axes: [system_id, budget, seed]
+    require_complete_cartesian_product: true
+    budget_order: [32, 128, 512, full]
+    exclude_out_of_profile_rows: true
+    local_cell_count: 36
+    azure_comparison:
+      system_id: azure_gpt41_mini_8shot
+      aggregate_axes: [system_id, budget]
+      seed: null
+      seed_axis: absent
+      budgets: [32, 128, 512, full]
+      expected_row_count: 4
+      require_all_rows: true
+    expected_total_row_count: 40
+  q2:
+    aggregate_axes: [variant, seed]
+    require_all_profile_seeds: true
+  q1b:
+    aggregate_axes: [system_id, seed, dataset]
+    require_resolved_dependencies: true
+    exclude_training_metrics: true
+  missing_cell_action: fail_closed
+  synthetic_or_fixture_rows: forbidden
+exclusions:
+  - q3_system: xlmr_pragmatic_finetune
+    reason: explicitly_excluded_xlm_r_q3
+  - q3_budget: 64
+    reason: explicitly_excluded_budget
+  - q3_budget: 256
+    reason: explicitly_excluded_budget
+  - execution: any_real_run
+    reason: policy_artifact_only
+scientific_invariants:
+  - id: audited_source_immutable
+    assertion: profile references current audited source and does not rewrite it
+  - id: q3_local_cartesian_design
+    assertion: exactly three retained local systems, four retained budgets, and three retained seeds
+  - id: q3_azure_reduced_comparison
+    assertion: four protocol-defined Azure Q3 rows are retained for budgets 32, 128, 512, and full with seed null
+  - id: q3_budget_exclusions
+    assertion: Q3 budgets 64 and 256 are absent from the profile
+  - id: q3_xlmr_exclusion
+    assertion: XLM-R is absent from retained Q3 systems
+  - id: q1b_no_training
+    assertion: Q1b is evaluation-only with zero optimizer steps
+  - id: q1b_dependency_integrity
+    assertion: Q1b aggregation cannot proceed without exact same-seed approved producers
+  - id: no_execution
+    assertion: profile activation and execution are both default-off and real execution is prohibited
+  - id: no_fixture_contamination
+    assertion: fixture or synthetic rows cannot enter profile aggregation

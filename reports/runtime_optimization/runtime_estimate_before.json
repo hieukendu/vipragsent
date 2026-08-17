@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "as_of": "2026-08-16T15:06:04Z",
+  "status": "STATIC_ONLY_NO_TOTAL_TIMING",
+  "prompt_sha256": "457da887b325625b395b2dc63576bed95c02e95c601be68c62f61f97f53a8ed0",
+  "source_hashes": {
+    "live_state_snapshot": "4e2035cc36b1c60f2800ba76e2f12197c1a337dc2578f3139bdcb4c5655daa1b",
+    "inventory_before": "a04f1612b232e29aeb81525bec0c7a9fe41a722e1f4042fdc2e23734f019ae96",
+    "baseline_critical_path": "56909f51f5cc09f47799231d4f59d5a9681d6d10fa3fe4bdf4858794cf51fbc4",
+    "opportunity_register": "a9f2caf3946542ebb6460c865ea6fdbc7890d92d81268f740b06aa882a51a017"
+  },
+  "live_state": {
+    "run_id": "q1a_cot_only_vistral_20260521",
+    "paused_after_epoch": 2,
+    "active_pid": null,
+    "state": "RUNNING_STALE",
+    "approval": "PENDING_USER_APPROVAL",
+    "next_run_allowed": "NO",
+    "loaded_code_identity": "LIVE_CODE_IDENTITY_UNCERTAIN",
+    "completed_credit": ["epoch_2 persisted checkpoint and recorded DEV boundary"]
+  },
+  "evidence_hierarchy": {
+    "best_available_timing": "last-known historical reference only",
+    "reference": "approximately 49 hours per 1,999-example Vistral DEV split",
+    "fresh_production_timing": false,
+    "real_benchmark_allowed": false
+  },
+  "task_a_status_counts": {
+    "REUSE": 0,
+    "RESUME": 0,
+    "TRAIN": 0,
+    "EVALUATE_ONLY": 22,
+    "ARTIFACT_ONLY": 0,
+    "NOT_SCHEDULED_NAACL_BALANCED": 54,
+    "BLOCKED": 86,
+    "basis": "162-row historical registry partitioned conservatively; only 22 Q1b evaluation-only consumers and 54 explicit Q3 exclusions are policy-proven. The remaining rows are blocked rather than guessed into REUSE/RESUME/TRAIN."
+  },
+  "work_remaining": {
+    "total_wall_clock_hours": null,
+    "gpu_allocation_hours": null,
+    "cpu_hours": null,
+    "azure_jobs": "not time-estimable without authorized transport profile",
+    "critical_path": ["identity reconciliation", "7B training/generation", "DEV judge/persistence", "selection/freeze", "later TEST/export"],
+    "reason": "The paused process is absent, telemetry is partial, and no current end-to-end timing is authoritative."
+  },
+  "reconciliation": {
+    "equation": "baseline_remaining - proven_reuse_or_elimination - measured_improvement - safe_overlap + required_overhead",
+    "baseline_remaining": null,
+    "proven_reuse_or_elimination": 0,
+    "measured_improvement": 0,
+    "safe_overlap_credit": 0,
+    "required_overhead": null,
+    "numeric_reconciliation_status": "NOT_ESTIMABLE"
+  }
+}
