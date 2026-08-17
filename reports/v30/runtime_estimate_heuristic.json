@@ -2,10 +2,11 @@
   "schema_version": 2,
   "spec_version": "V30",
   "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
-  "status": "DRAFT_PENDING_AUXILIARY_EXACT_HEAD_CI_AND_SENTINEL",
-  "final_pass": false,
+  "status": "FINAL_PASS",
+  "final_pass": true,
   "estimate_kind": "HEURISTIC ENGINEERING ESTIMATE — NOT A MEASURED RUNTIME PROOF",
   "exact_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
   "methodology": "estimated wall clock = sum of topology-specific workload-unit costs + unavoidable serial overhead - exact reuse/resume credit - eliminated redundant I/O - safe dependency overlap. Unit costs are planning assumptions derived from model family, executor kind, optimizer-step topology, and split structure; no runtime benchmark or profiling campaign was run.",
   "frozen_workload_counts": {
     "retained_rows_total": 80,
@@ -229,18 +230,35 @@
     "Actual queueing, hardware availability, sequence lengths, early stopping, and Azure latency can change the result.",
     "Recalculate after authorized throughput telemetry or a changed execution profile."
   ],
-  "pending_validation": {
-    "exact_head_ci": {
+  "pending_validation": null,
+  "final_validation": {
+    "source_head_ci": {
       "workflow": "cpu-ci",
       "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
       "run_id": 32001664211,
-      "status": "IN_PROGRESS",
-      "conclusion": null,
+      "job_id": 95303031902,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
       "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
     },
-    "independent_sentinel": "PENDING",
-    "final_head_rebinding_required": true,
-    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003"
+    "report_head_ci": {
+      "workflow": "cpu-ci",
+      "head_sha": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "run_id": 32002103939,
+      "job_id": 95304262130,
+      "status": "COMPLETED",
+      "conclusion": "SUCCESS",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32002103939"
+    },
+    "independent_sentinel": {
+      "status": "PASS",
+      "reviewer": "Independent exact-head V30 Sentinel",
+      "reviewed_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "reviewed_report_head": "3de2d5c1c9a34dbe7030f86a65cf22978751048",
+      "blockers": []
+    },
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "final_report_head_semantics": "The reviewed report head is the last report-only evidence head before this final dossier update; the source implementation head is unchanged and is the exact code-validation binding."
   },
   "report_binding": {
     "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",

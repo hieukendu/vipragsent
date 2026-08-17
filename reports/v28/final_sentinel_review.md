@@ -1,14 +1,12 @@
-# V28 Sentinel review dossier
+# V28 closed by V30 descendant repair
 
-## Historical review preserved
+The historical V28 Sentinel failure and all listed findings remain preserved
+as historical evidence. The V30 descendant closes the active repair state at
+source head `64945bc0fb4f154f59062647b1c91cb9c4dfa003`, with reviewed report
+evidence head `3de2d5c1c9a34dbe7030f86a65cf22978751048`.
 
-The historical V28 Sentinel failure and all listed findings remain preserved.
-The parent repair wave passed its historical CPU/mock and CI validation.
-
-## V30 auxiliary descendant state
-
-V30 auxiliary R5 checkpoint-hash deduplication is implemented at source head
-`64945bc0fb4f154f59062647b1c91cb9c4dfa003` and has 11 focused regression tests. Exact-head CI and a
-fresh independent Sentinel are pending for this new source head, so descendant
-final_pass remains false until revalidation. The accepted protocol and safety
+Source-head CI `32001664211`/job `95303031902` and reviewed report-head CI
+`32002103939`/job `95304262130` are green. The independent exact-head
+Sentinel is PASS with no blockers. R5 hash-boundary validation and the
+corrected bottom-up ETA are included; the accepted protocol and safety
 boundary are unchanged.

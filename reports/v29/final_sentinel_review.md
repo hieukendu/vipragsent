@@ -1,18 +1,13 @@
-# ViPragSent V29 runtime convergence evidence
+# ViPragSent V29 descendant closure
 
-## Historical evidence
+V29 historical findings P0-1 through P1-4 remain PASS. The historical P2
+checkpoint-copy decision remains preserved as `DEFERRED`; V30 R3 resolved the
+underlying design requirement with immutable canonical epoch files and atomic
+best/latest pointers, and V30 R5 removed redundant validation hashing.
 
-The historical V29 findings P0-1 through P1-4 remain PASS. The V29 P2
-checkpoint-copy decision remains preserved as historically DEFERRED; its V30
-R3 descendant repair was implemented on the parent source line.
-
-## V30 auxiliary descendant state
-
-V30 auxiliary R5 checkpoint-hash deduplication is implemented at source head
-`64945bc0fb4f154f59062647b1c91cb9c4dfa003` and has 11 focused regression tests. The final descendant
-closure is pending exact-head CI and a fresh independent Sentinel for that
-source head. Parent-head evidence is historical until revalidation.
-
-Q3/Q2/Q1b protocol, seeds, budgets, DEV selection, TEST access, and Q1b
-evaluation-only semantics remain unchanged. No production or external action
-was taken.
+The V30 descendant is final-pass at source head
+`64945bc0fb4f154f59062647b1c91cb9c4dfa003`. Source-head CI
+`32001664211`/job `95303031902` and reviewed report-head CI
+`32002103939`/job `95304262130` are green. The independent exact-head
+Sentinel found no actionable blocker. Scientific protocol, seeds, budgets,
+DEV selection, TEST isolation, and Q1b evaluation-only semantics are unchanged.

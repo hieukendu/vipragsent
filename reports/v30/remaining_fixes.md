@@ -1,13 +1,17 @@
-# ViPragSent V30 auxiliary-correction evidence draft
+# ViPragSent V30 final convergence evidence
 
 ## Binding
 
-This draft is bound to source implementation head `64945bc0fb4f154f59062647b1c91cb9c4dfa003`. The
-previous parent report head was `3334d98575f373eaa12f64cbf336748f531ccc66`; its CI is historical for
-this auxiliary source change. V30 R1-R4 remain PASS. Auxiliary R5
-(one physical checkpoint hash per validation boundary) is implemented and has
-focused regression coverage, but exact-head CI and the fresh independent
-Sentinel are pending.
+This final dossier is bound to source implementation head
+`64945bc0fb4f154f59062647b1c91cb9c4dfa003`. The previous parent report head
+was `3334d98575f373eaa12f64cbf336748f531ccc66`; its CI is historical for this
+auxiliary source change. V30 R1-R5 are PASS.
+
+The reviewed report evidence head is
+`3de2d5c1c9a34dbe7030f86a65cf22978751048`, with green source-head CI
+`32001664211`/job `95303031902` and report-head CI
+`32002103939`/job `95304262130`. The final PR head is a report-only descendant;
+the source implementation SHA remains the exact code-validation binding.
 
 PR #10 remains the single open, unmerged PR:
 https://github.com/hieukendu/vipragsent/pull/10.
@@ -21,7 +25,9 @@ boundary has no observed digest, and pointer, sidecar, provenance, epoch,
 variant, metric, path, and corrupt-content checks remain fail-closed.
 
 Focused regressions: **11 passed**, including exact one-hash counts for save,
-pointer publication, and pointer-based load.
+pointer publication, and pointer-based load. The final focused regression set
+passed **172 tests**; Ruff, compileall, diff checks, and the permitted CPU/mock
+suite also pass.
 
 ## Corrected ETA scope
 
@@ -59,7 +65,9 @@ requirements, and Q1b evaluation-only semantics are unchanged. No production
 training, GPU benchmark/profiling, TEST access, live Azure request, model
 download, Hugging Face mutation, process-control action, or merge occurred.
 
-## Pending revalidation
+## Final validation
 
-Exact source-head CI and an independent scoped Sentinel must revalidate
-`64945bc0fb4f154f59062647b1c91cb9c4dfa003`; all parent-head evidence is historical until then.
+An independent exact-head Sentinel found no actionable blocker across R1-R5,
+the corrected ETA, protocol invariants, tests/static/CI evidence, V28/V29
+closure, or PR state. PR #10 remains the single open, unmerged PR and has not
+been merged.
