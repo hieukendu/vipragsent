@@ -4,9 +4,9 @@
   "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
   "pr": 10,
   "base_branch": "main",
-  "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
-  "status": "FINAL_PASS_V30_DESCENDANT_CLOSURE",
-  "final_pass": true,
+  "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "status": "V30_AUXILIARY_CORRECTION_PENDING",
+  "final_pass": false,
   "findings": {
     "P0-1": "PASS",
     "P0-2": "PASS",
@@ -28,9 +28,10 @@
     "scientific_invariants_unchanged": true,
     "q1b_evaluation_only": true,
     "frozen_test_access_unchanged": true,
-    "exact_head_ci_green": true,
-    "final_report_head_review": true,
-    "v30_descendant_r1_r4_pass": true
+    "exact_head_ci_green": false,
+    "final_report_head_review": false,
+    "v30_descendant_r1_r4_pass": true,
+    "v30_r5_hash_dedup_pending": true
   },
   "local_validation": {
     "v29_focused_tests": "75 passed",
@@ -60,6 +61,12 @@
       "status": "COMPLETED",
       "conclusion": "SUCCESS",
       "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+    },
+    "v30_parent_report_head": {
+      "head_sha": "3334d98575f373eaa12f64cbf336748f531ccc66",
+      "run_id": 32000485665,
+      "conclusion": "success",
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32000485665"
     }
   },
   "report_head_retry": {
@@ -82,37 +89,22 @@
   },
   "descendant_closure": {
     "version": "V30",
-    "source_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-    "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
-    "status": "CLOSED_BY_DESCENDANT_REPAIR",
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "status": "PENDING_AUXILIARY_EXACT_HEAD_CI_AND_SENTINEL",
     "ci": {
       "workflow": "cpu-ci",
-      "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-      "run_id": 31999651740,
-      "job_id": 95297452139,
-      "status": "COMPLETED",
-      "conclusion": "SUCCESS",
-      "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+      "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "run_id": 32001664211,
+      "status": "IN_PROGRESS",
+      "conclusion": null,
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
     },
     "sentinel": {
-      "status": "PASS",
-      "reviewer": "independent affected-scope Sentinel (Laplace)",
-      "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-      "findings": {
-        "implementation": "PASS",
-        "R1": "PASS",
-        "R2": "PASS",
-        "R3": "PASS",
-        "R4": "PASS",
-        "protocol_invariants": "PASS",
-        "tests_and_static_validation": "PASS",
-        "eta_arithmetic": "PASS",
-        "closure_artifacts": "PASS"
-      },
-      "blockers": []
+      "status": "PENDING",
+      "reviewed_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003"
     },
-    "final_pass": true,
-    "report_only_descendant": true
+    "final_pass": false
   },
   "safety": {
     "production_training": false,
@@ -124,10 +116,16 @@
     "merge": false
   },
   "final_closure": {
-    "status": "PASS",
-    "exact_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
+    "status": "PENDING_AUXILIARY_REVALIDATION",
     "historical_v29_p2_status": "DEFERRED",
-    "v30_r3_status": "IMPLEMENTED_AND_VALIDATED",
+    "v30_r3_status": "IMPLEMENTED_ON_PARENT_AND_REQUIRES_REBINDING",
     "protocol_changed": false
+  },
+  "auxiliary_correction": {
+    "id": "R5",
+    "status": "IMPLEMENTED_PENDING_VALIDATION",
+    "source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "focused_tests": "11 passed",
+    "required_revalidation": true
   }
 }

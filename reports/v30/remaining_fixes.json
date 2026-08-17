@@ -4,24 +4,25 @@
   "spec_sha256": "c9b616019d7f433025ea0010f512997c905e39bd8c125fa5f43b4821cc2ac948",
   "pr": 10,
   "base_branch": "main",
-  "exact_source_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-  "status": "FINAL_PASS",
-  "final_pass": true,
-  "overall_completion_percent": 100,
-  "completion_basis": "R1-R4 implementation packets, independent focused tests, the permitted CPU/mock suite, static checks, exact-head GitHub CI, and an independent affected-scope Sentinel all pass. The remaining V28/V29 closure entries are closed by this V30 descendant; no production execution or unmeasured runtime claim is made.",
+  "exact_source_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+  "status": "DRAFT_PENDING_AUXILIARY_EXACT_HEAD_CI_AND_SENTINEL",
+  "final_pass": false,
+  "overall_completion_percent": 85,
+  "completion_basis": "R1-R4 remain implemented; auxiliary R5 checkpoint-hash deduplication is implemented with focused regressions. The corrected workload-by-topology ETA is drafted, while exact-head CI and the post-correction independent Sentinel are pending.",
   "gates": {
     "R1_transactional_reconcile": "PASS",
     "R2_checkpoint_hash_once_and_source_receipt": "PASS",
     "R3_checkpoint_dedup_pointers": "PASS",
     "R4_exact_reuse_resume": "PASS",
-    "targeted_tests": "PASS",
-    "cpu_mock_suite": "PASS",
-    "ruff": "PASS",
-    "compileall": "PASS",
-    "git_diff_check": "PASS",
-    "exact_head_ci": "PASS",
-    "sentinel": "PASS",
-    "v28_v29_closure": "PASS",
+    "R5_checkpoint_hash_deduplication": "IMPLEMENTED_PENDING_VALIDATION",
+    "targeted_tests": "PASS_FOCUSED_PENDING_FULL_REVALIDATION",
+    "cpu_mock_suite": "PENDING",
+    "ruff": "PENDING",
+    "compileall": "PENDING",
+    "git_diff_check": "PENDING",
+    "exact_head_ci": "PENDING",
+    "sentinel": "PENDING",
+    "v28_v29_closure": "PENDING_AUXILIARY_REBINDING",
     "pull_request": "OPEN_UNMERGED"
   },
   "remaining_fixes": [
@@ -71,6 +72,18 @@
       ],
       "summary": "Reuse decisions require exact binding across system, run, seed, checkpoint, config, dataset, model, tokenizer, code, source, approval, epoch, and checkpoint kind; paused work can resume, while uncertain or conflicting bindings block.",
       "runtime_effect": "Prevents false reuse and gives no time credit unless the complete provenance binding is exact."
+    },
+    {
+      "id": "R5",
+      "title": "One physical checkpoint hash per validation boundary",
+      "status": "IMPLEMENTED_PENDING_VALIDATION",
+      "files": [
+        "src/vipragsent/training/generation_checkpoint.py",
+        "src/vipragsent/orchestration/executors/generation.py",
+        "tests/test_generation_checkpoint_pointers.py"
+      ],
+      "summary": "Observed checkpoint SHA-256 is carried from save, pointer validation, and pointer-based load into downstream manifest validation; corrupt and mismatched content remains fail-closed.",
+      "runtime_effect": "Avoids duplicate multi-GB checkpoint hashing within save-sidecar verification, pointer validation, and pointer-based load boundaries."
     }
   ],
   "frozen_workload": {
@@ -115,36 +128,19 @@
     "historical_runtime_anchor_report_sha256": "19716836e17c215de9b4c811b60785278cc4cfe5055e93ab87c353ddf7894a9f"
   },
   "pending_validation": {
-    "exact_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-    "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
+    "exact_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+    "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
     "ci": {
       "workflow": "cpu-ci",
-      "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-      "run_id": 31999651740,
-      "job_id": 95297452139,
-      "status": "COMPLETED",
-      "conclusion": "SUCCESS",
-      "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
+      "head_sha": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
+      "run_id": 32001664211,
+      "status": "IN_PROGRESS",
+      "conclusion": null,
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32001664211"
     },
-    "independent_sentinel": {
-      "status": "PASS",
-      "reviewer": "independent affected-scope Sentinel (Laplace)",
-      "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-      "findings": {
-        "implementation": "PASS",
-        "R1": "PASS",
-        "R2": "PASS",
-        "R3": "PASS",
-        "R4": "PASS",
-        "protocol_invariants": "PASS",
-        "tests_and_static_validation": "PASS",
-        "eta_arithmetic": "PASS",
-        "closure_artifacts": "PASS"
-      },
-      "blockers": []
-    },
-    "final_report_head_update_required": false,
-    "report_only_descendant": true
+    "independent_sentinel": "PENDING",
+    "final_report_head_update_required": true,
+    "auxiliary_correction": "R5"
   },
   "pull_request": {
     "url": "https://github.com/hieukendu/vipragsent/pull/10",
@@ -152,45 +148,19 @@
     "merged": false,
     "duplicate_pr": false
   },
-  "source_implementation_head": "66d4e6bd5a29e7986027afa8da045151b369235b",
+  "source_implementation_head": "64945bc0fb4f154f59062647b1c91cb9c4dfa003",
   "validation": {
-    "local": {
-      "focused_tests": "119 passed (independent Sentinel)",
-      "manager_focused_tests": "111 passed",
-      "cpu_mock_suite": "453 passed",
-      "ruff": "PASS",
-      "compileall": "PASS",
-      "git_diff_check": "PASS"
-    },
-    "remote": {
-      "workflow": "cpu-ci",
-      "head_sha": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-      "run_id": 31999651740,
-      "job_id": 95297452139,
-      "status": "COMPLETED",
+    "focused_checkpoint_hash_tests": "11 passed",
+    "source_static_checks": "PASS",
+    "prior_parent_ci": {
+      "head_sha": "3334d98575f373eaa12f64cbf336748f531ccc66",
+      "run_id": 32000485665,
       "conclusion": "SUCCESS",
-      "url": "https://github.com/hieukendu/vipragsent/actions/runs/31999651740"
-    },
-    "sentinel": {
-      "status": "PASS",
-      "reviewer": "independent affected-scope Sentinel (Laplace)",
-      "reviewed_head": "79b0a925479ee5255aab6e2fa799b1867542cd10",
-      "findings": {
-        "implementation": "PASS",
-        "R1": "PASS",
-        "R2": "PASS",
-        "R3": "PASS",
-        "R4": "PASS",
-        "protocol_invariants": "PASS",
-        "tests_and_static_validation": "PASS",
-        "eta_arithmetic": "PASS",
-        "closure_artifacts": "PASS"
-      },
-      "blockers": []
+      "url": "https://github.com/hieukendu/vipragsent/actions/runs/32000485665"
     }
   },
   "report_binding": {
-    "exact_source_head_semantics": "The exact source/PR head reviewed by CI and Sentinel. The eventual closure commit contains reports only and does not alter this implementation head.",
-    "report_only_source_descendant": true
+    "exact_source_head_semantics": "Source implementation head after auxiliary R5 correction; all prior CI/Sentinel evidence is historical until this SHA is revalidated.",
+    "parent_report_head": "3334d98575f373eaa12f64cbf336748f531ccc66"
   }
 }
