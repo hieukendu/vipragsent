@@ -240,7 +240,7 @@ def test_explanation_executor_reuses_source_and_uses_only_rationale_decoder(tmp_
     model = _TinyFullModel()
     tokenizer = SimpleNamespace(bos_token_id=1, eos_token_id=2, decode=lambda ids, **_: "decoder rationale")
     judge = ReasoningJudge(tmp_path, transport=lambda **_: {"labels": _labels(1)}, cache_root=tmp_path / "judge-cache", sleep_fn=lambda _: None)
-    executor = ExplanationReuseExecutor(tmp_path, model=model, tokenizer=tokenizer, judge=judge, run_root=tmp_path / "run", source=source)
+    executor = ExplanationReuseExecutor(tmp_path, model=model, tokenizer=tokenizer, judge=judge, run_root=tmp_path / "run", source=source, fixture_mode=True)
     provenance = executor.write_source_provenance()
     rows = executor.generate_reasoning_split("dev", [{"sample_id": "d1", "input_ids": torch.zeros(1, 4, dtype=torch.long), "attention_mask": torch.ones(1, 4, dtype=torch.long)}])
     metrics = executor.judge_and_write("dev", rows, {"d1": _labels(1)})

@@ -4,6 +4,7 @@ import csv
 import json
 import shutil
 from collections.abc import Callable, Mapping
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -64,8 +65,10 @@ from .contracts import (
 )
 from .executors.component_bundle import run_component_bundle
 from .executors.explanation_reuse import (
+    ApprovedFullVistralSource,
     resolve_approved_full_vistral_source,
     validate_source_checkpoint,
+    write_validated_source_identity,
 )
 from .executors.external_retention import evaluate_external_retention_from_disk
 from .executors.generation import (
@@ -1351,20 +1354,52 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
     if stage == "resolve_approved_full_vistral_source":
         try:
             source = _resolve_production_explanation_source(context, entry)
+            selected_device, device_blocker = _resolve_production_device(context.root)
+            if device_blocker:
+                return StageOutcome.blocked(device_blocker)
+            dataset_identity = str(context.metadata.get("dataset_identity") or source.dataset_identity or "")
+            data_hash = str(context.metadata.get("data_hash") or source.data_hash or "")
+            receipt = write_validated_source_identity(
+                run_root,
+                source,
+                device=f"cuda:{selected_device}",
+                dataset_identity=dataset_identity or None,
+                data_hash=data_hash or None,
+                checkpoint_signature=getattr(source, "checkpoint_stat", None),
+            )
         except Exception as exc:
             return StageOutcome.blocked(str(exc))
-        atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source": source.as_dict(context.root), "source_system_id": "vipragsent_full_vistral", "same_seed_source": True, "additional_training": False, "direct_classification_outputs_used": False, "rationale_decoder_enabled_at_inference": True, "native_causal_lm_generation_used": False, "inference_output_source": "judge_of_rationale_decoder_output"})
-        return StageOutcome.passed(summary=source.as_dict(context.root), expected_files=("source/source_provenance.json",))
+        atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source": source.as_dict(context.root), "validated_source_identity": receipt, "source_system_id": "vipragsent_full_vistral", "same_seed_source": True, "additional_training": False, "direct_classification_outputs_used": False, "rationale_decoder_enabled_at_inference": True, "native_causal_lm_generation_used": False, "inference_output_source": "judge_of_rationale_decoder_output"})
+        return StageOutcome.passed(summary=source.as_dict(context.root), expected_files=("source/source_provenance.json", "source/validated_source_identity.json"))
     source_payload = _load_mapping(run_root / "source/source_provenance.json")
     if not source_payload:
         return StageOutcome.blocked("approved full Vistral source has not been resolved")
     try:
-        source = _resolve_production_explanation_source(context, entry)
+        persisted_source = source_payload.get("source")
+        if isinstance(persisted_source, Mapping):
+            source = ApprovedFullVistralSource.from_mapping(persisted_source, root=context.root)
+            receipt_report = validate_source_checkpoint(
+                context.root,
+                source,
+                receipt_root=run_root,
+                device=str((source_payload.get("validated_source_identity") or {}).get("device", "")) or None,
+                dataset_identity=source.dataset_identity or None,
+                data_hash=source.data_hash or None,
+            )
+            if receipt_report["status"] != "PASS":
+                return StageOutcome.blocked(*receipt_report["errors"])
+            receipt = source_payload.get("validated_source_identity")
+            signature = receipt.get("checkpoint_signature") if isinstance(receipt, Mapping) else None
+            source = replace(source, checkpoint_stat=signature, checkpoint_verified=True)
+        else:
+            # Compatibility for pre-receipt fixture-shaped provenance; real
+            # production runs persist the complete source mapping.
+            source = _resolve_production_explanation_source(context, entry)
     except Exception as exc:
-        return StageOutcome.blocked(str(exc))
+        return StageOutcome.blocked(f"invalid persisted approved source identity: {exc}")
     if stage == "validate_source_checkpoint":
-        report = validate_source_checkpoint(context.root, source)
-        return StageOutcome.passed(summary=report, expected_files=("source/source_provenance.json",)) if report["status"] == "PASS" else StageOutcome.blocked(*report["errors"])
+        report = receipt_report if "receipt_report" in locals() else validate_source_checkpoint(context.root, source)
+        return StageOutcome.passed(summary=report, expected_files=("source/source_provenance.json", "source/validated_source_identity.json")) if report["status"] == "PASS" else StageOutcome.blocked(*report["errors"])
     if stage.startswith("judge_") or stage.startswith("compute_"):
         return _production_explanation_artifact_stage(context, entry, stage, source)
     spec = _execution_spec(context.root, entry)
@@ -1441,8 +1476,7 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
         path = run_root / f"predictions/{split}_predictions.jsonl"
         if not path.exists():
             return StageOutcome.blocked(f"{split} rationale judge predictions are missing")
-        metrics = compute_reasoning_metrics(_read_jsonl(path), diagnostics=judge.diagnostics) | {"status": "PASS", "inference_output_source": "judge_of_rationale_decoder_output"}
-        atomic_write_json(run_root / f"metrics/{split}_reasoning_metrics.json", metrics)
+        metrics = executor.compute_split_metrics(split, _read_jsonl(path))
         return StageOutcome.passed(summary=metrics, expected_files=(f"metrics/{split}_reasoning_metrics.json",))
     return StageOutcome.failed(f"unsupported explanation-only production stage: {stage}")
 
