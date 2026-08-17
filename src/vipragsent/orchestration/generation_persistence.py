@@ -261,8 +261,8 @@ class GenerationChunkStore:
         item: Mapping[str, Any],
         *,
         seen: set[str],
+        manifest_contract_sha: str | None,
     ) -> list[dict[str, Any]]:
-        manifest_contract_sha = self._manifest.get("generation_contract_sha256")
         if manifest_contract_sha is not None and str(item.get("generation_contract_sha256", "")) != str(manifest_contract_sha):
             raise GenerationPersistenceError("generation chunk contract identity is invalid")
         path = self.root / str(item["path"])
@@ -308,7 +308,11 @@ class GenerationChunkStore:
     def _initialize_committed_state(self) -> None:
         seen: set[str] = set()
         for item in sorted(self._manifest.get("chunks", []), key=lambda value: int(value["index"])):
-            rows = self._validate_chunk_entry(item, seen=seen)
+            rows = self._validate_chunk_entry(
+                item,
+                seen=seen,
+                manifest_contract_sha=self._manifest.get("generation_contract_sha256"),
+            )
             self._validate_next_sample_order([str(value) for value in item.get("sample_ids", [])])
             self._register_chunk(item, rows)
 
@@ -318,29 +322,66 @@ class GenerationChunkStore:
             return
         manifest = self._read_manifest()
         manifest_revision = self._manifest_revision_for(manifest)
-        if self._manifest_revision == manifest_revision:
+        if manifest_revision == self._manifest_revision:
             self._manifest_signature = current_signature
             return
         current_chunks = list(self._manifest.get("chunks", []))
         observed_chunks = list(manifest.get("chunks", []))
         if len(observed_chunks) < len(current_chunks) or observed_chunks[:len(current_chunks)] != current_chunks:
             raise GenerationPersistenceError("generation manifest changed outside the append-only commit boundary")
-        self._manifest = manifest
-        seen = set(self._committed_sample_ids_cache)
+
+        # Build every changed piece of candidate state locally.  Existing
+        # chunks are already validated and represented by these caches; only
+        # externally appended entries are re-read, preserving O(delta) cost.
+        # No internal field is assigned until every candidate append passes.
+        candidate_rows = [dict(row) for row in self._committed_rows_cache]
+        candidate_sample_ids = set(self._committed_sample_ids_cache)
+        candidate_entries = {key: dict(item) for key, item in self._chunk_entries_by_ids.items()}
+        candidate_next_index = self._next_chunk_index
+        seen = set(candidate_sample_ids)
+        offset = len(candidate_rows)
+        manifest_contract_sha = manifest.get("generation_contract_sha256")
         for item in observed_chunks[len(current_chunks):]:
-            if int(item["index"]) != self._next_chunk_index:
+            index = int(item["index"])
+            if index != candidate_next_index:
                 raise GenerationPersistenceError("generation manifest appended a non-monotonic chunk index")
-            rows = self._validate_chunk_entry(item, seen=seen)
-            self._validate_next_sample_order([str(value) for value in item.get("sample_ids", [])])
-            self._register_chunk(item, rows)
+
+            rows = self._validate_chunk_entry(
+                item,
+                seen=seen,
+                manifest_contract_sha=manifest_contract_sha,
+            )
+            ids = [str(value) for value in item.get("sample_ids", [])]
+            self._validate_next_sample_order(ids, offset=offset)
+            key = tuple(ids)
+            if key in candidate_entries:
+                raise GenerationPersistenceError("generation manifest contains a duplicate chunk")
+
+            candidate_entries[key] = dict(item)
+            candidate_rows.extend(dict(row) for row in rows)
+            candidate_sample_ids.update(ids)
+            offset += len(ids)
+            candidate_next_index = index + 1
+
+        # Publish only after manifest shape, every chunk file, ordering, and
+        # all replacement caches have been validated successfully.
+        self._manifest = manifest
         self._manifest_revision = manifest_revision
         self._manifest_signature = current_signature
+        self._committed_rows_cache = candidate_rows
+        self._committed_sample_ids_cache = candidate_sample_ids
+        self._chunk_entries_by_ids = candidate_entries
+        self._next_chunk_index = candidate_next_index
 
     def _validate_all_cached_chunks(self) -> None:
         seen: set[str] = set()
         offset = 0
         for item in sorted(self._manifest.get("chunks", []), key=lambda value: int(value["index"])):
-            self._validate_chunk_entry(item, seen=seen)
+            self._validate_chunk_entry(
+                item,
+                seen=seen,
+                manifest_contract_sha=self._manifest.get("generation_contract_sha256"),
+            )
             ids = [str(value) for value in item.get("sample_ids", [])]
             self._validate_next_sample_order(ids, offset=offset)
             offset += len(ids)

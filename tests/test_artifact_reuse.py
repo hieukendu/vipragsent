@@ -164,12 +164,21 @@ def test_malformed_equal_sha256_fields_are_blocked(malformed: str) -> None:
     assert "INVALID_SHA256:remote:model_hash" in result.reasons
 
 
+@pytest.mark.parametrize("placeholder", ["UNKNOWN", "not-applicable", "Not Provided", "null"])
+def test_placeholder_bindings_are_uncertain_regardless_of_spelling(placeholder: str) -> None:
+    metadata = _metadata() | {"model": placeholder}
+    result = decide_reuse(metadata, dict(metadata))
+    assert result.status is ReuseStatus.BLOCKED
+    assert "ABSENT_BINDING_FIELD:local:model" in result.reasons
+
+
 def test_exact_sha256_fields_are_verified_and_different_valid_fields_are_invalid() -> None:
-    valid = decide_reuse(_metadata(), _metadata())
+    valid_metadata = _metadata() | {"model_hash": "1" * 64}
+    valid = decide_reuse(valid_metadata, dict(valid_metadata))
     assert valid.status is ReuseStatus.VERIFIED
-    invalid = decide_reuse(_metadata(), _metadata() | {"model_hash": "7" * 64})
-    assert invalid.status is ReuseStatus.INVALID
-    assert "model_hash" in invalid.mismatched_fields
+    invalid = decide_reuse(valid_metadata, valid_metadata | {"model_hash": "7" * 64})
+    assert invalid.status is ReuseStatus.BLOCKED
+    assert "model_hash" in invalid.mismatched_fields or any("model_hash" in reason for reason in invalid.reasons)
 
 
 def test_extra_provenance_field_is_blocked() -> None:

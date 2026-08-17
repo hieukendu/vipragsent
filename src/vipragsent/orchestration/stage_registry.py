@@ -68,6 +68,7 @@ from .executors.explanation_reuse import (
     ApprovedFullVistralSource,
     resolve_approved_full_vistral_source,
     validate_source_checkpoint,
+    validate_validated_source_identity,
     write_validated_source_identity,
 )
 from .executors.external_retention import evaluate_external_retention_from_disk
@@ -1317,6 +1318,16 @@ def _read_production_explanation_rows_without_model(
 def _production_explanation_artifact_stage(context: RunContext, entry: RunEntry, stage: str, source: Any) -> StageOutcome:
     """Judge or score existing rationale artifacts without loading the source model."""
     run_root = Path(context.run_root)
+    if hasattr(source, "checkpoint_path"):
+        try:
+            validate_validated_source_identity(
+                run_root,
+                source=source,
+                expected_dataset_identity=source.dataset_identity or None,
+                expected_data_hash=source.data_hash or None,
+            )
+        except Exception as exc:
+            return StageOutcome.blocked(f"validated source receipt is unavailable or invalid: {exc}")
     judge = ReasoningJudge(context.root, cache_root=run_root / "judge/cache", require_deployment_manifest=True)
     identity = _production_explanation_identity(context, judge.protocol)
     if stage.startswith("judge_"):
@@ -1353,20 +1364,38 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
     run_root = Path(context.run_root)
     if stage == "resolve_approved_full_vistral_source":
         try:
-            source = _resolve_production_explanation_source(context, entry)
             selected_device, device_blocker = _resolve_production_device(context.root)
             if device_blocker:
                 return StageOutcome.blocked(device_blocker)
-            dataset_identity = str(context.metadata.get("dataset_identity") or source.dataset_identity or "")
-            data_hash = str(context.metadata.get("data_hash") or source.data_hash or "")
-            receipt = write_validated_source_identity(
-                run_root,
-                source,
-                device=f"cuda:{selected_device}",
-                dataset_identity=dataset_identity or None,
-                data_hash=data_hash or None,
-                checkpoint_signature=getattr(source, "checkpoint_stat", None),
-            )
+            existing = _load_mapping(run_root / "source/source_provenance.json")
+            existing_source = existing.get("source")
+            existing_receipt = existing.get("validated_source_identity")
+            if isinstance(existing_source, Mapping) and isinstance(existing_receipt, Mapping):
+                source = ApprovedFullVistralSource.from_mapping(existing_source, root=context.root)
+                receipt = validate_validated_source_identity(
+                    run_root,
+                    source=source,
+                    expected_device=f"cuda:{selected_device}",
+                    expected_dataset_identity=str(context.metadata.get("dataset_identity") or source.dataset_identity or "") or None,
+                    expected_data_hash=str(context.metadata.get("data_hash") or source.data_hash or "") or None,
+                )
+                source = replace(
+                    source,
+                    checkpoint_stat=receipt.get("checkpoint_signature"),
+                    checkpoint_verified=True,
+                )
+            else:
+                source = _resolve_production_explanation_source(context, entry)
+                dataset_identity = str(context.metadata.get("dataset_identity") or source.dataset_identity or "")
+                data_hash = str(context.metadata.get("data_hash") or source.data_hash or "")
+                receipt = write_validated_source_identity(
+                    run_root,
+                    source,
+                    device=f"cuda:{selected_device}",
+                    dataset_identity=dataset_identity or None,
+                    data_hash=data_hash or None,
+                    checkpoint_signature=getattr(source, "checkpoint_stat", None),
+                )
         except Exception as exc:
             return StageOutcome.blocked(str(exc))
         atomic_write_json(run_root / "source/source_provenance.json", {"status": "PASS", "source": source.as_dict(context.root), "validated_source_identity": receipt, "source_system_id": "vipragsent_full_vistral", "same_seed_source": True, "additional_training": False, "direct_classification_outputs_used": False, "rationale_decoder_enabled_at_inference": True, "native_causal_lm_generation_used": False, "inference_output_source": "judge_of_rationale_decoder_output"})
@@ -1476,7 +1505,7 @@ def _production_explanation_stage(context: RunContext, entry: RunEntry, stage: s
         path = run_root / f"predictions/{split}_predictions.jsonl"
         if not path.exists():
             return StageOutcome.blocked(f"{split} rationale judge predictions are missing")
-        metrics = executor.compute_split_metrics(split, _read_jsonl(path))
+        metrics = compute_reasoning_metrics(_read_jsonl(path), diagnostics=judge.diagnostics)
         return StageOutcome.passed(summary=metrics, expected_files=(f"metrics/{split}_reasoning_metrics.json",))
     return StageOutcome.failed(f"unsupported explanation-only production stage: {stage}")
 
@@ -1735,6 +1764,8 @@ def _validate_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         required = ["training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/scheduler_summary.json", "training/resource_usage.json", "checkpoints/checkpoint_manifest.json", "checkpoints/latest_checkpoint.json", "checkpoints/best_checkpoint.json", "selection/best_checkpoint.json", "selection/selection_metric.json", "selection/thresholds.json", "selection/freeze_manifest.json", "reasoning/dev_reasoning.jsonl", "reasoning/test_reasoning.jsonl", "judge/dev_judge_responses.jsonl", "judge/test_judge_responses.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_reasoning_metrics.json", "metrics/test_reasoning_metrics.json"]
     elif entry.system_id == "explanation_only_vistral":
         required = ["source/source_provenance.json", "reasoning/dev_reasoning.jsonl", "reasoning/test_reasoning.jsonl", "judge/dev_judge_responses.jsonl", "judge/test_judge_responses.jsonl", "judge/cache_manifest.json", "judge/usage.json", "judge/invalid_outputs.jsonl", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "metrics/dev_reasoning_metrics.json", "metrics/test_reasoning_metrics.json"]
+        if not context.fixture:
+            required.insert(1, "source/validated_source_identity.json")
     elif entry.research_question == "Q1b":
         if entry.system_id == "phobert_pol_single":
             required = ["predictions/uit_vsfc_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/partial_external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"]

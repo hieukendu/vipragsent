@@ -23,7 +23,6 @@ from ...runtime.device import (
     write_device_report,
 )
 
-
 FULL_VISTRAL_SYSTEM_ID = "vipragsent_full_vistral"
 SOURCE_RECEIPT_VERSION = 1
 SOURCE_RECEIPT_PATH = Path("source/validated_source_identity.json")
@@ -150,7 +149,7 @@ class ValidatedSourceIdentity:
         }
 
     @classmethod
-    def from_mapping(cls, value: Mapping[str, Any]) -> "ValidatedSourceIdentity":
+    def from_mapping(cls, value: Mapping[str, Any]) -> ValidatedSourceIdentity:
         if value.get("status") != "PASS":
             raise SourceReceiptError("validated source receipt is not marked PASS")
         checkpoint = value.get("checkpoint_signature")
@@ -431,7 +430,7 @@ class ApprovedFullVistralSource:
         }
 
     @classmethod
-    def from_mapping(cls, value: Mapping[str, Any], *, root: str | Path | None = None) -> "ApprovedFullVistralSource":
+    def from_mapping(cls, value: Mapping[str, Any], *, root: str | Path | None = None) -> ApprovedFullVistralSource:
         source = value.get("source") if isinstance(value.get("source"), Mapping) else value
         source_root = Path(root) if root is not None else Path.cwd()
         raw_path = source.get("checkpoint_path", source.get("path"))
@@ -552,10 +551,13 @@ def resolve_approved_full_vistral_source(
         if approval.get("status") != "APPROVED" or state.get("run_status") not in {"COMPLETED_PENDING_APPROVAL", "APPROVED"}:
             continue
         summary_hash = sha256_file(summary_path)
-        if approval.get("review_summary_sha256") != summary_hash:
+        approval_record = approval.get("record") if isinstance(approval.get("record"), Mapping) else {}
+        approval_review_sha = approval.get("review_summary_sha256") or approval_record.get("review_summary_sha256")
+        approval_checksums_sha = approval.get("artifact_checksum_file_sha256") or approval_record.get("artifact_checksum_file_sha256")
+        if approval_review_sha != summary_hash:
             continue
         checksum_hash = sha256_file(checksums_path)
-        if approval.get("artifact_checksum_file_sha256") != checksum_hash:
+        if approval_checksums_sha != checksum_hash:
             continue
         checkpoint_value = manifest.get("best") or manifest.get("checkpoint_path")
         if not checkpoint_value:
