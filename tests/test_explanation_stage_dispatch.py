@@ -265,6 +265,64 @@ def test_generation_inference_still_attempts_model_loading(monkeypatch, tmp_path
         stage_registry._production_generation_stage(context, entry, "generate_dev_reasoning")
 
 
+def test_generation_executor_receives_pinned_runtime_artifact_identities(monkeypatch, tmp_path: Path) -> None:
+    entry = RunEntry.from_mapping(
+        {
+            "run_id": "q1a_cot_only_vistral_20260521",
+            "research_question": "Q1a",
+            "system_id": "cot_only_vistral",
+            "display_name": "COT",
+            "variant": "cot_only",
+            "backbone": "vistral_7b",
+            "seed": 20260521,
+            "execution_kind": "generation",
+        }
+    )
+    run_root = tmp_path / "run"
+    run_root.mkdir()
+    entry_spec = SimpleNamespace(model_family="vistral_7b")
+    runtime_spec = SimpleNamespace(
+        repo_id="org/locked-model",
+        revision="model-revision",
+        tokenizer_revision="tokenizer-revision",
+    )
+    captured: dict[str, object] = {}
+
+    class _Judge:
+        def __init__(self, *_args, **_kwargs):
+            pass
+
+    def capture_executor(*_args, **kwargs):
+        captured.update(kwargs)
+        raise AssertionError("captured executor arguments")
+
+    monkeypatch.setattr(stage_registry, "generation_targets_available", lambda *_args: True)
+    monkeypatch.setattr(stage_registry, "_execution_spec", lambda *_args: entry_spec)
+    monkeypatch.setattr(stage_registry, "_resolve_production_device", lambda *_args: ("cpu", None))
+    monkeypatch.setattr(stage_registry, "read_family_status", lambda *_args: {"local_path": str(tmp_path / "snapshot")})
+    monkeypatch.setattr(stage_registry, "resolve_local_snapshot", lambda *_args: tmp_path / "snapshot")
+    monkeypatch.setattr(stage_registry, "ReasoningJudge", _Judge)
+    monkeypatch.setattr(stage_registry, "resolve_training_config", lambda *_args, **_kwargs: SimpleNamespace(config_hash="config", physical_batch_size=1, gradient_accumulation_steps=1))
+    monkeypatch.setattr(model_factory, "build_production_model", lambda *_args, **_kwargs: (object(), runtime_spec))
+    monkeypatch.setattr(tokenizers, "create_tokenizer", lambda *_args, **_kwargs: object())
+    monkeypatch.setattr(stage_registry, "ReasoningGenerationExecutor", capture_executor)
+
+    context = RunContext(tmp_path, entry, run_root=run_root, metadata={"data_hash": "A" * 64})
+    with pytest.raises(AssertionError, match="captured executor arguments"):
+        stage_registry._production_generation_stage(context, entry, "generate_dev_reasoning")
+
+    assert captured["model_artifact_identity"] == {
+        "identity": "org/locked-model@model-revision",
+        "repository": "org/locked-model",
+        "revision": "model-revision",
+    }
+    assert captured["tokenizer_artifact_identity"] == {
+        "identity": "org/locked-model@tokenizer-revision",
+        "repository": "org/locked-model",
+        "revision": "tokenizer-revision",
+    }
+
+
 def test_existing_explanation_judge_and_metrics_do_not_load_large_model(monkeypatch, tmp_path: Path) -> None:
     entry = _entry()
     run_root = tmp_path / "run"

@@ -1193,6 +1193,16 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
 
     model, runtime_spec = build_production_model(family, "cot_only_vistral", local_snapshot=snapshot, execution_mode="production", selected_device=selected_device)
     tokenizer = create_tokenizer(family, revision=runtime_spec.tokenizer_revision, local_path=snapshot, execution_mode="production")
+    model_artifact_identity = {
+        "identity": f"{runtime_spec.repo_id}@{runtime_spec.revision}",
+        "repository": str(runtime_spec.repo_id),
+        "revision": str(runtime_spec.revision),
+    }
+    tokenizer_artifact_identity = {
+        "identity": f"{runtime_spec.repo_id}@{runtime_spec.tokenizer_revision}",
+        "repository": str(runtime_spec.repo_id),
+        "revision": str(runtime_spec.tokenizer_revision),
+    }
     runtime_status = read_family_status(context.root, family, "batch")
     resolved = resolve_training_config(entry, spec, root=context.root, runtime_status=runtime_status)
     if stage == "train_generation":
@@ -1208,6 +1218,8 @@ def _production_generation_stage(context: RunContext, entry: RunEntry, stage: st
         config_hash=resolved.config_hash,
         data_hash=str(data_hash),
         dataset_identity=str(context.metadata.get("dataset_identity", data_hash)),
+        model_artifact_identity=model_artifact_identity,
+        tokenizer_artifact_identity=tokenizer_artifact_identity,
         production_provenance_required=True,
         fixture_mode=False,
         physical_batch_size=resolved.physical_batch_size,
