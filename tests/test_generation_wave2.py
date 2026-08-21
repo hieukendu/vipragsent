@@ -331,6 +331,31 @@ def test_generation_profile_contention_classification_is_fail_closed() -> None:
     assert unknown["status"] == "UNKNOWN"
 
 
+def test_generation_profile_uses_peer_process_evidence_for_stable_cuda_overhead() -> None:
+    stable_runtime_overhead = _classify_generation_contention(
+        total_visible_vram_bytes=20 * (1024**3),
+        free_vram_bytes=17 * (1024**3),
+        process_reserved_bytes=2 * (1024**3),
+        process_contention={"status": "CLEAN", "peer_process_ids": []},
+    )
+    peer_process = _classify_generation_contention(
+        total_visible_vram_bytes=20 * (1024**3),
+        free_vram_bytes=17 * (1024**3),
+        process_reserved_bytes=2 * (1024**3),
+        process_contention={"status": "CONTENDED", "peer_process_ids": [1234]},
+    )
+    unavailable = _classify_generation_contention(
+        total_visible_vram_bytes=20 * (1024**3),
+        free_vram_bytes=17 * (1024**3),
+        process_reserved_bytes=2 * (1024**3),
+        process_contention={"status": "UNKNOWN"},
+    )
+    assert stable_runtime_overhead["status"] == "CLEAN"
+    assert stable_runtime_overhead["memory_status"] == "STABLE_NON_PROCESS_ALLOCATION"
+    assert peer_process["status"] == "CONTENDED"
+    assert unavailable["status"] == "UNKNOWN"
+
+
 def test_generation_profile_records_memory_and_contention_evidence_on_cpu_fixture(tmp_path: Path) -> None:
     executor = _executor(tmp_path, _BatchFixtureModel())
     profile = executor.profile_generation_batches("dev", _records()[:2], sample_count=2)
