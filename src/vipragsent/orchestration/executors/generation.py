@@ -4,6 +4,7 @@ import hashlib
 import inspect
 import json
 import math
+import os
 import re
 import time
 from collections.abc import Callable, Iterable, Mapping, Sequence
@@ -75,8 +76,16 @@ def _classify_generation_contention(
     total_visible_vram_bytes: int | None,
     free_vram_bytes: int | None,
     process_reserved_bytes: int | None,
+    process_contention: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Classify visible GPU contention from global and process-local memory evidence."""
+    """Classify visible GPU contention from memory and process evidence.
+
+    Quantized CUDA runtimes can reserve driver/workspace memory outside the
+    PyTorch allocator.  Treating that stable allocation as a peer process
+    produces a false contention block.  When process-level evidence is
+    available, it is the authority for peer attribution; missing evidence
+    remains fail-closed.
+    """
     values = (total_visible_vram_bytes, free_vram_bytes, process_reserved_bytes)
     if any(value is None or int(value) < 0 for value in values):
         return {
@@ -89,11 +98,74 @@ def _classify_generation_contention(
         int(total_visible_vram_bytes) - int(free_vram_bytes) - int(process_reserved_bytes),
         0,
     )
+    if process_contention is not None:
+        process_status = str(process_contention.get("status", "UNKNOWN")).upper()
+        if process_status == "CLEAN":
+            return {
+                "status": "CLEAN",
+                "external_memory_bytes": external_memory,
+                "memory_status": "STABLE_NON_PROCESS_ALLOCATION" if external_memory > GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES else "CLEAN",
+                "method": "proc_nvidia_fd_scan_plus_torch_mem_get_info_minus_process_reserved",
+                "tolerance_bytes": GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES,
+                "process_contention": dict(process_contention),
+            }
+        return {
+            "status": "CONTENDED" if process_status == "CONTENDED" else "UNKNOWN",
+            "external_memory_bytes": external_memory,
+            "memory_status": "EXTERNAL_ALLOCATION_PRESENT" if external_memory > GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES else "CLEAN",
+            "method": "proc_nvidia_fd_scan_plus_torch_mem_get_info_minus_process_reserved",
+            "tolerance_bytes": GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES,
+            "process_contention": dict(process_contention),
+        }
     return {
         "status": "CONTENDED" if external_memory > GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES else "CLEAN",
         "external_memory_bytes": external_memory,
         "method": "torch_mem_get_info_minus_process_reserved",
         "tolerance_bytes": GENERATION_PROFILE_CONTENTION_TOLERANCE_BYTES,
+    }
+
+
+def _gpu_process_contention() -> dict[str, Any]:
+    """Find peer processes holding NVIDIA device nodes without nvidia-smi."""
+    proc_root = Path("/proc")
+    try:
+        process_dirs = list(proc_root.glob("[0-9]*"))
+    except OSError as exc:
+        return {"status": "UNKNOWN", "method": "proc_nvidia_fd_scan", "error": type(exc).__name__}
+    current_pid = os.getpid()
+    peer_pids: set[int] = set()
+    unreadable = 0
+    inspected = 0
+    for process_dir in process_dirs:
+        try:
+            pid = int(process_dir.name)
+        except ValueError:
+            continue
+        if pid == current_pid:
+            continue
+        try:
+            fd_paths = list((process_dir / "fd").iterdir())
+        except FileNotFoundError:
+            continue
+        except PermissionError:
+            unreadable += 1
+            continue
+        inspected += 1
+        for fd_path in fd_paths:
+            try:
+                target = os.readlink(fd_path)
+            except (FileNotFoundError, PermissionError, OSError):
+                continue
+            if target.startswith("/dev/nvidia"):
+                peer_pids.add(pid)
+                break
+    status = "UNKNOWN" if unreadable else ("CONTENDED" if peer_pids else "CLEAN")
+    return {
+        "status": status,
+        "method": "proc_nvidia_fd_scan",
+        "peer_process_ids": sorted(peer_pids),
+        "inspected_process_count": inspected,
+        "unreadable_process_count": unreadable,
     }
 
 
@@ -1223,10 +1295,12 @@ class ReasoningGenerationExecutor:
                     "external_memory_bytes": None,
                     "method": f"process_memory_query_failed:{type(exc).__name__}",
                 }
+            process_contention = _gpu_process_contention()
             evidence = _classify_generation_contention(
                 total_visible_vram_bytes=int(memory["total_bytes"]),
                 free_vram_bytes=int(memory["free_bytes"]),
                 process_reserved_bytes=process_reserved,
+                process_contention=process_contention,
             )
             evidence["process_reserved_bytes"] = process_reserved
             return evidence
