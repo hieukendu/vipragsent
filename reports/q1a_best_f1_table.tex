@@ -1,0 +1,24 @@
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrrrl}
+\toprule
+System & Implicit & Sarcasm & Irony & Idiom & Code-sw. & Mocking & Macro-prag. & Status \\
+\midrule
+PhoBERT (single-task) & 88.0 $\pm$ 1.9 & 70.9 $\pm$ 3.4 & 97.1 $\pm$ 1.7 & 91.2 $\pm$ 2.6 & 91.1 $\pm$ 2.1 & 79.2 $\pm$ 3.9 & 86.2 $\pm$ 1.1 & 3/3 complete \\
+PhoBERT fine-tune & 85.8 $\pm$ 1.8 & 72.6 $\pm$ 3.7 & 97.5 $\pm$ 1.3 & 86.6 $\pm$ 3.0 & 91.7 $\pm$ 1.6 & 78.5 $\pm$ 2.9 & 85.5 $\pm$ 1.2 & 3/3 complete \\
+XLM-R-large fine-tune & 92.2 $\pm$ 1.3 & 88.1 $\pm$ 2.8 & 97.9 $\pm$ 1.2 & 92.9 $\pm$ 2.3 & 94.3 $\pm$ 1.3 & 92.3 $\pm$ 1.7 & 92.9 $\pm$ 0.8 & 3/3 complete \\
+Sailor-7B SFT & 85.4 $\pm$ 1.9 & 72.1 $\pm$ 4.2 & 95.7 $\pm$ 1.7 & 91.2 $\pm$ 2.8 & 91.0 $\pm$ 1.8 & 77.8 $\pm$ 3.0 & 85.5 $\pm$ 1.3 & 3/3 complete \\
+Vistral-7B SFT & 87.4 $\pm$ 1.8 & 74.7 $\pm$ 3.5 & 96.7 $\pm$ 1.6 & 91.5 $\pm$ 2.6 & 92.8 $\pm$ 1.6 & 79.9 $\pm$ 2.4 & 87.2 $\pm$ 1.1 & 3/3 complete \\
+ViPragSent - no auxiliary loss & 87.4 $\pm$ 1.8 & 74.8 $\pm$ 3.6 & 97.2 $\pm$ 1.4 & 91.5 $\pm$ 2.5 & 92.9 $\pm$ 1.6 & 79.5 $\pm$ 3.7 & 87.2 $\pm$ 1.2 & 3/3 complete \\
+Vistral CoT-only clean rerun 003 & 17.4 $\pm$ 1.1 & 48.2 $\pm$ 0.3 & 48.2 $\pm$ 0.3 & 48.2 $\pm$ 0.3 & 45.9 $\pm$ 0.4 & 46.9 $\pm$ 0.4 & 42.5 $\pm$ 0.2 & 2/3; seed 20260522 test score missing \\
+ViPragSent - explanation only & 44.1 $\pm$ 0.5 & 48.2 $\pm$ 0.3 & 48.2 $\pm$ 0.3 & 48.2 $\pm$ 0.3 & 46.0 $\pm$ 0.6 & 46.9 $\pm$ 0.4 & 46.9 $\pm$ 0.2 & 3/3 complete \\
+ViPragSent (ours, Vistral) & 84.9 $\pm$ 4.9 & 72.6 $\pm$ 7.4 & 94.8 $\pm$ 3.3 & 79.4 $\pm$ 19.4 & 78.4 $\pm$ 23.1 & 77.1 $\pm$ 8.0 & 81.2 $\pm$ 10.8 & 3/3 complete \\
+GPT-4.1-mini zero-shot & 45.4 $\pm$ 2.2 & 56.5 $\pm$ 3.1 & 53.2 $\pm$ 2.7 & 52.5 $\pm$ 2.4 & 62.4 $\pm$ 2.7 & 54.7 $\pm$ 2.6 & 54.1 $\pm$ 1.3 & 1/1 complete \\
+GPT-4.1-mini 8-shot & 49.0 $\pm$ 2.3 & 61.1 $\pm$ 3.4 & 52.4 $\pm$ 2.6 & 50.9 $\pm$ 2.5 & 56.9 $\pm$ 2.6 & 54.3 $\pm$ 2.5 & 54.1 $\pm$ 1.3 & 1/1 complete \\
+\bottomrule
+\end{tabular}
+\caption{Q1a test-set binary macro-F1. Values are percentages with 95\% percentile CI half-widths from the paired hierarchical bootstrap. The COT-only row is the Vistral clean rerun 003 lineage; its seed 20260522 test score is unavailable, so that aggregate is provisional. XLM-R and full ViPragSent are not compute-matched: the former is fully fine-tuned, while the latter uses 4-bit QLoRA with auxiliary tasks and rationale training.}
+\label{tab:q1a-best-f1}
+\end{table*}

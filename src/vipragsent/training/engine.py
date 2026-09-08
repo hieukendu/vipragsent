@@ -31,6 +31,7 @@ from ..runtime.device import (
     tensor_devices,
     write_device_report,
 )
+from ..data.sampling import DeterministicSampler
 from .checkpoints import (
     build_checkpoint_payload,
     infer_required_head_prefixes,
@@ -248,6 +249,9 @@ class TrainingEngine:
         optimizer_module: Any | None = None,
         selected_device: torch.device | str | int | None = None,
         executor_kind: str | None = None,
+        loss_multipliers: Mapping[str, float] | None = None,
+        gradient_strategy: str = "sum",
+        batch_order: str = "fixed",
     ) -> None:
         if executor_kind in {"single_task_bundle", "independent_checkpoint_bundle", "component_bundle"}:
             raise RuntimeBlocked("bundle executor kinds must not be passed to the generic TrainingEngine")
@@ -262,6 +266,26 @@ class TrainingEngine:
         self.model_family = str((resolved_config or {}).get("model_family", getattr(model, "_vipragsent_model_family", "unknown")))
         self.quantized = bool(getattr(model, "_vipragsent_quantized", False) or getattr(getattr(model, "backbone", None), "_vipragsent_quantized", False))
         self.runtime_hooks = dict(runtime_hooks or {})
+        self.loss_multipliers = {
+            str(key): float(value)
+            for key, value in (loss_multipliers or {}).items()
+        }
+        if any(value <= 0.0 for value in self.loss_multipliers.values()):
+            raise ValueError("loss multipliers must be positive")
+        self.gradient_strategy = str(gradient_strategy)
+        if self.gradient_strategy not in {"sum", "pcgrad_sarcasm_irony", "pcgrad_shared_sarcasm_irony"}:
+            raise ValueError(f"Unsupported gradient strategy: {self.gradient_strategy}")
+        self.gradient_focus_tasks = (
+            ("sarcasm", "irony")
+            if self.gradient_strategy in {"pcgrad_sarcasm_irony", "pcgrad_shared_sarcasm_irony"}
+            else ()
+        )
+        if self.gradient_strategy == "pcgrad_shared_sarcasm_irony":
+            setattr(model, "_vipragsent_expose_shared_representation", True)
+        self._last_shared_representation: Tensor | None = None
+        self.batch_order = str(batch_order)
+        if self.batch_order not in {"fixed", "deterministic_batch_shuffle"}:
+            raise ValueError(f"Unsupported batch order: {self.batch_order}")
         variant_config = getattr(model, "config", None)
         variant_uncertainty = bool(getattr(variant_config, "has_uncertainty_weighting", True))
         self.uses_uncertainty_weighting = bool(config.use_uncertainty_weighting and variant_uncertainty)
@@ -372,6 +396,7 @@ class TrainingEngine:
                 rationale_input_ids=batch.get("rationale_input_ids"),
                 rationale_attention_mask=batch.get("rationale_attention_mask"),
             )
+            self._last_shared_representation = output.get("_shared_representation")
             losses = classification_losses(
                 output["logits"],
                 batch["targets"],
@@ -382,6 +407,11 @@ class TrainingEngine:
                 target_masks=batch.get("target_masks"),
                 sarcasm_target_mask=batch.get("sarcasm_target_mask"),
             )
+            if self.loss_multipliers:
+                losses = {
+                    key: loss * self.loss_multipliers.get(key, 1.0)
+                    for key, loss in losses.items()
+                }
             rationale_loss = None
             if "rationale_logits" in output:
                 rationale_targets = output.get("rationale_labels", batch.get("rationale_targets"))
@@ -395,6 +425,155 @@ class TrainingEngine:
                 return self.loss_aggregator(losses, rationale_loss)
             reference = next(self.model.parameters(), None)
             return equal_weight_loss(losses, rationale_loss, rationale_beta=self.config.rationale_beta, reference=reference)
+
+    @staticmethod
+    def _pcgrad_combine(
+        gradients: list[tuple[Tensor | None, ...]],
+    ) -> tuple[Tensor | None, ...]:
+        """Project conflicting task gradients with a deterministic task order."""
+        if not gradients:
+            return ()
+        projected = [
+            [gradient.detach().clone() if gradient is not None else None for gradient in task_gradients]
+            for task_gradients in gradients
+        ]
+        for index, current in enumerate(projected):
+            for other_index, other in enumerate(gradients):
+                if index == other_index:
+                    continue
+                dot: Tensor | None = None
+                norm: Tensor | None = None
+                for current_gradient, other_gradient in zip(current, other):
+                    if current_gradient is None or other_gradient is None:
+                        continue
+                    contribution = (current_gradient * other_gradient).sum()
+                    dot = contribution if dot is None else dot + contribution
+                    other_norm = (other_gradient * other_gradient).sum()
+                    norm = other_norm if norm is None else norm + other_norm
+                if dot is None or norm is None or float(dot.detach().cpu()) >= 0.0:
+                    continue
+                scale = dot / norm.clamp_min(torch.finfo(dot.dtype).eps)
+                for parameter_index, (current_gradient, other_gradient) in enumerate(zip(current, other)):
+                    if current_gradient is not None and other_gradient is not None:
+                        current[parameter_index] = current_gradient - scale * other_gradient
+        combined: list[Tensor | None] = []
+        for parameter_index in range(len(projected[0])):
+            values = [task[parameter_index] for task in projected if task[parameter_index] is not None]
+            combined.append(torch.stack(values, dim=0).sum(dim=0) if values else None)
+        return tuple(combined)
+
+    @staticmethod
+    def _accumulate_gradients(
+        parameters: list[nn.Parameter],
+        gradients: tuple[Tensor | None, ...],
+    ) -> None:
+        for parameter, gradient in zip(parameters, gradients):
+            if gradient is None:
+                continue
+            detached = gradient.detach()
+            if parameter.grad is None:
+                parameter.grad = detached.clone()
+            else:
+                parameter.grad.add_(detached)
+
+    def _backward(self, total: Tensor, components: Mapping[str, Tensor], *, normalization: int) -> None:
+        scaled_total = total / normalization
+        if self.gradient_strategy == "sum":
+            scaled_total.backward()
+            return
+        if self.gradient_strategy == "pcgrad_shared_sarcasm_irony":
+            self._backward_shared_representation(scaled_total, components, normalization=normalization)
+            return
+
+        model_parameters = [parameter for parameter in self.model.parameters() if parameter.requires_grad]
+        if not model_parameters:
+            raise RuntimeError("PCGrad requires trainable model parameters")
+        focus = tuple(key for key in self.gradient_focus_tasks if key in components)
+        rest_components = [loss for key, loss in components.items() if key not in focus]
+        if not focus or not rest_components:
+            scaled_total.backward()
+            return
+        rest_loss = sum((loss / normalization for loss in rest_components), scaled_total.new_zeros(()))
+        task_losses = [rest_loss] + [components[key] / normalization for key in focus]
+        task_gradients = [
+            torch.autograd.grad(
+                loss,
+                model_parameters,
+                retain_graph=True,
+                allow_unused=True,
+            )
+            for loss in task_losses
+        ]
+        combined = self._pcgrad_combine(task_gradients)
+        self._accumulate_gradients(model_parameters, combined)
+
+        aggregator_parameters = [parameter for parameter in self.loss_aggregator.parameters() if parameter.requires_grad]
+        if aggregator_parameters:
+            aggregator_gradients = torch.autograd.grad(
+                scaled_total,
+                aggregator_parameters,
+                retain_graph=False,
+                allow_unused=True,
+            )
+            self._accumulate_gradients(aggregator_parameters, aggregator_gradients)
+
+    def _backward_shared_representation(
+        self,
+        scaled_total: Tensor,
+        components: Mapping[str, Tensor],
+        *,
+        normalization: int,
+    ) -> None:
+        shared = self._last_shared_representation
+        if shared is None or not shared.requires_grad:
+            scaled_total.backward()
+            return
+        focus = tuple(key for key in self.gradient_focus_tasks if key in components)
+        rest_components = [loss for key, loss in components.items() if key not in focus]
+        if not focus or not rest_components:
+            scaled_total.backward()
+            return
+        rest_loss = sum((loss / normalization for loss in rest_components), scaled_total.new_zeros(()))
+        task_losses = [rest_loss] + [components[key] / normalization for key in focus]
+        shared_gradients = [
+            torch.autograd.grad(
+                loss,
+                shared,
+                retain_graph=True,
+                allow_unused=True,
+            )[0]
+            for loss in task_losses
+        ]
+        combined = self._pcgrad_combine([(gradient,) for gradient in shared_gradients])[0]
+        if combined is None:
+            scaled_total.backward()
+            return
+
+        named_parameters = [(name, parameter) for name, parameter in self.model.named_parameters() if parameter.requires_grad]
+        non_shared_parameters = [parameter for name, parameter in named_parameters if not name.startswith("backbone.")]
+        if non_shared_parameters:
+            non_shared_gradients = torch.autograd.grad(
+                scaled_total,
+                non_shared_parameters,
+                retain_graph=True,
+                allow_unused=True,
+            )
+            self._accumulate_gradients(non_shared_parameters, non_shared_gradients)
+        aggregator_parameters = [parameter for parameter in self.loss_aggregator.parameters() if parameter.requires_grad]
+        if aggregator_parameters:
+            aggregator_gradients = torch.autograd.grad(
+                scaled_total,
+                aggregator_parameters,
+                retain_graph=True,
+                allow_unused=True,
+            )
+            self._accumulate_gradients(aggregator_parameters, aggregator_gradients)
+        torch.autograd.backward(shared, grad_tensors=combined, retain_graph=False)
+
+    def _epoch_batches(self, batches: list[dict[str, Any]], *, seed: int, epoch: int) -> list[dict[str, Any]]:
+        if self.batch_order == "fixed":
+            return batches
+        return list(DeterministicSampler(batches, seed=seed, epoch=epoch))
 
     def _default_selection(self, batches: list[dict[str, Any]], *, thresholds_override: Mapping[str, float] | None = None) -> SelectionResult:
         self.model.eval()
@@ -583,14 +762,15 @@ class TrainingEngine:
                 hook(epoch + 1, state)
             train_losses: list[float] = []
             self.optimizer.zero_grad(set_to_none=True)
-            for start in range(0, len(batches_list), self.config.gradient_accumulation_steps):
-                window = batches_list[start:start + self.config.gradient_accumulation_steps]
+            epoch_batches = self._epoch_batches(batches_list, seed=seed, epoch=epoch)
+            for start in range(0, len(epoch_batches), self.config.gradient_accumulation_steps):
+                window = epoch_batches[start:start + self.config.gradient_accumulation_steps]
                 window_loss = 0.0
                 for batch in window:
                     prepared_batch = self._prepare_batch(batch)
-                    total, _ = self._loss(prepared_batch)
+                    total, components = self._loss(prepared_batch)
                     self._write_first_step_device_report(prepared_batch, total)
-                    (total / len(window)).backward()
+                    self._backward(total, components, normalization=len(window))
                     window_loss += float(total.detach().cpu())
                     state.micro_batches += 1
                 optimizer_parameters = list(self.model.parameters()) + (list(self.loss_aggregator.parameters()) if self.uses_uncertainty_weighting else [])
@@ -652,7 +832,7 @@ class TrainingEngine:
         atomic_write_json(self.checkpoints.path / "run_state.json", asdict(state))
         atomic_write_json(self.checkpoints.path / "thresholds.json", state.thresholds)
         self.gate.freeze_checkpoint()
-        final_selection = self._evaluate_dev(dev_list, selection_callback)
+        final_selection = self._evaluate_dev(dev_list, selection_callback, thresholds_override=state.thresholds)
         self._export_run_outputs(
             state,
             final_selection,
