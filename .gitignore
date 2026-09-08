@@ -17,4 +17,12 @@ results/runs/**/*.pth
 results/runs/**/*.bin
 results/runs/**/*.safetensors
 results/runs/**/*.ckpt
+
+# Generated local experiment outputs and transfer caches are never source files.
+results/runs/
+runtime/
+hub/
+xet/
+data/processed/tokenized_text/
+
 hs_err_pid*.log
