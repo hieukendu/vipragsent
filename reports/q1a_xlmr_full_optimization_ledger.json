@@ -1854,6 +1854,83 @@
         "runner_status": "PASS"
       },
       "next_direction": "Use this exact accepted V22 recipe for seed 20260523: cosine, learning_rate=2e-5, warmup_ratio=0.20, rationale_beta=0.30, pragmatic_loss_multiplier=1.10, irony_loss_multiplier=1.05, gradient_strategy=sum, fixed batch order, and all locked protocol constants."
+    },
+    {
+      "seed": 20260523,
+      "trial": "pragmatic_warmup020_irony105_implicit105_code105_wd020_v28",
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit105_code105_wd020_v28_20260523",
+      "status": "REJECTED",
+      "artifact_cleanup": "deleted",
+      "training": {
+        "epochs_completed": 10,
+        "best_epoch": 10,
+        "learning_rate": 0.00002,
+        "weight_decay": 0.02,
+        "physical_batch_size": 8,
+        "effective_batch_size": 32,
+        "precision": "bf16",
+        "scheduler": "cosine",
+        "warmup_ratio": 0.2,
+        "patience": 10,
+        "rationale_beta": 0.3,
+        "pragmatic_loss_multiplier": 1.1,
+        "auxiliary_loss_multiplier": 1.0,
+        "sarcasm_weight_multiplier": 1.0,
+        "code_switching_weight_multiplier": 1.0,
+        "irony_loss_multiplier": 1.05,
+        "implicit_sentiment_loss_multiplier": 1.05,
+        "code_switching_loss_multiplier": 1.05,
+        "gradient_strategy": "sum",
+        "batch_order": "fixed",
+        "peak_vram_gb": 13.501627445220947,
+        "wall_seconds": 5826.066991311498
+      },
+      "dev_metrics": {
+        "implicit_sentiment": 0.9405957116079184,
+        "sarcasm": 0.8493639980708947,
+        "irony": 0.9779266134431933,
+        "idiom_figurative": 0.9010892417608325,
+        "code_switching": 0.9562972438429664,
+        "mocking": 0.9311564671884073,
+        "macro_pragmatic_f1": 0.9260715459857022
+      },
+      "test_metrics": {
+        "implicit_sentiment": 0.9283450992478162,
+        "sarcasm": 0.8809523809523809,
+        "irony": 0.9862403940751137,
+        "idiom_figurative": 0.9346896123828494,
+        "code_switching": 0.9377663164077162,
+        "mocking": 0.9290079950233401,
+        "macro_pragmatic_f1": 0.9328336330148694
+      },
+      "failed_metrics": {
+        "sarcasm": -0.00027796845248462265,
+        "code_switching": -0.004884972935296106
+      },
+      "independent_audit": {
+        "prediction_rows": 2000,
+        "unique_test_ids": 2000,
+        "duplicate_test_ids": 0,
+        "recomputed_metrics_match_persisted": true,
+        "prediction_sha256": "45687F48BC93CAF77BAE8899CFB1DBE8035B34956B64A46AF4C4DA14300E9FCA",
+        "best_checkpoint_sha256": "3F57F7C50DA90F5519010CD9716025EDDC885ACA4D66F110374C4DC5EEEA8E21",
+        "checkpoint_count": 10,
+        "device_report_status": "PASS"
+      },
+      "validation": {
+        "test_rows": 2000,
+        "unique_test_ids": 2000,
+        "duplicate_test_ids": 0,
+        "recomputed_metrics_match_persisted": true,
+        "checkpoint_count": 10,
+        "checkpoint_manifest_status": "PASS",
+        "device_report_status": "PASS",
+        "preprocessing_name": "unicode_nfc",
+        "preprocessing_version": "locked-v1",
+        "peak_vram_gb": 13.501627445220947,
+        "runner_status": "PASS"
+      },
+      "next_direction": "Reject V28: weight_decay=0.02 recovered irony but lost sarcasm and code_switching against the strict baseline. Restore weight_decay=0.01 and the V9 warmup_ratio=0.10 schedule; keep fixed ordering, sum gradients, global pragmatic=1.10, irony=1.05, implicit=1.05, and code_switching=1.05. This V29 configuration is predeclared from prior dev evidence and must not be adjusted after test inspection."
     }
   ]
 }
