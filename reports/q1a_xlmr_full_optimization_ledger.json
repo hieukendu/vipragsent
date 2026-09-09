@@ -2009,6 +2009,85 @@
         "runner_status": "PASS"
       },
       "next_direction": "Reject V29: the V9 warmup plus implicit/code boosts recovered five other strict gates, but irony fell 0.002337 below baseline. V30 is a predeclared single-ablation trial that keeps the full V29 protocol and removes only the irony loss boost (irony_loss_multiplier=1.0), because the earlier seed-23 V9 control passed irony without that boost. Do not adjust V30 after test inspection."
+    },
+    {
+      "seed": 20260523,
+      "trial": "pragmatic_warmup010_implicit105_code105_v30",
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup010_implicit105_code105_v30_20260523",
+      "status": "REJECTED",
+      "artifact_cleanup": "deleted",
+      "training": {
+        "epochs_completed": 10,
+        "best_epoch": 10,
+        "learning_rate": 0.00002,
+        "weight_decay": 0.01,
+        "physical_batch_size": 8,
+        "effective_batch_size": 32,
+        "precision": "bf16",
+        "scheduler": "cosine",
+        "warmup_ratio": 0.1,
+        "patience": 10,
+        "rationale_beta": 0.3,
+        "pragmatic_loss_multiplier": 1.1,
+        "auxiliary_loss_multiplier": 1.0,
+        "sarcasm_weight_multiplier": 1.0,
+        "code_switching_weight_multiplier": 1.0,
+        "irony_loss_multiplier": 1.0,
+        "implicit_sentiment_loss_multiplier": 1.05,
+        "code_switching_loss_multiplier": 1.05,
+        "gradient_strategy": "sum",
+        "batch_order": "fixed",
+        "peak_vram_gb": 13.501627445220947,
+        "wall_seconds": 5676.848399760202
+      },
+      "dev_metrics": {
+        "implicit_sentiment": 0.9375672974532562,
+        "sarcasm": 0.8459887097004313,
+        "irony": 0.9782290793125263,
+        "idiom_figurative": 0.9062200508005442,
+        "code_switching": 0.9600738516099018,
+        "mocking": 0.9260232403227,
+        "macro_pragmatic_f1": 0.92568370486656
+      },
+      "test_metrics": {
+        "implicit_sentiment": 0.9291742013261,
+        "sarcasm": 0.8719643307688542,
+        "irony": 0.9862403940751137,
+        "idiom_figurative": 0.9342814840014071,
+        "code_switching": 0.9470588235294117,
+        "mocking": 0.9219847090029645,
+        "macro_pragmatic_f1": 0.9317839904506421
+      },
+      "failed_metrics": {
+        "sarcasm": -0.009266018636011397,
+        "mocking": -0.0007555280750489723
+      },
+      "independent_audit": {
+        "prediction_rows": 2000,
+        "unique_test_ids": 2000,
+        "duplicate_test_ids": 0,
+        "recomputed_metrics_match_persisted": true,
+        "prediction_sha256": "7E6794009D536EDBF2D620C04D9DFEA56A20F55733C745662CCDB400B6F864EA",
+        "best_checkpoint_sha256": "2763A5FDEAED45ACFE5098542D3309B9BC0C97C1B3D4F42777A992130901B431",
+        "checkpoint_count": 10,
+        "device_report_status": "PASS",
+        "same_test_ids_as_seed21_seed22": true,
+        "same_test_gold_as_seed21_seed22": true
+      },
+      "validation": {
+        "test_rows": 2000,
+        "unique_test_ids": 2000,
+        "duplicate_test_ids": 0,
+        "recomputed_metrics_match_persisted": true,
+        "checkpoint_count": 10,
+        "checkpoint_manifest_status": "PASS",
+        "device_report_status": "PASS",
+        "preprocessing_name": "unicode_nfc",
+        "preprocessing_version": "locked-v1",
+        "peak_vram_gb": 13.501627445220947,
+        "runner_status": "PASS"
+      },
+      "next_direction": "Reject V30: removing the irony boost recovered irony, but it caused sarcasm to fall 0.009266 below baseline and mocking to fall 0.000756 below baseline. V31 is a predeclared intermediate ablation that restores the V29 recipe and tests only irony_loss_multiplier=1.02, interpolating between the V29 and V30 outcomes without changing the locked pipeline or protocol. Do not adjust V31 after test inspection."
     }
   ]
 }
