@@ -41,7 +41,9 @@ V29 restored `weight_decay=0.01` and the V9 `warmup_ratio=0.10` while keeping
 the implicit/code boosts; it recovered sarcasm and code-switching but lost irony,
 so it was rejected after an independent audit. V30 therefore removes only the
 irony boost as a predeclared ablation. V30 recovered irony but caused sarcasm
-and mocking to fail, so V31 tests only an intermediate irony multiplier.
+and mocking to fail. V31 tested only an intermediate irony multiplier, but both
+implicit sentiment and irony fell below baseline, so V32 returns to the original
+V9 core and isolates an implicit-sentiment boost.
 
 ## Evidence from completed candidates
 
@@ -71,6 +73,7 @@ and mocking to fail, so V31 tests only an intermediate irony multiplier.
 | V28 seed 23 | V23 profile plus weight decay `0.02` | `+0.003491` | sarcasm `-0.000278`, code `-0.004885` |
 | V29 seed 23 | V9 warmup `0.10` plus implicit/code loss `1.05` | `+0.007609` | irony `-0.002337` |
 | V30 seed 23 | V29 profile with irony loss `1.00` | `+0.002441` | sarcasm `-0.009266`, mocking `-0.000756` |
+| V31 seed 23 | V29 profile with irony loss `1.02` | `+0.001439` | implicit `-0.002948`, irony `-0.002490` |
 
 ### Quantitative interpretation
 
@@ -112,11 +115,12 @@ V26 lost sarcasm and code again; V27 recovered all gates except irony; and V28
 recovered irony but lost sarcasm and code after increasing weight decay. V29
 recovered every gate except irony under the V9 warmup schedule, while V30
 recovered irony but lost sarcasm and mocking after removing the irony boost. All
-nine runs had 2,000 unique test IDs, 10 checkpoints, persisted/recomputed metric
+ten runs had 2,000 unique test IDs, 10 checkpoints, persisted/recomputed metric
 agreement, and device status PASS. V29 also used the same test IDs and gold
 labels as seeds 21 and 22 and passed the 20 GB device check; V30 passed the
-same checks. This is seed instability under the narrow strict-gate rule, not
-evidence for selecting a test-informed variant.
+same checks, as did V31. V31's intermediate irony multiplier did not preserve
+either implicit sentiment or irony. This is seed instability under the narrow
+strict-gate rule, not evidence for selecting a test-informed variant.
 
 V5 test F1 values were:
 
@@ -193,11 +197,11 @@ robust across seeds.
 ## Next action
 
 Keep the independently verified seed-21 V9 and seed-22 V22 artifacts on the
-Hub. Do not upload V22--V30 seed-23 failures. The next predeclared seed-23
-trial is V31: restore the V29 recipe with `weight_decay=0.01`, the V9
-`warmup_ratio=0.10`, fixed ordering, sum gradients, global pragmatic `1.10`,
-implicit `1.05`, and code-switching `1.05`, while using only
-`irony_loss_multiplier=1.02`; do not adjust it after test inspection. For the paper, label seed 21 and seed 22 as two successful
+Hub. Do not upload V22--V31 seed-23 failures. The next predeclared seed-23
+trial is V32: use the V9 core with `weight_decay=0.01`, warmup `0.10`, fixed
+ordering, sum gradients, global pragmatic `1.10`, no irony boost, no
+code-switching boost, and only `implicit_sentiment_loss_multiplier=1.05`; do
+not adjust it after test inspection. For the paper, label seed 21 and seed 22 as two successful
 per-seed runs with different resolved recipes; do not
 average them or call them a final three-seed result. A final headline number
 requires a pre-registered common recipe evaluated on all three canonical seeds,
