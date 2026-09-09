@@ -1,6 +1,6 @@
 # Q1a XLM-R Protocol-Safe Optimization Matrix
 
-Audit date: 2026-09-08 UTC
+Audit date: 2026-09-09 UTC
 
 ## Decision summary
 
@@ -35,6 +35,8 @@ sarcasm. V21 combined that low-memory method with the evidence-backed warmup
 `0.20` from V15, but the interaction regressed sarcasm and mocking. V22 returns
 to the V15 sum-gradient path and applies only a minimal `1.05` irony loss
 multiplier to address V15's sole failed gate; it passed all seven strict gates.
+V28 completed the full 10-epoch run with `weight_decay=0.02`; it recovered irony
+but lost sarcasm and code-switching, so it was rejected after independent audit.
 
 ## Evidence from completed candidates
 
@@ -61,6 +63,7 @@ multiplier to address V15's sole failed gate; it passed all seven strict gates.
 | V24 seed 23 | V23 plus sarcasm loss `1.03` | `+0.005027` | implicit |
 | V25 seed 23 | V23 plus sarcasm positive-class weight `1.05` | `+0.005371` | sarcasm |
 | V26 seed 23 | V23 plus sarcasm loss `1.01` | `+0.004954` | sarcasm, code |
+| V28 seed 23 | V23 profile plus weight decay `0.02` | `+0.003491` | sarcasm `-0.000278`, code `-0.004885` |
 
 ### Quantitative interpretation
 
@@ -98,10 +101,11 @@ The seed-23 follow-up confirms that the remaining issue is not a missing
 artifact or a runtime bug. V22 had exact metrics and failed only implicit/code;
 V23 recovered both but missed sarcasm by `0.000278`; V24 recovered sarcasm
 while losing implicit; V25 did not recover sarcasm with a positive-class weight;
-and V26 lost sarcasm and code again. All four runs had 2,000 unique test IDs,
-10 checkpoints, persisted/recomputed metric agreement, and device status PASS.
-This is seed instability under the narrow strict-gate rule, not evidence for
-selecting a test-informed variant.
+V26 lost sarcasm and code again; V27 recovered all gates except irony; and V28
+recovered irony but lost sarcasm and code after increasing weight decay. All
+seven runs had 2,000 unique test IDs, 10 checkpoints, persisted/recomputed
+metric agreement, and device status PASS. This is seed instability under the
+narrow strict-gate rule, not evidence for selecting a test-informed variant.
 
 V5 test F1 values were:
 
@@ -178,8 +182,12 @@ robust across seeds.
 ## Next action
 
 Keep the independently verified seed-21 V9 and seed-22 V22 artifacts on the
-Hub. Do not upload V22--V26 seed-23 failures. For the paper, label seed 21 and
-seed 22 as two successful per-seed runs with different resolved recipes; do not
+Hub. Do not upload V22--V28 seed-23 failures. The next predeclared seed-23
+trial is V29: restore `weight_decay=0.01` and the V9 `warmup_ratio=0.10`, while
+keeping fixed ordering, sum gradients, global pragmatic `1.10`, irony `1.05`,
+implicit `1.05`, and code-switching `1.05`; do not adjust it after test
+inspection. For the paper, label seed 21 and seed 22 as two successful
+per-seed runs with different resolved recipes; do not
 average them or call them a final three-seed result. A final headline number
 requires a pre-registered common recipe evaluated on all three canonical seeds,
 with seed 23 rerun without test-informed tuning (and seed 21/22 rerun under the
