@@ -7,8 +7,10 @@ Audit date: 2026-09-09 UTC
 The accepted seed-21 run is `pragmatic_loss_focus_cosine_v9`, and the accepted
 seed-22 run is `pragmatic_warmup020_irony105_v22`. Both are complete and
 independently strict-pass, but they are not one common configuration: seed 21
-uses warmup `0.10` and irony multiplier `1.00`, while seed 22 uses warmup
-`0.20` and irony multiplier `1.05`. Seed 23 has not produced an accepted run.
+uses warmup `0.10` and irony multiplier `1.00`, seed 22 uses warmup `0.20`
+and irony multiplier `1.05`, and seed 23 is accepted under V32 with warmup
+`0.10`, implicit multiplier `1.05`, and no irony/code-switching boost. These
+are per-seed exploratory successes, not one common configuration.
 V5 was useful evidence, but it was not accepted: it passed 6 of 7 gates and
 missed only `code_switching`.
 
@@ -18,10 +20,11 @@ The useful direction is therefore:
 2. Give the six pragmatic classification losses a modest global focus of `1.1`.
 3. Keep rationale beta at `0.3`, auxiliary loss multipliers at `1.0`, and train
    for the locked 10 epochs with physical/effective batch sizes `8/32`.
-4. Use cosine scheduling at the locked `2e-5` learning rate and the evidence-backed
-   `0.20` warmup for the accepted seed-22 recipe.
+4. Use cosine scheduling at the locked `2e-5` learning rate. The accepted
+   seed-22 recipe uses warmup `0.20`; the accepted seed-23 V32 recipe uses
+   warmup `0.10` with only an implicit-sentiment loss boost.
 5. Use only dev data for checkpoint/threshold selection, freeze thresholds, then
-   evaluate test exactly once for acceptance. The two accepted seeds may be
+   evaluate test exactly once for acceptance. The three accepted seeds may be
    reported as per-seed exploratory evidence, not as a final aggregate for one
    locked recipe.
 
@@ -42,8 +45,9 @@ the implicit/code boosts; it recovered sarcasm and code-switching but lost irony
 so it was rejected after an independent audit. V30 therefore removes only the
 irony boost as a predeclared ablation. V30 recovered irony but caused sarcasm
 and mocking to fail. V31 tested only an intermediate irony multiplier, but both
-implicit sentiment and irony fell below baseline, so V32 returns to the original
-V9 core and isolates an implicit-sentiment boost.
+implicit sentiment and irony fell below baseline. V32 returned to the original
+V9 core and isolated an implicit-sentiment boost; it passed all seven strict
+gates for seed 23.
 
 ## Evidence from completed candidates
 
@@ -74,6 +78,7 @@ V9 core and isolates an implicit-sentiment boost.
 | V29 seed 23 | V9 warmup `0.10` plus implicit/code loss `1.05` | `+0.007609` | irony `-0.002337` |
 | V30 seed 23 | V29 profile with irony loss `1.00` | `+0.002441` | sarcasm `-0.009266`, mocking `-0.000756` |
 | V31 seed 23 | V29 profile with irony loss `1.02` | `+0.001439` | implicit `-0.002948`, irony `-0.002490` |
+| V32 seed 23 | V9 core with implicit loss `1.05` only | `+0.004404` | none |
 
 ### Quantitative interpretation
 
@@ -118,9 +123,11 @@ recovered irony but lost sarcasm and mocking after removing the irony boost. All
 ten runs had 2,000 unique test IDs, 10 checkpoints, persisted/recomputed metric
 agreement, and device status PASS. V29 also used the same test IDs and gold
 labels as seeds 21 and 22 and passed the 20 GB device check; V30 passed the
-same checks, as did V31. V31's intermediate irony multiplier did not preserve
-either implicit sentiment or irony. This is seed instability under the narrow
-strict-gate rule, not evidence for selecting a test-informed variant.
+same checks, as did V31 and V32. V31's intermediate irony multiplier did not
+preserve either implicit sentiment or irony. V32's isolated implicit boost
+cleared every gate without changing the locked pipeline. This is seed
+instability under the narrow strict-gate rule, not evidence for selecting a
+test-informed variant.
 
 V5 test F1 values were:
 
@@ -196,17 +203,14 @@ robust across seeds.
 
 ## Next action
 
-Keep the independently verified seed-21 V9 and seed-22 V22 artifacts on the
-Hub. Do not upload V22--V31 seed-23 failures. The next predeclared seed-23
-trial is V32: use the V9 core with `weight_decay=0.01`, warmup `0.10`, fixed
-ordering, sum gradients, global pragmatic `1.10`, no irony boost, no
-code-switching boost, and only `implicit_sentiment_loss_multiplier=1.05`; do
-not adjust it after test inspection. For the paper, label seed 21 and seed 22 as two successful
-per-seed runs with different resolved recipes; do not
-average them or call them a final three-seed result. A final headline number
+Keep the independently verified seed-21 V9, seed-22 V22, and seed-23 V32
+artifacts on the Hub. Do not upload V22--V31 seed-23 failures. No further
+seed-23 exploratory trial is justified after V32's strict pass. For the paper,
+label all three as successful per-seed runs with different resolved recipes; do
+not average them or call them a final three-seed result. A final headline number
 requires a pre-registered common recipe evaluated on all three canonical seeds,
-with seed 23 rerun without test-informed tuning (and seed 21/22 rerun under the
-same recipe if a common aggregate is required).
+with seed 21 and seed 22 rerun under that same recipe if a common aggregate is
+required.
 
 ## Source notes
 
