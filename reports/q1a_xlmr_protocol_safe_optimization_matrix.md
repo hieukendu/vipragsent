@@ -37,6 +37,10 @@ to the V15 sum-gradient path and applies only a minimal `1.05` irony loss
 multiplier to address V15's sole failed gate; it passed all seven strict gates.
 V28 completed the full 10-epoch run with `weight_decay=0.02`; it recovered irony
 but lost sarcasm and code-switching, so it was rejected after independent audit.
+V29 restored `weight_decay=0.01` and the V9 `warmup_ratio=0.10` while keeping
+the implicit/code boosts; it recovered sarcasm and code-switching but lost irony,
+so it was rejected after an independent audit. V30 therefore removes only the
+irony boost as a predeclared ablation.
 
 ## Evidence from completed candidates
 
@@ -64,6 +68,7 @@ but lost sarcasm and code-switching, so it was rejected after independent audit.
 | V25 seed 23 | V23 plus sarcasm positive-class weight `1.05` | `+0.005371` | sarcasm |
 | V26 seed 23 | V23 plus sarcasm loss `1.01` | `+0.004954` | sarcasm, code |
 | V28 seed 23 | V23 profile plus weight decay `0.02` | `+0.003491` | sarcasm `-0.000278`, code `-0.004885` |
+| V29 seed 23 | V9 warmup `0.10` plus implicit/code loss `1.05` | `+0.007609` | irony `-0.002337` |
 
 ### Quantitative interpretation
 
@@ -102,10 +107,13 @@ artifact or a runtime bug. V22 had exact metrics and failed only implicit/code;
 V23 recovered both but missed sarcasm by `0.000278`; V24 recovered sarcasm
 while losing implicit; V25 did not recover sarcasm with a positive-class weight;
 V26 lost sarcasm and code again; V27 recovered all gates except irony; and V28
-recovered irony but lost sarcasm and code after increasing weight decay. All
-seven runs had 2,000 unique test IDs, 10 checkpoints, persisted/recomputed
-metric agreement, and device status PASS. This is seed instability under the
-narrow strict-gate rule, not evidence for selecting a test-informed variant.
+recovered irony but lost sarcasm and code after increasing weight decay. V29
+recovered every gate except irony under the V9 warmup schedule. All eight runs
+had 2,000 unique test IDs, 10 checkpoints, persisted/recomputed metric
+agreement, and device status PASS. V29 also used the same test IDs and gold
+labels as seeds 21 and 22 and passed the 20 GB device check. This is seed
+instability under the narrow strict-gate rule, not evidence for selecting a
+test-informed variant.
 
 V5 test F1 values were:
 
@@ -182,11 +190,11 @@ robust across seeds.
 ## Next action
 
 Keep the independently verified seed-21 V9 and seed-22 V22 artifacts on the
-Hub. Do not upload V22--V28 seed-23 failures. The next predeclared seed-23
-trial is V29: restore `weight_decay=0.01` and the V9 `warmup_ratio=0.10`, while
-keeping fixed ordering, sum gradients, global pragmatic `1.10`, irony `1.05`,
-implicit `1.05`, and code-switching `1.05`; do not adjust it after test
-inspection. For the paper, label seed 21 and seed 22 as two successful
+Hub. Do not upload V22--V29 seed-23 failures. The next predeclared seed-23
+trial is V30: keep `weight_decay=0.01`, the V9 `warmup_ratio=0.10`, fixed
+ordering, sum gradients, global pragmatic `1.10`, implicit `1.05`, and
+code-switching `1.05`, but remove only the irony loss boost
+(`irony_loss_multiplier=1.0`); do not adjust it after test inspection. For the paper, label seed 21 and seed 22 as two successful
 per-seed runs with different resolved recipes; do not
 average them or call them a final three-seed result. A final headline number
 requires a pre-registered common recipe evaluated on all three canonical seeds,
