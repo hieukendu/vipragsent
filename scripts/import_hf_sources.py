@@ -17,7 +17,11 @@ from collections.abc import Mapping
 from pathlib import Path
 from typing import Any
 
-from huggingface_hub import HfApi, hf_hub_download
+try:
+    from huggingface_hub import HfApi, hf_hub_download
+except ModuleNotFoundError:  # The CPU test extra does not need Hub access.
+    HfApi = None  # type: ignore[assignment,misc]
+    hf_hub_download = None  # type: ignore[assignment,misc]
 
 try:
     from _bootstrap import ROOT
@@ -96,6 +100,8 @@ def _api() -> HfApi:
     token = os.environ.get("HF_TOKEN")
     if not token:
         raise RuntimeError("HF_TOKEN is required for the read-only source import")
+    if HfApi is None:
+        raise RuntimeError("huggingface_hub is required for the read-only source import")
     return HfApi(token=token)
 
 
@@ -107,6 +113,8 @@ def _entry(run_id: str) -> RunEntry:
 
 
 def _download(api: HfApi, repo_id: str, remote_path: str, target: Path) -> bool:
+    if hf_hub_download is None:
+        return False
     try:
         cached = hf_hub_download(repo_id=repo_id, filename=remote_path, repo_type="model", token=os.environ.get("HF_TOKEN"))
     except Exception:
