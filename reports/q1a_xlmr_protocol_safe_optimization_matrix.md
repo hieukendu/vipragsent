@@ -1,16 +1,16 @@
 # Q1a XLM-R Protocol-Safe Optimization Matrix
 
-Audit date: 2026-09-09 UTC
+Audit date: 2026-09-10 UTC
 
 ## Decision summary
 
-The accepted seed-21 run is `pragmatic_loss_focus_cosine_v9`, and the accepted
-seed-22 run is `pragmatic_warmup020_irony105_v22`. Both are complete and
-independently strict-pass, but they are not one common configuration: seed 21
-uses warmup `0.10` and irony multiplier `1.00`, seed 22 uses warmup `0.20`
-and irony multiplier `1.05`, and seed 23 is accepted under V32 with warmup
-`0.10`, implicit multiplier `1.05`, and no irony/code-switching boost. These
-are per-seed exploratory successes, not one common configuration.
+The selected archival configuration is the common V22 recipe: seed 21 uses the
+V22 replay run, seed 22 uses the retained canonical V22 run, and seed 23 uses
+the V22 replay run. This is the closest audited three-seed comparison. Its
+aggregate passes 6 of 7 rounded strict gates; only code-switching is below the
+baseline (`94.22` vs `94.27`). The user explicitly requested these V22
+artifacts as a reproducibility replacement for the old seed-21 V9 and seed-23
+V32 Hub roots, so this replacement must not be presented as a seven-gate pass.
 V5 was useful evidence, but it was not accepted: it passed 6 of 7 gates and
 missed only `code_switching`.
 
@@ -20,13 +20,11 @@ The useful direction is therefore:
 2. Give the six pragmatic classification losses a modest global focus of `1.1`.
 3. Keep rationale beta at `0.3`, auxiliary loss multipliers at `1.0`, and train
    for the locked 10 epochs with physical/effective batch sizes `8/32`.
-4. Use cosine scheduling at the locked `2e-5` learning rate. The accepted
-   seed-22 recipe uses warmup `0.20`; the accepted seed-23 V32 recipe uses
-   warmup `0.10` with only an implicit-sentiment loss boost.
+4. Use cosine scheduling at the locked `2e-5` learning rate, warmup `0.20`,
+   and irony loss multiplier `1.05`.
 5. Use only dev data for checkpoint/threshold selection, freeze thresholds, then
-   evaluate test exactly once for acceptance. The three accepted seeds may be
-   reported as per-seed exploratory evidence, not as a final aggregate for one
-   locked recipe.
+   evaluate test exactly once. The V22 three-seed aggregate is reported with
+   its one failed gate; it is not a final seven-gate headline result.
 
 V17 tested midpoint warmup and was rejected because sarcasm and irony remained
 below baseline. V18 then tested focused full-parameter PCGrad on the exact V9
@@ -165,8 +163,10 @@ robust across seeds.
 - Every final candidate must have 2,000 unique test IDs, 10 epoch checkpoints,
   an independent metric recomputation, and all six per-label plus macro strict
   gates above baseline.
-- Only strict-pass runs are uploaded. Rejected or interrupted exact run
-  directories are removed. Only one GPU training process runs at a time.
+- Only strict-pass runs are uploaded under the normal acceptance protocol.
+  The explicitly documented V22 seed21/23 archival replacement is an
+  exception and must not be labeled strict-pass. Rejected or interrupted exact
+  run directories are removed. Only one GPU training process runs at a time.
 
 ## Candidate priority
 
@@ -203,14 +203,12 @@ robust across seeds.
 
 ## Next action
 
-Keep the independently verified seed-21 V9, seed-22 V22, and seed-23 V32
-artifacts on the Hub. Do not upload V22--V31 seed-23 failures. No further
-seed-23 exploratory trial is justified after V32's strict pass. For the paper,
-label all three as successful per-seed runs with different resolved recipes; do
-not average them or call them a final three-seed result. A final headline number
-requires a pre-registered common recipe evaluated on all three canonical seeds,
-with seed 21 and seed 22 rerun under that same recipe if a common aggregate is
-required.
+No further XLM-R-large experiment is authorized after the user-requested stop.
+Retain the common V22 seed21/22/23 evidence and document the one code-switching
+gate miss. After the matching V22 Hub roots are independently verified, remove
+only the old seed-21 V9 and seed-23 V32 roots. A final seven-gate headline
+number would require a separately pre-registered common recipe that passes all
+seven gates; this archival replacement does not satisfy that condition.
 
 ## Source notes
 

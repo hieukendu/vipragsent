@@ -14,6 +14,7 @@ from torch import Tensor, nn
 
 from ..atomic import atomic_write_json
 from ..constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS
+from ..data.sampling import DeterministicSampler
 from ..evaluation.metrics import binary_macro_f1, macro_pragmatic_f1, multiclass_macro_f1
 from ..evaluation.thresholds import tune_binary_threshold
 from ..models.losses import (
@@ -31,7 +32,6 @@ from ..runtime.device import (
     tensor_devices,
     write_device_report,
 )
-from ..data.sampling import DeterministicSampler
 from .checkpoints import (
     build_checkpoint_payload,
     infer_required_head_prefixes,

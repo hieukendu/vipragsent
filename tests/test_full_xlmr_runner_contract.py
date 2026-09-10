@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-import unicodedata
 import sys
+import unicodedata
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from run_full_xlmr_large_experiment import _build_production_preprocessor, _loss_multipliers, _preprocessing_kwargs
+from run_full_xlmr_large_experiment import (  # noqa: E402
+    _build_production_preprocessor,
+    _loss_multipliers,
+    _preprocessing_kwargs,
+)
 
 
 def test_xlmr_runner_uses_locked_unicode_preprocessing() -> None:
