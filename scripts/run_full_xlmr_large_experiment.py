@@ -16,7 +16,6 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-import torch
 import yaml
 
 from _bootstrap import ROOT
@@ -27,7 +26,7 @@ from vipragsent.data.loaders import DatasetExample, load_vipragsent
 from vipragsent.data.tokenizers import create_tokenizer
 from vipragsent.evaluation.confidence_intervals import evaluate_q1a_confidence_intervals
 from vipragsent.evaluation.metrics import binary_macro_f1, macro_pragmatic_f1, multiclass_macro_f1
-from vipragsent.hashing import sha256_file, sha256_json
+from vipragsent.hashing import sha256_file
 from vipragsent.models.factory import build_production_model
 from vipragsent.orchestration.stage_registry import _build_production_preprocessor
 from vipragsent.runtime.model_assets import read_family_status, resolve_local_snapshot

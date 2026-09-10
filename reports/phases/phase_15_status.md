@@ -5,16 +5,16 @@
 - Next phase ready: `True`
 
 ## Inputs read
+- `data/model_cache_manifest.json`
 - `configs/models/model_registry.yaml`
 - `.codex_input/prompt_pack/ViPragSent_Codex_Setup_First_OneClick_EXPERIMENT_READY_FINAL/32_RUNTIME_PREFLIGHT_CHECKLIST.md`
-- `data/model_cache_manifest.json`
 
 ## Files created
-- `data/batch_probe_status/sailor_7b.json`
-- `data/model_cache_manifest.json`
-- `data/model_cache_status/sailor_7b.json`
-- `data/model_smoke_status/sailor_7b.json`
 - `data/model_smoke_report.json`
+- `data/model_smoke_status/vistral_7b.json`
+- `data/model_cache_manifest.json`
+- `data/model_cache_status/vistral_7b.json`
+- `data/batch_probe_status/vistral_7b.json`
 
 ## Tests run
 - `locked cache/revision validation`

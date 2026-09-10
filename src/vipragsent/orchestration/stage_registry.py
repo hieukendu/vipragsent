@@ -59,6 +59,7 @@ from ..training.generation_checkpoint import (
 )
 from ..training.optimizers import build_optimizer
 from ..training.schedulers import build_scheduler
+from ..training.seeding import seed_everything
 from .approval import validate_approval_record
 from .contracts import (
     ExecutionKind,
@@ -739,6 +740,8 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     from ..models.factory import build_production_model
 
     root = context.root
+    # Seed before constructing random classification heads and LoRA adapters.
+    seed_everything(int(entry.seed))
     spec_entry = _execution_spec(root, entry)
     family = spec_entry.model_family
     selected_device, device_blocker = _resolve_production_device(root)
@@ -877,7 +880,10 @@ def _validate_production_source_reference(context: RunContext, source_path: Path
 def _reuse_or_extract(context: RunContext, entry: RunEntry) -> StageOutcome:
     run_root = Path(context.run_root)
     source = entry.raw.get("source_checkpoint_path") or entry.raw.get("source_checkpoint")
-    if entry.execution_kind == ExecutionKind.ARTIFACT_EXTRACTION.value:
+    if entry.execution_kind in {
+        ExecutionKind.ARTIFACT_EXTRACTION.value,
+        ExecutionKind.CHECKPOINT_REUSE.value,
+    }:
         source_run = entry.raw.get("source_run_id")
         if source_run:
             source = context.root / "results/runs" / str(source_run)
@@ -1819,10 +1825,13 @@ def _q4_extract_stage(context: RunContext, entry: RunEntry, *, history: bool = F
     path = run_root / ("figure_backing/q4_learning_curves.json" if history else "figure_backing/q4_pragmatic_reliability_bins.json")
     if not path.exists():
         return StageOutcome.blocked("Q4 source-backed figure data is missing")
-    rows = _load_mapping(path)
-    if not rows:
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return StageOutcome.blocked("Q4 source-backed figure data is invalid")
+    if not isinstance(payload, (list, Mapping)) or not payload:
         return StageOutcome.blocked("Q4 source-backed figure data is empty")
-    return StageOutcome.passed(summary={"rows": len(rows), "training_applicability": "NOT_APPLICABLE"}, expected_files=(path.relative_to(run_root).as_posix(),))
+    return StageOutcome.passed(summary={"rows": len(payload), "training_applicability": "NOT_APPLICABLE"}, expected_files=(path.relative_to(run_root).as_posix(),))
 
 
 def _evaluate_reused_test(context: RunContext, entry: RunEntry) -> StageOutcome:
