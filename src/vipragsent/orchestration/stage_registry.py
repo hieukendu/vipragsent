@@ -98,6 +98,7 @@ from .preflight_single import run_single_preflight
 from .provenance import expected_inference_provenance, validate_inference_provenance
 from .run_store import RunStore, artifact_hashes, git_commit, utc_now
 from .system_registry import resolve_execution_spec
+from .xlmr_followup import evaluate_xlmr_q1b_from_current_checkpoint, extract_xlmr_q4_source
 
 StageHandler = Callable[[], StageOutcome]
 
@@ -1801,7 +1802,10 @@ def _explanation_stage(context: RunContext, entry: RunEntry, stage: str) -> Stag
 
 def _q4_resolve_source(context: RunContext, entry: RunEntry) -> StageOutcome:
     try:
-        report = resolve_and_extract_q4_source(context.root, entry.raw, output_root=context.run_root)
+        if entry.raw.get("followup_lane") == "xlmr_q4_from_v37_full_checkpoint":
+            report = extract_xlmr_q4_source(context.root, entry, output_root=context.run_root)
+        else:
+            report = resolve_and_extract_q4_source(context.root, entry.raw, output_root=context.run_root)
     except Exception as exc:
         if context.fixture:
             return StageOutcome.blocked(str(exc))
@@ -1895,6 +1899,25 @@ def _evaluate_q1b_external(context: RunContext, entry: RunEntry) -> StageOutcome
     atomic_write_json(run_root / "metrics/test_metrics.json", result)
     atomic_write_json(run_root / "external/external_evaluation_manifest.json", {"status": "PASS", "source_run_id": "fixture", "external_finetuning": False, "optimizer_steps": 0, "backward_calls": 0, "normalized_test_only": True})
     return StageOutcome.passed(summary=result, expected_files=("predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"))
+
+
+def _evaluate_xlmr_external_tests(context: RunContext, entry: RunEntry) -> StageOutcome:
+    try:
+        result = evaluate_xlmr_q1b_from_current_checkpoint(context.root, entry, output_root=context.run_root)
+    except Exception as exc:
+        return StageOutcome.blocked(str(exc))
+    atomic_write_json(Path(context.run_root) / "metrics/test_metrics.json", result)
+    return StageOutcome.passed(
+        summary=result,
+        expected_files=(
+            "predictions/uit_vsfc_test_predictions.jsonl",
+            "predictions/uit_vsmec_test_predictions.jsonl",
+            "predictions/aivivn_test_predictions.jsonl",
+            "metrics/external_retention_metrics.json",
+            "metrics/test_metrics.json",
+            "external/external_evaluation_manifest.json",
+        ),
+    )
 
 
 def _freeze_selection(context: RunContext, entry: RunEntry) -> StageOutcome:
@@ -2460,6 +2483,7 @@ def build_single_experiment_stage_registry(root: str | Path, entry_mapping: Mapp
         "freeze_component_selection": lambda: _freeze_component_selection(context, entry),
         "freeze_selection": lambda: _freeze_selection(context, entry),
         "evaluate_test": lambda: _evaluate_test(context, entry),
+        "evaluate_xlmr_external_tests": lambda: _evaluate_xlmr_external_tests(context, entry),
         "train_generation": lambda: _generation_stage(context, entry, "train_generation"),
         "generate_dev_reasoning": lambda: _generation_stage(context, entry, "generate_dev_reasoning") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "generate_dev_reasoning_from_rationale_decoder"),
         "judge_dev_reasoning": lambda: _generation_stage(context, entry, "judge_dev_reasoning") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "judge_dev_reasoning"),

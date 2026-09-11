@@ -17,7 +17,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from huggingface_hub import HfApi
+from huggingface_hub import HfApi, get_token
 
 from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json
@@ -359,11 +359,12 @@ def main() -> int:
     parser.add_argument("--campaign-id", default=CAMPAIGN_ID)
     parser.add_argument("--once", action="store_true", help="Process one queue scan and exit")
     args = parser.parse_args()
-    if not os.environ.get("HF_TOKEN"):
-        raise SystemExit("HF_TOKEN is required for the uploader")
+    token = os.environ.get("HF_TOKEN") or get_token()
+    if not token:
+        raise SystemExit("HF_TOKEN or an authenticated Hugging Face credential is required for the uploader")
     signal.signal(signal.SIGTERM, _signal_handler)
     signal.signal(signal.SIGINT, _signal_handler)
-    api = HfApi(token=os.environ["HF_TOKEN"])
+    api = HfApi(token=token)
     state = _load_json(args.status_file, {})
     if not isinstance(state, dict):
         state = {}
