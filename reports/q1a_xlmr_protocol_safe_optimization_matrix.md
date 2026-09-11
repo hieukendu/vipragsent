@@ -204,11 +204,13 @@ robust across seeds.
 ## Next action
 
 No further XLM-R-large experiment is authorized after the user-requested stop.
-Retain the common V22 seed21/22/23 evidence and document the one code-switching
-gate miss. After the matching V22 Hub roots are independently verified, remove
-only the old seed-21 V9 and seed-23 V32 roots. A final seven-gate headline
-number would require a separately pre-registered common recipe that passes all
-seven gates; this archival replacement does not satisfy that condition.
+The common V22 seed21/22/23 evidence is retained and the one code-switching
+gate miss is documented. The matching V22 Hub roots were independently
+verified, and only the old seed-21 V9 and seed-23 V32 roots were then removed;
+the completed operation is recorded in
+`reports/q1a_xlmr_v22_hub_replacement.md`. A final seven-gate headline number
+would require a separately pre-registered common recipe that passes all seven
+gates; this archival replacement does not satisfy that condition.
 
 ## Source notes
 

@@ -215,3 +215,28 @@ this replacement.
   seven-gate candidate.
 - Only after remote upload is independently verified may the three old local
   V22 seed directories be deleted.
+
+## Completed Hub replacement audit
+
+On 2026-09-11 UTC, both exact V22 replay runs were fully uploaded and
+independently verified before deletion of the replaced roots. Each run had
+31/31 verified uploads and zero errors. Each replacement contains 12
+checkpoint files and 19 canonical artifact files, plus its uploader receipt.
+
+| Seed | Checkpoint Hub files / bytes | Artifact Hub files / bytes | Verification |
+|---|---:|---:|---|
+| 21 | 12 / 85,186,021,304 | 20 / 5,071,836 | exact paths, sizes, LFS SHA-256, artifact SHA-256: PASS |
+| 23 | 12 / 85,186,022,648 | 20 / 5,074,608 | exact paths, sizes, LFS SHA-256, artifact SHA-256: PASS |
+
+The uploader ended with `STOPPED_BY_FILE`. Only the old seed-21 V9 root and
+old seed-23 V32 root were removed from both Hub repositories, using exact
+enumerated paths: 24 checkpoint files and 40 artifact files in total. The
+checkpoint deletion commit was
+`81758116727257c5ed2876087f0cfb6b539ddb32`; the artifact deletion commit was
+`40f45b1c1ea3412a55c7bcfaca6880e0a15c2b32`. Post-delete tree queries found
+zero files under all four old-root/repository combinations. The new V22 roots,
+canonical seed-22 V22 root, and local V22 source directories remain.
+
+The three-seed V22 mean remains a 6/7 strict-gate result: code-switching is
+`94.22` versus the `94.27` baseline. The Hub action is a documented
+user-requested archival/reproducibility replacement, not a seven-gate pass.
