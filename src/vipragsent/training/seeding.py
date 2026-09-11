@@ -8,6 +8,9 @@ import numpy as np
 
 def seed_everything(seed: int, deterministic: bool = True) -> None:
     os.environ["PYTHONHASHSEED"] = str(seed)
+    if deterministic:
+        # Required by CUDA >= 10.2 for deterministic cuBLAS kernels.
+        os.environ.setdefault("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
     random.seed(seed)
     np.random.seed(seed)
     try:
