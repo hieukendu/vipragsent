@@ -1,0 +1,2201 @@
+{
+  "report_id": "q1a_best_f1_table",
+  "generated_at_utc": "2026-09-06T08:49:12.196119+00:00",
+  "research_question": "Q1a",
+  "title": "Q1a Best-F1 test-set results",
+  "score_definition": {
+    "metric": "binary macro-F1",
+    "labels": [
+      "implicit_sentiment",
+      "sarcasm",
+      "irony",
+      "idiom_figurative",
+      "code_switching",
+      "mocking"
+    ],
+    "class_average": "macro over classes 0 and 1 for each label",
+    "table_scale": "percent",
+    "raw_scale": "0_to_1"
+  },
+  "confidence_interval": {
+    "method": "paired_hierarchical_bootstrap_sign_plus_one_v1",
+    "confidence_level": 0.95,
+    "resamples": 1000,
+    "bootstrap_seed": 20260525,
+    "rendered_pm": "percentile half-width (high - low) / 2",
+    "seed_policy": "locked canonical seeds 20260521, 20260522, 20260523; Azure rows are single 2000-example runs"
+  },
+  "metric_audit": {
+    "status": "PASS",
+    "scope": "29 canonical Q1a run slots across 11 systems",
+    "complete_scored_runs_recomputed": 28,
+    "missing_test_score_runs": [
+      "q1a_cot_only_vistral_clean_rerun_003__seed_20260522"
+    ],
+    "checks": {
+      "remote_source_hashes_verified": true,
+      "recomputed_metrics_match_persisted_metrics": true,
+      "recomputed_confidence_intervals_match_locked_protocol": true,
+      "all_available_prediction_files_have_2000_rows": true,
+      "all_complete_runs_have_unique_sample_ids": true,
+      "cross_run_test_gold_signature_count": 1,
+      "test_threshold_tuning_used": false,
+      "full_vistral_threshold_source": "selection/thresholds.json",
+      "duplicate_or_overlap_run_ids": []
+    }
+  },
+  "comparability_notes": [
+    "All scored rows use the same 2,000-example test split and the same six pragmatic labels.",
+    "XLM-R is a fully fine-tuned encoder baseline (558,525,440 trainable parameters, 10 epochs, AdamW at 2e-5), while full ViPragSent is a 4-bit QLoRA run with 19,658,368 trainable parameters, 3 epochs, eight auxiliary tasks, rationale training, and uncertainty weighting. Their scores are therefore a system comparison, not a compute-matched backbone ablation.",
+    "The Vistral SFT and no-auxiliary rows are the closest controls for the Vistral backbone; their macro-F1 remains 87.2, while full ViPragSent varies from 67.1 to 88.9 across seeds."
+  ],
+  "table_rows": [
+    {
+      "system_id": "phobert_pragmatic_single_task",
+      "display_name": "PhoBERT (single-task)",
+      "score_status": "COMPLETE_3_OF_3",
+      "status_text": "3/3 complete",
+      "seeds_available": 3,
+      "seeds_expected": 3,
+      "source_ids": [
+        "q1a_phobert_pragmatic_single_task_20260521",
+        "q1a_phobert_pragmatic_single_task_20260522",
+        "q1a_phobert_pragmatic_single_task_20260523"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.8800146585024308,
+          "low": 0.8597452858129555,
+          "high": 0.8982439043438766,
+          "half_width": 0.019249309265460535
+        },
+        "sarcasm": {
+          "estimate": 0.7087394363781936,
+          "low": 0.6749873118163565,
+          "high": 0.7433168201652373,
+          "half_width": 0.03416475417444037
+        },
+        "irony": {
+          "estimate": 0.9712729847239184,
+          "low": 0.9525570991319154,
+          "high": 0.9864951477054902,
+          "half_width": 0.01696902428678737
+        },
+        "idiom_figurative": {
+          "estimate": 0.9121266949570682,
+          "low": 0.8849834046760171,
+          "high": 0.936845564897656,
+          "half_width": 0.02593108011081946
+        },
+        "code_switching": {
+          "estimate": 0.910840784192151,
+          "low": 0.8894068796376159,
+          "high": 0.9304764754422835,
+          "half_width": 0.020534797902333812
+        },
+        "mocking": {
+          "estimate": 0.7915680486286675,
+          "low": 0.7532910391051042,
+          "high": 0.8305256116037321,
+          "half_width": 0.03861728624931393
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.8624271012304049,
+          "low": 0.8502826238902627,
+          "high": 0.873161569274722,
+          "half_width": 0.011439472692229669
+        }
+      }
+    },
+    {
+      "system_id": "phobert_pragmatic_finetune",
+      "display_name": "PhoBERT fine-tune",
+      "score_status": "COMPLETE_3_OF_3",
+      "status_text": "3/3 complete",
+      "seeds_available": 3,
+      "seeds_expected": 3,
+      "source_ids": [
+        "q1a_phobert_pragmatic_finetune_20260521",
+        "q1a_phobert_pragmatic_finetune_20260522",
+        "q1a_phobert_pragmatic_finetune_20260523"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.8575667140113863,
+          "low": 0.8392055504866313,
+          "high": 0.8757850217587757,
+          "half_width": 0.018289735636072224
+        },
+        "sarcasm": {
+          "estimate": 0.7264091833809955,
+          "low": 0.68842874717648,
+          "high": 0.7632644777063489,
+          "half_width": 0.03741786526493446
+        },
+        "irony": {
+          "estimate": 0.9745071770727809,
+          "low": 0.9604238716100374,
+          "high": 0.9866937422374953,
+          "half_width": 0.013134935313728946
+        },
+        "idiom_figurative": {
+          "estimate": 0.8663231312284516,
+          "low": 0.836403445636159,
+          "high": 0.8955474336780697,
+          "half_width": 0.02957199402095534
+        },
+        "code_switching": {
+          "estimate": 0.9173241668448199,
+          "low": 0.9005353860746376,
+          "high": 0.9331708115464905,
+          "half_width": 0.01631771273592647
+        },
+        "mocking": {
+          "estimate": 0.7852600224075886,
+          "low": 0.7569181629237651,
+          "high": 0.8139994875279117,
+          "half_width": 0.028540662302073305
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.8545650658243372,
+          "low": 0.8422545331894468,
+          "high": 0.8664498242780608,
+          "half_width": 0.012097645544307034
+        }
+      }
+    },
+    {
+      "system_id": "xlmr_pragmatic_finetune",
+      "display_name": "XLM-R-large fine-tune",
+      "score_status": "COMPLETE_3_OF_3",
+      "status_text": "3/3 complete",
+      "seeds_available": 3,
+      "seeds_expected": 3,
+      "source_ids": [
+        "q1a_xlmr_pragmatic_finetune_20260521",
+        "q1a_xlmr_pragmatic_finetune_20260522",
+        "q1a_xlmr_pragmatic_finetune_20260523"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.9216367596235836,
+          "low": 0.9086136206674684,
+          "high": 0.9347768101543287,
+          "half_width": 0.013081594743430125
+        },
+        "sarcasm": {
+          "estimate": 0.8812303494048656,
+          "low": 0.85277099446585,
+          "high": 0.9084530841829729,
+          "half_width": 0.027841044858561426
+        },
+        "irony": {
+          "estimate": 0.9792952151111276,
+          "low": 0.9666125120212271,
+          "high": 0.9896225185002318,
+          "half_width": 0.01150500323950232
+        },
+        "idiom_figurative": {
+          "estimate": 0.9285011828556056,
+          "low": 0.9050601445621925,
+          "high": 0.9503010353487154,
+          "half_width": 0.022620445393261412
+        },
+        "code_switching": {
+          "estimate": 0.9426512893430123,
+          "low": 0.928479317226576,
+          "high": 0.9550715074303716,
+          "half_width": 0.013296095101897831
+        },
+        "mocking": {
+          "estimate": 0.9227402370780134,
+          "low": 0.904781253363827,
+          "high": 0.9384670124942212,
+          "half_width": 0.01684287956519709
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.9293425055693679,
+          "low": 0.9206649252173937,
+          "high": 0.9374473674588951,
+          "half_width": 0.008391221120750691
+        }
+      }
+    },
+    {
+      "system_id": "sailor_pragmatic_sft",
+      "display_name": "Sailor-7B SFT",
+      "score_status": "COMPLETE_3_OF_3",
+      "status_text": "3/3 complete",
+      "seeds_available": 3,
+      "seeds_expected": 3,
+      "source_ids": [
+        "q1a_sailor_pragmatic_sft_20260521",
+        "q1a_sailor_pragmatic_sft_20260522",
+        "q1a_sailor_pragmatic_sft_20260523"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.8542362245938664,
+          "low": 0.8347858330904722,
+          "high": 0.8718494718466094,
+          "half_width": 0.018531819378068637
+        },
+        "sarcasm": {
+          "estimate": 0.7214482037128408,
+          "low": 0.6763153427716737,
+          "high": 0.7607159422761128,
+          "half_width": 0.04220029975221956
+        },
+        "irony": {
+          "estimate": 0.957496555022043,
+          "low": 0.9400118302804338,
+          "high": 0.9741617248351041,
+          "half_width": 0.017074947277335162
+        },
+        "idiom_figurative": {
+          "estimate": 0.9115459697649156,
+          "low": 0.8832070567660399,
+          "high": 0.9382573706790822,
+          "half_width": 0.027525156956521135
+        },
+        "code_switching": {
+          "estimate": 0.9103292999692313,
+          "low": 0.891575965447954,
+          "high": 0.9266783888428758,
+          "half_width": 0.017551211697460878
+        },
+        "mocking": {
+          "estimate": 0.7775657813503422,
+          "low": 0.7465060017074492,
+          "high": 0.8055717694784009,
+          "half_width": 0.02953288388547587
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.8554370057355398,
+          "low": 0.842067775417856,
+          "high": 0.8679098518172687,
+          "half_width": 0.012921038199706303
+        }
+      }
+    },
+    {
+      "system_id": "vistral_pragmatic_sft",
+      "display_name": "Vistral-7B SFT",
+      "score_status": "COMPLETE_3_OF_3",
+      "status_text": "3/3 complete",
+      "seeds_available": 3,
+      "seeds_expected": 3,
+      "source_ids": [
+        "q1a_vistral_pragmatic_sft_20260521",
+        "q1a_vistral_pragmatic_sft_20260522",
+        "q1a_vistral_pragmatic_sft_20260523"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.873562939431903,
+          "low": 0.8555999131861963,
+          "high": 0.8914294793518303,
+          "half_width": 0.017914783082816965
+        },
+        "sarcasm": {
+          "estimate": 0.747386501611322,
+          "low": 0.7126903118534055,
+          "high": 0.781951578764251,
+          "half_width": 0.03463063345542278
+        },
+        "irony": {
+          "estimate": 0.9669016648462584,
+          "low": 0.9506375195666357,
+          "high": 0.9819213745801502,
+          "half_width": 0.015641927506757247
+        },
+        "idiom_figurative": {
+          "estimate": 0.914788677521223,
+          "low": 0.8882312801999402,
+          "high": 0.9398893902326612,
+          "half_width": 0.025829055016360458
+        },
+        "code_switching": {
+          "estimate": 0.9279796018804441,
+          "low": 0.9114389775126335,
+          "high": 0.9432602911284662,
+          "half_width": 0.015910656807916368
+        },
+        "mocking": {
+          "estimate": 0.7990935691473275,
+          "low": 0.7743261484066378,
+          "high": 0.8228188926627348,
+          "half_width": 0.024246372128048477
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.8716188257397463,
+          "low": 0.8606251821324127,
+          "high": 0.8828698647111555,
+          "half_width": 0.011122341289371396
+        }
+      }
+    },
+    {
+      "system_id": "vipragsent_no_auxiliary_vistral",
+      "display_name": "ViPragSent - no auxiliary loss",
+      "score_status": "COMPLETE_3_OF_3",
+      "status_text": "3/3 complete",
+      "seeds_available": 3,
+      "seeds_expected": 3,
+      "source_ids": [
+        "q1a_vipragsent_no_auxiliary_vistral_20260521",
+        "q1a_vipragsent_no_auxiliary_vistral_20260522",
+        "q1a_vipragsent_no_auxiliary_vistral_20260523"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.8742996739958401,
+          "low": 0.8566042686406589,
+          "high": 0.8919386869650335,
+          "half_width": 0.017667209162187336
+        },
+        "sarcasm": {
+          "estimate": 0.7479149147753592,
+          "low": 0.712358162658976,
+          "high": 0.784445905884405,
+          "half_width": 0.036043871612714495
+        },
+        "irony": {
+          "estimate": 0.9715198871110573,
+          "low": 0.9574597859213407,
+          "high": 0.9849256524283176,
+          "half_width": 0.013732933253488455
+        },
+        "idiom_figurative": {
+          "estimate": 0.9150639130583794,
+          "low": 0.8898298599103716,
+          "high": 0.9397293466637995,
+          "half_width": 0.024949743376713962
+        },
+        "code_switching": {
+          "estimate": 0.9287641298160704,
+          "low": 0.912864339794657,
+          "high": 0.9442877301740171,
+          "half_width": 0.015711695189680075
+        },
+        "mocking": {
+          "estimate": 0.7951285250053456,
+          "low": 0.7562719058383349,
+          "high": 0.8306499942189903,
+          "half_width": 0.0371890441903277
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.872115173960342,
+          "low": 0.8602580511031105,
+          "high": 0.8848376785781038,
+          "half_width": 0.012289813737496658
+        }
+      }
+    },
+    {
+      "system_id": "cot_only_vistral",
+      "display_name": "Vistral CoT-only clean rerun 003",
+      "score_status": "PROVISIONAL_2_OF_3_MISSING_TEST_SCORE",
+      "status_text": "2/3; seed 20260522 test score missing",
+      "seeds_available": 2,
+      "seeds_expected": 3,
+      "source_ids": [
+        "q1a_cot_only_vistral_clean_rerun_003__seed_20260521",
+        "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+        "q1a_cot_only_vistral_clean_rerun_003__seed_20260523"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.17355371900826447,
+          "low": 0.1624790619765494,
+          "high": 0.18533604887983707,
+          "half_width": 0.011428493451643831
+        },
+        "sarcasm": {
+          "estimate": 0.4824016563146998,
+          "low": 0.4793022650351471,
+          "high": 0.4852027970916288,
+          "half_width": 0.0029502660282408333
+        },
+        "irony": {
+          "estimate": 0.481999481999482,
+          "low": 0.47889525794684734,
+          "high": 0.4849343291269637,
+          "half_width": 0.0030195355900581866
+        },
+        "idiom_figurative": {
+          "estimate": 0.48173101839854887,
+          "low": 0.4787594474850143,
+          "high": 0.48480164863472436,
+          "half_width": 0.0030211005748550235
+        },
+        "code_switching": {
+          "estimate": 0.4591671173607355,
+          "low": 0.4547400122344385,
+          "high": 0.463519313304721,
+          "half_width": 0.00438965053514126
+        },
+        "mocking": {
+          "estimate": 0.4690735333156358,
+          "low": 0.46466451100619466,
+          "high": 0.4727163666499382,
+          "half_width": 0.0040259278218717776
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.42465442106622775,
+          "low": 0.42280480944587956,
+          "high": 0.4265386490721234,
+          "half_width": 0.0018669198131219256
+        }
+      }
+    },
+    {
+      "system_id": "explanation_only_vistral",
+      "display_name": "ViPragSent - explanation only",
+      "score_status": "COMPLETE_3_OF_3",
+      "status_text": "3/3 complete",
+      "seeds_available": 3,
+      "seeds_expected": 3,
+      "source_ids": [
+        "q1a_explanation_only_vistral_20260521",
+        "q1a_explanation_only_vistral_20260522",
+        "q1a_explanation_only_vistral_20260523"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.441340782122905,
+          "low": 0.435665914221219,
+          "high": 0.44644339883753115,
+          "half_width": 0.005388742308156086
+        },
+        "sarcasm": {
+          "estimate": 0.4824016563146998,
+          "low": 0.4794377928162416,
+          "high": 0.4851994851994852,
+          "half_width": 0.0028808461916217942
+        },
+        "irony": {
+          "estimate": 0.481999481999482,
+          "low": 0.4793022650351471,
+          "high": 0.48480496564703035,
+          "half_width": 0.002751350305941619
+        },
+        "idiom_figurative": {
+          "estimate": 0.48173101839854887,
+          "low": 0.4787594474850143,
+          "high": 0.4846722184897666,
+          "half_width": 0.0029563855023761465
+        },
+        "code_switching": {
+          "estimate": 0.46015509346782874,
+          "low": 0.4550408719346049,
+          "high": 0.46616410622825066,
+          "half_width": 0.005561617146822878
+        },
+        "mocking": {
+          "estimate": 0.4690735333156358,
+          "low": 0.4650976196844076,
+          "high": 0.47285187137585655,
+          "half_width": 0.0038771258457244717
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.4694502609365167,
+          "low": 0.4674379591213868,
+          "high": 0.4716954759632634,
+          "half_width": 0.0021287584209382926
+        }
+      }
+    },
+    {
+      "system_id": "vipragsent_full_vistral",
+      "display_name": "ViPragSent (ours, Vistral)",
+      "score_status": "COMPLETE_3_OF_3",
+      "status_text": "3/3 complete",
+      "seeds_available": 3,
+      "seeds_expected": 3,
+      "source_ids": [
+        "q1a_vipragsent_full_vistral_20260521",
+        "q1a_vipragsent_full_vistral_20260522",
+        "q1a_vipragsent_full_vistral_20260523"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.8492625271774296,
+          "low": 0.7945394331435955,
+          "high": 0.8923287404952532,
+          "half_width": 0.04889465367582885
+        },
+        "sarcasm": {
+          "estimate": 0.7258977060393536,
+          "low": 0.6469217201955293,
+          "high": 0.7945941963931968,
+          "half_width": 0.07383623809883377
+        },
+        "irony": {
+          "estimate": 0.9475458606758383,
+          "low": 0.9115366011416653,
+          "high": 0.9782298707942831,
+          "half_width": 0.033346634826308896
+        },
+        "idiom_figurative": {
+          "estimate": 0.7937965807615103,
+          "low": 0.5488589024657967,
+          "high": 0.936543360596382,
+          "half_width": 0.19384222906529264
+        },
+        "code_switching": {
+          "estimate": 0.7836019978768721,
+          "low": 0.4865855623059738,
+          "high": 0.9478002033059671,
+          "half_width": 0.2306073204999967
+        },
+        "mocking": {
+          "estimate": 0.7714700753691396,
+          "low": 0.68190884503106,
+          "high": 0.8418703841733439,
+          "half_width": 0.07998076957114197
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.8119291246500239,
+          "low": 0.6769370245321379,
+          "high": 0.8926883162112258,
+          "half_width": 0.10787564583954395
+        }
+      }
+    },
+    {
+      "system_id": "azure_pragmatic_zero_shot",
+      "display_name": "GPT-4.1-mini zero-shot",
+      "score_status": "COMPLETE_1_OF_1",
+      "status_text": "1/1 complete",
+      "seeds_available": 1,
+      "seeds_expected": 1,
+      "source_ids": [
+        "azure_pragmatic_zero_shot"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.45444640138890335,
+          "low": 0.43187794508233257,
+          "high": 0.4754408134513889,
+          "half_width": 0.02178143418452816
+        },
+        "sarcasm": {
+          "estimate": 0.5650830348048024,
+          "low": 0.5332227269717836,
+          "high": 0.5960735327688619,
+          "half_width": 0.03142540289853912
+        },
+        "irony": {
+          "estimate": 0.5317232584090548,
+          "low": 0.5043539997998023,
+          "high": 0.5583094354098204,
+          "half_width": 0.026977717805009016
+        },
+        "idiom_figurative": {
+          "estimate": 0.5245356024461824,
+          "low": 0.5007936166053866,
+          "high": 0.5490736564693364,
+          "half_width": 0.0241400199319749
+        },
+        "code_switching": {
+          "estimate": 0.624173295832143,
+          "low": 0.5960390124044046,
+          "high": 0.6501563201832227,
+          "half_width": 0.027058653889409034
+        },
+        "mocking": {
+          "estimate": 0.5468592622181561,
+          "low": 0.5213500730396311,
+          "high": 0.572573990966688,
+          "half_width": 0.02561195896352847
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.5411368091832071,
+          "low": 0.528245771229822,
+          "high": 0.5541294121589501,
+          "half_width": 0.012941820464564047
+        }
+      }
+    },
+    {
+      "system_id": "azure_gpt41_mini_8shot",
+      "display_name": "GPT-4.1-mini 8-shot",
+      "score_status": "COMPLETE_1_OF_1",
+      "status_text": "1/1 complete",
+      "seeds_available": 1,
+      "seeds_expected": 1,
+      "source_ids": [
+        "azure_gpt41_mini_8shot"
+      ],
+      "metrics": {
+        "implicit_sentiment": {
+          "estimate": 0.490433631788772,
+          "low": 0.4658286958642608,
+          "high": 0.5124615129052406,
+          "half_width": 0.023316408520489884
+        },
+        "sarcasm": {
+          "estimate": 0.6109341348397718,
+          "low": 0.5760446228853644,
+          "high": 0.6440048268546849,
+          "half_width": 0.03398010198466023
+        },
+        "irony": {
+          "estimate": 0.5237347936717627,
+          "low": 0.49857242180501704,
+          "high": 0.5499238332640909,
+          "half_width": 0.025675705729536924
+        },
+        "idiom_figurative": {
+          "estimate": 0.508677472350313,
+          "low": 0.48532043541056613,
+          "high": 0.5346991695129134,
+          "half_width": 0.02468936705117364
+        },
+        "code_switching": {
+          "estimate": 0.5688507335877959,
+          "low": 0.5434684258403151,
+          "high": 0.5962418454458307,
+          "half_width": 0.026386709802757813
+        },
+        "mocking": {
+          "estimate": 0.5432388772494162,
+          "low": 0.5172626601765871,
+          "high": 0.5675211365008853,
+          "half_width": 0.025129238162149126
+        },
+        "macro_pragmatic_f1": {
+          "estimate": 0.5409782739146386,
+          "low": 0.5272442445912235,
+          "high": 0.5542024601698256,
+          "half_width": 0.013479107789301004
+        }
+      }
+    }
+  ],
+  "per_seed_rows": [
+    {
+      "system_id": "phobert_pragmatic_single_task",
+      "display_name": "PhoBERT (single-task)",
+      "run_id": "q1a_phobert_pragmatic_single_task_20260521",
+      "seed": "20260521",
+      "status": "COMPLETE",
+      "source_id": "q1a_phobert_pragmatic_single_task_20260521",
+      "source": {
+        "source_id": "q1a_phobert_pragmatic_single_task_20260521",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260521/metrics/test_metrics.json",
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260521/metrics/test_confidence_intervals.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260521/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8651741904013113,
+        "sarcasm": 0.6938381758398816,
+        "irony": 0.9595437693070137,
+        "idiom_figurative": 0.9211057813683413,
+        "code_switching": 0.9096699273960401,
+        "mocking": 0.8224394924791791,
+        "macro_pragmatic_f1": 0.8619618894652946
+      }
+    },
+    {
+      "system_id": "phobert_pragmatic_single_task",
+      "display_name": "PhoBERT (single-task)",
+      "run_id": "q1a_phobert_pragmatic_single_task_20260522",
+      "seed": "20260522",
+      "status": "COMPLETE",
+      "source_id": "q1a_phobert_pragmatic_single_task_20260522",
+      "source": {
+        "source_id": "q1a_phobert_pragmatic_single_task_20260522",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260522/metrics/test_metrics.json",
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260522/metrics/test_confidence_intervals.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260522/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8863827447202062,
+        "sarcasm": 0.7196694125554328,
+        "irony": 0.9742716654841528,
+        "idiom_figurative": 0.9074402021203749,
+        "code_switching": 0.8963569466756491,
+        "mocking": 0.762834159693526,
+        "macro_pragmatic_f1": 0.8578258552082235
+      }
+    },
+    {
+      "system_id": "phobert_pragmatic_single_task",
+      "display_name": "PhoBERT (single-task)",
+      "run_id": "q1a_phobert_pragmatic_single_task_20260523",
+      "seed": "20260523",
+      "status": "COMPLETE",
+      "source_id": "q1a_phobert_pragmatic_single_task_20260523",
+      "source": {
+        "source_id": "q1a_phobert_pragmatic_single_task_20260523",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260523/metrics/test_metrics.json",
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260523/metrics/test_confidence_intervals.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260523/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8884870403857745,
+        "sarcasm": 0.7127107207392667,
+        "irony": 0.9800035193805889,
+        "idiom_figurative": 0.9078341013824884,
+        "code_switching": 0.9264954785047632,
+        "mocking": 0.789430493713297,
+        "macro_pragmatic_f1": 0.8674935590176965
+      }
+    },
+    {
+      "system_id": "phobert_pragmatic_finetune",
+      "display_name": "PhoBERT fine-tune",
+      "run_id": "q1a_phobert_pragmatic_finetune_20260521",
+      "seed": "20260521",
+      "status": "COMPLETE",
+      "source_id": "q1a_phobert_pragmatic_finetune_20260521",
+      "source": {
+        "source_id": "q1a_phobert_pragmatic_finetune_20260521",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260521/metrics/test_metrics.json",
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260521/metrics/test_confidence_intervals.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260521/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8499214294542436,
+        "sarcasm": 0.7256472682530957,
+        "irony": 0.9764918838228899,
+        "idiom_figurative": 0.8667873416630425,
+        "code_switching": 0.9122790055834884,
+        "mocking": 0.7737005957742695,
+        "macro_pragmatic_f1": 0.8508045874251716
+      }
+    },
+    {
+      "system_id": "phobert_pragmatic_finetune",
+      "display_name": "PhoBERT fine-tune",
+      "run_id": "q1a_phobert_pragmatic_finetune_20260522",
+      "seed": "20260522",
+      "status": "COMPLETE",
+      "source_id": "q1a_phobert_pragmatic_finetune_20260522",
+      "source": {
+        "source_id": "q1a_phobert_pragmatic_finetune_20260522",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260522/metrics/test_metrics.json",
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260522/metrics/test_confidence_intervals.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260522/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8641199521425865,
+        "sarcasm": 0.72182062523753,
+        "irony": 0.9742716654841528,
+        "idiom_figurative": 0.8726983405319391,
+        "code_switching": 0.9228341474330779,
+        "mocking": 0.7922812651704694,
+        "macro_pragmatic_f1": 0.858004332666626
+      }
+    },
+    {
+      "system_id": "phobert_pragmatic_finetune",
+      "display_name": "PhoBERT fine-tune",
+      "run_id": "q1a_phobert_pragmatic_finetune_20260523",
+      "seed": "20260523",
+      "status": "COMPLETE",
+      "source_id": "q1a_phobert_pragmatic_finetune_20260523",
+      "source": {
+        "source_id": "q1a_phobert_pragmatic_finetune_20260523",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260523/metrics/test_metrics.json",
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260523/metrics/test_confidence_intervals.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260523/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.858658760437329,
+        "sarcasm": 0.7317596566523605,
+        "irony": 0.9727579819112999,
+        "idiom_figurative": 0.8594837114903732,
+        "code_switching": 0.9168593475178932,
+        "mocking": 0.7897982062780269,
+        "macro_pragmatic_f1": 0.8548862773812139
+      }
+    },
+    {
+      "system_id": "xlmr_pragmatic_finetune",
+      "display_name": "XLM-R-large fine-tune",
+      "run_id": "q1a_xlmr_pragmatic_finetune_20260521",
+      "seed": "20260521",
+      "status": "COMPLETE",
+      "source_id": "q1a_xlmr_pragmatic_finetune_20260521",
+      "source": {
+        "source_id": "q1a_xlmr_pragmatic_finetune_20260521",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260521/metrics/test_metrics.json",
+        "ci_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260521/metrics/test_confidence_intervals.json",
+        "prediction_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260521/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.9201465753971598,
+        "sarcasm": 0.8861930093138173,
+        "irony": 0.9786671010820628,
+        "idiom_figurative": 0.9351439613305408,
+        "code_switching": 0.9431662469156852,
+        "mocking": 0.9227694625551417,
+        "macro_pragmatic_f1": 0.9310143927657345
+      }
+    },
+    {
+      "system_id": "xlmr_pragmatic_finetune",
+      "display_name": "XLM-R-large fine-tune",
+      "run_id": "q1a_xlmr_pragmatic_finetune_20260522",
+      "seed": "20260522",
+      "status": "COMPLETE",
+      "source_id": "q1a_xlmr_pragmatic_finetune_20260522",
+      "source": {
+        "source_id": "q1a_xlmr_pragmatic_finetune_20260522",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260522/metrics/test_metrics.json",
+        "ci_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260522/metrics/test_confidence_intervals.json",
+        "prediction_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260522/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.9221679992617079,
+        "sarcasm": 0.8787125335435649,
+        "irony": 0.9804099031857416,
+        "idiom_figurative": 0.9287199744933098,
+        "code_switching": 0.9423938105566759,
+        "mocking": 0.9186079932037674,
+        "macro_pragmatic_f1": 0.9285020357074613
+      }
+    },
+    {
+      "system_id": "xlmr_pragmatic_finetune",
+      "display_name": "XLM-R-large fine-tune",
+      "run_id": "q1a_xlmr_pragmatic_finetune_20260523",
+      "seed": "20260523",
+      "status": "COMPLETE",
+      "source_id": "q1a_xlmr_pragmatic_finetune_20260523",
+      "source": {
+        "source_id": "q1a_xlmr_pragmatic_finetune_20260523",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260523/metrics/test_metrics.json",
+        "ci_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260523/metrics/test_confidence_intervals.json",
+        "prediction_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260523/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.9225957042118833,
+        "sarcasm": 0.8787855053572144,
+        "irony": 0.9788086410655785,
+        "idiom_figurative": 0.9216396127429661,
+        "code_switching": 0.9423938105566759,
+        "mocking": 0.9268432554751314,
+        "macro_pragmatic_f1": 0.9285110882349082
+      }
+    },
+    {
+      "system_id": "sailor_pragmatic_sft",
+      "display_name": "Sailor-7B SFT",
+      "run_id": "q1a_sailor_pragmatic_sft_20260521",
+      "seed": "20260521",
+      "status": "COMPLETE",
+      "source_id": "q1a_sailor_pragmatic_sft_20260521",
+      "source": {
+        "source_id": "q1a_sailor_pragmatic_sft_20260521",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260521/science/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260521/science/metrics/test_confidence_intervals.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260521/science/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.855124056805315,
+        "sarcasm": 0.7366848624178406,
+        "irony": 0.9550725170418111,
+        "idiom_figurative": 0.8969462756687125,
+        "code_switching": 0.9187127268113184,
+        "mocking": 0.7893447729832885,
+        "macro_pragmatic_f1": 0.8586475352880477
+      }
+    },
+    {
+      "system_id": "sailor_pragmatic_sft",
+      "display_name": "Sailor-7B SFT",
+      "run_id": "q1a_sailor_pragmatic_sft_20260522",
+      "seed": "20260522",
+      "status": "COMPLETE",
+      "source_id": "q1a_sailor_pragmatic_sft_20260522",
+      "source": {
+        "source_id": "q1a_sailor_pragmatic_sft_20260522",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260522/science/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260522/science/metrics/test_confidence_intervals.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260522/science/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8512041724190826,
+        "sarcasm": 0.6873302795321521,
+        "irony": 0.9635000973330737,
+        "idiom_figurative": 0.9248670001415968,
+        "code_switching": 0.9077668345577621,
+        "mocking": 0.7651058569000154,
+        "macro_pragmatic_f1": 0.8499623734806137
+      }
+    },
+    {
+      "system_id": "sailor_pragmatic_sft",
+      "display_name": "Sailor-7B SFT",
+      "run_id": "q1a_sailor_pragmatic_sft_20260523",
+      "seed": "20260523",
+      "status": "COMPLETE",
+      "source_id": "q1a_sailor_pragmatic_sft_20260523",
+      "source": {
+        "source_id": "q1a_sailor_pragmatic_sft_20260523",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260523/science/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260523/science/metrics/test_confidence_intervals.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260523/science/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8563804445572016,
+        "sarcasm": 0.7403294691885296,
+        "irony": 0.9539170506912442,
+        "idiom_figurative": 0.9128246334844373,
+        "code_switching": 0.9045083385386133,
+        "mocking": 0.7782467141677225,
+        "macro_pragmatic_f1": 0.8577011084379581
+      }
+    },
+    {
+      "system_id": "vistral_pragmatic_sft",
+      "display_name": "Vistral-7B SFT",
+      "run_id": "q1a_vistral_pragmatic_sft_20260521",
+      "seed": "20260521",
+      "status": "COMPLETE",
+      "source_id": "q1a_vistral_pragmatic_sft_20260521",
+      "source": {
+        "source_id": "q1a_vistral_pragmatic_sft_20260521",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260521/science/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260521/science/metrics/test_confidence_intervals.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260521/science/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.873909551118002,
+        "sarcasm": 0.7381871496434982,
+        "irony": 0.9642537980339589,
+        "idiom_figurative": 0.9199511897498475,
+        "code_switching": 0.9283103093309181,
+        "mocking": 0.8000199980002001,
+        "macro_pragmatic_f1": 0.8707719993127375
+      }
+    },
+    {
+      "system_id": "vistral_pragmatic_sft",
+      "display_name": "Vistral-7B SFT",
+      "run_id": "q1a_vistral_pragmatic_sft_20260522",
+      "seed": "20260522",
+      "status": "COMPLETE",
+      "source_id": "q1a_vistral_pragmatic_sft_20260522",
+      "source": {
+        "source_id": "q1a_vistral_pragmatic_sft_20260522",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260522/science/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260522/science/metrics/test_confidence_intervals.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260522/science/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8764315852923448,
+        "sarcasm": 0.7569339517283966,
+        "irony": 0.968225598252408,
+        "idiom_figurative": 0.9270353302611367,
+        "code_switching": 0.92179576717115,
+        "mocking": 0.8010712249526895,
+        "macro_pragmatic_f1": 0.8752489096096876
+      }
+    },
+    {
+      "system_id": "vistral_pragmatic_sft",
+      "display_name": "Vistral-7B SFT",
+      "run_id": "q1a_vistral_pragmatic_sft_20260523",
+      "seed": "20260523",
+      "status": "COMPLETE",
+      "source_id": "q1a_vistral_pragmatic_sft_20260523",
+      "source": {
+        "source_id": "q1a_vistral_pragmatic_sft_20260523",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260523/science/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260523/science/metrics/test_confidence_intervals.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260523/science/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8703476818853619,
+        "sarcasm": 0.7470384034620714,
+        "irony": 0.968225598252408,
+        "idiom_figurative": 0.8973795125526847,
+        "code_switching": 0.9338327291392641,
+        "mocking": 0.7961894844890933,
+        "macro_pragmatic_f1": 0.8688355682968139
+      }
+    },
+    {
+      "system_id": "vipragsent_no_auxiliary_vistral",
+      "display_name": "ViPragSent - no auxiliary loss",
+      "run_id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+      "seed": "20260521",
+      "status": "COMPLETE",
+      "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+      "source": {
+        "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260521/science/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260521/science/metrics/test_confidence_intervals.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260521/science/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8813664185873293,
+        "sarcasm": 0.7425661441847142,
+        "irony": 0.9686558450971865,
+        "idiom_figurative": 0.9171610514381708,
+        "code_switching": 0.92369652659828,
+        "mocking": 0.7626758586358493,
+        "macro_pragmatic_f1": 0.8660203074235883
+      }
+    },
+    {
+      "system_id": "vipragsent_no_auxiliary_vistral",
+      "display_name": "ViPragSent - no auxiliary loss",
+      "run_id": "q1a_vipragsent_no_auxiliary_vistral_20260522",
+      "seed": "20260522",
+      "status": "COMPLETE",
+      "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260522",
+      "source": {
+        "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260522",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260522/science/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260522/science/metrics/test_confidence_intervals.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260522/science/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8699435183279596,
+        "sarcasm": 0.7531088789843678,
+        "irony": 0.9718095452879655,
+        "idiom_figurative": 0.9236987780359303,
+        "code_switching": 0.9358215137954573,
+        "mocking": 0.8109804496946937,
+        "macro_pragmatic_f1": 0.8775604473543956
+      }
+    },
+    {
+      "system_id": "vipragsent_no_auxiliary_vistral",
+      "display_name": "ViPragSent - no auxiliary loss",
+      "run_id": "q1a_vipragsent_no_auxiliary_vistral_20260523",
+      "seed": "20260523",
+      "status": "COMPLETE",
+      "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260523",
+      "source": {
+        "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260523",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260523/science/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260523/science/metrics/test_confidence_intervals.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260523/science/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test metrics and prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8715890850722312,
+        "sarcasm": 0.7480697211569953,
+        "irony": 0.9740942709480201,
+        "idiom_figurative": 0.9043319097010372,
+        "code_switching": 0.9267743490544738,
+        "mocking": 0.8117292666854937,
+        "macro_pragmatic_f1": 0.872764767103042
+      }
+    },
+    {
+      "system_id": "cot_only_vistral",
+      "display_name": "Vistral CoT-only clean rerun 003",
+      "run_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260521",
+      "seed": "20260521",
+      "status": "COMPLETE",
+      "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260521",
+      "source": {
+        "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260521",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-006",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-003",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260521/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260521/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used."
+      },
+      "f1": {
+        "implicit_sentiment": 0.17355371900826447,
+        "sarcasm": 0.4824016563146998,
+        "irony": 0.481999481999482,
+        "idiom_figurative": 0.48173101839854887,
+        "code_switching": 0.4591671173607355,
+        "mocking": 0.4690735333156358,
+        "macro_pragmatic_f1": 0.42465442106622775
+      }
+    },
+    {
+      "system_id": "cot_only_vistral",
+      "display_name": "Vistral CoT-only clean rerun 003",
+      "run_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+      "seed": "20260522",
+      "status": "MISSING_TEST_SCORE",
+      "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+      "source": {
+        "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+        "repo": "Thundergod2007/vipragsent-vistral7b-checkpoints",
+        "metric_path": null,
+        "prediction_path": null,
+        "training_checkpoint_status": "COMPLETE_3_EPOCHS",
+        "test_score_status": "MISSING_TEST_SCORE_ARTIFACT",
+        "checkpoint_paths": [
+          "q1a_cot_only_vistral_20260522/cot_only_vistral/checkpoints/boundary_0001_epoch_0001_65C1D0BAAF1D/model.pt",
+          "q1a_cot_only_vistral_20260522/cot_only_vistral/checkpoints/boundary_0002_epoch_0002_F34A33BDDADB/model.pt",
+          "q1a_cot_only_vistral_20260522/cot_only_vistral/checkpoints/boundary_0003_epoch_0003_1D0A43F67758/model.pt"
+        ],
+        "note": "Canonical epoch 1-3 checkpoints exist, but no test predictions or test_reasoning_metrics.json was found for this seed."
+      },
+      "f1": {
+        "implicit_sentiment": null,
+        "sarcasm": null,
+        "irony": null,
+        "idiom_figurative": null,
+        "code_switching": null,
+        "mocking": null,
+        "macro_pragmatic_f1": null
+      }
+    },
+    {
+      "system_id": "cot_only_vistral",
+      "display_name": "Vistral CoT-only clean rerun 003",
+      "run_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260523",
+      "seed": "20260523",
+      "status": "COMPLETE",
+      "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260523",
+      "source": {
+        "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260523",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-024",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-024",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260523/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260523/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used."
+      },
+      "f1": {
+        "implicit_sentiment": 0.17355371900826447,
+        "sarcasm": 0.4824016563146998,
+        "irony": 0.481999481999482,
+        "idiom_figurative": 0.48173101839854887,
+        "code_switching": 0.4591671173607355,
+        "mocking": 0.4690735333156358,
+        "macro_pragmatic_f1": 0.42465442106622775
+      }
+    },
+    {
+      "system_id": "explanation_only_vistral",
+      "display_name": "ViPragSent - explanation only",
+      "run_id": "q1a_explanation_only_vistral_20260521",
+      "seed": "20260521",
+      "status": "COMPLETE",
+      "source_id": "q1a_explanation_only_vistral_20260521",
+      "source": {
+        "source_id": "q1a_explanation_only_vistral_20260521",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-003",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-003",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260521/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260521/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used."
+      },
+      "f1": {
+        "implicit_sentiment": 0.441340782122905,
+        "sarcasm": 0.4824016563146998,
+        "irony": 0.481999481999482,
+        "idiom_figurative": 0.48173101839854887,
+        "code_switching": 0.4591671173607355,
+        "mocking": 0.4690735333156358,
+        "macro_pragmatic_f1": 0.46928559825200117
+      }
+    },
+    {
+      "system_id": "explanation_only_vistral",
+      "display_name": "ViPragSent - explanation only",
+      "run_id": "q1a_explanation_only_vistral_20260522",
+      "seed": "20260522",
+      "status": "COMPLETE",
+      "source_id": "q1a_explanation_only_vistral_20260522",
+      "source": {
+        "source_id": "q1a_explanation_only_vistral_20260522",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-010",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-004",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260522/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260522/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used."
+      },
+      "f1": {
+        "implicit_sentiment": 0.441340782122905,
+        "sarcasm": 0.4824016563146998,
+        "irony": 0.481999481999482,
+        "idiom_figurative": 0.48173101839854887,
+        "code_switching": 0.46227733534461724,
+        "mocking": 0.4690735333156358,
+        "macro_pragmatic_f1": 0.4698039679159815
+      }
+    },
+    {
+      "system_id": "explanation_only_vistral",
+      "display_name": "ViPragSent - explanation only",
+      "run_id": "q1a_explanation_only_vistral_20260523",
+      "seed": "20260523",
+      "status": "COMPLETE",
+      "source_id": "q1a_explanation_only_vistral_20260523",
+      "source": {
+        "source_id": "q1a_explanation_only_vistral_20260523",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-014",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-004",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260523/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260523/predictions/test_predictions.jsonl",
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used."
+      },
+      "f1": {
+        "implicit_sentiment": 0.441340782122905,
+        "sarcasm": 0.4824016563146998,
+        "irony": 0.481999481999482,
+        "idiom_figurative": 0.48173101839854887,
+        "code_switching": 0.4590208276981336,
+        "mocking": 0.4690735333156358,
+        "macro_pragmatic_f1": 0.4692612166415675
+      }
+    },
+    {
+      "system_id": "vipragsent_full_vistral",
+      "display_name": "ViPragSent (ours, Vistral)",
+      "run_id": "q1a_vipragsent_full_vistral_20260521",
+      "seed": "20260521",
+      "status": "COMPLETE",
+      "source_id": "q1a_vipragsent_full_vistral_20260521",
+      "source": {
+        "source_id": "q1a_vipragsent_full_vistral_20260521",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-017",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260521/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260521/metrics/test_confidence_intervals.json",
+        "threshold_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-009",
+        "threshold_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260521/selection/thresholds.json",
+        "prediction_path": "results/runs/q1a_vipragsent_full_vistral_20260521/predictions/test_predictions.jsonl",
+        "prediction_derivation": "Reconstructed six pragmatic columns from persisted raw test gold/probability arrays using frozen per-seed selection thresholds; reproduces the persisted test metrics.",
+        "remote_prediction_note": "Remote prediction JSONL contains partial record shards, so the validated local prediction file is derived from the complete persisted metric arrays."
+      },
+      "f1": {
+        "implicit_sentiment": 0.7859265551694126,
+        "sarcasm": 0.6375618086558452,
+        "irony": 0.9112412905516354,
+        "idiom_figurative": 0.5382487964090338,
+        "code_switching": 0.4783902159964421,
+        "mocking": 0.673842755688705,
+        "macro_pragmatic_f1": 0.6708685704118457
+      }
+    },
+    {
+      "system_id": "vipragsent_full_vistral",
+      "display_name": "ViPragSent (ours, Vistral)",
+      "run_id": "q1a_vipragsent_full_vistral_20260522",
+      "seed": "20260522",
+      "status": "COMPLETE",
+      "source_id": "q1a_vipragsent_full_vistral_20260522",
+      "source": {
+        "source_id": "q1a_vipragsent_full_vistral_20260522",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-017",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260522/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260522/metrics/test_confidence_intervals.json",
+        "threshold_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-017",
+        "threshold_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260522/selection/thresholds.json",
+        "prediction_path": "results/runs/q1a_vipragsent_full_vistral_20260522/predictions/test_predictions.jsonl",
+        "prediction_derivation": "Reconstructed six pragmatic columns from persisted raw test gold/probability arrays using frozen per-seed selection thresholds; reproduces the persisted test metrics.",
+        "remote_prediction_note": "Remote prediction JSONL contains partial record shards, so the validated local prediction file is derived from the complete persisted metric arrays."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8830527653279896,
+        "sarcasm": 0.7811059907834101,
+        "irony": 0.9703134601740224,
+        "idiom_figurative": 0.9182739457339,
+        "code_switching": 0.9438863432649583,
+        "mocking": 0.8357580992536584,
+        "macro_pragmatic_f1": 0.88873176742299
+      }
+    },
+    {
+      "system_id": "vipragsent_full_vistral",
+      "display_name": "ViPragSent (ours, Vistral)",
+      "run_id": "q1a_vipragsent_full_vistral_20260523",
+      "seed": "20260523",
+      "status": "COMPLETE",
+      "source_id": "q1a_vipragsent_full_vistral_20260523",
+      "source": {
+        "source_id": "q1a_vipragsent_full_vistral_20260523",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-016",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260523/metrics/test_metrics.json",
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260523/metrics/test_confidence_intervals.json",
+        "threshold_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-016",
+        "threshold_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260523/selection/thresholds.json",
+        "prediction_path": "results/runs/q1a_vipragsent_full_vistral_20260523/predictions/test_predictions.jsonl",
+        "prediction_derivation": "Reconstructed six pragmatic columns from persisted raw test gold/probability arrays using frozen per-seed selection thresholds; reproduces the persisted test metrics.",
+        "remote_prediction_note": "Remote prediction JSONL contains partial record shards, so the validated local prediction file is derived from the complete persisted metric arrays."
+      },
+      "f1": {
+        "implicit_sentiment": 0.8788082610348865,
+        "sarcasm": 0.7590253186788053,
+        "irony": 0.9610828313018571,
+        "idiom_figurative": 0.9248670001415968,
+        "code_switching": 0.928529434369216,
+        "mocking": 0.804809371165055,
+        "macro_pragmatic_f1": 0.8761870361152361
+      }
+    },
+    {
+      "system_id": "azure_pragmatic_zero_shot",
+      "display_name": "GPT-4.1-mini zero-shot",
+      "run_id": "azure_pragmatic_zero_shot",
+      "seed": "single",
+      "status": "COMPLETE",
+      "source_id": "azure_pragmatic_zero_shot",
+      "source": {
+        "source_id": "azure_pragmatic_zero_shot",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_pragmatic_zero_shot/E4C5F0681894/metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_pragmatic_zero_shot/E4C5F0681894/predictions/test_predictions.jsonl",
+        "response_manifest_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_pragmatic_zero_shot/E4C5F0681894/azure/response_manifest.json",
+        "metric_note": "metrics.json has an empty test object; F1 is computed from the valid 2000-row prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.45444640138890335,
+        "sarcasm": 0.5650830348048024,
+        "irony": 0.5317232584090548,
+        "idiom_figurative": 0.5245356024461824,
+        "code_switching": 0.624173295832143,
+        "mocking": 0.5468592622181561,
+        "macro_pragmatic_f1": 0.5411368091832071
+      }
+    },
+    {
+      "system_id": "azure_gpt41_mini_8shot",
+      "display_name": "GPT-4.1-mini 8-shot",
+      "run_id": "azure_gpt41_mini_8shot",
+      "seed": "single",
+      "status": "COMPLETE",
+      "source_id": "azure_gpt41_mini_8shot",
+      "source": {
+        "source_id": "azure_gpt41_mini_8shot",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "metric_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_gpt41_mini_8shot/1292C4E7F429/metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_gpt41_mini_8shot/1292C4E7F429/predictions/test_predictions.jsonl",
+        "response_manifest_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_gpt41_mini_8shot/1292C4E7F429/azure/response_manifest.json",
+        "metric_note": "metrics.json has an empty test object; F1 is computed from the valid 2000-row prediction JSONL."
+      },
+      "f1": {
+        "implicit_sentiment": 0.490433631788772,
+        "sarcasm": 0.6109341348397718,
+        "irony": 0.5237347936717627,
+        "idiom_figurative": 0.508677472350313,
+        "code_switching": 0.5688507335877959,
+        "mocking": 0.5432388772494162,
+        "macro_pragmatic_f1": 0.5409782739146386
+      }
+    }
+  ],
+  "validation": {
+    "azure_gpt41_mini_8shot": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.5688507335877959,
+          "idiom_figurative": 0.508677472350313,
+          "implicit_sentiment": 0.490433631788772,
+          "irony": 0.5237347936717627,
+          "macro_pragmatic_f1": 0.5409782739146386,
+          "mocking": 0.5432388772494162,
+          "sarcasm": 0.6109341348397718
+        }
+      ],
+      "prediction_sha256": [
+        "12539a086b293c4387a46be9307e8ad7407d3979ee41d16e0df0462b894d19ee"
+      ],
+      "row_counts": [
+        2000
+      ],
+      "seed_ids": [
+        "q1a_azure_gpt41_mini_8shot"
+      ]
+    },
+    "azure_pragmatic_zero_shot": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.624173295832143,
+          "idiom_figurative": 0.5245356024461824,
+          "implicit_sentiment": 0.45444640138890335,
+          "irony": 0.5317232584090548,
+          "macro_pragmatic_f1": 0.5411368091832071,
+          "mocking": 0.5468592622181561,
+          "sarcasm": 0.5650830348048024
+        }
+      ],
+      "prediction_sha256": [
+        "f1ce896501326c23a98d495c55c705eaabb0c0dab4042ba4588f47756ab12545"
+      ],
+      "row_counts": [
+        2000
+      ],
+      "seed_ids": [
+        "q1a_azure_gpt41_mini_zeroshot"
+      ]
+    },
+    "cot_only_vistral": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.4591671173607355,
+          "idiom_figurative": 0.48173101839854887,
+          "implicit_sentiment": 0.17355371900826447,
+          "irony": 0.481999481999482,
+          "macro_pragmatic_f1": 0.42465442106622775,
+          "mocking": 0.4690735333156358,
+          "sarcasm": 0.4824016563146998
+        },
+        {
+          "code_switching": 0.4591671173607355,
+          "idiom_figurative": 0.48173101839854887,
+          "implicit_sentiment": 0.17355371900826447,
+          "irony": 0.481999481999482,
+          "macro_pragmatic_f1": 0.42465442106622775,
+          "mocking": 0.4690735333156358,
+          "sarcasm": 0.4824016563146998
+        }
+      ],
+      "prediction_sha256": [
+        "e7b246aed88cec2804e6bdd81443812444b6f0f00d771a05a26c2831fdfa4a3d",
+        "3f516065facb2486840f1648e854f0667cb7c6f137905c9a617255ad0c6dadfc"
+      ],
+      "row_counts": [
+        2000,
+        2000
+      ],
+      "seed_ids": [
+        "q1a_cot_only_vistral_20260521",
+        "q1a_cot_only_vistral_20260523"
+      ]
+    },
+    "explanation_only_vistral": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.4591671173607355,
+          "idiom_figurative": 0.48173101839854887,
+          "implicit_sentiment": 0.441340782122905,
+          "irony": 0.481999481999482,
+          "macro_pragmatic_f1": 0.46928559825200117,
+          "mocking": 0.4690735333156358,
+          "sarcasm": 0.4824016563146998
+        },
+        {
+          "code_switching": 0.46227733534461724,
+          "idiom_figurative": 0.48173101839854887,
+          "implicit_sentiment": 0.441340782122905,
+          "irony": 0.481999481999482,
+          "macro_pragmatic_f1": 0.4698039679159815,
+          "mocking": 0.4690735333156358,
+          "sarcasm": 0.4824016563146998
+        },
+        {
+          "code_switching": 0.4590208276981336,
+          "idiom_figurative": 0.48173101839854887,
+          "implicit_sentiment": 0.441340782122905,
+          "irony": 0.481999481999482,
+          "macro_pragmatic_f1": 0.4692612166415675,
+          "mocking": 0.4690735333156358,
+          "sarcasm": 0.4824016563146998
+        }
+      ],
+      "prediction_sha256": [
+        "e84e210c7ccb02032c9cad2ba0630df0007e51149b61a73d7041407271014525",
+        "39fb0ccf063cac7a3abcfc24af021c6d1a4b18bceafdfae0419ba2659dfc5c2a",
+        "10a7efed81f873329da1d9cbad1110c882c6a16610adc4c714bb532486816ee2"
+      ],
+      "row_counts": [
+        2000,
+        2000,
+        2000
+      ],
+      "seed_ids": [
+        "q1a_explanation_only_vistral_20260521",
+        "q1a_explanation_only_vistral_20260522",
+        "q1a_explanation_only_vistral_20260523"
+      ]
+    },
+    "phobert_pragmatic_finetune": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.9122790055834884,
+          "idiom_figurative": 0.8667873416630425,
+          "implicit_sentiment": 0.8499214294542436,
+          "irony": 0.9764918838228899,
+          "macro_pragmatic_f1": 0.8508045874251716,
+          "mocking": 0.7737005957742695,
+          "sarcasm": 0.7256472682530957
+        },
+        {
+          "code_switching": 0.9228341474330779,
+          "idiom_figurative": 0.8726983405319391,
+          "implicit_sentiment": 0.8641199521425865,
+          "irony": 0.9742716654841528,
+          "macro_pragmatic_f1": 0.858004332666626,
+          "mocking": 0.7922812651704694,
+          "sarcasm": 0.72182062523753
+        },
+        {
+          "code_switching": 0.9168593475178932,
+          "idiom_figurative": 0.8594837114903732,
+          "implicit_sentiment": 0.858658760437329,
+          "irony": 0.9727579819112999,
+          "macro_pragmatic_f1": 0.8548862773812139,
+          "mocking": 0.7897982062780269,
+          "sarcasm": 0.7317596566523605
+        }
+      ],
+      "prediction_sha256": [
+        "361ad95ee368e72b64b225fe7ca627db0c22db51bd056950042d82d9091e50d6",
+        "271d7a2bf8aa09ec146209056c30286093c9e79699e25f67ce3d177fa764555e",
+        "ff6f855c82cd3759db93ff43acded59658752c9702ea0808b51641a69fbf0dc1"
+      ],
+      "row_counts": [
+        2000,
+        2000,
+        2000
+      ],
+      "seed_ids": [
+        "q1a_phobert_pragmatic_finetune_20260521",
+        "q1a_phobert_pragmatic_finetune_20260522",
+        "q1a_phobert_pragmatic_finetune_20260523"
+      ]
+    },
+    "phobert_pragmatic_single_task": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.9096699273960401,
+          "idiom_figurative": 0.9211057813683413,
+          "implicit_sentiment": 0.8651741904013113,
+          "irony": 0.9595437693070137,
+          "macro_pragmatic_f1": 0.8619618894652946,
+          "mocking": 0.8224394924791791,
+          "sarcasm": 0.6938381758398816
+        },
+        {
+          "code_switching": 0.8963569466756491,
+          "idiom_figurative": 0.9074402021203749,
+          "implicit_sentiment": 0.8863827447202062,
+          "irony": 0.9742716654841528,
+          "macro_pragmatic_f1": 0.8578258552082235,
+          "mocking": 0.762834159693526,
+          "sarcasm": 0.7196694125554328
+        },
+        {
+          "code_switching": 0.9264954785047632,
+          "idiom_figurative": 0.9078341013824884,
+          "implicit_sentiment": 0.8884870403857745,
+          "irony": 0.9800035193805889,
+          "macro_pragmatic_f1": 0.8674935590176965,
+          "mocking": 0.789430493713297,
+          "sarcasm": 0.7127107207392667
+        }
+      ],
+      "prediction_sha256": [
+        "454aee5a122b9c1df81bdc5f4a11f685bc41ddb05673291dce24782f14c6b9ea",
+        "113290b34f812c0cffe4de8d4a6f89f7b095e87c61561c2da3a5a7e6c4a14533",
+        "580ca77bba0a174171d19bc4b21bcc59aef6d1053d31ccb5d6e20ee9fcd38472"
+      ],
+      "row_counts": [
+        2000,
+        2000,
+        2000
+      ],
+      "seed_ids": [
+        "q1a_phobert_pragmatic_single_task_20260521",
+        "q1a_phobert_pragmatic_single_task_20260522",
+        "q1a_phobert_pragmatic_single_task_20260523"
+      ]
+    },
+    "sailor_pragmatic_sft": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.9187127268113184,
+          "idiom_figurative": 0.8969462756687125,
+          "implicit_sentiment": 0.855124056805315,
+          "irony": 0.9550725170418111,
+          "macro_pragmatic_f1": 0.8586475352880477,
+          "mocking": 0.7893447729832885,
+          "sarcasm": 0.7366848624178406
+        },
+        {
+          "code_switching": 0.9077668345577621,
+          "idiom_figurative": 0.9248670001415968,
+          "implicit_sentiment": 0.8512041724190826,
+          "irony": 0.9635000973330737,
+          "macro_pragmatic_f1": 0.8499623734806137,
+          "mocking": 0.7651058569000154,
+          "sarcasm": 0.6873302795321521
+        },
+        {
+          "code_switching": 0.9045083385386133,
+          "idiom_figurative": 0.9128246334844373,
+          "implicit_sentiment": 0.8563804445572016,
+          "irony": 0.9539170506912442,
+          "macro_pragmatic_f1": 0.8577011084379581,
+          "mocking": 0.7782467141677225,
+          "sarcasm": 0.7403294691885296
+        }
+      ],
+      "prediction_sha256": [
+        "a18e2864a66990b168bcf5b4379145378b90a5fdcc0c890bd3df3a23f29d1462",
+        "b3130061d050b27ba24c63165f72a013c8c0d2a2931126fdbf38bc6706310fb6",
+        "fe702e1cb2c14e2bd22553be9a65dfa37fd2f61d7317133a52b83720265edb7e"
+      ],
+      "row_counts": [
+        2000,
+        2000,
+        2000
+      ],
+      "seed_ids": [
+        "q1a_sailor_pragmatic_sft_20260521",
+        "q1a_sailor_pragmatic_sft_20260522",
+        "q1a_sailor_pragmatic_sft_20260523"
+      ]
+    },
+    "vipragsent_full_vistral": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.4783902159964421,
+          "idiom_figurative": 0.5382487964090338,
+          "implicit_sentiment": 0.7859265551694126,
+          "irony": 0.9112412905516354,
+          "macro_pragmatic_f1": 0.6708685704118457,
+          "mocking": 0.673842755688705,
+          "sarcasm": 0.6375618086558452
+        },
+        {
+          "code_switching": 0.9438863432649583,
+          "idiom_figurative": 0.9182739457339,
+          "implicit_sentiment": 0.8830527653279896,
+          "irony": 0.9703134601740224,
+          "macro_pragmatic_f1": 0.88873176742299,
+          "mocking": 0.8357580992536584,
+          "sarcasm": 0.7811059907834101
+        },
+        {
+          "code_switching": 0.928529434369216,
+          "idiom_figurative": 0.9248670001415968,
+          "implicit_sentiment": 0.8788082610348865,
+          "irony": 0.9610828313018571,
+          "macro_pragmatic_f1": 0.8761870361152361,
+          "mocking": 0.804809371165055,
+          "sarcasm": 0.7590253186788053
+        }
+      ],
+      "prediction_sha256": [
+        "a4ae3b9cb6dfa218cb05694134c0f43bf5a69050545d398c01152233682b7f13",
+        "2d98bba8799fb8ef49862d42972877746f87f32a0e887ddf587cde48dd9d58e7",
+        "69fde67720034617bd346475d1cbca84641b3ef34cfad1db91b05afaa7ab6dfb"
+      ],
+      "row_counts": [
+        2000,
+        2000,
+        2000
+      ],
+      "seed_ids": [
+        "q1a_vipragsent_full_vistral_20260521",
+        "q1a_vipragsent_full_vistral_20260522",
+        "q1a_vipragsent_full_vistral_20260523"
+      ]
+    },
+    "vipragsent_no_auxiliary_vistral": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.92369652659828,
+          "idiom_figurative": 0.9171610514381708,
+          "implicit_sentiment": 0.8813664185873293,
+          "irony": 0.9686558450971865,
+          "macro_pragmatic_f1": 0.8660203074235883,
+          "mocking": 0.7626758586358493,
+          "sarcasm": 0.7425661441847142
+        },
+        {
+          "code_switching": 0.9358215137954573,
+          "idiom_figurative": 0.9236987780359303,
+          "implicit_sentiment": 0.8699435183279596,
+          "irony": 0.9718095452879655,
+          "macro_pragmatic_f1": 0.8775604473543956,
+          "mocking": 0.8109804496946937,
+          "sarcasm": 0.7531088789843678
+        },
+        {
+          "code_switching": 0.9267743490544738,
+          "idiom_figurative": 0.9043319097010372,
+          "implicit_sentiment": 0.8715890850722312,
+          "irony": 0.9740942709480201,
+          "macro_pragmatic_f1": 0.872764767103042,
+          "mocking": 0.8117292666854937,
+          "sarcasm": 0.7480697211569953
+        }
+      ],
+      "prediction_sha256": [
+        "12f9b575543c1fb298a29a70da909a70a3e18ae873181ba4f3380134f814e068",
+        "355a8187cdf3eb71892b70257e9f5480fd559ae9dc5b28f7deba1193b3c219a7",
+        "e85952a5c9f711a282c4e9317a55db9b5e17638bd34f8285382e9aeca2a669d5"
+      ],
+      "row_counts": [
+        2000,
+        2000,
+        2000
+      ],
+      "seed_ids": [
+        "q1a_vipragsent_no_auxiliary_vistral_20260521",
+        "q1a_vipragsent_no_auxiliary_vistral_20260522",
+        "q1a_vipragsent_no_auxiliary_vistral_20260523"
+      ]
+    },
+    "vistral_pragmatic_sft": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.9283103093309181,
+          "idiom_figurative": 0.9199511897498475,
+          "implicit_sentiment": 0.873909551118002,
+          "irony": 0.9642537980339589,
+          "macro_pragmatic_f1": 0.8707719993127375,
+          "mocking": 0.8000199980002001,
+          "sarcasm": 0.7381871496434982
+        },
+        {
+          "code_switching": 0.92179576717115,
+          "idiom_figurative": 0.9270353302611367,
+          "implicit_sentiment": 0.8764315852923448,
+          "irony": 0.968225598252408,
+          "macro_pragmatic_f1": 0.8752489096096876,
+          "mocking": 0.8010712249526895,
+          "sarcasm": 0.7569339517283966
+        },
+        {
+          "code_switching": 0.9338327291392641,
+          "idiom_figurative": 0.8973795125526847,
+          "implicit_sentiment": 0.8703476818853619,
+          "irony": 0.968225598252408,
+          "macro_pragmatic_f1": 0.8688355682968139,
+          "mocking": 0.7961894844890933,
+          "sarcasm": 0.7470384034620714
+        }
+      ],
+      "prediction_sha256": [
+        "2c7495662cc6717f5647223e634e08389b3518b1d44f3bd86c1e9770416c94ed",
+        "c3363406ea30ca760b28a81c0ed1414aa1d0f3f4ac45444ce013e78cdad7aa31",
+        "bdf004f936dc6198458e55c291a3ae2c601d4549ff952fd4ac6dc40b819277ca"
+      ],
+      "row_counts": [
+        2000,
+        2000,
+        2000
+      ],
+      "seed_ids": [
+        "q1a_vistral_pragmatic_sft_20260521",
+        "q1a_vistral_pragmatic_sft_20260522",
+        "q1a_vistral_pragmatic_sft_20260523"
+      ]
+    },
+    "xlmr_pragmatic_finetune": {
+      "aligned": true,
+      "per_seed_f1": [
+        {
+          "code_switching": 0.9431662469156852,
+          "idiom_figurative": 0.9351439613305408,
+          "implicit_sentiment": 0.9201465753971598,
+          "irony": 0.9786671010820628,
+          "macro_pragmatic_f1": 0.9310143927657345,
+          "mocking": 0.9227694625551417,
+          "sarcasm": 0.8861930093138173
+        },
+        {
+          "code_switching": 0.9423938105566759,
+          "idiom_figurative": 0.9287199744933098,
+          "implicit_sentiment": 0.9221679992617079,
+          "irony": 0.9804099031857416,
+          "macro_pragmatic_f1": 0.9285020357074613,
+          "mocking": 0.9186079932037674,
+          "sarcasm": 0.8787125335435649
+        },
+        {
+          "code_switching": 0.9423938105566759,
+          "idiom_figurative": 0.9216396127429661,
+          "implicit_sentiment": 0.9225957042118833,
+          "irony": 0.9788086410655785,
+          "macro_pragmatic_f1": 0.9285110882349082,
+          "mocking": 0.9268432554751314,
+          "sarcasm": 0.8787855053572144
+        }
+      ],
+      "prediction_sha256": [
+        "86b78c698e79efbe1274644a1ca82bd2cfd3ee4ec43e677c3a2258170092921c",
+        "e6ca7f7ec15f8e95c8811c8073919aabe7d8ebbda51481dda4503d2a6bb8fca8",
+        "3e88894ebc0c89393ad90a063787274d01b16f25e14af44ccce93d9bc7588502"
+      ],
+      "row_counts": [
+        2000,
+        2000,
+        2000
+      ],
+      "seed_ids": [
+        "q1a_xlmr_pragmatic_finetune_20260521",
+        "q1a_xlmr_pragmatic_finetune_20260522",
+        "q1a_xlmr_pragmatic_finetune_20260523"
+      ]
+    }
+  },
+  "source_catalog": [
+    {
+      "source_id": "q1a_phobert_pragmatic_single_task_20260521",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260521/metrics/test_metrics.json",
+      "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260521/metrics/test_confidence_intervals.json",
+      "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260521/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "phobert_pragmatic_single_task",
+      "seed": "20260521"
+    },
+    {
+      "source_id": "q1a_phobert_pragmatic_single_task_20260522",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260522/metrics/test_metrics.json",
+      "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260522/metrics/test_confidence_intervals.json",
+      "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260522/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "phobert_pragmatic_single_task",
+      "seed": "20260522"
+    },
+    {
+      "source_id": "q1a_phobert_pragmatic_single_task_20260523",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260523/metrics/test_metrics.json",
+      "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260523/metrics/test_confidence_intervals.json",
+      "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260523/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "phobert_pragmatic_single_task",
+      "seed": "20260523"
+    },
+    {
+      "source_id": "q1a_phobert_pragmatic_finetune_20260521",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260521/metrics/test_metrics.json",
+      "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260521/metrics/test_confidence_intervals.json",
+      "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260521/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "phobert_pragmatic_finetune",
+      "seed": "20260521"
+    },
+    {
+      "source_id": "q1a_phobert_pragmatic_finetune_20260522",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260522/metrics/test_metrics.json",
+      "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260522/metrics/test_confidence_intervals.json",
+      "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260522/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "phobert_pragmatic_finetune",
+      "seed": "20260522"
+    },
+    {
+      "source_id": "q1a_phobert_pragmatic_finetune_20260523",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260523/metrics/test_metrics.json",
+      "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260523/metrics/test_confidence_intervals.json",
+      "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260523/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "phobert_pragmatic_finetune",
+      "seed": "20260523"
+    },
+    {
+      "source_id": "q1a_xlmr_pragmatic_finetune_20260521",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260521/metrics/test_metrics.json",
+      "ci_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260521/metrics/test_confidence_intervals.json",
+      "prediction_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260521/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "xlmr_pragmatic_finetune",
+      "seed": "20260521"
+    },
+    {
+      "source_id": "q1a_xlmr_pragmatic_finetune_20260522",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260522/metrics/test_metrics.json",
+      "ci_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260522/metrics/test_confidence_intervals.json",
+      "prediction_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260522/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "xlmr_pragmatic_finetune",
+      "seed": "20260522"
+    },
+    {
+      "source_id": "q1a_xlmr_pragmatic_finetune_20260523",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260523/metrics/test_metrics.json",
+      "ci_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260523/metrics/test_confidence_intervals.json",
+      "prediction_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260523/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "xlmr_pragmatic_finetune",
+      "seed": "20260523"
+    },
+    {
+      "source_id": "q1a_sailor_pragmatic_sft_20260521",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260521/science/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260521/science/metrics/test_confidence_intervals.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260521/science/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "sailor_pragmatic_sft",
+      "seed": "20260521"
+    },
+    {
+      "source_id": "q1a_sailor_pragmatic_sft_20260522",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260522/science/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260522/science/metrics/test_confidence_intervals.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260522/science/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "sailor_pragmatic_sft",
+      "seed": "20260522"
+    },
+    {
+      "source_id": "q1a_sailor_pragmatic_sft_20260523",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260523/science/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260523/science/metrics/test_confidence_intervals.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260523/science/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "sailor_pragmatic_sft",
+      "seed": "20260523"
+    },
+    {
+      "source_id": "q1a_vistral_pragmatic_sft_20260521",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260521/science/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260521/science/metrics/test_confidence_intervals.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260521/science/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "vistral_pragmatic_sft",
+      "seed": "20260521"
+    },
+    {
+      "source_id": "q1a_vistral_pragmatic_sft_20260522",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260522/science/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260522/science/metrics/test_confidence_intervals.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260522/science/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "vistral_pragmatic_sft",
+      "seed": "20260522"
+    },
+    {
+      "source_id": "q1a_vistral_pragmatic_sft_20260523",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260523/science/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260523/science/metrics/test_confidence_intervals.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260523/science/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "vistral_pragmatic_sft",
+      "seed": "20260523"
+    },
+    {
+      "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260521/science/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260521/science/metrics/test_confidence_intervals.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260521/science/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "vipragsent_no_auxiliary_vistral",
+      "seed": "20260521"
+    },
+    {
+      "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260522",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260522/science/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260522/science/metrics/test_confidence_intervals.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260522/science/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "vipragsent_no_auxiliary_vistral",
+      "seed": "20260522"
+    },
+    {
+      "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260523",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260523/science/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260523/science/metrics/test_confidence_intervals.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260523/science/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test metrics and prediction JSONL.",
+      "system_id": "vipragsent_no_auxiliary_vistral",
+      "seed": "20260523"
+    },
+    {
+      "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260521",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-006",
+      "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-003",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260521/metrics/test_reasoning_metrics.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260521/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+      "system_id": "cot_only_vistral",
+      "seed": "20260521"
+    },
+    {
+      "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+      "repo": "Thundergod2007/vipragsent-vistral7b-checkpoints",
+      "metric_path": null,
+      "prediction_path": null,
+      "training_checkpoint_status": "COMPLETE_3_EPOCHS",
+      "test_score_status": "MISSING_TEST_SCORE_ARTIFACT",
+      "checkpoint_paths": [
+        "q1a_cot_only_vistral_20260522/cot_only_vistral/checkpoints/boundary_0001_epoch_0001_65C1D0BAAF1D/model.pt",
+        "q1a_cot_only_vistral_20260522/cot_only_vistral/checkpoints/boundary_0002_epoch_0002_F34A33BDDADB/model.pt",
+        "q1a_cot_only_vistral_20260522/cot_only_vistral/checkpoints/boundary_0003_epoch_0003_1D0A43F67758/model.pt"
+      ],
+      "note": "Canonical epoch 1-3 checkpoints exist, but no test predictions or test_reasoning_metrics.json was found for this seed.",
+      "system_id": "cot_only_vistral",
+      "seed": "20260522"
+    },
+    {
+      "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260523",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-024",
+      "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-024",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260523/metrics/test_reasoning_metrics.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260523/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+      "system_id": "cot_only_vistral",
+      "seed": "20260523"
+    },
+    {
+      "source_id": "q1a_explanation_only_vistral_20260521",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-003",
+      "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-003",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260521/metrics/test_reasoning_metrics.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260521/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+      "system_id": "explanation_only_vistral",
+      "seed": "20260521"
+    },
+    {
+      "source_id": "q1a_explanation_only_vistral_20260522",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-010",
+      "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-004",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260522/metrics/test_reasoning_metrics.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260522/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+      "system_id": "explanation_only_vistral",
+      "seed": "20260522"
+    },
+    {
+      "source_id": "q1a_explanation_only_vistral_20260523",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-014",
+      "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-004",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260523/metrics/test_reasoning_metrics.json",
+      "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260523/predictions/test_predictions.jsonl",
+      "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+      "system_id": "explanation_only_vistral",
+      "seed": "20260523"
+    },
+    {
+      "source_id": "q1a_vipragsent_full_vistral_20260521",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-017",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260521/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260521/metrics/test_confidence_intervals.json",
+      "threshold_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-009",
+      "threshold_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260521/selection/thresholds.json",
+      "prediction_path": "results/runs/q1a_vipragsent_full_vistral_20260521/predictions/test_predictions.jsonl",
+      "prediction_derivation": "Reconstructed six pragmatic columns from persisted raw test gold/probability arrays using frozen per-seed selection thresholds; reproduces the persisted test metrics.",
+      "remote_prediction_note": "Remote prediction JSONL contains partial record shards, so the validated local prediction file is derived from the complete persisted metric arrays.",
+      "system_id": "vipragsent_full_vistral",
+      "seed": "20260521"
+    },
+    {
+      "source_id": "q1a_vipragsent_full_vistral_20260522",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-017",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260522/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260522/metrics/test_confidence_intervals.json",
+      "threshold_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-017",
+      "threshold_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260522/selection/thresholds.json",
+      "prediction_path": "results/runs/q1a_vipragsent_full_vistral_20260522/predictions/test_predictions.jsonl",
+      "prediction_derivation": "Reconstructed six pragmatic columns from persisted raw test gold/probability arrays using frozen per-seed selection thresholds; reproduces the persisted test metrics.",
+      "remote_prediction_note": "Remote prediction JSONL contains partial record shards, so the validated local prediction file is derived from the complete persisted metric arrays.",
+      "system_id": "vipragsent_full_vistral",
+      "seed": "20260522"
+    },
+    {
+      "source_id": "q1a_vipragsent_full_vistral_20260523",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-016",
+      "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260523/metrics/test_metrics.json",
+      "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260523/metrics/test_confidence_intervals.json",
+      "threshold_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-016",
+      "threshold_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260523/selection/thresholds.json",
+      "prediction_path": "results/runs/q1a_vipragsent_full_vistral_20260523/predictions/test_predictions.jsonl",
+      "prediction_derivation": "Reconstructed six pragmatic columns from persisted raw test gold/probability arrays using frozen per-seed selection thresholds; reproduces the persisted test metrics.",
+      "remote_prediction_note": "Remote prediction JSONL contains partial record shards, so the validated local prediction file is derived from the complete persisted metric arrays.",
+      "system_id": "vipragsent_full_vistral",
+      "seed": "20260523"
+    },
+    {
+      "source_id": "azure_pragmatic_zero_shot",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_pragmatic_zero_shot/E4C5F0681894/metrics.json",
+      "prediction_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_pragmatic_zero_shot/E4C5F0681894/predictions/test_predictions.jsonl",
+      "response_manifest_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_pragmatic_zero_shot/E4C5F0681894/azure/response_manifest.json",
+      "metric_note": "metrics.json has an empty test object; F1 is computed from the valid 2000-row prediction JSONL.",
+      "system_id": "azure_pragmatic_zero_shot",
+      "seed": "single"
+    },
+    {
+      "source_id": "azure_gpt41_mini_8shot",
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+      "metric_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_gpt41_mini_8shot/1292C4E7F429/metrics.json",
+      "prediction_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_gpt41_mini_8shot/1292C4E7F429/predictions/test_predictions.jsonl",
+      "response_manifest_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_gpt41_mini_8shot/1292C4E7F429/azure/response_manifest.json",
+      "metric_note": "metrics.json has an empty test object; F1 is computed from the valid 2000-row prediction JSONL.",
+      "system_id": "azure_gpt41_mini_8shot",
+      "seed": "single"
+    }
+  ],
+  "missing_test_score": {
+    "run_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+    "training_checkpoint_status": "COMPLETE_3_EPOCHS",
+    "test_score_status": "MISSING_TEST_SCORE_ARTIFACT",
+    "not_imputed": true,
+    "effect": "COT aggregate is provisional and uses only seeds 20260521 and 20260523."
+  },
+  "overlap_checks": {
+    "expected_canonical_run_count": 29,
+    "exported_per_seed_row_count": 29,
+    "unique_per_seed_run_count": 29,
+    "aggregate_row_count": 11,
+    "complete_aggregate_row_count": 10,
+    "provisional_aggregate_row_count": 1,
+    "all_available_prediction_row_counts_are_2000": true
+  }
+}

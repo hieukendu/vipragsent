@@ -13,6 +13,12 @@ from ...hashing import sha256_file, sha256_json
 from ...orchestration.status import RuntimeBlocked
 from ..approval import validate_approval_record
 
+Q4_SOURCE_Q1A_SYSTEMS = {
+    "phobert_pragmatic_finetune": "phobert_pragmatic_single_task",
+    "vistral_pragmatic_sft": "vistral_pragmatic_sft",
+    "vipragsent_full_vistral": "vipragsent_full_vistral",
+}
+
 
 def _load(path: Path) -> Any:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -22,6 +28,14 @@ def _resolve_source(root: Path, entry: Mapping[str, Any]) -> tuple[Path, dict[st
     requested_id = str(entry.get("source_run_id") or entry.get("approved_source_run_id") or "")
     requested_system = str(entry.get("system_id", ""))
     requested_seed = str(entry.get("seed"))
+    if not requested_id:
+        q1a_system = Q4_SOURCE_Q1A_SYSTEMS.get(requested_system, requested_system)
+        preferred_id = f"q1a_{q1a_system}_{requested_seed}"
+        # Q3 shares some system IDs with Q1a, but its budgeted checkpoint is
+        # not the approved Q4 source.  Bind to the canonical Q1a producer
+        # whenever that producer is present on disk.
+        if (root / "results/runs" / preferred_id).exists():
+            requested_id = preferred_id
     candidates: list[tuple[Path, dict[str, Any], dict[str, Any]]] = []
     for summary_path in sorted((root / "results/runs").glob("*/review_summary.json")):
         run_root = summary_path.parent

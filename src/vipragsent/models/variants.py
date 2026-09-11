@@ -22,6 +22,7 @@ VARIANT_IDS = {
     "vipragsent_full",
     "vipragsent_full_phobert",
     "vipragsent_full_vistral",
+    "vipragsent_full_xlmr_large",
     "phobert_pragmatic_finetune",
     "phobert_pragmatic_single_task",
     "xlmr_pragmatic_finetune",
@@ -76,7 +77,7 @@ class VariantConfig:
     def has_rationale_decoder(self) -> bool:
         if self.rationale_enabled_for_training is not None:
             return self.rationale_enabled_for_training
-        return self.name in {"full", "vipragsent_full", "vipragsent_full_phobert", "vipragsent_full_vistral", "no_emotion_auxiliary", "no_polarity_auxiliary", "no_uncertainty_weighting"}
+        return self.name in {"full", "vipragsent_full", "vipragsent_full_phobert", "vipragsent_full_vistral", "vipragsent_full_xlmr_large", "no_emotion_auxiliary", "no_polarity_auxiliary", "no_uncertainty_weighting"}
 
     @property
     def has_uncertainty_weighting(self) -> bool:
@@ -87,6 +88,7 @@ class VariantConfig:
             "vipragsent_full",
             "vipragsent_full_phobert",
             "vipragsent_full_vistral",
+            "vipragsent_full_xlmr_large",
             "no_emotion_auxiliary",
             "no_polarity_auxiliary",
             "no_rationale",
@@ -145,6 +147,8 @@ class ViPragSentModel(nn.Module):
         hidden = encoded.last_hidden_state
         pooled = pool_hidden_states(hidden, attention_mask, self.config.backbone_family)
         outputs: dict[str, Any] = {"logits": self.heads(pooled, active_tasks=self.config.active_tasks)}
+        if getattr(self, "_vipragsent_expose_shared_representation", False):
+            outputs["_shared_representation"] = hidden
         if self.training and self.rationale_decoder is not None and rationale_input_ids is not None:
             target_attention = rationale_attention_mask if rationale_attention_mask is not None else torch.ones_like(rationale_input_ids)
             outputs["rationale_logits"], outputs["rationale_labels"], outputs["rationale_padding_mask"] = self.rationale_decoder.teacher_forcing(

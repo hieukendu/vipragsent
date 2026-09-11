@@ -1,0 +1,144 @@
+{
+  "backbones": {
+    "phobert_base": {
+      "execution_mode": "production",
+      "max_length": 128,
+      "model_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
+      "preprocessing_name": "vncorenlp_rdrsegmenter",
+      "preprocessing_version": "runtime-v1",
+      "segmenter_resource_checksum": "F033BBCF96A1BF27C304F750CDD664D97EB22F1D337C31D7B51BF2DB8693121D",
+      "segmenter_version": "vncorenlp-resource-tree",
+      "splits": {
+        "dev": {
+          "path": "data/processed/tokenized_text/phobert_base/dev.jsonl",
+          "rows": 1999,
+          "sha256": "C6CD4D0ECB3C6648D3B0E31A90EA3B9BCA7F2A26E3B1B168B95C82E38458264D",
+          "truncated_rows": 0,
+          "truncation_rate": 0.0
+        },
+        "test": {
+          "path": "data/processed/tokenized_text/phobert_base/test.jsonl",
+          "rows": 2000,
+          "sha256": "98849066B473B78D0EF48368554FF62AEBE885929D5CE19DB597996E8E14536B",
+          "truncated_rows": 0,
+          "truncation_rate": 0.0
+        },
+        "train": {
+          "path": "data/processed/tokenized_text/phobert_base/train.jsonl",
+          "rows": 7998,
+          "sha256": "03EF6A4EF62C1165DEF5EA1938E964FBAB19A60E25CB46C16649A93C27F45353",
+          "truncated_rows": 6,
+          "truncation_rate": 0.0007501875468867217
+        }
+      },
+      "tokenizer_revision": "01daacda68afe13d83023d16ec647239e344a1e6"
+    },
+    "sailor_7b": {
+      "execution_mode": "production",
+      "max_length": 128,
+      "model_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+      "preprocessing_name": "unicode_nfc",
+      "preprocessing_version": "runtime-v1",
+      "segmenter_resource_checksum": null,
+      "segmenter_version": null,
+      "splits": {
+        "dev": {
+          "path": "data/processed/tokenized_text/sailor_7b/dev.jsonl",
+          "rows": 1999,
+          "sha256": "CE5296DEAE4E1C3ADCA90DD2B074040DD35C2261DA6CEDBE6CC8467BA7FFB90D",
+          "truncated_rows": 0,
+          "truncation_rate": 0.0
+        },
+        "test": {
+          "path": "data/processed/tokenized_text/sailor_7b/test.jsonl",
+          "rows": 2000,
+          "sha256": "C8CEAF85A88E8D692412B381085B8FAB0CFAB9E414472CD674BEC9E8EB8E01E6",
+          "truncated_rows": 0,
+          "truncation_rate": 0.0
+        },
+        "train": {
+          "path": "data/processed/tokenized_text/sailor_7b/train.jsonl",
+          "rows": 7998,
+          "sha256": "CB494C2E06DE1D8E44EB197800B7053F6BCC1AC7F659362DB87634DAF98EC783",
+          "truncated_rows": 6,
+          "truncation_rate": 0.0007501875468867217
+        }
+      },
+      "tokenizer_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970"
+    },
+    "vistral_7b": {
+      "execution_mode": "production",
+      "max_length": 128,
+      "model_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+      "preprocessing_name": "unicode_nfc",
+      "preprocessing_version": "runtime-v1",
+      "segmenter_resource_checksum": null,
+      "segmenter_version": null,
+      "splits": {
+        "dev": {
+          "path": "data/processed/tokenized_text/vistral_7b/dev.jsonl",
+          "rows": 1999,
+          "sha256": "5B67ADF942E323BB4FBD449FB8CF65F1425F5C443DC1BAB79B07D00A4A9D4825",
+          "truncated_rows": 0,
+          "truncation_rate": 0.0
+        },
+        "test": {
+          "path": "data/processed/tokenized_text/vistral_7b/test.jsonl",
+          "rows": 2000,
+          "sha256": "7E034D3B6539ABD648823841A8D3FB30902487C643F4F758777F914723CBF667",
+          "truncated_rows": 0,
+          "truncation_rate": 0.0
+        },
+        "train": {
+          "path": "data/processed/tokenized_text/vistral_7b/train.jsonl",
+          "rows": 7998,
+          "sha256": "441EC60FA9624EFBFC363452A5137CA212CDE52DC46CAAF4DCF026A376CF8FEC",
+          "truncated_rows": 6,
+          "truncation_rate": 0.0007501875468867217
+        }
+      },
+      "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45"
+    },
+    "xlmr_large": {
+      "execution_mode": "production",
+      "max_length": 128,
+      "model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+      "preprocessing_name": "unicode_nfc",
+      "preprocessing_version": "runtime-v1",
+      "segmenter_resource_checksum": null,
+      "segmenter_version": null,
+      "splits": {
+        "dev": {
+          "path": "data/processed/tokenized_text/xlmr_large/dev.jsonl",
+          "rows": 1999,
+          "sha256": "B932015ABB6116E4AD8D89FF21BFEDE1993DDF98CEC57BD555CAB5CBC78263AE",
+          "truncated_rows": 0,
+          "truncation_rate": 0.0
+        },
+        "test": {
+          "path": "data/processed/tokenized_text/xlmr_large/test.jsonl",
+          "rows": 2000,
+          "sha256": "8416D9380E6E3FB981734F5437D066B16D241476EA0B2706DA702DF049B3992B",
+          "truncated_rows": 0,
+          "truncation_rate": 0.0
+        },
+        "train": {
+          "path": "data/processed/tokenized_text/xlmr_large/train.jsonl",
+          "rows": 7998,
+          "sha256": "6E710252A0D4F30613536AEEF2288EF42F156A52839FB993F889ACF35EA8D389",
+          "truncated_rows": 6,
+          "truncation_rate": 0.0007501875468867217
+        }
+      },
+      "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389"
+    }
+  },
+  "data_fingerprint": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+  "dataset_split_counts": {
+    "dev": 1999,
+    "test": 2000,
+    "train": 7998
+  },
+  "execution_mode": "production",
+  "schema_version": 1
+}
