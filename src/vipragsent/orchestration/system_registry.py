@@ -132,6 +132,145 @@ class SystemExecutionSpec:
         }
 
 
+def _xlmr_followup_specs() -> dict[str, SystemExecutionSpec]:
+    """Return the isolated XLM-R-large follow-up lane definitions.
+
+    The canonical inventory intentionally remains unchanged: its Q1b rows are
+    evaluation-only consumers and its Q2/Q3/Q4 rows retain their original
+    backbone semantics.  The user-requested XLM-R rerun is a separate lane,
+    so its systems are resolved here without polluting the approved registry
+    hash or changing the original protocol rows.
+    """
+
+    pragmatic = tuple(PRAGMATIC_LABELS)
+    all_heads = pragmatic + ("polarity", "emotion")
+    common = {
+        "model_family": "xlmr_large",
+        "active_heads": all_heads,
+        "output_source": "classification_heads",
+        "external_evaluation_strategy": "q1b_external_retention",
+        "approved_source_reference": "configs/experiments/xlmr_followup.yaml",
+        "additional_training": True,
+        "direct_classification_outputs_used": True,
+    }
+    variants = {
+        "xlmr_followup_full": {
+            "executor_kind": "single_model_trainable",
+            "variant_id": "vipragsent_full_xlmr_large",
+            "active_losses": ("pragmatic", "polarity", "emotion", "rationale"),
+            "uncertainty_tasks": all_heads,
+            "rationale_training": True,
+            "checkpoint_semantics": "single_joint_checkpoint",
+            "evaluation_strategy": "xlmr_followup_q2_and_q3",
+            "selection_metric": "dev_macro_pragmatic_f1",
+            "reusable_checkpoint_key_pattern": "xlmr_followup_full:{seed}",
+        },
+        "xlmr_followup_no_emotion_auxiliary": {
+            "executor_kind": "single_model_trainable",
+            "variant_id": "no_emotion_auxiliary",
+            "active_heads": pragmatic + ("polarity",),
+            "active_losses": ("pragmatic", "polarity", "rationale"),
+            "uncertainty_tasks": pragmatic + ("polarity",),
+            "rationale_training": True,
+            "checkpoint_semantics": "single_joint_checkpoint",
+            "evaluation_strategy": "xlmr_followup_q2_ablation",
+            "selection_metric": "dev_macro_pragmatic_f1",
+            "reusable_checkpoint_key_pattern": "xlmr_followup_no_emotion_auxiliary:{seed}",
+        },
+        "xlmr_followup_no_polarity_auxiliary": {
+            "executor_kind": "single_model_trainable",
+            "variant_id": "no_polarity_auxiliary",
+            "active_heads": pragmatic + ("emotion",),
+            "active_losses": ("pragmatic", "emotion", "rationale"),
+            "uncertainty_tasks": pragmatic + ("emotion",),
+            "rationale_training": True,
+            "checkpoint_semantics": "single_joint_checkpoint",
+            "evaluation_strategy": "xlmr_followup_q2_ablation",
+            "selection_metric": "dev_macro_pragmatic_f1",
+            "reusable_checkpoint_key_pattern": "xlmr_followup_no_polarity_auxiliary:{seed}",
+        },
+        "xlmr_followup_no_rationale": {
+            "executor_kind": "single_model_trainable",
+            "variant_id": "no_rationale",
+            "active_losses": ("pragmatic", "polarity", "emotion"),
+            "uncertainty_tasks": all_heads,
+            "rationale_training": False,
+            "checkpoint_semantics": "single_joint_checkpoint",
+            "evaluation_strategy": "xlmr_followup_q2_ablation",
+            "selection_metric": "dev_macro_pragmatic_f1",
+            "reusable_checkpoint_key_pattern": "xlmr_followup_no_rationale:{seed}",
+        },
+        "xlmr_followup_no_uncertainty_weighting": {
+            "executor_kind": "single_model_trainable",
+            "variant_id": "no_uncertainty_weighting",
+            "active_losses": ("pragmatic", "polarity", "emotion", "rationale"),
+            "uncertainty_tasks": (),
+            "rationale_training": True,
+            "checkpoint_semantics": "single_joint_checkpoint",
+            "evaluation_strategy": "xlmr_followup_q2_ablation",
+            "selection_metric": "dev_macro_pragmatic_f1",
+            "reusable_checkpoint_key_pattern": "xlmr_followup_no_uncertainty_weighting:{seed}",
+        },
+        "xlmr_followup_no_multitask": {
+            "executor_kind": "independent_checkpoint_bundle",
+            "variant_id": "no_multitask",
+            "active_losses": ("independent_single_task_losses",),
+            "uncertainty_tasks": (),
+            "rationale_training": False,
+            "checkpoint_semantics": "eight_independent_checkpoint_bundle",
+            "evaluation_strategy": "xlmr_followup_q2_ablation",
+            "selection_metric": "dev_macro_pragmatic_f1",
+            "reusable_checkpoint_key_pattern": "xlmr_followup_no_multitask:{seed}",
+        },
+    }
+    specs: dict[str, SystemExecutionSpec] = {}
+    for system_id, values in variants.items():
+        payload = dict(common)
+        payload.update(values)
+        payload.setdefault("active_heads", all_heads)
+        specs[system_id] = SystemExecutionSpec(
+            system_id=system_id,
+            model_family=str(payload["model_family"]),
+            executor_kind=str(payload["executor_kind"]),
+            variant_id=str(payload["variant_id"]),
+            active_heads=tuple(payload["active_heads"]),
+            active_losses=tuple(payload["active_losses"]),
+            uncertainty_tasks=tuple(payload["uncertainty_tasks"]),
+            rationale_training=bool(payload["rationale_training"]),
+            rationale_inference=False,
+            checkpoint_semantics=str(payload["checkpoint_semantics"]),
+            selection_metric=str(payload["selection_metric"]),
+            evaluation_strategy=str(payload["evaluation_strategy"]),
+            external_evaluation_strategy=str(payload["external_evaluation_strategy"]),
+            output_source=str(payload["output_source"]),
+            reusable_checkpoint_key_pattern=str(payload["reusable_checkpoint_key_pattern"]),
+            approved_source_reference=str(payload["approved_source_reference"]),
+            additional_training=True,
+            direct_classification_outputs_used=True,
+        )
+    specs["xlmr_followup_q4"] = SystemExecutionSpec(
+        system_id="xlmr_followup_q4",
+        model_family="xlmr_large",
+        executor_kind="artifact_extraction",
+        variant_id="vipragsent_full_xlmr_large",
+        active_heads=all_heads,
+        active_losses=(),
+        uncertainty_tasks=(),
+        rationale_training=False,
+        rationale_inference=False,
+        checkpoint_semantics="reuse_v37_full_xlmr_checkpoint",
+        selection_metric="inherited_from_source_checkpoint",
+        evaluation_strategy="xlmr_followup_q4_source_extraction",
+        external_evaluation_strategy="not_applicable",
+        output_source="raw_source_probabilities",
+        reusable_checkpoint_key_pattern="vipragsent_full_xlmr_large:{seed}",
+        approved_source_reference="scripts/run_full_xlmr_large_experiment.py",
+        additional_training=False,
+        direct_classification_outputs_used=False,
+    )
+    return specs
+
+
 def load_execution_registry(root: str | Path = ".") -> dict[str, SystemExecutionSpec]:
     path = Path(root) / "configs/experiments/system_execution_registry.yaml"
     payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
@@ -227,6 +366,10 @@ def validate_execution_registry(root: str | Path = ".", inventory_rows: list[Map
 
 def resolve_execution_spec(root: str | Path, system_id: str) -> SystemExecutionSpec:
     specs = load_execution_registry(root)
+    if system_id not in specs:
+        followup = _xlmr_followup_specs().get(system_id)
+        if followup is not None:
+            return followup
     try:
         return specs[system_id]
     except KeyError as exc:

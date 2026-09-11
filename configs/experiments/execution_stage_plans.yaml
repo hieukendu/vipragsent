@@ -24,6 +24,12 @@ plans:
     evaluation_strategy: q1b_external_retention
     research_question: Q1b
     stages: [preflight, resolve_approved_source, evaluate_external_tests, export_artifacts, validate_artifacts, generate_review_summary]
+  xlmr_q1b_train_and_external:
+    execution_kind: trainable
+    executor_kind: single_model_trainable
+    evaluation_strategy: xlmr_followup_q1b_train_and_external
+    research_question: Q1b
+    stages: [preflight, train, evaluate_dev, freeze_selection, evaluate_xlmr_external_tests, export_artifacts, validate_artifacts, generate_review_summary]
   q4_source_extraction:
     execution_kind: artifact_extraction
     executor_kind: artifact_extraction
