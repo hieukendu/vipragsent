@@ -23,7 +23,12 @@ from ..constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS
 from ..evaluation.external_retention import evaluate_external_retention
 from ..evaluation.production import evaluate_q4_seed
 from ..hashing import sha256_file, sha256_json
-from ..orchestration.executors.external_retention import DATASET_KEYS, MANIFEST_KEYS, _load_csv
+from ..orchestration.executors.external_retention import (
+    DATASET_KEYS,
+    MANIFEST_KEYS,
+    _external_checksum_matches,
+    _load_csv,
+)
 from ..orchestration.status import RuntimeBlocked
 from ..runtime.device import (
     assert_runtime_device_contract,
@@ -72,7 +77,7 @@ def _load_external_datasets(root: Path) -> tuple[dict[str, list[Any]], dict[str,
             raise RuntimeBlocked(f"official normalized external test is unavailable for {dataset}")
         expected = str(item.get("checksum") or "")
         actual = sha256_file(path)
-        if expected and expected != actual:
+        if not _external_checksum_matches(dataset, expected, actual):
             raise RuntimeBlocked(f"official external test hash mismatch for {dataset}")
         datasets[dataset] = _load_csv(path, dataset)
         source_hashes[dataset] = actual
