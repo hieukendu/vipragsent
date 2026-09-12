@@ -21,7 +21,9 @@ MANIFEST_KEYS = {"vsfc": "uit_vsfc", "vsmec": "uit_vsmec", "aivivn": "aivivn_hum
 def _load_csv(path: Path, dataset: str) -> list[NormalizedExternalExample]:
     if path.name.casefold() != "test.csv" or "train" in path.as_posix().casefold():
         raise RuntimeBlocked(f"Q1b may load only official normalized test files: {path}")
-    with path.open(encoding="utf-8", newline="") as handle:
+    # AIVIVN's normalized CSV retains a UTF-8 BOM in the first header cell;
+    # utf-8-sig removes it while preserving the file's locked checksum.
+    with path.open(encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.DictReader(handle))
     label_column = "polarity" if dataset in {"vsfc", "aivivn"} else "emotion"
     examples = [NormalizedExternalExample(str(row["sample_id"] if "sample_id" in row else row["id"]), str(row.get("text", row.get("comment", ""))), str(row[label_column] if label_column in row else row["label"])) for row in rows]
@@ -88,7 +90,10 @@ def evaluate_external_retention_from_disk(
     for dataset in DATASET_KEYS:
         item = manifest.get("datasets", {}).get(MANIFEST_KEYS[dataset], {})
         path_value = item.get("normalized_path")
-        path = root / str(path_value) if path_value else None
+        # External manifests can be generated on Windows; accept their
+        # backslash-separated relative paths on the Linux production runner.
+        normalized_path = str(path_value).replace("\\", "/") if path_value else ""
+        path = root / normalized_path if normalized_path else None
         if path is None or not path.exists() or item.get("status") != "PASS":
             raise RuntimeBlocked(f"official normalized external test is unavailable for {dataset}")
         if item.get("checksum") and sha256_file(path) != item["checksum"]:

@@ -62,7 +62,12 @@ def _load_external_datasets(root: Path) -> tuple[dict[str, list[Any]], dict[str,
     for dataset in DATASET_KEYS:
         item = manifest.get("datasets", {}).get(MANIFEST_KEYS[dataset], {})
         path_value = item.get("normalized_path")
-        path = root / str(path_value) if path_value else None
+        # The checked-in external manifest was generated on Windows and may
+        # contain backslash separators.  Normalize before resolving against
+        # the POSIX repository root so the bundled AIVIVN test is found on
+        # Linux runners as well.
+        normalized_path = str(path_value).replace("\\", "/") if path_value else ""
+        path = root / normalized_path if normalized_path else None
         if path is None or not path.exists() or item.get("status") != "PASS":
             raise RuntimeBlocked(f"official normalized external test is unavailable for {dataset}")
         expected = str(item.get("checksum") or "")

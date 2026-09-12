@@ -1902,11 +1902,22 @@ def _evaluate_q1b_external(context: RunContext, entry: RunEntry) -> StageOutcome
 
 
 def _evaluate_xlmr_external_tests(context: RunContext, entry: RunEntry) -> StageOutcome:
+    run_root = Path(context.run_root)
+    # The train/evaluate_test stages already produced the in-domain test
+    # metrics required by the trainable review contract.  External retention
+    # adds separate dataset scores; preserve the in-domain payload when the
+    # XLM-R follow-up stage writes its combined test metrics artifact.
+    in_domain_test_metrics = _load_mapping(run_root / "metrics/test_metrics.json")
+    if "per_label_f1" not in in_domain_test_metrics:
+        in_domain_prediction = run_root / "predictions/test_predictions.jsonl"
+        if in_domain_prediction.exists():
+            in_domain_test_metrics = _metrics_from_rows(in_domain_prediction)
     try:
         result = evaluate_xlmr_q1b_from_current_checkpoint(context.root, entry, output_root=context.run_root)
     except Exception as exc:
         return StageOutcome.blocked(str(exc))
-    atomic_write_json(Path(context.run_root) / "metrics/test_metrics.json", result)
+    result = {**in_domain_test_metrics, **result}
+    atomic_write_json(run_root / "metrics/test_metrics.json", result)
     return StageOutcome.passed(
         summary=result,
         expected_files=(
