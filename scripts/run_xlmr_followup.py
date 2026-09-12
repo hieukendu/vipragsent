@@ -255,6 +255,14 @@ def _run_one(entry: dict[str, Any], *, auto_approve: bool, max_retries: int) -> 
     run_id = str(entry["experiment_id"])
     _append_queue(entry)
     run_root = ROOT / "results/runs" / run_id
+    state = _read_json(run_root / "state.json", {})
+    approval = _read_json(run_root / "approval_status.json", {})
+    if (
+        state.get("run_status") == "APPROVED"
+        and state.get("approval_status") == "APPROVED"
+        and approval.get("status") == "APPROVED"
+    ):
+        return {"run_id": run_id, "status": "ALREADY_APPROVED"}
     log_path = LOG_DIR / f"{run_id}.log"
     LOG_DIR.mkdir(parents=True, exist_ok=True)
     last_code: int | None = None
