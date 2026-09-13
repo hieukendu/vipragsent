@@ -20,7 +20,6 @@ from .contracts import (
 )
 from .provenance import expected_inference_provenance
 
-
 # A single full run can contain dozens of multi-gigabyte checkpoints.  The
 # sequential runner calls artifact hashing from export, checksum writing,
 # validation, and review generation; re-reading unchanged checkpoints at each
