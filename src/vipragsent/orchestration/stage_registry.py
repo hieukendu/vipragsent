@@ -2068,7 +2068,17 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         "azure_usage": _load_mapping(run_root / "azure/usage.json"),
     })
     atomic_write_json(metrics_path, metrics)
-    artifact_manifest = {"run_id": entry.run_id, "artifact_paths": sorted(artifact_hashes(run_root)), "artifact_sha256": artifact_hashes(run_root), "provenance": {"code_commit": git_commit(context.root), "config_hash": manifest["config_hash"]}}
+    # Compute the artifact digest map once.  This run can contain many large
+    # checkpoints (XLM-R-large); calling ``artifact_hashes`` separately for
+    # paths and digests would read the complete run tree twice without adding
+    # any integrity information.
+    artifact_sha256 = artifact_hashes(run_root)
+    artifact_manifest = {
+        "run_id": entry.run_id,
+        "artifact_paths": sorted(artifact_sha256),
+        "artifact_sha256": artifact_sha256,
+        "provenance": {"code_commit": git_commit(context.root), "config_hash": manifest["config_hash"]},
+    }
     atomic_write_json(run_root / "provenance.json", artifact_manifest)
     expected = ("state.json", "stage_events.jsonl", "preflight.json", "run_manifest.json", "config_snapshot.yaml", "environment.json", "metrics.json", "approval_status.json", "provenance.json")
     return StageOutcome.passed(summary={"artifact_count": len(artifact_manifest["artifact_paths"])}, expected_files=expected)
