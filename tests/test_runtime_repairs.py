@@ -69,6 +69,31 @@ def test_gitkeep_only_artifact_tree_is_not_treated_as_material(tmp_path: Path) -
     assert has_material_artifacts(tmp_path) is True
 
 
+def test_metrics_accept_canonical_multiclass_labels(tmp_path: Path) -> None:
+    path = tmp_path / "predictions.jsonl"
+    rows = [
+        {
+            "sample_id": "one",
+            "gold": {"polarity": "negative", "emotion": "anger"},
+            "predictions": {"polarity": "negative", "emotion": "anger"},
+            "probabilities": {"polarity": [0.9, 0.08, 0.02]},
+        },
+        {
+            "sample_id": "two",
+            "gold": {"polarity": "neutral", "emotion": "other"},
+            "predictions": {"polarity": "neutral", "emotion": "other"},
+            "probabilities": {"polarity": [0.05, 0.9, 0.05]},
+        },
+    ]
+    path.write_text("".join(json.dumps(row) + "\n" for row in rows), encoding="utf-8")
+
+    metrics = stage_registry._metrics_from_rows(path)
+
+    assert metrics["polarity_macro_f1"] == pytest.approx(2.0 / 3.0)
+    assert metrics["emotion_macro_f1"] == pytest.approx(2.0 / 7.0)
+    assert "polarity_dev_ece" in metrics
+
+
 def test_audits_use_the_active_python_interpreter() -> None:
     assert _runtime_command(["python", "-m", "pytest"])[0].endswith("/python")
 

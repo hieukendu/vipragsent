@@ -17,7 +17,7 @@ from ..constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS
 from ..data.collation import BatchCollator
 from ..data.loaders import DatasetExample, load_vipragsent
 from ..data.preprocessing import PreprocessingSpec, TextPreprocessor, VnCoreNLPSegmenter
-from ..evaluation.metrics import binary_macro_f1
+from ..evaluation.metrics import binary_macro_f1, multiclass_macro_f1
 from ..evaluation.reasoning_judge import (
     ReasoningJudge,
     build_reasoning_prediction_row,
@@ -506,6 +506,19 @@ def _restore_generation_resume_boundary(
     }
 
 
+def _multiclass_index(value: Any, labels: tuple[str, ...], *, field: str) -> int:
+    """Normalize either canonical class labels or encoded class indices."""
+    if isinstance(value, str) and value in labels:
+        return labels.index(value)
+    try:
+        index = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{field} must be one of {labels} or a valid class index, got {value!r}") from exc
+    if index < 0 or index >= len(labels):
+        raise ValueError(f"{field} class index is out of range: {index}")
+    return index
+
+
 def _metrics_from_rows(path: Path) -> dict[str, Any]:
     rows = _read_jsonl(path)
     output: dict[str, Any] = {"prediction_file": path.name, "prediction_count": len(rows), "invalid_prediction_count": 0}
@@ -513,7 +526,10 @@ def _metrics_from_rows(path: Path) -> dict[str, Any]:
     pred: dict[str, list[int]] = {key: [] for key in PRAGMATIC_LABELS}
     probabilities: dict[str, list[float]] = {key: [] for key in PRAGMATIC_LABELS}
     polarity_true: list[int] = []
+    polarity_pred: list[int] = []
     polarity_probabilities: list[list[float]] = []
+    emotion_true: list[int] = []
+    emotion_pred: list[int] = []
     for row in rows:
         gold = row.get("gold", {})
         predictions = row.get("predictions", {})
@@ -527,9 +543,14 @@ def _metrics_from_rows(path: Path) -> dict[str, Any]:
             if isinstance(value, list):
                 value = value[-1]
             probabilities[key].append(float(value if value is not None else predictions[key]))
-        if "polarity" in gold and isinstance(probs.get("polarity"), list):
-            polarity_true.append(int(gold["polarity"]))
-            polarity_probabilities.append([float(item) for item in probs["polarity"]])
+        if "polarity" in gold and "polarity" in predictions:
+            polarity_true.append(_multiclass_index(gold["polarity"], POLARITY_LABELS, field="polarity gold"))
+            polarity_pred.append(_multiclass_index(predictions["polarity"], POLARITY_LABELS, field="polarity prediction"))
+            if isinstance(probs.get("polarity"), list):
+                polarity_probabilities.append([float(item) for item in probs["polarity"]])
+        if "emotion" in gold and "emotion" in predictions:
+            emotion_true.append(_multiclass_index(gold["emotion"], EMOTION_LABELS, field="emotion gold"))
+            emotion_pred.append(_multiclass_index(predictions["emotion"], EMOTION_LABELS, field="emotion prediction"))
     active = [key for key in PRAGMATIC_LABELS if true[key]]
     if active:
         output["per_label_f1"] = {key: binary_macro_f1(true[key], pred[key]) for key in active}
@@ -540,9 +561,13 @@ def _metrics_from_rows(path: Path) -> dict[str, Any]:
         output["per_label_f1"] = {}
         output["macro_pragmatic_f1"] = "NOT_APPLICABLE"
     if polarity_true:
+        output["polarity_macro_f1"] = multiclass_macro_f1(polarity_true, polarity_pred, range(len(POLARITY_LABELS)))
+    if polarity_true and len(polarity_probabilities) == len(polarity_true):
         from ..evaluation.metrics import expected_calibration_error
 
         output["polarity_dev_ece"] = expected_calibration_error(polarity_true, polarity_probabilities, bins=10)
+    if emotion_true:
+        output["emotion_macro_f1"] = multiclass_macro_f1(emotion_true, emotion_pred, range(len(EMOTION_LABELS)))
     return output
 
 
