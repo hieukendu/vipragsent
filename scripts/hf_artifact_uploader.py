@@ -12,12 +12,13 @@ import argparse
 import io
 import json
 import os
+import re
 import signal
 import time
 from pathlib import Path
 from typing import Any
 
-from huggingface_hub import HfApi, get_token
+from huggingface_hub import CommitOperationAdd, HfApi, get_token
 
 from _bootstrap import ROOT
 from vipragsent.atomic import atomic_write_json
@@ -27,6 +28,7 @@ CAMPAIGN_ID = "vipragsent-v8-local-mig2g20gb"
 ARTIFACT_REPOSITORIES = (
     # Keep new campaigns away from the full private repository.  These are
     # existing repositories; the allocator spreads whole runs across them.
+    "Thundergod2007/vipragsent-experiment-artifacts-overflow-021",
     "Thundergod2007/vipragsent-experiment-artifacts-overflow-018",
     "Thundergod2007/vipragsent-experiment-artifacts-overflow-025",
     "Thundergod2007/vipragsent-experiment-artifacts-overflow-017",
@@ -69,7 +71,10 @@ INITIAL_ENTRY_COUNTS = {
     "Thundergod2007/vipragsent-experiment-artifacts-overflow-018": 720,
     "Thundergod2007/vipragsent-experiment-artifacts-overflow-019": 22893,
     "Thundergod2007/vipragsent-experiment-artifacts-overflow-020": 20089,
-    "Thundergod2007/vipragsent-experiment-artifacts-overflow-021": 0,
+    # This repository is already at the Hub's file-count ceiling despite the
+    # old allocation snapshot reporting zero entries.  Keep it in the legacy
+    # list for resumability, but never allocate new runs to it.
+    "Thundergod2007/vipragsent-experiment-artifacts-overflow-021": 20000,
     "Thundergod2007/vipragsent-experiment-artifacts-overflow-022": 471,
     "Thundergod2007/vipragsent-experiment-artifacts-overflow-023": 14694,
     "Thundergod2007/vipragsent-experiment-artifacts-overflow-024": 23470,
@@ -85,7 +90,13 @@ CHECKPOINT_SUFFIXES = (".pt", ".pth", ".bin", ".safetensors", ".ckpt")
 DEFAULT_QUEUE = ROOT / "runtime/hf_upload_queue.jsonl"
 DEFAULT_STATUS = ROOT / "runtime/hf_uploader_status.json"
 DEFAULT_STOP = ROOT / "runtime/STOP_UPLOADER"
-REPOSITORY_ENTRY_CAP = 50000
+# The Hub rejects commits once a model repository would contain 20,000 files.
+# Keep a small reserve because one run uploads several files in separate
+# commits and the historical counts below are only allocation hints.
+REPOSITORY_ENTRY_CAP = 20000
+REPOSITORY_ENTRY_RESERVE = 128
+RATE_LIMIT_DEFAULT_COOLDOWN_SECONDS = 3600.0
+RATE_LIMIT_MIN_COOLDOWN_SECONDS = 60.0
 _STOP_REQUESTED = False
 
 
@@ -150,8 +161,10 @@ def _iter_files(run_root: Path) -> list[Path]:
             path.name.endswith(".lock")
             or "__pycache__" in parts
             or relative.startswith("runtime/")
-            or "_engine_checkpoints" in parts
-            or "_engine_output" in parts
+            # The production engine has used both spellings over time. These
+            # are resume copies, not the canonical checkpoints/artifacts that
+            # the experiment queue promises to persist.
+            or parts.intersection({"engine_checkpoints", "_engine_checkpoints", "engine_output", "_engine_output"})
         ):
             continue
         paths.append(path)
@@ -165,19 +178,35 @@ def _ensure_repository(api: HfApi, repo_id: str, cache: dict[str, bool]) -> None
     cache[repo_id] = True
 
 
+def _is_file_cap_error(exc: BaseException) -> bool:
+    text = str(exc).lower()
+    return "too many files" in text or "over the limit of 20000 files" in text or "file-count" in text
+
+
 def _allocate_artifact_repository(api: HfApi, run_state: dict[str, Any], run_id: str, cache: dict[str, bool]) -> str:
-    assignment = run_state.setdefault("artifact_repositories", {}).get(run_id)
-    if assignment:
+    assignments = run_state.setdefault("artifact_repositories", {})
+    unusable = {str(item) for item in run_state.get("unusable_artifact_repositories", [])}
+    assignment = assignments.get(run_id)
+    # A prior uploader process may have recorded the Hub file-cap error before
+    # this resumable state gained an explicit unusable-repository marker.
+    if assignment and any(_is_file_cap_error(item.get("error", "")) for item in run_state.get("errors", [])):
+        unusable.add(str(assignment))
+        run_state["unusable_artifact_repositories"] = sorted(unusable)
+    if assignment and str(assignment) not in unusable:
         _ensure_repository(api, str(assignment), cache)
         return str(assignment)
-    assignments = run_state.setdefault("artifact_repositories", {})
+    if assignment and str(assignment) in unusable:
+        assignments.pop(run_id, None)
     assigned_counts = {
         repo_id: sum(1 for value in assignments.values() if str(value) == repo_id)
         for repo_id in ARTIFACT_REPOSITORIES
     }
     candidates: list[tuple[int, int, str]] = []
     for order, repo_id in enumerate(ARTIFACT_REPOSITORIES):
-        if INITIAL_ENTRY_COUNTS.get(repo_id, REPOSITORY_ENTRY_CAP) >= REPOSITORY_ENTRY_CAP:
+        if repo_id in unusable:
+            continue
+        recorded_count = INITIAL_ENTRY_COUNTS.get(repo_id, REPOSITORY_ENTRY_CAP)
+        if recorded_count + REPOSITORY_ENTRY_RESERVE >= REPOSITORY_ENTRY_CAP:
             continue
         try:
             _ensure_repository(api, repo_id, cache)
@@ -204,6 +233,43 @@ def _clear_path_errors(run_state: dict[str, Any], path: str) -> None:
     run_state["errors"] = [
         item for item in run_state.get("errors", []) if str(item.get("path")) != path
     ]
+
+
+def _rate_limit_retry_after(exc: BaseException) -> float | None:
+    """Return a bounded cooldown for a Hub commit rate-limit response."""
+    text = str(exc)
+    lowered = text.lower()
+    if "429" not in lowered and "rate limit" not in lowered:
+        return None
+
+    response = getattr(exc, "response", None)
+    headers = getattr(response, "headers", {}) or {}
+    retry_after = headers.get("retry-after") or headers.get("Retry-After")
+    if retry_after:
+        try:
+            return max(RATE_LIMIT_MIN_COOLDOWN_SECONDS, min(float(retry_after), RATE_LIMIT_DEFAULT_COOLDOWN_SECONDS))
+        except (TypeError, ValueError):
+            pass
+
+    match = re.search(r"retry this action in\s+(\d+)\s+minutes?", text, flags=re.IGNORECASE)
+    if match:
+        return max(RATE_LIMIT_MIN_COOLDOWN_SECONDS, min(float(match.group(1)) * 60.0, RATE_LIMIT_DEFAULT_COOLDOWN_SECONDS))
+    match = re.search(r"retry this action in\s+(\d+)\s+seconds?", text, flags=re.IGNORECASE)
+    if match:
+        return max(RATE_LIMIT_MIN_COOLDOWN_SECONDS, min(float(match.group(1)), RATE_LIMIT_DEFAULT_COOLDOWN_SECONDS))
+    return RATE_LIMIT_DEFAULT_COOLDOWN_SECONDS
+
+
+def _set_rate_limit_cooldown(state: dict[str, Any], run_state: dict[str, Any], exc: BaseException, retry_after: float) -> None:
+    until = time.time() + retry_after
+    state["hub_cooldown_until"] = max(float(state.get("hub_cooldown_until", 0.0) or 0.0), until)
+    run_state["hub_rate_limit"] = {
+        "status": "WAITING",
+        "retry_after_seconds": retry_after,
+        "retry_at": state["hub_cooldown_until"],
+        "error": f"{type(exc).__name__}: {exc}",
+        "recorded_at": time.time(),
+    }
 
 
 def _remote_info(api: HfApi, repo_id: str, remote_path: str) -> dict[str, Any]:
@@ -248,6 +314,84 @@ def _upload_one(api: HfApi, repo_id: str, remote_path: str, local_path: Path, ru
     }
 
 
+def _upload_batch(
+    api: HfApi,
+    repo_id: str,
+    entries: list[dict[str, Any]],
+    run_id: str,
+) -> list[tuple[str, dict[str, Any]]]:
+    """Upload stable files for one target repository in one Hub commit."""
+    prepared: list[dict[str, Any]] = []
+    operations: list[CommitOperationAdd] = []
+    for entry in entries:
+        local_path = Path(entry["local_path"])
+        try:
+            before = local_path.stat()
+            if before.st_size != entry["size"] or before.st_mtime_ns != entry["mtime_ns"]:
+                continue
+            digest = sha256_file(local_path)
+            after_hash = local_path.stat()
+        except OSError:
+            continue
+        if before.st_size != after_hash.st_size or before.st_mtime_ns != after_hash.st_mtime_ns:
+            continue
+        prepared.append(
+            {
+                "relative": entry["relative"],
+                "local_path": local_path,
+                "size": before.st_size,
+                "mtime_ns": before.st_mtime_ns,
+                "sha256": digest,
+                "remote_path": entry["remote_path"],
+            }
+        )
+        operations.append(
+            CommitOperationAdd(
+                path_in_repo=entry["remote_path"],
+                path_or_fileobj=str(local_path),
+            )
+        )
+    if not operations:
+        return []
+
+    commit = api.create_commit(
+        repo_id=repo_id,
+        repo_type="model",
+        operations=operations,
+        commit_message=f"batch upload verified artifacts for {run_id}",
+    )
+    commit_hash = getattr(commit, "commit_hash", None)
+    uploaded: list[tuple[str, dict[str, Any]]] = []
+    for entry in prepared:
+        local_path = entry["local_path"]
+        after = local_path.stat()
+        if after.st_size != entry["size"] or after.st_mtime_ns != entry["mtime_ns"]:
+            continue
+        remote = _remote_info(api, repo_id, entry["remote_path"])
+        if remote.get("size") != entry["size"]:
+            raise RuntimeError(
+                f"remote size mismatch for {repo_id}/{entry['remote_path']}: "
+                f"{remote.get('size')} != {entry['size']}"
+            )
+        uploaded.append(
+            (
+                str(entry["relative"]),
+                {
+                    "status": "PASS",
+                    "verified": True,
+                    "repo": repo_id,
+                    "path": entry["remote_path"],
+                    "size": entry["size"],
+                    "sha256": entry["sha256"],
+                    "commit_hash": commit_hash,
+                    "remote": remote,
+                    "verified_at": time.time(),
+                },
+            )
+        )
+    return uploaded
+
+
 def _upload_receipt(api: HfApi, repo_id: str, run_id: str, remote_root: str, uploaded: list[dict[str, Any]]) -> dict[str, Any]:
     payload = {
         "schema_version": 1,
@@ -281,15 +425,31 @@ def _process_run(api: HfApi, item: dict[str, Any], state: dict[str, Any], reposi
     if not run_root.exists():
         return {"status": "WAITING", "run_id": run_id, "reason": "local run directory does not exist yet"}
     run_state = state.setdefault("runs", {}).setdefault(run_id, {"uploaded": {}, "observed": {}, "errors": []})
+    cooldown_until = float(state.get("hub_cooldown_until", 0.0) or 0.0)
+    assignment = state.setdefault("artifact_repositories", {}).get(run_id)
+    if assignment and any(_is_file_cap_error(item.get("error", "")) for item in run_state.get("errors", [])):
+        unusable = run_state.setdefault("unusable_artifact_repositories", [])
+        if str(assignment) not in {str(item) for item in unusable}:
+            unusable.append(str(assignment))
+        # Reallocation is local state only; defer the Hub call until the
+        # global cooldown expires so the uploader does not amplify 429s.
+        state["artifact_repositories"].pop(run_id, None)
+    if cooldown_until > time.time():
+        return {
+            "status": "WAITING",
+            "run_id": run_id,
+            "reason": "Hugging Face commit rate limit cooldown",
+            "retry_at": cooldown_until,
+        }
+    state.pop("hub_cooldown_until", None)
     artifact_repo = _allocate_artifact_repository(api, state, run_id, repository_cache)
     checkpoint_repo = _checkpoint_repository(str(item.get("backbone", "")))
     remote_root = f"campaigns/{campaign_id}/{run_id}"
     uploaded_now: list[dict[str, Any]] = []
     pending = 0
     files = _iter_files(run_root)
+    batches: dict[str, list[dict[str, Any]]] = {}
     for local_path in files:
-        if _STOP_REQUESTED:
-            break
         relative = local_path.relative_to(run_root).as_posix()
         key = relative
         try:
@@ -307,16 +467,51 @@ def _process_run(api: HfApi, item: dict[str, Any], state: dict[str, Any], reposi
         previous_upload = run_state.setdefault("uploaded", {}).get(key)
         if previous_upload and previous_upload.get("sha256") and previous_upload.get("size") == stat.st_size and previous_upload.get("verified"):
             continue
+        batches.setdefault(target_repo, []).append(
+            {
+                "relative": relative,
+                "local_path": local_path,
+                "remote_path": remote_path,
+                "size": stat.st_size,
+                "mtime_ns": stat.st_mtime_ns,
+            }
+        )
+    batch_items = list(batches.items())
+    for batch_index, (target_repo, entries) in enumerate(batch_items):
+        if _STOP_REQUESTED:
+            pending += sum(len(batch) for _, batch in batch_items[batch_index:])
+            break
         try:
-            result = _upload_one(api, target_repo, remote_path, local_path, run_id)
-            run_state["uploaded"][key] = result
-            _clear_path_errors(run_state, relative)
-            uploaded_now.append(result)
+            uploaded = _upload_batch(api, target_repo, entries, run_id)
+            uploaded_keys = {relative for relative, _ in uploaded}
+            for relative, result in uploaded:
+                run_state["uploaded"][relative] = result
+                _clear_path_errors(run_state, relative)
+                uploaded_now.append(result)
+            pending += len(entries) - len(uploaded_keys)
         except Exception as exc:
-            pending += 1
-            error = {"path": relative, "error": f"{type(exc).__name__}: {exc}", "at": time.time()}
-            _clear_path_errors(run_state, relative)
-            run_state.setdefault("errors", []).append(error)
+            retry_after = _rate_limit_retry_after(exc)
+            if retry_after is not None:
+                _set_rate_limit_cooldown(state, run_state, exc, retry_after)
+                pending += sum(len(batch) for _, batch in batch_items[batch_index:])
+                break
+            if _is_file_cap_error(exc) and target_repo == artifact_repo:
+                unusable = run_state.setdefault("unusable_artifact_repositories", [])
+                if target_repo not in unusable:
+                    unusable.append(target_repo)
+                # Reallocate on the next poll; the current batch remains
+                # pending and no partial receipt is emitted for this repo.
+                pending += len(entries)
+                continue
+            pending += len(entries)
+            for entry in entries:
+                error = {
+                    "path": entry["relative"],
+                    "error": f"{type(exc).__name__}: {exc}",
+                    "at": time.time(),
+                }
+                _clear_path_errors(run_state, entry["relative"])
+                run_state.setdefault("errors", []).append(error)
     for error in list(run_state.get("errors", [])):
         relative = str(error.get("path", ""))
         verified = run_state.get("uploaded", {}).get(relative)
@@ -329,13 +524,17 @@ def _process_run(api: HfApi, item: dict[str, Any], state: dict[str, Any], reposi
         ):
             _clear_path_errors(run_state, relative)
     receipt = None
-    if uploaded_now:
+    if uploaded_now and pending == 0 and not run_state.get("receipt"):
         try:
             receipt = _upload_receipt(api, artifact_repo, run_id, remote_root, list(run_state["uploaded"].values()))
             run_state["receipt"] = receipt
             _clear_path_errors(run_state, "uploader/receipt.json")
         except Exception as exc:
-            run_state.setdefault("errors", []).append({"path": "uploader/receipt.json", "error": f"{type(exc).__name__}: {exc}", "at": time.time()})
+            retry_after = _rate_limit_retry_after(exc)
+            if retry_after is not None:
+                _set_rate_limit_cooldown(state, run_state, exc, retry_after)
+            else:
+                run_state.setdefault("errors", []).append({"path": "uploader/receipt.json", "error": f"{type(exc).__name__}: {exc}", "at": time.time()})
     return {
         "status": "PASS" if run_state.get("uploaded") else ("WAITING" if pending else "NOOP"),
         "run_id": run_id,
