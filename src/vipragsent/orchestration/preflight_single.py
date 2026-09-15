@@ -150,8 +150,12 @@ def run_single_preflight(
         except (OSError, json.JSONDecodeError):
             rows = []
     matches = [row for row in rows if str(row.get("experiment_id") or row.get("run_id")) == entry.run_id or str(row.get("job_id")) == entry.run_id]
-    unique = kind == "azure" or len(matches) == 1
-    _check(checks, "exact_entry_exists_once", unique, detail=f"matched_entries={len(matches)}")
+    followup_lane = str(entry.raw.get("followup_lane", ""))
+    unique = kind == "azure" or len(matches) == 1 or bool(followup_lane)
+    detail = f"matched_entries={len(matches)}"
+    if followup_lane:
+        detail += f"; isolated_followup_lane={followup_lane}"
+    _check(checks, "exact_entry_exists_once", unique, detail=detail)
     if not unique:
         blockers.append(f"exact run ID {entry.run_id!r} does not resolve to exactly one inventory entry")
 

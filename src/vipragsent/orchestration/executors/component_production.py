@@ -57,6 +57,12 @@ class ProductionComponentRunner:
         self.optimizer_steps = 0
         self.started = time.perf_counter()
         self._device_report_written = False
+        # Tokenization is deterministic for the frozen dataset and the same
+        # batches are visited across every epoch plus dev/test prediction.
+        # Keep the padded CPU tensors for this component run so XLM-R-large
+        # training spends its time on the model rather than repeating the
+        # tokenizer work.
+        self._encoded_batch_cache: dict[tuple[str, ...], dict[str, torch.Tensor]] = {}
 
     def release_runtime(self) -> None:
         """Drop tokenizer/runtime references before the next independent component."""
@@ -65,6 +71,7 @@ class ProductionComponentRunner:
         self.model_revision = ""
         self.tokenizer_revision = ""
         self._device_report_written = False
+        self._encoded_batch_cache.clear()
 
     def _load_runtime(self, component: str) -> torch.nn.Module:
         family = str(self.entry.backbone or "phobert_base")
@@ -121,7 +128,13 @@ class ProductionComponentRunner:
     def _encode_batch(self, examples: Sequence[Any]) -> dict[str, torch.Tensor]:
         if self.tokenizer is None:
             raise RuntimeBlocked("component tokenizer is not initialized")
-        return self._pad_encoded([_encode_text(self.tokenizer, example.text) for example in examples])
+        key = tuple(str(example.sample_id) for example in examples)
+        cached = self._encoded_batch_cache.get(key)
+        if cached is not None:
+            return cached
+        encoded = self._pad_encoded([_encode_text(self.tokenizer, example.text) for example in examples])
+        self._encoded_batch_cache[key] = encoded
+        return encoded
 
     def _resolved_class_weights(self) -> dict[str, Any]:
         weights = self.class_weights
@@ -296,6 +309,7 @@ class ProductionComponentRunner:
         self.started = time.perf_counter()
         self._active_component_root = Path(component_root)
         self._device_report_written = False
+        self._encoded_batch_cache.clear()
         execution_spec = resolve_execution_spec(self.root, self.entry.system_id)
         resolved = resolve_training_config(self.entry, execution_spec, root=self.root, runtime_status=read_family_status(self.root, str(self.entry.backbone), "batch"))
         weights = self._resolved_class_weights()
