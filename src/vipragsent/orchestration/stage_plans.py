@@ -70,6 +70,8 @@ def resolve_stage_plan(root: str | Path, entry: Mapping[str, Any], execution_spe
         except ValueError:
             registry_executor = ""
     system_id = str(entry.get("system_id", ""))
+    if str(entry.get("followup_lane", "")) == "xlmr_q1b_train_and_external":
+        return plans["xlmr_q1b_train_and_external"]
     if system_id == "cot_only_vistral":
         return plans["cot_only_vistral_generation"]
     if system_id == "explanation_only_vistral":
@@ -102,6 +104,7 @@ def validate_stage_plan_registry(root: str | Path = ".") -> dict[str, Any]:
         "cot_only_vistral_generation": ("preflight", "train_generation", "generate_dev_reasoning", "judge_dev_reasoning", "compute_dev_reasoning_metrics", "freeze_selection", "generate_test_reasoning", "judge_test_reasoning", "compute_test_reasoning_metrics", "export_artifacts", "validate_artifacts", "generate_review_summary"),
         "explanation_only_vistral_reuse": ("preflight", "resolve_approved_full_vistral_source", "validate_source_checkpoint", "generate_dev_reasoning_from_rationale_decoder", "judge_dev_reasoning", "compute_dev_reasoning_metrics", "generate_test_reasoning_from_rationale_decoder", "judge_test_reasoning", "compute_test_reasoning_metrics", "export_artifacts", "validate_artifacts", "generate_review_summary"),
         "q1b_evaluation_only": ("preflight", "resolve_approved_source", "evaluate_external_tests", "export_artifacts", "validate_artifacts", "generate_review_summary"),
+        "xlmr_q1b_train_and_external": ("preflight", "train", "evaluate_dev", "freeze_selection", "evaluate_xlmr_external_tests", "export_artifacts", "validate_artifacts", "generate_review_summary"),
         "q4_source_extraction": ("preflight", "resolve_approved_source", "validate_source_predictions", "extract_pragmatic_calibration", "extract_learning_history", "export_artifacts", "validate_artifacts", "generate_review_summary"),
         "checkpoint_reuse": ("preflight", "resolve_approved_source", "evaluate_reused_test", "export_artifacts", "validate_artifacts", "generate_review_summary"),
         "azure": ("preflight", "execute_api_job", "validate_responses", "export_artifacts", "validate_artifacts", "generate_review_summary"),

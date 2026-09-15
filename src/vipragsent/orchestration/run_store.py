@@ -20,6 +20,15 @@ from .contracts import (
 )
 from .provenance import expected_inference_provenance
 
+# A single full run can contain dozens of multi-gigabyte checkpoints.  The
+# sequential runner calls artifact hashing from export, checksum writing,
+# validation, and review generation; re-reading unchanged checkpoints at each
+# boundary is needlessly expensive.  Cache digests only within this process
+# and invalidate them when the file identity/metadata changes.  A new process
+# (including a resumed run) starts with an empty cache and therefore performs
+# a fresh integrity read.
+_ARTIFACT_HASH_CACHE: dict[Path, dict[Path, tuple[tuple[int, int, int, int, int], str]]] = {}
+
 
 def utc_now() -> str:
     return datetime.now(UTC).replace(microsecond=0).isoformat().replace("+00:00", "Z")
@@ -346,7 +355,7 @@ class RunStore:
         return sorted(path for path in self.root.rglob("*") if path.is_file() and path not in excluded and not path.name.endswith(".lock"))
 
     def write_checksums(self) -> dict[str, str]:
-        records = {path.relative_to(self.root).as_posix(): sha256_file(path) for path in self.artifact_paths()}
+        records = artifact_hashes(self.root)
         atomic_write_text(self.checksums_path, "".join(f"{digest}  {name}\n" for name, digest in sorted(records.items())))
         return records
 
@@ -360,7 +369,7 @@ class RunStore:
                 continue
             digest, _, name = line.partition("  ")
             expected[name] = digest
-        actual = {path.relative_to(self.root).as_posix(): sha256_file(path) for path in self.artifact_paths()}
+        actual = artifact_hashes(self.root)
         for name, digest in expected.items():
             if actual.get(name) != digest:
                 errors.append(f"checksum mismatch: {name}")
@@ -375,9 +384,22 @@ class RunStore:
 
 
 def artifact_hashes(run_root: str | Path) -> dict[str, str]:
-    root = Path(run_root)
+    root = Path(run_root).resolve()
     excluded = {root / "checksums.sha256", root / "state.json", root / "stage_events.jsonl", root / "approval_status.json", root / "review_summary.json", root / "review_summary.md"}
-    return {path.relative_to(root).as_posix(): sha256_file(path) for path in sorted(root.rglob("*")) if path.is_file() and path not in excluded and not path.name.endswith(".lock")}
+    previous = _ARTIFACT_HASH_CACHE.get(root, {})
+    current: dict[Path, tuple[tuple[int, int, int, int, int], str]] = {}
+    records: dict[str, str] = {}
+    for path in sorted(root.rglob("*")):
+        if not path.is_file() or path in excluded or path.name.endswith(".lock"):
+            continue
+        stat = path.stat()
+        fingerprint = (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+        cached = previous.get(path)
+        digest = cached[1] if cached is not None and cached[0] == fingerprint else sha256_file(path)
+        current[path] = (fingerprint, digest)
+        records[path.relative_to(root).as_posix()] = digest
+    _ARTIFACT_HASH_CACHE[root] = current
+    return records
 
 
 def hash_file_list(paths: list[str | Path]) -> str:

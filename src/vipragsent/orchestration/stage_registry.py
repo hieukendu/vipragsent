@@ -17,7 +17,7 @@ from ..constants import EMOTION_LABELS, POLARITY_LABELS, PRAGMATIC_LABELS
 from ..data.collation import BatchCollator
 from ..data.loaders import DatasetExample, load_vipragsent
 from ..data.preprocessing import PreprocessingSpec, TextPreprocessor, VnCoreNLPSegmenter
-from ..evaluation.metrics import binary_macro_f1
+from ..evaluation.metrics import binary_macro_f1, multiclass_macro_f1
 from ..evaluation.reasoning_judge import (
     ReasoningJudge,
     build_reasoning_prediction_row,
@@ -98,6 +98,7 @@ from .preflight_single import run_single_preflight
 from .provenance import expected_inference_provenance, validate_inference_provenance
 from .run_store import RunStore, artifact_hashes, git_commit, utc_now
 from .system_registry import resolve_execution_spec
+from .xlmr_followup import evaluate_xlmr_q1b_from_current_checkpoint, extract_xlmr_q4_source
 
 StageHandler = Callable[[], StageOutcome]
 
@@ -505,6 +506,19 @@ def _restore_generation_resume_boundary(
     }
 
 
+def _multiclass_index(value: Any, labels: tuple[str, ...], *, field: str) -> int:
+    """Normalize either canonical class labels or encoded class indices."""
+    if isinstance(value, str) and value in labels:
+        return labels.index(value)
+    try:
+        index = int(value)
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"{field} must be one of {labels} or a valid class index, got {value!r}") from exc
+    if index < 0 or index >= len(labels):
+        raise ValueError(f"{field} class index is out of range: {index}")
+    return index
+
+
 def _metrics_from_rows(path: Path) -> dict[str, Any]:
     rows = _read_jsonl(path)
     output: dict[str, Any] = {"prediction_file": path.name, "prediction_count": len(rows), "invalid_prediction_count": 0}
@@ -512,7 +526,10 @@ def _metrics_from_rows(path: Path) -> dict[str, Any]:
     pred: dict[str, list[int]] = {key: [] for key in PRAGMATIC_LABELS}
     probabilities: dict[str, list[float]] = {key: [] for key in PRAGMATIC_LABELS}
     polarity_true: list[int] = []
+    polarity_pred: list[int] = []
     polarity_probabilities: list[list[float]] = []
+    emotion_true: list[int] = []
+    emotion_pred: list[int] = []
     for row in rows:
         gold = row.get("gold", {})
         predictions = row.get("predictions", {})
@@ -526,9 +543,14 @@ def _metrics_from_rows(path: Path) -> dict[str, Any]:
             if isinstance(value, list):
                 value = value[-1]
             probabilities[key].append(float(value if value is not None else predictions[key]))
-        if "polarity" in gold and isinstance(probs.get("polarity"), list):
-            polarity_true.append(int(gold["polarity"]))
-            polarity_probabilities.append([float(item) for item in probs["polarity"]])
+        if "polarity" in gold and "polarity" in predictions:
+            polarity_true.append(_multiclass_index(gold["polarity"], POLARITY_LABELS, field="polarity gold"))
+            polarity_pred.append(_multiclass_index(predictions["polarity"], POLARITY_LABELS, field="polarity prediction"))
+            if isinstance(probs.get("polarity"), list):
+                polarity_probabilities.append([float(item) for item in probs["polarity"]])
+        if "emotion" in gold and "emotion" in predictions:
+            emotion_true.append(_multiclass_index(gold["emotion"], EMOTION_LABELS, field="emotion gold"))
+            emotion_pred.append(_multiclass_index(predictions["emotion"], EMOTION_LABELS, field="emotion prediction"))
     active = [key for key in PRAGMATIC_LABELS if true[key]]
     if active:
         output["per_label_f1"] = {key: binary_macro_f1(true[key], pred[key]) for key in active}
@@ -539,9 +561,13 @@ def _metrics_from_rows(path: Path) -> dict[str, Any]:
         output["per_label_f1"] = {}
         output["macro_pragmatic_f1"] = "NOT_APPLICABLE"
     if polarity_true:
+        output["polarity_macro_f1"] = multiclass_macro_f1(polarity_true, polarity_pred, range(len(POLARITY_LABELS)))
+    if polarity_true and len(polarity_probabilities) == len(polarity_true):
         from ..evaluation.metrics import expected_calibration_error
 
         output["polarity_dev_ece"] = expected_calibration_error(polarity_true, polarity_probabilities, bins=10)
+    if emotion_true:
+        output["emotion_macro_f1"] = multiclass_macro_f1(emotion_true, emotion_pred, range(len(EMOTION_LABELS)))
     return output
 
 
@@ -1801,7 +1827,10 @@ def _explanation_stage(context: RunContext, entry: RunEntry, stage: str) -> Stag
 
 def _q4_resolve_source(context: RunContext, entry: RunEntry) -> StageOutcome:
     try:
-        report = resolve_and_extract_q4_source(context.root, entry.raw, output_root=context.run_root)
+        if entry.raw.get("followup_lane") == "xlmr_q4_from_v37_full_checkpoint":
+            report = extract_xlmr_q4_source(context.root, entry, output_root=context.run_root)
+        else:
+            report = resolve_and_extract_q4_source(context.root, entry.raw, output_root=context.run_root)
     except Exception as exc:
         if context.fixture:
             return StageOutcome.blocked(str(exc))
@@ -1895,6 +1924,36 @@ def _evaluate_q1b_external(context: RunContext, entry: RunEntry) -> StageOutcome
     atomic_write_json(run_root / "metrics/test_metrics.json", result)
     atomic_write_json(run_root / "external/external_evaluation_manifest.json", {"status": "PASS", "source_run_id": "fixture", "external_finetuning": False, "optimizer_steps": 0, "backward_calls": 0, "normalized_test_only": True})
     return StageOutcome.passed(summary=result, expected_files=("predictions/uit_vsfc_test_predictions.jsonl", "predictions/uit_vsmec_test_predictions.jsonl", "predictions/aivivn_test_predictions.jsonl", "metrics/external_retention_metrics.json", "metrics/test_metrics.json", "external/external_evaluation_manifest.json"))
+
+
+def _evaluate_xlmr_external_tests(context: RunContext, entry: RunEntry) -> StageOutcome:
+    run_root = Path(context.run_root)
+    # The train/evaluate_test stages already produced the in-domain test
+    # metrics required by the trainable review contract.  External retention
+    # adds separate dataset scores; preserve the in-domain payload when the
+    # XLM-R follow-up stage writes its combined test metrics artifact.
+    in_domain_test_metrics = _load_mapping(run_root / "metrics/test_metrics.json")
+    if "per_label_f1" not in in_domain_test_metrics:
+        in_domain_prediction = run_root / "predictions/test_predictions.jsonl"
+        if in_domain_prediction.exists():
+            in_domain_test_metrics = _metrics_from_rows(in_domain_prediction)
+    try:
+        result = evaluate_xlmr_q1b_from_current_checkpoint(context.root, entry, output_root=context.run_root)
+    except Exception as exc:
+        return StageOutcome.blocked(str(exc))
+    result = {**in_domain_test_metrics, **result}
+    atomic_write_json(run_root / "metrics/test_metrics.json", result)
+    return StageOutcome.passed(
+        summary=result,
+        expected_files=(
+            "predictions/uit_vsfc_test_predictions.jsonl",
+            "predictions/uit_vsmec_test_predictions.jsonl",
+            "predictions/aivivn_test_predictions.jsonl",
+            "metrics/external_retention_metrics.json",
+            "metrics/test_metrics.json",
+            "external/external_evaluation_manifest.json",
+        ),
+    )
 
 
 def _freeze_selection(context: RunContext, entry: RunEntry) -> StageOutcome:
@@ -2034,7 +2093,17 @@ def _export_artifacts(context: RunContext, entry: RunEntry) -> StageOutcome:
         "azure_usage": _load_mapping(run_root / "azure/usage.json"),
     })
     atomic_write_json(metrics_path, metrics)
-    artifact_manifest = {"run_id": entry.run_id, "artifact_paths": sorted(artifact_hashes(run_root)), "artifact_sha256": artifact_hashes(run_root), "provenance": {"code_commit": git_commit(context.root), "config_hash": manifest["config_hash"]}}
+    # Compute the artifact digest map once.  This run can contain many large
+    # checkpoints (XLM-R-large); calling ``artifact_hashes`` separately for
+    # paths and digests would read the complete run tree twice without adding
+    # any integrity information.
+    artifact_sha256 = artifact_hashes(run_root)
+    artifact_manifest = {
+        "run_id": entry.run_id,
+        "artifact_paths": sorted(artifact_sha256),
+        "artifact_sha256": artifact_sha256,
+        "provenance": {"code_commit": git_commit(context.root), "config_hash": manifest["config_hash"]},
+    }
     atomic_write_json(run_root / "provenance.json", artifact_manifest)
     expected = ("state.json", "stage_events.jsonl", "preflight.json", "run_manifest.json", "config_snapshot.yaml", "environment.json", "metrics.json", "approval_status.json", "provenance.json")
     return StageOutcome.passed(summary={"artifact_count": len(artifact_manifest["artifact_paths"])}, expected_files=expected)
@@ -2460,6 +2529,7 @@ def build_single_experiment_stage_registry(root: str | Path, entry_mapping: Mapp
         "freeze_component_selection": lambda: _freeze_component_selection(context, entry),
         "freeze_selection": lambda: _freeze_selection(context, entry),
         "evaluate_test": lambda: _evaluate_test(context, entry),
+        "evaluate_xlmr_external_tests": lambda: _evaluate_xlmr_external_tests(context, entry),
         "train_generation": lambda: _generation_stage(context, entry, "train_generation"),
         "generate_dev_reasoning": lambda: _generation_stage(context, entry, "generate_dev_reasoning") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "generate_dev_reasoning_from_rationale_decoder"),
         "judge_dev_reasoning": lambda: _generation_stage(context, entry, "judge_dev_reasoning") if entry.system_id == "cot_only_vistral" else _explanation_stage(context, entry, "judge_dev_reasoning"),

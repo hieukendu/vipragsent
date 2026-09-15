@@ -1,0 +1,22 @@
+schema_version: 1
+lane_id: xlmr_q1b_q2_q3_q4_followup_v1
+backbone: xlmr_large
+model_repository: FacebookAI/xlm-roberta-large
+model_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+seeds: [20260521, 20260522, 20260523]
+q1b:
+  execution: train_full_xlmr_then_external_retention
+  external_finetuning: false
+q2:
+  execution: train_all_locked_ablation_variants
+q3:
+  execution: train_full_xlmr_with_locked_nested_masks
+  budgets: [32, 64, 128, 256, 512, full]
+q4:
+  execution: extract_from_existing_v37_full_xlmr_checkpoint
+  source_run_prefix: q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_
+upload:
+  campaign_id: vipragsent-xlmr-q1b-q4-followup-v1
+  checkpoint_repository: Thundergod2007/vipragsent-xlmr-checkpoints
+  uploader: scripts/hf_artifact_uploader.py
