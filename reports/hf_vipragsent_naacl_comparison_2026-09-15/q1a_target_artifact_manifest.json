@@ -1,0 +1,853 @@
+{
+  "repo_id": "Thundergod2007/vipragsent-experiment-artifacts-overflow-018",
+  "requested_seeds": [
+    21,
+    22,
+    23
+  ],
+  "runs": [
+    {
+      "file_count": 19,
+      "files": [
+        {
+          "oid": "c65bc6a3c84da079d3101beb94d71597ca5af3da",
+          "path": "checkpoints/checkpoint_manifest.json",
+          "size": 1542,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "bfd304b903ca0a823e7d2af222305885312dbbf2",
+          "path": "config_snapshot.yaml",
+          "size": 3026,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "dc73f2ca47f7bc357b91410d9c24d8fa43f5524c",
+          "path": "metrics/dev_metrics.json",
+          "size": 577,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "e7786ccda6abfdbd25c1a703bcd8af99596e3a00",
+          "path": "metrics/summary.json",
+          "size": 3259,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "461227555a254714843c627801fdb3825a433096",
+          "path": "metrics/test_confidence_intervals.json",
+          "size": 1858,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "3e91fe717e9ff6470430ef8d466773509ec0f390",
+          "path": "metrics/test_metrics.json",
+          "size": 577,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "dc9a8e3b756f35355d7382c284d8bb4063b22fce",
+          "path": "optimization_manifest.json",
+          "size": 10363,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "86c368ad91580598903413dc1565e59a51e1acae",
+          "path": "predictions/dev_predictions.jsonl",
+          "size": 2497472,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "2d5970853f23b6d9092902b55486c2b4c489ea45",
+          "path": "predictions/test_predictions.jsonl",
+          "size": 2498785,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "90a2ad092afe61396d8c6fae39d0b55d19efd5d3",
+          "path": "selection/best_checkpoint.json",
+          "size": 203,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "634e4e260a5dd9900d05bddcf08c7d0bbaa81c9a",
+          "path": "selection/initial_dev.json",
+          "size": 580,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "74c1e58f2544d05e22be46fcf8cc9f06122e471c",
+          "path": "selection/selection_metric.json",
+          "size": 90,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "e6044b8e83a17750c6b87b395b8a7dbe74ef4830",
+          "path": "selection/thresholds.json",
+          "size": 142,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "3266326a53e8bdc858e9bc1e37f30316b8b82d1b",
+          "path": "training/class_weights.json",
+          "size": 1731,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "0d71469deed4870684ed8d8548374ca86d5696b5",
+          "path": "training/device_report.json",
+          "size": 612,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "61bf61526554d6bbd6b332514626518adf470346",
+          "path": "training/optimizer_summary.json",
+          "size": 28367,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "1e32a36ca77149163d58e113864e1290389c4357",
+          "path": "training/resolved_training_config.json",
+          "size": 1707,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "17c08f1be60edf71e8bdd13d89a6e66bf1c754bc",
+          "path": "training/resource_usage.json",
+          "size": 284,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "9a63e43155ac9989bb9f1f6aae59bcaac6cf602c",
+          "path": "training/scheduler_summary.json",
+          "size": 185,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        }
+      ],
+      "repo_id": "Thundergod2007/vipragsent-experiment-artifacts-overflow-018",
+      "required_files": {
+        "checkpoints/checkpoint_manifest.json": {
+          "oid": "c65bc6a3c84da079d3101beb94d71597ca5af3da",
+          "size": 1542,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "config_snapshot.yaml": {
+          "oid": "bfd304b903ca0a823e7d2af222305885312dbbf2",
+          "size": 3026,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "metrics/summary.json": {
+          "oid": "e7786ccda6abfdbd25c1a703bcd8af99596e3a00",
+          "size": 3259,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "metrics/test_confidence_intervals.json": {
+          "oid": "461227555a254714843c627801fdb3825a433096",
+          "size": 1858,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "metrics/test_metrics.json": {
+          "fetch_sha256": "762a519945776d4638d367db32b2608080243616c9f1fde88f1514ed1b9b708c",
+          "fetch_status": "cached",
+          "oid": "3e91fe717e9ff6470430ef8d466773509ec0f390",
+          "raw_path": "raw_short\\model\\fd\\fd03721d1011ad2c4bbbea211e18a4d46c593ce36cb964bfec5787b6534fd7af_test_metrics.json",
+          "size": 577,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "optimization_manifest.json": {
+          "fetch_sha256": "a0f318a5e3beb85abb6a0cf302b1a1caed94a930b58f865f7b61633606094a80",
+          "fetch_status": "cached",
+          "oid": "dc9a8e3b756f35355d7382c284d8bb4063b22fce",
+          "raw_path": "raw_short\\model\\80\\80b2036def6d19480ad4a6d334b3ed92fb084ad05ceae9a1fb4012b34a8aecb3_optimization_manifest.json",
+          "size": 10363,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "predictions/dev_predictions.jsonl": {
+          "oid": "86c368ad91580598903413dc1565e59a51e1acae",
+          "size": 2497472,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "predictions/test_predictions.jsonl": {
+          "fetch_sha256": "8dec2920f20e49415ce8004207e72af993acc27e828b607e6cf4d15b3fae784e",
+          "fetch_status": "cached",
+          "oid": "2d5970853f23b6d9092902b55486c2b4c489ea45",
+          "raw_path": "raw_short\\model\\1a\\1ab259255fa6ecdea0400c69a9eb9a9a48649e2c793669f8fd06f39da1a134ee_test_predictions.jsonl",
+          "size": 2498785,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "selection/best_checkpoint.json": {
+          "oid": "90a2ad092afe61396d8c6fae39d0b55d19efd5d3",
+          "size": 203,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/class_weights.json": {
+          "oid": "3266326a53e8bdc858e9bc1e37f30316b8b82d1b",
+          "size": 1731,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/device_report.json": {
+          "oid": "0d71469deed4870684ed8d8548374ca86d5696b5",
+          "size": 612,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/optimizer_summary.json": {
+          "oid": "61bf61526554d6bbd6b332514626518adf470346",
+          "size": 28367,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/resolved_training_config.json": {
+          "oid": "1e32a36ca77149163d58e113864e1290389c4357",
+          "size": 1707,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/resource_usage.json": {
+          "fetch_sha256": "c3f07c9f587cc1e535af7c35cbfce05fae6fafa1fa05dfafe1862e5f2639dc3a",
+          "fetch_status": "cached",
+          "oid": "17c08f1be60edf71e8bdd13d89a6e66bf1c754bc",
+          "raw_path": "raw_short\\model\\4d\\4d04fdffea5a3c9479003550221f7022ce25c693b65f377ba3c8483849fc807a_resource_usage.json",
+          "size": 284,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/scheduler_summary.json": {
+          "oid": "9a63e43155ac9989bb9f1f6aae59bcaac6cf602c",
+          "size": 185,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        }
+      },
+      "required_files_present": true,
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+      "seed": 21
+    },
+    {
+      "file_count": 19,
+      "files": [
+        {
+          "oid": "519fc43cd373f463218093f3f16179c4db2234af",
+          "path": "checkpoints/checkpoint_manifest.json",
+          "size": 1542,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "2d653437a7116fabc16b8c1a4067a8ff030e05f4",
+          "path": "config_snapshot.yaml",
+          "size": 3026,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "2b7525e2862e253415634b43dd4efd0565073c92",
+          "path": "metrics/dev_metrics.json",
+          "size": 578,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "18752c554c544ac5d367f4b19c4c56477c94b229",
+          "path": "metrics/summary.json",
+          "size": 3260,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "a8c644806f688cafe0892f81d362fd4d439f20dc",
+          "path": "metrics/test_confidence_intervals.json",
+          "size": 1857,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "24a0bb226027a9e206c37be9f84260e41be6f61d",
+          "path": "metrics/test_metrics.json",
+          "size": 578,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "080a61aeb7612d097787df745a983ff83b65d34c",
+          "path": "optimization_manifest.json",
+          "size": 10366,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "032938b4341ad8c8ff4c840b7097be2b7de281bf",
+          "path": "predictions/dev_predictions.jsonl",
+          "size": 2496528,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "eaac5fa8c006fccde0dfb144d0ca7c818608e31e",
+          "path": "predictions/test_predictions.jsonl",
+          "size": 2497483,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "29eae7a09ef004191dfed4d025b47ae0e0e3275c",
+          "path": "selection/best_checkpoint.json",
+          "size": 203,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "72e0199771cc18acb4fefcbbf41ace2a0f7e9d2d",
+          "path": "selection/initial_dev.json",
+          "size": 579,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "05974fe8457a124d09f6f3cf78c159ccf4b4fcca",
+          "path": "selection/selection_metric.json",
+          "size": 90,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "132509c500f6a66e10855acd5f701020ec8457f3",
+          "path": "selection/thresholds.json",
+          "size": 142,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "3266326a53e8bdc858e9bc1e37f30316b8b82d1b",
+          "path": "training/class_weights.json",
+          "size": 1731,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "0d71469deed4870684ed8d8548374ca86d5696b5",
+          "path": "training/device_report.json",
+          "size": 612,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "61bf61526554d6bbd6b332514626518adf470346",
+          "path": "training/optimizer_summary.json",
+          "size": 28367,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "8aff40899e85c851f8a7ac54edf641aee03a7d44",
+          "path": "training/resolved_training_config.json",
+          "size": 1707,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "41037f09c8c8635f005d45c5f5274f744a134651",
+          "path": "training/resource_usage.json",
+          "size": 284,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "9a63e43155ac9989bb9f1f6aae59bcaac6cf602c",
+          "path": "training/scheduler_summary.json",
+          "size": 185,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        }
+      ],
+      "repo_id": "Thundergod2007/vipragsent-experiment-artifacts-overflow-018",
+      "required_files": {
+        "checkpoints/checkpoint_manifest.json": {
+          "oid": "519fc43cd373f463218093f3f16179c4db2234af",
+          "size": 1542,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "config_snapshot.yaml": {
+          "oid": "2d653437a7116fabc16b8c1a4067a8ff030e05f4",
+          "size": 3026,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "metrics/summary.json": {
+          "oid": "18752c554c544ac5d367f4b19c4c56477c94b229",
+          "size": 3260,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "metrics/test_confidence_intervals.json": {
+          "oid": "a8c644806f688cafe0892f81d362fd4d439f20dc",
+          "size": 1857,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "metrics/test_metrics.json": {
+          "fetch_sha256": "fc15b4ce5990fad54c869878cd05fe0bf574cb8b2c7ea6a64eef87f8dc477fac",
+          "fetch_status": "cached",
+          "oid": "24a0bb226027a9e206c37be9f84260e41be6f61d",
+          "raw_path": "raw_short\\model\\c5\\c54345e96a755538197f127124224912c5b64a06455c73b2029fef2b5cd6135f_test_metrics.json",
+          "size": 578,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "optimization_manifest.json": {
+          "fetch_sha256": "831cf09d2a1a0fc758662b229ad179201d9ccbb6299028ab437a40965741c92b",
+          "fetch_status": "cached",
+          "oid": "080a61aeb7612d097787df745a983ff83b65d34c",
+          "raw_path": "raw_short\\model\\bd\\bdb1cd2565bc43aec9abcd06381c941c6adc69e2bc5dbc42022cdb62e82730c5_optimization_manifest.json",
+          "size": 10366,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "predictions/dev_predictions.jsonl": {
+          "oid": "032938b4341ad8c8ff4c840b7097be2b7de281bf",
+          "size": 2496528,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "predictions/test_predictions.jsonl": {
+          "fetch_sha256": "d379c33c07cfac1accad93724cef7628eda32dc2708602f0a9871b51bbd4ffe4",
+          "fetch_status": "cached",
+          "oid": "eaac5fa8c006fccde0dfb144d0ca7c818608e31e",
+          "raw_path": "raw_short\\model\\14\\147d5a2d0b8091a937478d7ab1db0746b2f6557e6a9504a096085d3f47d74db8_test_predictions.jsonl",
+          "size": 2497483,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "selection/best_checkpoint.json": {
+          "oid": "29eae7a09ef004191dfed4d025b47ae0e0e3275c",
+          "size": 203,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/class_weights.json": {
+          "oid": "3266326a53e8bdc858e9bc1e37f30316b8b82d1b",
+          "size": 1731,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/device_report.json": {
+          "oid": "0d71469deed4870684ed8d8548374ca86d5696b5",
+          "size": 612,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/optimizer_summary.json": {
+          "oid": "61bf61526554d6bbd6b332514626518adf470346",
+          "size": 28367,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/resolved_training_config.json": {
+          "oid": "8aff40899e85c851f8a7ac54edf641aee03a7d44",
+          "size": 1707,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/resource_usage.json": {
+          "fetch_sha256": "214700153d58ceb1f4c2b4d2668aa17e11077c92895042245dba150233d3c51a",
+          "fetch_status": "cached",
+          "oid": "41037f09c8c8635f005d45c5f5274f744a134651",
+          "raw_path": "raw_short\\model\\96\\96e403f2d0deddeff7f00632326761190b16d9d1118df47886e83ee799548fc5_resource_usage.json",
+          "size": 284,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/scheduler_summary.json": {
+          "oid": "9a63e43155ac9989bb9f1f6aae59bcaac6cf602c",
+          "size": 185,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        }
+      },
+      "required_files_present": true,
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522",
+      "seed": 22
+    },
+    {
+      "file_count": 19,
+      "files": [
+        {
+          "oid": "8cb13885523acee44b5834656ee6f970a94aab74",
+          "path": "checkpoints/checkpoint_manifest.json",
+          "size": 1542,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "cd89ef2bbc2a63d765c237d390ef9ff8b603c2d8",
+          "path": "config_snapshot.yaml",
+          "size": 3026,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "35cd0da9bfb9f8551fc7910321c2401694a880e5",
+          "path": "metrics/dev_metrics.json",
+          "size": 579,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "f3221efe05a0fdb0dd9938a4889c104ae8194fa2",
+          "path": "metrics/summary.json",
+          "size": 3260,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "2a37550bf956877dca09e385396fac70aa1faca6",
+          "path": "metrics/test_confidence_intervals.json",
+          "size": 1856,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "3b876575fb479e0f1c325cec47e94aa77545296b",
+          "path": "metrics/test_metrics.json",
+          "size": 578,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "72c0a16ad6bf22b606565d98a4753a01f9d83311",
+          "path": "optimization_manifest.json",
+          "size": 10358,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "f4bfd5900649055beee270cc583e85ab2865658f",
+          "path": "predictions/dev_predictions.jsonl",
+          "size": 2495090,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "132641915a867d19dd14b10f7f57c0fe14dd9991",
+          "path": "predictions/test_predictions.jsonl",
+          "size": 2496509,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "1646b49c0c995d71b0526fdd5097a3d0de173295",
+          "path": "selection/best_checkpoint.json",
+          "size": 202,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "917309716ead3e2d270670e6fac2c6dc0e9a56d2",
+          "path": "selection/initial_dev.json",
+          "size": 578,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "ff359b08b2aba3f9ad9a1d9807d4342f34a35df7",
+          "path": "selection/selection_metric.json",
+          "size": 89,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "b17ff6f55df370a4e1c6998f2251dd0705b4daaa",
+          "path": "selection/thresholds.json",
+          "size": 142,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "3266326a53e8bdc858e9bc1e37f30316b8b82d1b",
+          "path": "training/class_weights.json",
+          "size": 1731,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "0d71469deed4870684ed8d8548374ca86d5696b5",
+          "path": "training/device_report.json",
+          "size": 612,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "61bf61526554d6bbd6b332514626518adf470346",
+          "path": "training/optimizer_summary.json",
+          "size": 28367,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "823cffd35bc292525403a2933b9e78d935aed20a",
+          "path": "training/resolved_training_config.json",
+          "size": 1707,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "292bdb56324d8a6afe0252f731cc8b48d54b071a",
+          "path": "training/resource_usage.json",
+          "size": 283,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        {
+          "oid": "9a63e43155ac9989bb9f1f6aae59bcaac6cf602c",
+          "path": "training/scheduler_summary.json",
+          "size": 185,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        }
+      ],
+      "repo_id": "Thundergod2007/vipragsent-experiment-artifacts-overflow-018",
+      "required_files": {
+        "checkpoints/checkpoint_manifest.json": {
+          "oid": "8cb13885523acee44b5834656ee6f970a94aab74",
+          "size": 1542,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "config_snapshot.yaml": {
+          "oid": "cd89ef2bbc2a63d765c237d390ef9ff8b603c2d8",
+          "size": 3026,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "metrics/summary.json": {
+          "oid": "f3221efe05a0fdb0dd9938a4889c104ae8194fa2",
+          "size": 3260,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "metrics/test_confidence_intervals.json": {
+          "oid": "2a37550bf956877dca09e385396fac70aa1faca6",
+          "size": 1856,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "metrics/test_metrics.json": {
+          "fetch_sha256": "266381f76286772e7770a7dc72a4379aaee3225a4f97ec0457a0e21e79dafcb4",
+          "fetch_status": "cached",
+          "oid": "3b876575fb479e0f1c325cec47e94aa77545296b",
+          "raw_path": "raw_short\\model\\df\\df4fa0a4a5654912496aea6f5a3e2d94551d683fa7448bcd779a5c9b073def58_test_metrics.json",
+          "size": 578,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "optimization_manifest.json": {
+          "fetch_sha256": "8b706e64cf6960d975712f0b814477e7e08e53f6009e42860b30d42ca1e6c70e",
+          "fetch_status": "cached",
+          "oid": "72c0a16ad6bf22b606565d98a4753a01f9d83311",
+          "raw_path": "raw_short\\model\\cc\\ccd9457eb7c8baa95a8e555439bf74d7334a7fd046884c90556aed415a90841a_optimization_manifest.json",
+          "size": 10358,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "predictions/dev_predictions.jsonl": {
+          "oid": "f4bfd5900649055beee270cc583e85ab2865658f",
+          "size": 2495090,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "predictions/test_predictions.jsonl": {
+          "fetch_sha256": "58b26d7b2593cc7f1fbb820abd2bf49784be103b9c452092f1be057a7b84c639",
+          "fetch_status": "cached",
+          "oid": "132641915a867d19dd14b10f7f57c0fe14dd9991",
+          "raw_path": "raw_short\\model\\13\\13081a89cd62f5f22656a677ff8c4a9b6d4d9b7036972659a0fdbf7359360f6f_test_predictions.jsonl",
+          "size": 2496509,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "selection/best_checkpoint.json": {
+          "oid": "1646b49c0c995d71b0526fdd5097a3d0de173295",
+          "size": 202,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/class_weights.json": {
+          "oid": "3266326a53e8bdc858e9bc1e37f30316b8b82d1b",
+          "size": 1731,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/device_report.json": {
+          "oid": "0d71469deed4870684ed8d8548374ca86d5696b5",
+          "size": 612,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/optimizer_summary.json": {
+          "oid": "61bf61526554d6bbd6b332514626518adf470346",
+          "size": 28367,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/resolved_training_config.json": {
+          "oid": "823cffd35bc292525403a2933b9e78d935aed20a",
+          "size": 1707,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/resource_usage.json": {
+          "fetch_sha256": "9d86372ffee684633880fabd142647256e2d92a0fefd20e0783978eeb2fe7654",
+          "fetch_status": "cached",
+          "oid": "292bdb56324d8a6afe0252f731cc8b48d54b071a",
+          "raw_path": "raw_short\\model\\64\\649c261aa1536a9e4fa94238c1c3ae7b7626de5c56977e55b0c44df7ec76da5e_resource_usage.json",
+          "size": 283,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        },
+        "training/scheduler_summary.json": {
+          "oid": "9a63e43155ac9989bb9f1f6aae59bcaac6cf602c",
+          "size": 185,
+          "tree_last_commit_date": "2026-09-11T18:50:28.000Z",
+          "tree_last_commit_id": "a0b4efdf8399003ddde1cab662b39ffd4455726d",
+          "tree_last_commit_title": "Publish V37 strict-gate passing 3-seed artefacts and audit"
+        }
+      },
+      "required_files_present": true,
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523",
+      "seed": 23
+    }
+  ],
+  "scope": "Q1a ViPragSent XLM-R-large primary target",
+  "status": "PASS",
+  "weight_payload_note": "This manifest records the target run tree and checkpoint manifests; large weight payloads were not downloaded into the GitHub package."
+}
