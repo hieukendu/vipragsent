@@ -1,10 +1,9 @@
-import os
 import json
+import os
 import time
 
 from dotenv import load_dotenv
 from openai import OpenAI
-
 
 # ============================================================
 # 1. Load Azure configuration

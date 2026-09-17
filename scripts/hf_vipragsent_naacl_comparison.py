@@ -20,15 +20,16 @@ import csv
 import hashlib
 import json
 import math
-import os
 import re
 import shutil
 import statistics
 import sys
 from collections import defaultdict
+from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from datetime import UTC
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import matplotlib
 
@@ -36,17 +37,15 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 
-
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
+
 from hf_vipragsent_audit import (  # noqa: E402
-    HF_BASE,
     content_url,
     curl_get,
     raw_path_for,
     read_token,
 )
-
 
 DEFAULT_OUT = Path("reports") / "hf_vipragsent_naacl_comparison_2026-09-15"
 RECHECK_DIR = Path("reports") / "hf_vipragsent_remote_recheck_2026-09-15"
@@ -130,9 +129,9 @@ _RUN_ENTRY_INDEX_CACHE: dict[int, dict[str, list[dict[str, Any]]]] = {}
 
 
 def utc_now() -> str:
-    from datetime import datetime, timezone
+    from datetime import datetime
 
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def json_dump(path: Path, value: Any) -> None:

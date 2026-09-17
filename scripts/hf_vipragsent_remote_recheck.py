@@ -17,7 +17,6 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
-
 SCRIPT_DIR = Path(__file__).resolve().parent
 sys.path.insert(0, str(SCRIPT_DIR))
 from hf_vipragsent_audit import (  # noqa: E402
@@ -25,9 +24,7 @@ from hf_vipragsent_audit import (  # noqa: E402
     is_canonical_summary,
     is_xlmr_target,
     is_xlmr_weight_target,
-    path_question,
 )
-
 
 QUESTIONS = {"Q1a", "Q2", "Q3", "Q4"}
 TARGET_SEEDS = (21, 22, 23)
@@ -67,7 +64,8 @@ def tree_key(row: dict[str, Any]) -> tuple[Any, ...]:
 
 
 def compare_repo_summaries(old: Path, current: Path) -> dict[str, Any]:
-    repo_key = lambda row: (row["repo_id"], row.get("repo_type", "model"))
+    def repo_key(row: dict[str, Any]) -> tuple[str, str]:
+        return row["repo_id"], row.get("repo_type", "model")
     old_rows = {repo_key(row): row for row in read_jsonl(old / "repo_summaries.jsonl")}
     current_rows = {repo_key(row): row for row in read_jsonl(current / "repo_summaries.jsonl")}
     fields = ("repo_sha", "last_modified", "entry_count", "file_count", "directory_count", "tree_pages")

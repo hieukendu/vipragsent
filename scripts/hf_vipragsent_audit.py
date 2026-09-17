@@ -23,18 +23,15 @@ import csv
 import hashlib
 import json
 import math
-import os
 import re
-import shutil
 import subprocess
-import sys
 import time
 from collections import Counter, defaultdict
-from datetime import datetime, timezone
+from collections.abc import Iterable
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Iterable
-from urllib.parse import quote, unquote
-
+from typing import Any
+from urllib.parse import quote
 
 DEFAULT_ACCOUNT = "Thundergod2007"
 DEFAULT_OUT = Path("reports") / "hf_vipragsent_remote_audit_2026-09-15"
@@ -74,7 +71,7 @@ class AuditError(RuntimeError):
 
 
 def utc_now() -> str:
-    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+    return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
 def read_token(env_path: Path) -> str:
@@ -158,8 +155,7 @@ def curl_get(
         command.append(url)
         completed = subprocess.run(
             command,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             check=False,
         )
         if completed.returncode == 0:
@@ -530,7 +526,7 @@ def raw_path_for(out: Path, entry: dict[str, Any]) -> Path:
     # HF experiment paths can exceed Windows MAX_PATH when mirrored verbatim.
     # Keep the full source path in content_manifest.jsonl and use a stable
     # content-addressed short local path for the bytes.
-    identity = f"{entry['repo_type']}:{entry['repo_id']}:{entry['path']}".encode("utf-8")
+    identity = f"{entry['repo_type']}:{entry['repo_id']}:{entry['path']}".encode()
     digest = hashlib.sha256(identity).hexdigest()
     basename = re.sub(r"[^A-Za-z0-9._=-]+", "_", Path(entry["path"]).name)
     basename = basename[:80] or "content.bin"
