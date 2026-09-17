@@ -1,0 +1,129 @@
+configuration_source: configs/runtime/training.yaml and pinned XLM-R full follow-up
+  runner
+resolved_training_config:
+  active_uncertainty_tasks:
+  - implicit_sentiment
+  - sarcasm
+  - irony
+  - idiom_figurative
+  - code_switching
+  - mocking
+  - polarity
+  - emotion
+  batch_order: fixed
+  deterministic_algorithms: warn_only
+  effective_batch_size: 32
+  gradient_accumulation_steps: 4
+  gradient_checkpointing: false
+  gradient_clipping: 1.0
+  gradient_strategy: sum
+  learning_rate: 2.0e-05
+  loss_multipliers:
+    code_switching: 1.04
+    emotion: 1.0
+    idiom_figurative: 1.0
+    implicit_sentiment: 1.01
+    irony: 1.05
+    mocking: 1.0
+    polarity: 1.0
+    sarcasm: 1.01
+  maximum_epochs: 10
+  minimum_delta: 0.0001
+  model_family: xlmr_large
+  model_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  optimizer: AdamW
+  patience: 10
+  physical_batch_size: 8
+  precision: bf16
+  qlora:
+    lora: {}
+    quantization:
+      type: none
+  rationale_beta: 0.3
+  rationale_inference: false
+  rationale_target_max_length: 160
+  rationale_training: true
+  scheduler: cosine
+  selection_metric: dev_macro_pragmatic_f1
+  system_id: q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522
+  tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  trial: pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37
+  uncertainty_weighting_enabled: true
+  variant_id: vipragsent_full_xlmr_large
+  warmup_ratio: 0.2
+  weight_adjustments:
+    code_switching_weight_multiplier: 1.0
+    sarcasm_weight_multiplier: 1.0
+  weight_decay: 0.01
+training_profile:
+  deterministic_algorithms: warn_only
+  encoder:
+    effective_batch_size: 32
+    gradient_checkpointing: false
+    gradient_clipping: 1.0
+    learning_rate: 2.0e-05
+    maximum_epochs: 10
+    minimum_delta: 0.0001
+    optimizer: AdamW
+    patience: 2
+    physical_batch_probe:
+      phobert_base:
+      - 32
+      - 16
+      - 8
+      xlmr_large:
+      - 8
+      - 4
+      - 2
+      - 1
+    precision: bf16
+    scheduler: linear
+    warmup_ratio: 0.1
+    weight_decay: 0.01
+  qlora_7b:
+    effective_batch_size: 16
+    gradient_checkpointing: true
+    gradient_clipping: 1.0
+    learning_rate: 0.0001
+    lora:
+      alpha: 32
+      dropout: 0.05
+      rank: 16
+      target_modules:
+      - q_proj
+      - k_proj
+      - v_proj
+      - o_proj
+    maximum_epochs: 3
+    minimum_delta: 0.0001
+    optimizer: paged_adamw_8bit
+    patience: 2
+    physical_batch_probe:
+      sailor_7b:
+      - 2
+      - 1
+      vistral_7b:
+      - 2
+      - 1
+    precision: bf16
+    quantization:
+      compute_dtype: bf16
+      double_quant: true
+      load_in_4bit: true
+      quant_type: nf4
+    scheduler: cosine
+    warmup_ratio: 0.05
+    weight_decay: 0.01
+  rationale:
+    attention_heads: 4
+    beta: 0.3
+    decoder_layers: 2
+    dropout: 0.1
+    feed_forward_size: 512
+    hidden_size: 128
+    inference_enabled: false
+    label_smoothing: 0.0
+    target_max_lengths:
+    - 96
+    - 160
+  schema_version: 1

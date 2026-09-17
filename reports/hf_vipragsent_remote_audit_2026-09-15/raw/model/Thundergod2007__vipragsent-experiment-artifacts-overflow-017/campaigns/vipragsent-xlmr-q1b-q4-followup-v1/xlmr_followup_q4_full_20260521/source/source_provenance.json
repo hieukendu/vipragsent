@@ -1,0 +1,32 @@
+{
+  "checkpoint_manifest_status": "PASS",
+  "checkpoint_sha256": "AFB6CB6DB2FD8E7F78E07B01C0300C348BAF7A036351B97BD0C8AD22B4D28845",
+  "code_commit": "4a84d762141a557b4383eb71fbc49af4755778b5",
+  "config_hash": "58BF0D5E4E293B467137990B03249DF27A8A5712B50D4A0DCD6FADD8925D76B3",
+  "followup_lane": "xlmr_q4_from_v37_full_checkpoint",
+  "history_hash": "A0DD72DED7BFFC1888770D27E77EAE0CE7230D558A3384B01396DD8C8904249B",
+  "prediction_hash": "8DEC2920F20E49415CE8004207E72AF993ACC27E828B607E6CF4D15B3FAE784E",
+  "source_approval_basis": "V37 optimization_manifest PASS plus checkpoint/prediction/history hash verification",
+  "source_hashes": {
+    "best_model.pt": "AFB6CB6DB2FD8E7F78E07B01C0300C348BAF7A036351B97BD0C8AD22B4D28845",
+    "checkpoint_manifest.json": "906EEE511A4EE2D0FBDCA460B4A02ED4810588DF0F2D5F521F50261099745345",
+    "config_snapshot.yaml": "58BF0D5E4E293B467137990B03249DF27A8A5712B50D4A0DCD6FADD8925D76B3",
+    "test_predictions.jsonl": "8DEC2920F20E49415CE8004207E72AF993ACC27E828B607E6CF4D15B3FAE784E",
+    "training_history.json": "A0DD72DED7BFFC1888770D27E77EAE0CE7230D558A3384B01396DD8C8904249B"
+  },
+  "source_integrity": {
+    "source_checkpoint_manifest_sha256": "906EEE511A4EE2D0FBDCA460B4A02ED4810588DF0F2D5F521F50261099745345",
+    "source_checkpoint_sha256": "AFB6CB6DB2FD8E7F78E07B01C0300C348BAF7A036351B97BD0C8AD22B4D28845",
+    "source_history_sha256": "A0DD72DED7BFFC1888770D27E77EAE0CE7230D558A3384B01396DD8C8904249B",
+    "source_optimization_manifest_sha256": "A0F318A5E3BEB85ABB6A0CF302B1A1CAED94A930B58F865F7B61633606094A80",
+    "source_prediction_sha256": "8DEC2920F20E49415CE8004207E72AF993ACC27E828B607E6CF4D15B3FAE784E",
+    "source_run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521"
+  },
+  "source_integrity_sha256": "22B98300C7B1257DBBF02C32324B73D3D621A2195C8EE9F6B32D3C81F8505157",
+  "source_model_family": "xlmr_large",
+  "source_run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+  "source_variant_id": "vipragsent_full_xlmr_large",
+  "status": "PASS",
+  "synthetic_history": false,
+  "training_applicability": "NOT_APPLICABLE"
+}

@@ -1,0 +1,40 @@
+{
+  "coverage_rate": 1.0,
+  "inference_output_source": "judge_of_rationale_decoder_output",
+  "invalid_count": 0,
+  "invalid_generation_rate": 0.0,
+  "invalid_judge_output_rate": 0.0,
+  "judge_cache_hits": 0,
+  "judge_cache_misses": 0,
+  "judge_input_tokens": 0,
+  "judge_output_tokens": 0,
+  "judge_request_count": 0,
+  "judge_retry_count": 0,
+  "missing_prediction_rate": 0.0,
+  "primary_macro_f1": 0.4692612166415675,
+  "primary_metric_name": "full_split_macro_pragmatic_f1_all_zero_fallback",
+  "primary_per_label_f1": {
+    "code_switching": 0.4590208276981336,
+    "idiom_figurative": 0.48173101839854887,
+    "implicit_sentiment": 0.441340782122905,
+    "irony": 0.481999481999482,
+    "mocking": 0.4690735333156358,
+    "sarcasm": 0.4824016563146998
+  },
+  "requested_count": 2000,
+  "significance_prediction_source": "effective_full_split_all_zero_fallback",
+  "split": "test",
+  "status": "PASS",
+  "truncation_rate": 1.0,
+  "valid_count": 2000,
+  "valid_only_macro_f1": 0.4692612166415675,
+  "valid_only_metric_name": "valid_only_macro_pragmatic_f1",
+  "valid_only_per_label_f1": {
+    "code_switching": 0.4590208276981336,
+    "idiom_figurative": 0.48173101839854887,
+    "implicit_sentiment": 0.441340782122905,
+    "irony": 0.481999481999482,
+    "mocking": 0.4690735333156358,
+    "sarcasm": 0.4824016563146998
+  }
+}

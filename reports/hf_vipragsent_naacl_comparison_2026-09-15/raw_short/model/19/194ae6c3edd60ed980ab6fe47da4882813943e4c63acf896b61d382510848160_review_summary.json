@@ -1,0 +1,325 @@
+{
+  "NEXT_RUN_ALLOWED": "NO",
+  "RUN_STATUS": "PASS",
+  "USER_REVIEW_STATUS": "PENDING",
+  "actual_epochs": 3,
+  "additional_training": true,
+  "applicability": {},
+  "artifact_paths": [
+    "_engine_checkpoints/model/best.pt",
+    "_engine_checkpoints/model/epoch_001.pt",
+    "_engine_checkpoints/model/epoch_002.pt",
+    "_engine_checkpoints/model/epoch_003.pt",
+    "_engine_checkpoints/model/load_reports/best.json",
+    "_engine_checkpoints/model/run_state.json",
+    "_engine_checkpoints/model/thresholds.json",
+    "_engine_output/dev_predictions.jsonl",
+    "_engine_output/run_manifest.json",
+    "_engine_output/test_predictions.jsonl",
+    "_engine_output/thresholds.json",
+    "_engine_output/training_history.json",
+    "checkpoints/best/model.pt",
+    "checkpoints/checkpoint_manifest.json",
+    "checkpoints/latest/model.pt",
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "metrics/dev_metrics.json",
+    "metrics/test_confidence_intervals.json",
+    "metrics/test_metrics.json",
+    "predictions/dev_predictions.jsonl",
+    "predictions/test_predictions.jsonl",
+    "preflight.json",
+    "provenance.json",
+    "run_manifest.json",
+    "selection/best_checkpoint.json",
+    "selection/freeze_manifest.json",
+    "selection/selection_metric.json",
+    "selection/thresholds.json",
+    "training/class_weights.json",
+    "training/device_report.json",
+    "training/history.csv",
+    "training/history.json",
+    "training/optimizer_summary.json",
+    "training/resolved_training_config.json",
+    "training/resource_usage.json",
+    "training/scheduler_summary.json"
+  ],
+  "artifact_sha256": {
+    "_engine_checkpoints/model/best.pt": "248363853004584FBF944D60212760D61178299882C7A11C12426D920364E135",
+    "_engine_checkpoints/model/epoch_001.pt": "2176FD1ADEA18D09E41B02B527E872DE6C83B797763481DDF9FC463EC767920E",
+    "_engine_checkpoints/model/epoch_002.pt": "248363853004584FBF944D60212760D61178299882C7A11C12426D920364E135",
+    "_engine_checkpoints/model/epoch_003.pt": "5666233CDCAF12A0EAC261F79265DD437FF486AAB095ADE3FF7E2593E29AF30C",
+    "_engine_checkpoints/model/load_reports/best.json": "58AAFCCEFC0F0E92C9FE54D6748DB39F74661F12D6189DA0BE2D42D6E7705FDB",
+    "_engine_checkpoints/model/run_state.json": "3E3ABEC6F8CAFCF73312B54B61D4CE0292A1590D1370414E0087944D9DA25DA5",
+    "_engine_checkpoints/model/thresholds.json": "B2C9B643EFE662CF891F93B9977E14F98AD331685BE3EE62DACDA78204A8F97D",
+    "_engine_output/dev_predictions.jsonl": "7E0857F934A35E723553277D409C591A31F31BCE7E2BB9D1F140CAF44BBEABC4",
+    "_engine_output/run_manifest.json": "CE81DCFC59562F8CEAFBB669BC2BA04876EFEA003625770AAE77A5087E607696",
+    "_engine_output/test_predictions.jsonl": "61301963C4C88BCE839D9828A982DD4D8050BFCE4067DC6ACC45D3141A1F75F7",
+    "_engine_output/thresholds.json": "B2C9B643EFE662CF891F93B9977E14F98AD331685BE3EE62DACDA78204A8F97D",
+    "_engine_output/training_history.json": "CB2B497CA8AB269DA875E78E79961A49435629A2A6056946F057D3CEC129544C",
+    "checkpoints/best/model.pt": "248363853004584FBF944D60212760D61178299882C7A11C12426D920364E135",
+    "checkpoints/checkpoint_manifest.json": "655E1A109BE6887B572766B4DDDB82CA83CDCCFAFE3D993FED63DEF561D3159B",
+    "checkpoints/latest/model.pt": "5666233CDCAF12A0EAC261F79265DD437FF486AAB095ADE3FF7E2593E29AF30C",
+    "config_snapshot.yaml": "34E6C92376239418C647919B2EA7A789952C77410E77606D5C84AF6766B3187D",
+    "environment.json": "D067A685EDCF53E59CFF79454592E07D20A44EE17FCC1995922CDE4F27229E90",
+    "metrics.json": "C5F71228F6DA2ACEED8B59DC706EF63813C7427E11916B98AA0A0C58B82F87A2",
+    "metrics/dev_metrics.json": "48627B41CFDF48ADEDAC651BF51494AE8B6C57BEA889ADD05417803E08A45421",
+    "metrics/test_confidence_intervals.json": "F431186676360577E8E8ED649458D891FF60280E318A23DA5E00A3281A8BEDDA",
+    "metrics/test_metrics.json": "64C10537006833C39DFC8B36151A7FFCBAC55E2ED96E8DB3F2D324CC00129D4D",
+    "predictions/dev_predictions.jsonl": "7E0857F934A35E723553277D409C591A31F31BCE7E2BB9D1F140CAF44BBEABC4",
+    "predictions/test_predictions.jsonl": "61301963C4C88BCE839D9828A982DD4D8050BFCE4067DC6ACC45D3141A1F75F7",
+    "preflight.json": "E4ADCE332C807041C4416587E2958B098DCE71AD92581FAA5FA898AFF49DD705",
+    "provenance.json": "18DCD98CCF96BC0E3B58746C5404136B6E063C98AE1ED5FDC3B53E09C6198280",
+    "run_manifest.json": "383364256FE0BEFB7D3C67B24B11F674AE6B8F2D8DE528E6E583EB6BA5256CB4",
+    "selection/best_checkpoint.json": "2C4EEF10BC18B7E6A5F1D67B18BF10104CA8E2D5B3237D79773E22C6DA15520C",
+    "selection/freeze_manifest.json": "9BB555EA2A5E8EFFB77C02FEF878D2157E6F7C698633AC476009DE397C97DFEF",
+    "selection/selection_metric.json": "8872B6204826F7E2B09E4C6F32C6AF99EED439FEB710645F77F44801837BF58B",
+    "selection/thresholds.json": "B2C9B643EFE662CF891F93B9977E14F98AD331685BE3EE62DACDA78204A8F97D",
+    "training/class_weights.json": "16029AB15792B28193E3D92211612D92F264AFA123E2113DE010BF4094DF3379",
+    "training/device_report.json": "E9F2929ADD83E7D0AA4C1B99B8BD5CE08351B479CBE344FDD97DA4A96F700B33",
+    "training/history.csv": "A098A7005DD6625B4FC1C53E4F283D8D918A04E5030E38BF562BB8685398AD57",
+    "training/history.json": "CB2B497CA8AB269DA875E78E79961A49435629A2A6056946F057D3CEC129544C",
+    "training/optimizer_summary.json": "7BB58B47D6ECE291E8BEB153735625938C643D26D7C98C7935DE0C51270DC2B1",
+    "training/resolved_training_config.json": "2B2C489BD14DE572380CD0730B06DAB4D3DB1FAE8AC5605578EB2B5E6A3A0721",
+    "training/resource_usage.json": "12A187DD4CDBB34672B2E0F8D0B6A6E5BD9196D1054228CA95BC542D85D17CFB",
+    "training/scheduler_summary.json": "63BACB88FCC8DEE23865D2EE0D6172B63BDE9A39203C878583B5E32BE7DE7E31"
+  },
+  "azure_cache_hits": "NOT_APPLICABLE",
+  "azure_cache_misses": "NOT_APPLICABLE",
+  "azure_failed_requests": "NOT_APPLICABLE",
+  "azure_input_tokens": "NOT_APPLICABLE",
+  "azure_invalid_output_rate": "NOT_APPLICABLE",
+  "azure_job_id": null,
+  "azure_output_tokens": "NOT_APPLICABLE",
+  "azure_request_count": "NOT_APPLICABLE",
+  "azure_retried_requests": "NOT_APPLICABLE",
+  "backbone": "sailor_7b",
+  "best_dev_loss": 3.7231658427380023,
+  "best_dev_metric": 0.8648000436942919,
+  "best_epoch": 2,
+  "bin_count": "NOT_APPLICABLE",
+  "blockers": [],
+  "budget": "NOT_APPLICABLE",
+  "changed_components": {
+    "baseline_system_id": "full_phobert",
+    "changed_components": {
+      "active_heads": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ]
+      },
+      "active_losses": {
+        "full": [
+          "pragmatic",
+          "polarity",
+          "emotion",
+          "rationale"
+        ],
+        "variant": [
+          "pragmatic_equal_weight"
+        ]
+      },
+      "rationale_training": {
+        "full": true,
+        "variant": false
+      },
+      "uncertainty_tasks": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": []
+      }
+    },
+    "status": "RESOLVED",
+    "variant_system_id": "sailor_pragmatic_sft"
+  },
+  "checkpoint_path": "checkpoints/best/model.pt",
+  "checkpoint_sha256": "248363853004584FBF944D60212760D61178299882C7A11C12426D920364E135",
+  "class_weights": {
+    "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+    "content_hash": "ABFD6EFB19B89BE4A4FD4B0D7183C4CDBAAE3AF14FD3C291E07DD431DF0B9FB0",
+    "counts": {
+      "emotion": {
+        "anger": 251,
+        "disgust": 708,
+        "enjoyment": 2037,
+        "fear": 227,
+        "other": 3687,
+        "sadness": 709,
+        "surprise": 379
+      },
+      "polarity": {
+        "negative": 1301,
+        "neutral": 4934,
+        "positive": 1763
+      },
+      "pragmatic": {
+        "code_switching": {
+          "negative": 6792,
+          "positive": 1206
+        },
+        "idiom_figurative": {
+          "negative": 7435,
+          "positive": 563
+        },
+        "implicit_sentiment": {
+          "negative": 6320,
+          "positive": 1678
+        },
+        "irony": {
+          "negative": 7444,
+          "positive": 554
+        },
+        "mocking": {
+          "negative": 7066,
+          "positive": 932
+        },
+        "sarcasm": {
+          "negative": 7453,
+          "positive": 545
+        }
+      }
+    },
+    "dataset_hash": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+    "emotion_weight": {
+      "anger": 4.552077404667046,
+      "disgust": 1.6138014527845037,
+      "enjoyment": 0.5609088996423311,
+      "fear": 5.033354310887351,
+      "other": 0.3098918981750552,
+      "sadness": 1.611525287124723,
+      "surprise": 3.0147003392385976
+    },
+    "polarity_weight": {
+      "negative": 2.0491929285165256,
+      "neutral": 0.5403323875152006,
+      "positive": 1.5121951219512195
+    },
+    "pragmatic_pos_weight": {
+      "code_switching": 5.6318407960199,
+      "idiom_figurative": 13.206039076376554,
+      "implicit_sentiment": 3.766388557806913,
+      "irony": 13.436823104693142,
+      "mocking": 7.581545064377682,
+      "sarcasm": 13.675229357798164
+    },
+    "source_split": "train"
+  },
+  "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+  "configuration_hash": "34E6C92376239418C647919B2EA7A789952C77410E77606D5C84AF6766B3187D",
+  "dataset_fingerprint": "A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA285F718478532AF0D",
+  "direct_classification_outputs_used": true,
+  "display_name": "Sailor-7B pragmatic SFT",
+  "early_stopping_reason": "maximum_epochs_reached",
+  "effective_batch_size": 16,
+  "end_time": "2026-08-07T01:17:05Z",
+  "execution_kind": "trainable",
+  "execution_mode": "production_sequential_review_gated",
+  "experiment_id": "q1a_sailor_pragmatic_sft_20260522",
+  "failed_or_retried_gpu_hours": 0.0,
+  "frozen_thresholds": {
+    "code_switching": 0.93,
+    "idiom_figurative": 0.56,
+    "implicit_sentiment": 0.32,
+    "irony": 0.5,
+    "mocking": 0.31,
+    "sarcasm": 0.66
+  },
+  "gradient_accumulation_steps": 8,
+  "inference_output_source": "classification_heads",
+  "learning_rate": 0.0001,
+  "macro_pragmatic_ece": "NOT_APPLICABLE",
+  "macro_pragmatic_f1": 0.8557139142027888,
+  "maximum_epochs": 3,
+  "model_repository": "sail/Sailor-7B",
+  "model_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+  "native_causal_lm_generation_used": false,
+  "next_run_allowed": "NO",
+  "optimizer": "paged_adamw_8bit",
+  "peak_vram_gb": 6.600320816040039,
+  "per_label_dev_metrics": {
+    "code_switching": 0.9155399695791786,
+    "idiom_figurative": 0.8965184479769492,
+    "implicit_sentiment": 0.8822036681511175,
+    "irony": 0.9760033612100356,
+    "mocking": 0.7904829378677332,
+    "sarcasm": 0.7280518773807364
+  },
+  "per_label_pragmatic_ece": "NOT_APPLICABLE",
+  "per_label_test_metrics": {
+    "code_switching": 0.9103924157751635,
+    "idiom_figurative": 0.9155145929339478,
+    "implicit_sentiment": 0.8510245535464454,
+    "irony": 0.9592735566112108,
+    "mocking": 0.778281980976594,
+    "sarcasm": 0.7197963853733713
+  },
+  "physical_batch_size": 2,
+  "precision": "bf16",
+  "prediction_hashes": {
+    "predictions/dev_predictions.jsonl": "7E0857F934A35E723553277D409C591A31F31BCE7E2BB9D1F140CAF44BBEABC4",
+    "predictions/test_predictions.jsonl": "61301963C4C88BCE839D9828A982DD4D8050BFCE4067DC6ACC45D3141A1F75F7"
+  },
+  "preprocessing_name": "vncorenlp_rdrsegmenter",
+  "preprocessing_version": "locked-v1",
+  "primary_dev_selection_metric": "dev_macro_pragmatic_f1",
+  "probability_aggregation": "NOT_APPLICABLE",
+  "provenance_contract_version": 1,
+  "q3_budget_data": "NOT_APPLICABLE",
+  "rationale_applicability": {
+    "inference": false,
+    "training": false
+  },
+  "rationale_decoder_enabled_at_inference": false,
+  "research_question": "Q1a",
+  "run_id": "q1a_sailor_pragmatic_sft_20260522",
+  "run_status": "PASS",
+  "same_seed_source": false,
+  "sarcasm_dev_f1": "NOT_APPLICABLE",
+  "sarcasm_test_f1": "NOT_APPLICABLE",
+  "scheduler": "cosine",
+  "seed": 20260522,
+  "source_checkpoint_id": "NOT_APPLICABLE",
+  "source_prediction_hash": "NOT_APPLICABLE",
+  "source_system_id": "NOT_APPLICABLE",
+  "split_hashes": {
+    "dev": "7E0857F934A35E723553277D409C591A31F31BCE7E2BB9D1F140CAF44BBEABC4",
+    "test": "61301963C4C88BCE839D9828A982DD4D8050BFCE4067DC6ACC45D3141A1F75F7"
+  },
+  "start_time": "2026-08-07T00:00:31Z",
+  "successful_gpu_hours": 1.0505681272522067,
+  "summary_hash_input": "6C9C50C67336E166D7CF57DE6A8412607CC71FF163BC9176F811F9FE0F52C57B",
+  "system_id": "sailor_pragmatic_sft",
+  "temperature_scaling": false,
+  "tokenizer_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+  "user_review_status": "PENDING",
+  "validation_status": "PASS",
+  "variant": "pragmatic_sft",
+  "wall_clock_seconds": 0.0,
+  "warmup_ratio": 0.05,
+  "warnings": [],
+  "weight_decay": 0.01
+}

@@ -1,0 +1,61 @@
+{
+  "backbone_counts": {
+    "XLM-R-large": 2690,
+    "unknown": 3
+  },
+  "canonical_duplicate_record_count": 0,
+  "canonical_explicit_backbone_confirmed_count": 42,
+  "canonical_path_only_unconfirmed_count": 0,
+  "canonical_question_counts": {
+    "Q1a": 3,
+    "Q2": 18,
+    "Q3": 18,
+    "Q4": 3
+  },
+  "canonical_selected_record_count": 42,
+  "collection": {
+    "account_repo_count": 30,
+    "complete_repo_count": 30,
+    "fetch_error_count": 0,
+    "fetched_candidate_count": 1941,
+    "fetched_count": 1941,
+    "manifest_entry_count": 480738
+  },
+  "generated_at": "2026-09-15T12:37:34.509209Z",
+  "notes": [
+    "Only records with explicit XLM-R-large evidence or a path that contains an XLM-R identifier are included in the XLM-R pass; path-only records remain marked as path_inference_only.",
+    "No claim of reproducibility is made: this pass reads remote artefacts and does not rerun training.",
+    "Weights are inventoried by path, size, OID/LFS metadata, and repository commit; metric aggregation uses fetched text artefacts.",
+    "The normalized seed table uses canonical run-level metrics and aggregates only requested seeds 21, 22, and 23.",
+    "Prediction/event JSONL payloads are fetched and SHA-256 recorded but intentionally not expanded into scalar records."
+  ],
+  "parsed_record_count": 2693,
+  "review_checks_status": "PASS",
+  "selected_question_counts": {
+    "Q1a": 225,
+    "Q2": 1265,
+    "Q3": 710,
+    "Q4": 276
+  },
+  "selected_record_count": 2476,
+  "selected_seed_21_22_23_complete": true,
+  "selected_seed_21_22_23_record_count": 42,
+  "unmapped_selected_backbone_count": 0,
+  "verification_status": "ANALYZED",
+  "weight_inventory": {
+    "all_weight_bytes": 4322857019471,
+    "all_weight_file_count": 1368,
+    "downloaded_weight_payloads": 0,
+    "interpretation": "Complete HF tree/LFS metadata inventory; weight payloads were not downloaded or deserialized in this pass.",
+    "xlmr_scope_repositories": {
+      "Thundergod2007/vipragsent-experiment-artifacts-overflow-012": 17,
+      "Thundergod2007/vipragsent-experiment-artifacts-overflow-017": 2,
+      "Thundergod2007/vipragsent-experiment-artifacts-overflow-018": 26,
+      "Thundergod2007/vipragsent-experiment-artifacts-overflow-025": 16,
+      "Thundergod2007/vipragsent-xlmr-checkpoints": 111
+    },
+    "xlmr_scope_weight_bytes": 1194719792814,
+    "xlmr_scope_weight_file_count": 172
+  },
+  "xlmr_large_record_count": 2690
+}

@@ -1,0 +1,43 @@
+{
+  "NEXT_RUN_ALLOWED": "NO",
+  "RUN_STATUS": "BLOCKED",
+  "USER_REVIEW_STATUS": "PENDING",
+  "artifact_paths": [
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "preflight.json",
+    "run_manifest.json"
+  ],
+  "artifact_sha256": {
+    "config_snapshot.yaml": "7798227540D7AA7E31370A5A0FEDF5E188B8FD4CECF0C8645D8FFEE18D8A254B",
+    "environment.json": "D3A464F724AC3161680B4CEE20129E47533FD224708512EB81C84D3ED04E66D6",
+    "metrics.json": "72AF11B98A800F05E65D362A492C43495E149724F9A4ACC4E2A94A351A4F06F1",
+    "preflight.json": "6F2021369209EC32CFD379C6F0FA2D74AB0BDBC4796B702E833C5506E4B37AF8",
+    "run_manifest.json": "433BF3E4F3E84E51AED988A8DCD010CE01A2614DA7DA458969E4AD4EB98357F7"
+  },
+  "azure_job_id": null,
+  "backbone": "vistral_7b",
+  "blockers": [
+    "Execution stages have not been run; explicit later execution is required"
+  ],
+  "budget": "NOT_APPLICABLE",
+  "completion_reason": "PREFLIGHT_ONLY_COMPLETE",
+  "display_name": "Vistral CoT-only clean rerun 20260522",
+  "execution_kind": "generation",
+  "execution_mode": "production_sequential_review_gated",
+  "experiment_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+  "next_run_allowed": "NO",
+  "preflight_only": true,
+  "research_question": "Q1a",
+  "run_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+  "run_status": "PREFLIGHT_READY",
+  "seed": 20260522,
+  "system_id": "cot_only_vistral",
+  "user_review_status": "PENDING",
+  "validation_status": "BLOCKED",
+  "variant": "cot_only",
+  "warnings": [
+    "execution was not completed"
+  ]
+}

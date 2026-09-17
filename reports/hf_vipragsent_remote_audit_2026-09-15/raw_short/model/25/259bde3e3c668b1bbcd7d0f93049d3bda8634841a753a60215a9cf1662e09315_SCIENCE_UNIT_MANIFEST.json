@@ -1,0 +1,137 @@
+{
+  "campaign_id": "vipragsent-v7-compact-20260820-190bb0f24a7e75a8",
+  "files": [
+    {
+      "path_in_repo": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/final/q1b_xlmr_multitask_8head_20260522/FINAL_SCIENCE_RESULT_1A7602EAD5B5DB995EA9367E488CDA6E012F8955EBB15ABC1079B090A1D8359A.tar.gz",
+      "sha256": "1A7602EAD5B5DB995EA9367E488CDA6E012F8955EBB15ABC1079B090A1D8359A",
+      "size_bytes": 197482
+    },
+    {
+      "path_in_repo": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/final/q1b_xlmr_multitask_8head_20260522/FINAL_SCIENCE_RESULT.json",
+      "sha256": "F903BF9EA43EF30D8D02FDD61E68FC4A1D04DFC3B388ACD42AB7C28469C0C5E2",
+      "size_bytes": 1771
+    }
+  ],
+  "host_id": "nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f",
+  "local_finalization": {
+    "approval_status": "APPROVED",
+    "review_run_status": "PASS",
+    "run_status": "APPROVED",
+    "validation_status": "PASS"
+  },
+  "pack_contents": [
+    {
+      "path": "approval_status.json",
+      "sha256": "2974FBBA580EFD358C14145F6AADA43EB7C82FBEA7006FBF852EE3B77A695185",
+      "size_bytes": 860
+    },
+    {
+      "path": "checkpoint_reference.json",
+      "sha256": "6BEDFAE26A1D392227E378A65F90CADA540866E78073F318682B823DEEB4393F",
+      "size_bytes": 1303
+    },
+    {
+      "path": "checksums.sha256",
+      "sha256": "9D4DD5DB79F9F0D57D3EB242CD1180EE51EC62A2440071D1591CC72212805091",
+      "size_bytes": 1224
+    },
+    {
+      "path": "config_snapshot.yaml",
+      "sha256": "E4CCD4C8875E49CA249B9D96473A9C11F751EAB80922048CE25CC06051538A48",
+      "size_bytes": 1755
+    },
+    {
+      "path": "environment.json",
+      "sha256": "38A840DCA1CC4025346319D8BFACE7FA80D041A9EED86100ACAFF16D007E773B",
+      "size_bytes": 170
+    },
+    {
+      "path": "external/external_evaluation_manifest.json",
+      "sha256": "97B5E788AE450D8FD6A519C3327544BA47D4AF5A92F89BA1C08806E4F5A5BC87",
+      "size_bytes": 4433
+    },
+    {
+      "path": "metrics/external_retention_metrics.json",
+      "sha256": "6FD0CF931C9BB47FDF046D297C05F067B637D25B8C67BFCF374A26455C9E7CF1",
+      "size_bytes": 1159
+    },
+    {
+      "path": "metrics/test_metrics.json",
+      "sha256": "8FD68557DC40019EF2C9CF1CD8B0048D423B343B30D9D2733E9D6E93994B4C68",
+      "size_bytes": 5811
+    },
+    {
+      "path": "metrics.json",
+      "sha256": "A7B0839D6EFFAEC93C898190A30A6C063BB387A76BC174D64BC183F153E71ADB",
+      "size_bytes": 6275
+    },
+    {
+      "path": "predictions/aivivn_test_predictions.jsonl",
+      "sha256": "E95F8B54B1842325963224387410B84B905DDEFE7DAAF74DE094045A07D510B4",
+      "size_bytes": 339020
+    },
+    {
+      "path": "predictions/uit_vsfc_test_predictions.jsonl",
+      "sha256": "A493FC741EAA3026CCF85AB556CCE75131D8F32D694F32281F3F9FCF37071FDA",
+      "size_bytes": 540796
+    },
+    {
+      "path": "predictions/uit_vsmec_test_predictions.jsonl",
+      "sha256": "E9AA67BDFEE90DDE90ADECE329DBCEBB5922810B52E99F8C7A16B466A80CA768",
+      "size_bytes": 115018
+    },
+    {
+      "path": "preflight.json",
+      "sha256": "664CCB146A171B554EA7027747A17642460C306A2ABDF6634C0868CB9D5DE746",
+      "size_bytes": 5292
+    },
+    {
+      "path": "provenance.json",
+      "sha256": "670CFDEE827EF7FD453A4B90C74486173EDBC50E609B2C9061305D33A09C7F0D",
+      "size_bytes": 1961
+    },
+    {
+      "path": "review_summary.json",
+      "sha256": "D10A100B87289C74B14A80779CC4289BDCDE2C5F54CF0D554B779BB746D1918E",
+      "size_bytes": 8833
+    },
+    {
+      "path": "review_summary.md",
+      "sha256": "1B8DBC8A03CA8039731361A8A62D6A96BB3BB019F573046336063A4A2C9D0798",
+      "size_bytes": 2115
+    },
+    {
+      "path": "run_manifest.json",
+      "sha256": "5643CF11D53C851AD6AC7155E3085F6FF7AC349DCC9FC917A401492864C598CA",
+      "size_bytes": 1991
+    },
+    {
+      "path": "stage_events.jsonl",
+      "sha256": "806DE3417B08AF81E24EA931123F04DD0363F87F97B8AE153135F63A513F0FE3",
+      "size_bytes": 1462
+    },
+    {
+      "path": "state.json",
+      "sha256": "D3FD2A537538DB995225F2435FC89B106E15AB5618C281B25E03EDBDFDFD3B8C",
+      "size_bytes": 16545
+    }
+  ],
+  "policy_version": "V8_FINAL_R5",
+  "publication_class": "SCIENCE_CORE_MUST_DURABLE",
+  "recovery_class": "FINAL_RESULT_PACK",
+  "repo_id": "Thundergod2007/vipragsent-experiment-artifacts-overflow-002",
+  "schema_version": 1,
+  "semantic_unit_kind": "FINAL_SCIENTIFIC_RESULT",
+  "shard_id": "SHARD_H100_MIG20_COMPACT",
+  "source_identity": {
+    "code_commit": "f163bd9ff1607cebf6f3b008388857a3004c6303",
+    "code_tree": "0951eefa99ef7de3846bf3163ca0b47d562d01e7",
+    "config_hash": "E4CCD4C8875E49CA249B9D96473A9C11F751EAB80922048CE25CC06051538A48",
+    "data_fingerprint": "A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA285F718478532AF0D",
+    "model_repository": "FacebookAI/xlm-roberta-large",
+    "model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "source_fingerprint": "f07113feae93ccb3676bf4fd545173abdbade618c0c425762f126ae8b011b791",
+    "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389"
+  },
+  "unit_id": "final_science_q1b_xlmr_multitask_8head_20260522_1A7602EAD5B5DB995EA9"
+}
