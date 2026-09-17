@@ -1,6 +1,6 @@
 # ViPragSent NAACL comparison artefact package
 
-Generated: `2026-09-17T11:09:20.527307Z`  
+Generated: `2026-09-17T11:34:20.708857Z`  
 Verification state: **VERIFIED_ARTIFACTS** (remote HF artefacts, hashes,
 completion manifests, and derived tables verified; no independent training or
 inference rerun was performed).
@@ -17,7 +17,7 @@ not copied into these tables.
 - Live 2026-09-17 inventory retry: repository metadata remained unchanged for all 30 repositories, but tree pagination was rate-limited by HF HTTP 429; it is recorded in [`metadata_reconciliation.json`](metadata_reconciliation.json) and does not replace the complete 2026-09-15 snapshot.
 - Account inventory: 30 repositories, 480,738 tree entries, and complete pagination for all 30 repositories.
 - Selected structured sources fetched or cached in this package: 195.
-- Primary target: **ViPragSent with XLM-R-large**, seeds 21/22/23.
+- Primary target: **ViPragSent with XLM-R-large**, logical seed labels 21/22/23. The remote optimization manifests retain date-coded seed values 20260521/20260522/20260523; the reconciliation is recorded in [`artifact_verification_records.jsonl`](artifact_verification_records.jsonl) and [`q1a_target_artifact_manifest.json`](q1a_target_artifact_manifest.json).
 - Artifact-level completion: all three primary target `optimization_manifest.json` files report `PASS`; their paths and hashes are recorded in [`artifact_verification_records.jsonl`](artifact_verification_records.jsonl).
 - Complete target tree inventory: [`q1a_target_artifact_manifest.json`](q1a_target_artifact_manifest.json) records required config, metric, prediction, checkpoint, training, and resource files for all three seeds.
 - Ordinary baselines remain in the comparison. ViPragSent variants using Vistral are recorded as discovered but excluded from the primary scope, following the original filtering instruction.

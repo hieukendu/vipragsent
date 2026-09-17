@@ -219,6 +219,23 @@ def seed_from_run(run_id: str) -> int | None:
     return int(match.group(1)) if match else None
 
 
+def seed_reconciliation(logical_seed: int | None, recorded_seed: Any) -> dict[str, Any]:
+    """Keep the requested seed label and the remote manifest value together."""
+    if recorded_seed is None:
+        status = "REMOTE_SEED_NOT_RECORDED"
+    elif str(recorded_seed) == str(logical_seed):
+        status = "MATCH"
+    elif logical_seed in DATES and str(recorded_seed) == DATES[logical_seed]:
+        status = "DATE_CODED_REMOTE_SEED"
+    else:
+        status = "UNRESOLVED_MISMATCH"
+    return {
+        "logical_seed_label": logical_seed,
+        "remote_recorded_seed": recorded_seed,
+        "status": status,
+    }
+
+
 def numeric(value: Any) -> float | None:
     if isinstance(value, bool):
         return None
@@ -840,6 +857,7 @@ def build_artifact_verification_records(
         validation_status = data.get("validation_status")
         approval_status = data.get("approval_status")
         metric_status = metric.get("status")
+        recorded_seed = data.get("seed")
         source_pass = run_status == "PASS" and metric_status == "METRIC_FOUND"
         if source_name == "optimization_manifest.json":
             basis = "optimization_manifest.status=PASS plus selected test metric and tree/hash provenance"
@@ -855,6 +873,7 @@ def build_artifact_verification_records(
                 "backbone": spec["backbone"],
                 "run_id": spec["run_id"],
                 "seed": spec.get("seed"),
+                "seed_reconciliation": seed_reconciliation(spec.get("seed"), recorded_seed),
                 "verification_state": ARTIFACT_VERIFICATION_STATE if source_pass else "REVIEW_INCOMPLETE",
                 "artifact_status": run_status,
                 "validation_status": validation_status,
@@ -1510,6 +1529,13 @@ def write_metadata_reconciliation(out: Path, q1a_assertion: dict[str, Any], veri
                 for row in target_records
             ],
         },
+        "q1a_seed_reconciliation": [
+            {
+                "run_id": row.get("run_id"),
+                **(row.get("seed_reconciliation") or {}),
+            }
+            for row in target_records
+        ],
         "q1a_leaderboard_resolution": q1a_assertion,
         "hf_status_attention_resolution": {
             "source_rows": attention_rows,
@@ -1601,10 +1627,21 @@ def write_q1a_target_artifact_manifest(out: Path, entries: list[dict[str, Any]],
                     "fetch_sha256": row.get("fetch_sha256"),
                     "raw_path": row.get("raw_path"),
                 }
+        recorded_seed = None
+        optimization_ref = source_refs.get("optimization_manifest.json", {})
+        raw_path = optimization_ref.get("raw_path")
+        if raw_path:
+            try:
+                optimization_data = json.loads((out / raw_path).read_text(encoding="utf-8-sig"))
+                if isinstance(optimization_data, dict):
+                    recorded_seed = optimization_data.get("seed")
+            except (OSError, json.JSONDecodeError):
+                recorded_seed = None
         runs.append(
             {
                 "run_id": run_id,
                 "seed": seed,
+                "seed_reconciliation": seed_reconciliation(seed, recorded_seed),
                 "repo_id": repo_id,
                 "file_count": len(files),
                 "required_files_present": all(suffix in by_suffix for suffix in required_suffixes),
@@ -1666,7 +1703,7 @@ not copied into these tables.
 - Live 2026-09-17 inventory retry: repository metadata remained unchanged for all 30 repositories, but tree pagination was rate-limited by HF HTTP 429; it is recorded in [`metadata_reconciliation.json`](metadata_reconciliation.json) and does not replace the complete 2026-09-15 snapshot.
 - Account inventory: 30 repositories, 480,738 tree entries, and complete pagination for all 30 repositories.
 - Selected structured sources fetched or cached in this package: {complete_sources}.
-- Primary target: **ViPragSent with XLM-R-large**, seeds 21/22/23.
+- Primary target: **ViPragSent with XLM-R-large**, logical seed labels 21/22/23. The remote optimization manifests retain date-coded seed values 20260521/20260522/20260523; the reconciliation is recorded in [`artifact_verification_records.jsonl`](artifact_verification_records.jsonl) and [`q1a_target_artifact_manifest.json`](q1a_target_artifact_manifest.json).
 - Artifact-level completion: all three primary target `optimization_manifest.json` files report `PASS`; their paths and hashes are recorded in [`artifact_verification_records.jsonl`](artifact_verification_records.jsonl).
 - Complete target tree inventory: [`q1a_target_artifact_manifest.json`](q1a_target_artifact_manifest.json) records required config, metric, prediction, checkpoint, training, and resource files for all three seeds.
 - Ordinary baselines remain in the comparison. ViPragSent variants using Vistral are recorded as discovered but excluded from the primary scope, following the original filtering instruction.
@@ -1902,6 +1939,7 @@ def run(args: argparse.Namespace) -> None:
         for row in artifact_verification_records
         if row.get("question") == "Q1a" and row.get("system") == "ViPragSent (XLM-R-large)"
     ]
+    target_seed_reconciliation = [row.get("seed_reconciliation") or {} for row in target_review_records]
     checks = {
         "analysis_state": ARTIFACT_VERIFICATION_STATE,
         "historical_analysis_state": "ANALYZED",
@@ -1924,11 +1962,15 @@ def run(args: argparse.Namespace) -> None:
         "q1a_target_review_fallback_count": sum(row.get("review_source_type") == "optimization_manifest_fallback" for row in target_review_records),
         "q1a_target_artifact_statuses": sorted({row.get("artifact_status") for row in target_review_records}),
         "q1a_target_metric_statuses": sorted({row.get("metric_status") for row in target_review_records}),
+        "q1a_target_seed_reconciliation": target_seed_reconciliation,
         "q1a_leaderboard_verification": q1a_assertion,
         "required_report_exists": (out / "naacl_comparison_report.md").exists(),
         "required_tables_exist": all((out / "tables" / name).exists() for name in ("table2_q1a_baselines.csv", "table2_q1a_paper_schema_coverage.csv", "table3_ordinary_retention.csv", "table4_q2_xlmr_ablation.csv", "table_q3_low_resource.csv", "table_q4_calibration.csv", "table5_cost_inventory.csv")),
     }
-    checks["status"] = "PASS" if checks["source_fetch_error_count"] == 0 and checks["source_sha256_local_mismatch_count"] == 0 and not range_failures and checks["primary_scope_backbone_filter"] and checks["required_report_exists"] and checks["required_tables_exist"] and checks["q2_resource_group_count"] == 6 and checks["q2_resource_all_groups_three_seeds"] and checks["gpt_status_record_count"] == 2 and checks["q1a_target_review_record_count"] == 3 and checks["q1a_target_review_fallback_count"] == 3 and checks["q1a_target_artifact_statuses"] == ["PASS"] and checks["q1a_target_metric_statuses"] == ["METRIC_FOUND"] and q1a_assertion["status"] == "PASS" else "FAIL"
+    seed_reconciliation_ok = len(target_seed_reconciliation) == 3 and all(
+        row.get("status") in {"MATCH", "DATE_CODED_REMOTE_SEED"} for row in target_seed_reconciliation
+    )
+    checks["status"] = "PASS" if checks["source_fetch_error_count"] == 0 and checks["source_sha256_local_mismatch_count"] == 0 and not range_failures and checks["primary_scope_backbone_filter"] and checks["required_report_exists"] and checks["required_tables_exist"] and checks["q2_resource_group_count"] == 6 and checks["q2_resource_all_groups_three_seeds"] and checks["gpt_status_record_count"] == 2 and checks["q1a_target_review_record_count"] == 3 and checks["q1a_target_review_fallback_count"] == 3 and checks["q1a_target_artifact_statuses"] == ["PASS"] and checks["q1a_target_metric_statuses"] == ["METRIC_FOUND"] and seed_reconciliation_ok and q1a_assertion["status"] == "PASS" else "FAIL"
     json_dump(out / "review_checks.json", checks)
     json_dump(
         out / "analysis_status.json",

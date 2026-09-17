@@ -5,7 +5,7 @@
     "authenticated HF tree and raw files recorded in source_manifest.jsonl"
   ],
   "final_package_status": "VERIFIED_ARTIFACTS",
-  "generated_at": "2026-09-17T11:09:18.225385Z",
+  "generated_at": "2026-09-17T11:34:17.890932Z",
   "hf_status_attention_resolution": {
     "reconciled_status": "ARTIFACT_COMPLETED_WITH_HISTORICAL_STATUS_ATTENTION",
     "resolution": "Preserve the NOT_STARTED run_manifest value as historical receipt metadata; use the later APPROVED state plus PASS metrics/review/validation records for artifact status. No remote receipt was overwritten.",
@@ -170,6 +170,26 @@
     "target_seed_count": 3,
     "target_system": "ViPragSent (XLM-R-large)"
   },
+  "q1a_seed_reconciliation": [
+    {
+      "logical_seed_label": 21,
+      "remote_recorded_seed": 20260521,
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+      "status": "DATE_CODED_REMOTE_SEED"
+    },
+    {
+      "logical_seed_label": 22,
+      "remote_recorded_seed": 20260522,
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522",
+      "status": "DATE_CODED_REMOTE_SEED"
+    },
+    {
+      "logical_seed_label": 23,
+      "remote_recorded_seed": 20260523,
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523",
+      "status": "DATE_CODED_REMOTE_SEED"
+    }
+  ],
   "q1a_target_review_resolution": {
     "resolution": "Use each run's optimization_manifest.json status PASS as artifact-level completion/provenance; do not synthesize review_summary.json.",
     "review_summary_missing_count": 3,
