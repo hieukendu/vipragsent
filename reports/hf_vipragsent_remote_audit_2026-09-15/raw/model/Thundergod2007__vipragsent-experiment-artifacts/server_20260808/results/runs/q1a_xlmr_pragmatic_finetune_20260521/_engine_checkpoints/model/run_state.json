@@ -1,0 +1,110 @@
+{
+  "best_epoch": 10,
+  "best_loss": 2.4778822813406585,
+  "best_metric": 0.928512759521461,
+  "epoch": 10,
+  "history": [
+    {
+      "dev_loss": 6.055801200866699,
+      "dev_macro_pragmatic_f1": 0.6621164240217835,
+      "dev_metric": 0.6621164240217835,
+      "epoch": 1.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 81.98813102697022,
+      "train_loss": 6.990697432518005
+    },
+    {
+      "dev_loss": 5.425927708148956,
+      "dev_macro_pragmatic_f1": 0.7191616514675637,
+      "dev_metric": 0.7191616514675637,
+      "epoch": 2.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 82.06304394395556,
+      "train_loss": 5.88322081565857
+    },
+    {
+      "dev_loss": 4.068840843558312,
+      "dev_macro_pragmatic_f1": 0.8237070565846198,
+      "dev_metric": 0.8237070565846198,
+      "epoch": 3.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 81.88103775703348,
+      "train_loss": 4.238976592242718
+    },
+    {
+      "dev_loss": 2.629877853631973,
+      "dev_macro_pragmatic_f1": 0.8817942109239949,
+      "dev_metric": 0.8817942109239949,
+      "epoch": 4.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 81.62973736796994,
+      "train_loss": 2.770524236857891
+    },
+    {
+      "dev_loss": 2.432261064052582,
+      "dev_macro_pragmatic_f1": 0.9150708862669464,
+      "dev_metric": 0.9150708862669464,
+      "epoch": 5.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 82.2292491630069,
+      "train_loss": 1.9039584292769431
+    },
+    {
+      "dev_loss": 2.3647392397820948,
+      "dev_macro_pragmatic_f1": 0.9232393902794498,
+      "dev_metric": 0.9232393902794498,
+      "epoch": 6.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 82.25380848901113,
+      "train_loss": 1.4233799072429538
+    },
+    {
+      "dev_loss": 2.309216344714165,
+      "dev_macro_pragmatic_f1": 0.9110489100170908,
+      "dev_metric": 0.9110489100170908,
+      "epoch": 7.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 82.98824282403802,
+      "train_loss": 1.073923814497888
+    },
+    {
+      "dev_loss": 2.4738243764042855,
+      "dev_macro_pragmatic_f1": 0.9261315152727114,
+      "dev_metric": 0.9261315152727114,
+      "epoch": 8.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 82.03482932096813,
+      "train_loss": 0.8102316828668118
+    },
+    {
+      "dev_loss": 2.596192280814052,
+      "dev_macro_pragmatic_f1": 0.923069502080515,
+      "dev_metric": 0.923069502080515,
+      "epoch": 9.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 82.27491620997898,
+      "train_loss": 0.6668966369070113
+    },
+    {
+      "dev_loss": 2.4778822813406585,
+      "dev_macro_pragmatic_f1": 0.928512759521461,
+      "dev_metric": 0.928512759521461,
+      "epoch": 10.0,
+      "peak_memory_gb": 10.4989333152771,
+      "seconds": 80.9054139519576,
+      "train_loss": 0.5232981785498559
+    }
+  ],
+  "micro_batches": 10000,
+  "no_improvement_epochs": 0,
+  "optimizer_updates": 2500,
+  "status": "PASS",
+  "thresholds": {
+    "code_switching": 0.95,
+    "idiom_figurative": 0.93,
+    "implicit_sentiment": 0.9,
+    "irony": 0.94,
+    "mocking": 0.89,
+    "sarcasm": 0.95
+  }
+}

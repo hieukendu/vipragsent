@@ -1,0 +1,43 @@
+{
+  "NEXT_RUN_ALLOWED": "NO",
+  "RUN_STATUS": "BLOCKED",
+  "USER_REVIEW_STATUS": "PENDING",
+  "artifact_paths": [
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "preflight.json",
+    "run_manifest.json"
+  ],
+  "artifact_sha256": {
+    "config_snapshot.yaml": "370AC053C5590EEC86512B87D2B5DF276CA347E481CE73407FF410B194DC99C0",
+    "environment.json": "5FBFF441A7D4AC3F6C2CD08F788A68E91983B224104D5A3BD97942D155ADDF09",
+    "metrics.json": "78A52522A44A1ADE278ED3414047E386B51119A0C11EB40AAA246ECD37F1BFE4",
+    "preflight.json": "2F381AFE4BEDA49CBE2A80D8165D16B80DCE870BCC2EA4622A1AFA036FDC855B",
+    "run_manifest.json": "D51113CFAD3CDC92BCEA6104480F00F9712EF34A1D4B3718D6355BB66A7E3D48"
+  },
+  "azure_job_id": null,
+  "backbone": "vistral_7b",
+  "blockers": [
+    "Execution stages have not been run; explicit later execution is required"
+  ],
+  "budget": "NOT_APPLICABLE",
+  "completion_reason": "PREFLIGHT_ONLY_COMPLETE",
+  "display_name": "Full ViPragSent Vistral",
+  "execution_kind": "trainable",
+  "execution_mode": "production_sequential_review_gated",
+  "experiment_id": "q1a_vipragsent_full_vistral_20260522",
+  "next_run_allowed": "NO",
+  "preflight_only": true,
+  "research_question": "Q1a",
+  "run_id": "q1a_vipragsent_full_vistral_20260522",
+  "run_status": "PREFLIGHT_READY",
+  "seed": 20260522,
+  "system_id": "vipragsent_full_vistral",
+  "user_review_status": "PENDING",
+  "validation_status": "BLOCKED",
+  "variant": "full",
+  "warnings": [
+    "execution was not completed"
+  ]
+}

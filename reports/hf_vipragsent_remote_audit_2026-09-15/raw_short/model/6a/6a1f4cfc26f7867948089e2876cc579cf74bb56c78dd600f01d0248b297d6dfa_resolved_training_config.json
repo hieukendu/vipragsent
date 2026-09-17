@@ -1,0 +1,41 @@
+{
+  "active_uncertainty_tasks": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking",
+    "emotion"
+  ],
+  "config_hash": "1D60E73A565C0C3CEDCA8D2275B783C578FD89A7E576F6485DEA7745E5F5B5A5",
+  "deterministic_algorithms": "warn_only",
+  "effective_batch_size": 32,
+  "gradient_accumulation_steps": 4,
+  "gradient_checkpointing": false,
+  "gradient_clipping": 1.0,
+  "learning_rate": 2e-05,
+  "maximum_epochs": 10,
+  "minimum_delta": 0.0001,
+  "model_family": "xlmr_large",
+  "optimizer": "AdamW",
+  "patience": 2,
+  "physical_batch_size": 8,
+  "precision": "bf16",
+  "qlora": {
+    "lora": {},
+    "quantization": {
+      "type": "none"
+    }
+  },
+  "rationale_beta": 0.3,
+  "rationale_inference": false,
+  "rationale_target_max_length": 160,
+  "rationale_training": true,
+  "scheduler": "linear",
+  "selection_metric": "dev_macro_pragmatic_f1",
+  "system_id": "xlmr_followup_no_polarity_auxiliary",
+  "uncertainty_weighting_enabled": true,
+  "warmup_ratio": 0.1,
+  "weight_decay": 0.01
+}

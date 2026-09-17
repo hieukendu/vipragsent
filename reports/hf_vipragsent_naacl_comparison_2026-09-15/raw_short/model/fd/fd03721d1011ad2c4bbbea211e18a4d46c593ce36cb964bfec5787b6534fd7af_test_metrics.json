@@ -1,0 +1,22 @@
+{
+  "loss": 1.7420808891952038,
+  "macro_pragmatic_f1": 0.9370458870556461,
+  "per_label_f1": {
+    "code_switching": 0.9484519730998604,
+    "idiom_figurative": 0.937311690194373,
+    "implicit_sentiment": 0.929099160048944,
+    "irony": 0.9824283099450885,
+    "mocking": 0.9417225933445962,
+    "sarcasm": 0.8832615957010141
+  },
+  "prediction_count": 2000,
+  "selection_metric": 0.9370458870556461,
+  "thresholds": {
+    "code_switching": 0.95,
+    "idiom_figurative": 0.88,
+    "implicit_sentiment": 0.85,
+    "irony": 0.93,
+    "mocking": 0.93,
+    "sarcasm": 0.94
+  }
+}

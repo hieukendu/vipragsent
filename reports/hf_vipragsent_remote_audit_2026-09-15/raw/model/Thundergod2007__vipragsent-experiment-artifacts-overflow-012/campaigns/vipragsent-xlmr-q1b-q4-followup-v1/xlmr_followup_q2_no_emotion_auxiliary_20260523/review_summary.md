@@ -1,0 +1,38 @@
+# Sequential Run Review Summary
+
+RUN_STATUS: PASS
+USER_REVIEW_STATUS: PENDING
+NEXT_RUN_ALLOWED: NO
+
+## run_id
+xlmr_followup_q2_no_emotion_auxiliary_20260523
+
+## research_question
+Q2
+
+## system_id
+xlmr_followup_no_emotion_auxiliary
+
+## execution_kind
+trainable
+
+## best_dev_metric
+0.9230997661490653
+
+## checkpoint_path
+checkpoints/best/model.pt
+
+## macro_pragmatic_f1
+0.9171098068099193
+
+## artifact_paths
+["_engine_checkpoints/model/best.pt", "_engine_checkpoints/model/epoch_001.pt", "_engine_checkpoints/model/epoch_002.pt", "_engine_checkpoints/model/epoch_003.pt", "_engine_checkpoints/model/epoch_004.pt", "_engine_checkpoints/model/epoch_005.pt", "_engine_checkpoints/model/epoch_006.pt", "_engine_checkpoints/model/epoch_007.pt", "_engine_checkpoints/model/load_reports/best.json", "_engine_checkpoints/model/run_state.json", "_engine_checkpoints/model/thresholds.json", "_engine_output/dev_predictions.jsonl", "_engine_output/run_manifest.json", "_engine_output/test_predictions.jsonl", "_engine_output/thresholds.json", "_engine_output/training_history.json", "checkpoints/best/model.pt", "checkpoints/checkpoint_manifest.json", "checkpoints/latest/model.pt", "config_snapshot.yaml", "environment.json", "metrics.json", "metrics/dev_metrics.json", "metrics/test_metrics.json", "predictions/dev_predictions.jsonl", "predictions/test_predictions.jsonl", "preflight.json", "provenance.json", "run_manifest.json", "selection/best_checkpoint.json", "selection/freeze_manifest.json", "selection/selection_metric.json", "selection/thresholds.json", "training/class_weights.json", "training/device_report.json", "training/history.csv", "training/history.json", "training/optimizer_summary.json", "training/resolved_training_config.json", "training/resource_usage.json", "training/scheduler_summary.json"]
+
+## artifact_sha256
+{"_engine_checkpoints/model/best.pt": "9031AA6362C8D79A17CDB3D3B9B7EC755CC666DC33CE30D77C87FC33B9EA253A", "_engine_checkpoints/model/epoch_001.pt": "BC082D867484951613F208185EB1ECBC99BE80D4928F1150DC0953CE52B6B5AB", "_engine_checkpoints/model/epoch_002.pt": "EC23D40959681F178FC200CCAF069A9CBD7F048D69E7E7E7D37F9B52CD05EA8B", "_engine_checkpoints/model/epoch_003.pt": "6F44CE0C7CF34482CEFF44028EA5C604469664A2671E6453B3EFB8468FE6EAAD", "_engine_checkpoints/model/epoch_004.pt": "8F76D5E715B1D9A9D3CCE4EBAD7E5F644A4D456D25C0A1EED5062D86940297EA", "_engine_checkpoints/model/epoch_005.pt": "9031AA6362C8D79A17CDB3D3B9B7EC755CC666DC33CE30D77C87FC33B9EA253A", "_engine_checkpoints/model/epoch_006.pt": "625CABEBDDDF84791EB9A310B0FECEE064537E7292C6AEC91C42E409D5B9F831", "_engine_checkpoints/model/epoch_007.pt": "276A7ABBCF04DA55455A275FA4D82741087FEF68502AFD5471329219C2404E1F", "_engine_checkpoints/model/load_reports/best.json": "0D9FC62F4D46DF859310719D3F06F575F7564EF8258963400116888E0B57392E", "_engine_checkpoints/model/run_state.json": "0FFEDA093E1F02C9F4E31675CCEC68CE64C8D954758F0742E38D1431FC91EBA6", "_engine_checkpoints/model/thresholds.json": "B9A6DD0E5262AB4C48614D99644205810E98E5E155A821C10D81CFC47A9257AC", "_engine_output/dev_predictions.jsonl": "93D10909821D0B197508353EA30B00CEFDA53AAE0354213F1B5EE523DF67C56A", "_engine_output/run_manifest.json": "CB18B55EB8A66A9FCAC885120D195D4AAA19323F74856B5D25B86C045DB1D8C7", "_engine_output/test_predictions.jsonl": "CADAEC1FB1EB370F2E942800872952B463FB1CE279CF7055E5DE7DD2932EC13C", "_engine_output/thresholds.json": "B9A6DD0E5262AB4C48614D99644205810E98E5E155A821C10D81CFC47A9257AC", "_engine_output/training_history.json": "A43D2BFE0FB94DDC84B44613C4E51E051D6B3A86D0E9A752CBBCC64660A36E07", "checkpoints/best/model.pt": "9031AA6362C8D79A17CDB3D3B9B7EC755CC666DC33CE30D77C87FC33B9EA253A", "checkpoints/checkpoint_manifest.json": "EA50AE4E0B8A070B77FC154571A98FDA790226C5375D6CBAAA82F43261EC04BA", "checkpoints/latest/model.pt": "276A7ABBCF04DA55455A275FA4D82741087FEF68502AFD5471329219C2404E1F", "config_snapshot.yaml": "AD5980592FB73FDA5E535B9DA95A76E9AA07B13829B38BC5A9DABFE5562C313B", "environment.json": "62884CF03E13B01025C48242839BC5367E4AB10EC756AF77EB6BDA7458568347", "metrics.json": "80C635D7B9D19768736261CDBA283F2887D70C4C8D7B130852C9F61D3EB468B9", "metrics/dev_metrics.json": "CD72F6A49839D230AC6FFBBCB2619B8C6415444C91D4093659FC88B95011A5CF", "metrics/test_metrics.json": "BBEFDDD1F1FF9D3FCA08750299B9CEFFA2577181A5C92FFB8B706933802C2975", "predictions/dev_predictions.jsonl": "93D10909821D0B197508353EA30B00CEFDA53AAE0354213F1B5EE523DF67C56A", "predictions/test_predictions.jsonl": "CADAEC1FB1EB370F2E942800872952B463FB1CE279CF7055E5DE7DD2932EC13C", "preflight.json": "A02B93E99D47FB3E614EF6A1FAABAE92B33FC75382C0B8DA153AD44D12CC2996", "provenance.json": "CAB26B5BD444C3273A0D1982E5F508FE2E7F5B525674750B013C3D53BBAA1C60", "run_manifest.json": "0EE55D617EEF415287E6AFAF94A00743A484374AF17ED9DD29896BD652F31A58", "selection/best_checkpoint.json": "8C7B0F4D768C54ACA7EB646A3DA9D6E7B540382738FD807A99EF6B8812F81432", "selection/freeze_manifest.json": "0AB7616A0F2042F04599F71ABC6F73A4FEE7CC76F5CE2BC5E9A7D3AC2C413E95", "selection/selection_metric.json": "98A3DD9DB372A95BBB9F05F017B16BF3094BDCCBA0C68D507E709C5E93F34037", "selection/thresholds.json": "B9A6DD0E5262AB4C48614D99644205810E98E5E155A821C10D81CFC47A9257AC", "training/class_weights.json": "916300EB3D0655955BAB0F0BBAE448449E0994D5DDC83E2E38850342A65B6146", "training/device_report.json": "5401F7C960BDC26405AF06A2CF353302D74EB1D15E151C4C75CED5D121A2A632", "training/history.csv": "2BCB570F30EBED92429BB03E2CA7D1A1EBA6F8E035A7DD7A1F17F1827050E927", "training/history.json": "A43D2BFE0FB94DDC84B44613C4E51E051D6B3A86D0E9A752CBBCC64660A36E07", "training/optimizer_summary.json": "50FADE7BC2DE50C9E18F21C1F59495E0E2689F28BA88DD7D917A23F7197A3579", "training/resolved_training_config.json": "D86EA7BFDDBD0FFF85C4B5BFCE73C104471B3FAE824BFC6C31F4C916D221A815", "training/resource_usage.json": "CCB8537863C98FD29383B25F5DCF3A8B0C59B164F8C02D96169BF638C072AFA4", "training/scheduler_summary.json": "151D96C680B063F7193DC943723EEFBB4256DE41BE6CEBFAB8BDBFCBFCB05242"}
+
+## warnings
+[]
+
+## blockers
+[]

@@ -1,0 +1,95 @@
+{
+  "completion": {
+    "backbone_unconfirmed_count": 0,
+    "canonical_question_counts": {
+      "Q1a": 3,
+      "Q2": 18,
+      "Q3": 18,
+      "Q4": 3
+    },
+    "canonical_run_seed_record_count": 42,
+    "experiment_group_count": 14,
+    "incomplete_training_completion_evidence_count": 0,
+    "parsed_selected_record_count": 2476,
+    "requested_seed_coverage_complete": true,
+    "status_attention_count": 6,
+    "status_attention_rows": [
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q2_no_multitask",
+        "question": "Q2",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 21
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q2_no_multitask",
+        "question": "Q2",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 22
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q2_no_multitask",
+        "question": "Q2",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 23
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q4_full",
+        "question": "Q4",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 21
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q4_full",
+        "question": "Q4",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 22
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q4_full",
+        "question": "Q4",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 23
+      }
+    ]
+  },
+  "content_check": {
+    "content_row_count": 1941,
+    "current_text_candidates_covered": true,
+    "missing_from_current_tree": 0,
+    "missing_sample": [],
+    "raw_integrity_bad": 0,
+    "tree_metadata_mismatches": 0,
+    "unique_repo_path_count": 1941
+  },
+  "current_repo_count": 30,
+  "current_tree_file_count": 409050,
+  "current_xlmr_text_candidate_count": 1941,
+  "current_xlmr_weight_bytes": 1194719792814,
+  "current_xlmr_weight_count": 172,
+  "recheck_status": "PASS",
+  "repo_diff": {
+    "changed_repo_count": 0,
+    "changed_repositories": [],
+    "current_repo_count": 30,
+    "old_repo_count": 30,
+    "repo_sha_and_tree_metadata_unchanged": true
+  },
+  "supplement_fetch_required": false,
+  "tree_diff": {
+    "added_count": 0,
+    "added_sample": [],
+    "changed_count": 0,
+    "changed_sample": [],
+    "current_tree_entry_count": 480738,
+    "old_tree_entry_count": 480738,
+    "removed_count": 0,
+    "removed_sample": [],
+    "tree_unchanged": true
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "combined_prediction_order_sha256": "D6E37D83E34676786CA3CE916642E55FFB125649A50753EEE23F6B86A3B6FEA3",
+  "component_best_epochs": {
+    "code_switching": 2,
+    "emotion": 10,
+    "idiom_figurative": 1,
+    "implicit_sentiment": 3,
+    "irony": 1,
+    "mocking": 7,
+    "polarity": 3,
+    "sarcasm": 2
+  },
+  "component_checkpoint_schema_versions": {
+    "code_switching": 2,
+    "emotion": 2,
+    "idiom_figurative": 2,
+    "implicit_sentiment": 2,
+    "irony": 2,
+    "mocking": 2,
+    "polarity": 2,
+    "sarcasm": 2
+  },
+  "component_checkpoint_sha256": {
+    "code_switching": "0C618F14A6703E89A8F9C35FC68AD1934A3B3598FAC5BDD17D4D59EB3F8AEA98",
+    "emotion": "F5809F0E1F21513F7B1FB310B298620B3D26F0406DEDC8EB1BAF1060591070BE",
+    "idiom_figurative": "9EE654C042D479987B1C57262D0E3E80C40611D4A0100772905313847B80F27F",
+    "implicit_sentiment": "EE6E11022651AAEFB9A92443EB678FC7420D14FCED139DE488DDA44687FC1941",
+    "irony": "45E1D6CB26862147A83713DCC1E618692F3872F20F765C09F80F7F8050BE4026",
+    "mocking": "5CB04AD204234F34759DE2978588C943510EA02B940361D2FD77E880DABE27DF",
+    "polarity": "A7467194E8637341212E157AEE1F3877C9FE73DC5451F8921A0A8E2CA96026D6",
+    "sarcasm": "19531A5DD31811177BCA19CB30C92E868B53E8C8B7C84DD85D5FBEBB3EA70BCB"
+  },
+  "component_count": 8,
+  "component_names": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking",
+    "polarity",
+    "emotion"
+  ],
+  "component_selection_metrics": {
+    "code_switching": 0.9301232017354326,
+    "emotion": 0.7128795136751508,
+    "idiom_figurative": 0.5379365747003612,
+    "implicit_sentiment": 0.9178472431067587,
+    "irony": 0.9760033612100356,
+    "mocking": 0.46905710491367864,
+    "polarity": 0.756992184051373,
+    "sarcasm": 0.7690116911364873
+  },
+  "config_hash": "56BC87DE11B9008194A0EF09D35ABA0A462550B44E54CA3D328354F258A489B4",
+  "cost_gpu_hours": 2.0622843877421433,
+  "data_hash": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+  "dev_order_sha256": "0ABFD58E507C1284896A1D42B57E54D1B339D8B90E2E6F40A0F73AAD306E675D",
+  "dev_sample_count": 1999,
+  "model_hash": "541315511B38B4D8B0CC06C6F6900B4DCD1396540EA9A772BC7B3D9E1A2DE9D4",
+  "resume_status": "RESUMABLE",
+  "schema_version": 2,
+  "seed": 20260521,
+  "status": "PASS",
+  "test_order_sha256": "864135359FEFF8028914A9E9EB8EF98B192CCCC637E45600BAD86A14B20DA5E8",
+  "test_sample_count": 2000,
+  "total_measured_gpu_hours": 2.0622843877421433
+}

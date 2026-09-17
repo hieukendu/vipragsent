@@ -1,0 +1,336 @@
+{
+  "NEXT_RUN_ALLOWED": "NO",
+  "RUN_STATUS": "PASS",
+  "USER_REVIEW_STATUS": "PENDING",
+  "actual_epochs": 3,
+  "additional_training": true,
+  "applicability": {},
+  "artifact_paths": [
+    "_engine_checkpoints/model/best.pt",
+    "_engine_checkpoints/model/epoch_001.pt",
+    "_engine_checkpoints/model/epoch_002.pt",
+    "_engine_checkpoints/model/epoch_003.pt",
+    "_engine_checkpoints/model/load_reports/best.json",
+    "_engine_checkpoints/model/run_state.json",
+    "_engine_checkpoints/model/thresholds.json",
+    "_engine_output/dev_predictions.jsonl",
+    "_engine_output/run_manifest.json",
+    "_engine_output/test_predictions.jsonl",
+    "_engine_output/thresholds.json",
+    "_engine_output/training_history.json",
+    "checkpoints/best/model.pt",
+    "checkpoints/checkpoint_manifest.json",
+    "checkpoints/latest/model.pt",
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "metrics/dev_metrics.json",
+    "metrics/test_confidence_intervals.json",
+    "metrics/test_metrics.json",
+    "predictions/dev_predictions.jsonl",
+    "predictions/test_predictions.jsonl",
+    "preflight.json",
+    "provenance.json",
+    "run_manifest.json",
+    "selection/best_checkpoint.json",
+    "selection/freeze_manifest.json",
+    "selection/selection_metric.json",
+    "selection/thresholds.json",
+    "training/class_weights.json",
+    "training/device_report.json",
+    "training/history.csv",
+    "training/history.json",
+    "training/optimizer_summary.json",
+    "training/resolved_training_config.json",
+    "training/resource_usage.json",
+    "training/scheduler_summary.json"
+  ],
+  "artifact_sha256": {
+    "_engine_checkpoints/model/best.pt": "78360DDA9EFB2A925DA616047B25C2DC9852AF93436C9BD5C0988E6DF39F89BA",
+    "_engine_checkpoints/model/epoch_001.pt": "10A76A6D01B98A81519FD56FB25314C0D99096EEE7717B7AED703999CE93C1FF",
+    "_engine_checkpoints/model/epoch_002.pt": "78360DDA9EFB2A925DA616047B25C2DC9852AF93436C9BD5C0988E6DF39F89BA",
+    "_engine_checkpoints/model/epoch_003.pt": "D1195FE3E89EE6E85A02EEC76B9442F8BFC7C3C83531A49608C3EFDFDA19FB7E",
+    "_engine_checkpoints/model/load_reports/best.json": "955308FEAF53B3FDE241FCBA06656AE60C0539696C186D4772F6C7863AEB350C",
+    "_engine_checkpoints/model/run_state.json": "94A60F39C95BB4FFC6496A9B6A9AF12C3D46980982FC70645B657034414C47D8",
+    "_engine_checkpoints/model/thresholds.json": "7230BCABFBD07C070D256A34DF06BF5982F2EBA519C37A7DDFF720C05DB997FF",
+    "_engine_output/dev_predictions.jsonl": "36247B7B9E3BDEB333FCF9E43014F97DB9D06114F931431F51259A75474EDB6E",
+    "_engine_output/run_manifest.json": "29958F18CB58190358FC43A0C84B82FD1512D921F973039A1CD5ACAA8246911C",
+    "_engine_output/test_predictions.jsonl": "906F8ED68ACBC5D3E747F5847643D9DBAAB7F4C013BF244201F21E9A7988C8BE",
+    "_engine_output/thresholds.json": "7230BCABFBD07C070D256A34DF06BF5982F2EBA519C37A7DDFF720C05DB997FF",
+    "_engine_output/training_history.json": "9A0DF58DE790C381D7ED7EF91AB1B7D08D5E4CF688758E7D852E9D5420D41E89",
+    "checkpoints/best/model.pt": "78360DDA9EFB2A925DA616047B25C2DC9852AF93436C9BD5C0988E6DF39F89BA",
+    "checkpoints/checkpoint_manifest.json": "6D9C185D34485694154C508BB6FCCCCB0D525DA402DEB09DCA8CF228F0D62535",
+    "checkpoints/latest/model.pt": "D1195FE3E89EE6E85A02EEC76B9442F8BFC7C3C83531A49608C3EFDFDA19FB7E",
+    "config_snapshot.yaml": "11DDCDA88D2BF8D473E7524817C02CE3659D6C368C08BC0D947126D67ED05E06",
+    "environment.json": "D067A685EDCF53E59CFF79454592E07D20A44EE17FCC1995922CDE4F27229E90",
+    "metrics.json": "C85DA9EF4298243EE95F9B6DC9B6A23E05E6A94B29D4279A95536364346DEA82",
+    "metrics/dev_metrics.json": "A1C62E10660A689F060BF76EA67AC7FD145D6D1119EAA634651433BCAC6B9D1C",
+    "metrics/test_confidence_intervals.json": "927CB38E0C4D469C8D5C9AD746F2CD831EEDF4F95818CD9E76B39A4EFDCB3D17",
+    "metrics/test_metrics.json": "ECE27919AC30A23F1280B9E727A563A3BB84F0A76B8FC652F11EC3D0141F66CF",
+    "predictions/dev_predictions.jsonl": "36247B7B9E3BDEB333FCF9E43014F97DB9D06114F931431F51259A75474EDB6E",
+    "predictions/test_predictions.jsonl": "906F8ED68ACBC5D3E747F5847643D9DBAAB7F4C013BF244201F21E9A7988C8BE",
+    "preflight.json": "024F69405E91C0A34974FA9C140B7E0AD6E123D990865EF853F6441E1E708EF9",
+    "provenance.json": "ABB945C819EFB9340AE82B332B6F5420C56B62D68543177B24D07B88F17267CC",
+    "run_manifest.json": "9F321BB26CF61F01841BA34592281E1BCBE2A00219494D231E2CACC1F1F8FA21",
+    "selection/best_checkpoint.json": "74C71AF400659005FAA2D0B71EE932D39A04D8E5C290BD7D129E7B3B309705A2",
+    "selection/freeze_manifest.json": "9FF6B57CFC732E7162710875C16F5771B00594D7504FA097F5B42471A94726FF",
+    "selection/selection_metric.json": "016C412B6C42D505E7428ADCBEF53801B29D0161025682F13C7CC23E1715A33F",
+    "selection/thresholds.json": "7230BCABFBD07C070D256A34DF06BF5982F2EBA519C37A7DDFF720C05DB997FF",
+    "training/class_weights.json": "16029AB15792B28193E3D92211612D92F264AFA123E2113DE010BF4094DF3379",
+    "training/device_report.json": "9BCA8D8A2E2C149B6DD6ADA00F52170D88B5BD93952F0E0D3C05C5370506AD9A",
+    "training/history.csv": "BB9BD6FBFCA108F14975B9C5E8437DACF675101E84B982A8C5AC84B1214C1B7D",
+    "training/history.json": "9A0DF58DE790C381D7ED7EF91AB1B7D08D5E4CF688758E7D852E9D5420D41E89",
+    "training/optimizer_summary.json": "2B421A0414557C76D9C7BC29BCCD2D9027E72817114D2ADCE4C5837B92FF2ADE",
+    "training/resolved_training_config.json": "1834B28B9AF1D58291D305365CCF9360FC730A94B0AF3E5FEDA6F7632F732A14",
+    "training/resource_usage.json": "4930F1F79EAF05D0C595E0A7C314380B94790E88CFCBFB46EC05434A829FE43C",
+    "training/scheduler_summary.json": "63BACB88FCC8DEE23865D2EE0D6172B63BDE9A39203C878583B5E32BE7DE7E31"
+  },
+  "azure_cache_hits": "NOT_APPLICABLE",
+  "azure_cache_misses": "NOT_APPLICABLE",
+  "azure_failed_requests": "NOT_APPLICABLE",
+  "azure_input_tokens": "NOT_APPLICABLE",
+  "azure_invalid_output_rate": "NOT_APPLICABLE",
+  "azure_job_id": null,
+  "azure_output_tokens": "NOT_APPLICABLE",
+  "azure_request_count": "NOT_APPLICABLE",
+  "azure_retried_requests": "NOT_APPLICABLE",
+  "backbone": "vistral_7b",
+  "best_dev_loss": 1.4713345501804724,
+  "best_dev_metric": 0.8806204886309135,
+  "best_epoch": 2,
+  "bin_count": "NOT_APPLICABLE",
+  "blockers": [],
+  "budget": "NOT_APPLICABLE",
+  "changed_components": {
+    "baseline_system_id": "full_phobert",
+    "changed_components": {
+      "active_heads": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ]
+      },
+      "active_losses": {
+        "full": [
+          "pragmatic",
+          "polarity",
+          "emotion",
+          "rationale"
+        ],
+        "variant": [
+          "pragmatic_homoscedastic_uncertainty"
+        ]
+      },
+      "checkpoint_semantics": {
+        "full": "single_joint_checkpoint",
+        "variant": "distinct_six_task_checkpoint"
+      },
+      "rationale_training": {
+        "full": true,
+        "variant": false
+      },
+      "uncertainty_tasks": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ]
+      }
+    },
+    "status": "RESOLVED",
+    "variant_system_id": "vipragsent_no_auxiliary_vistral"
+  },
+  "checkpoint_path": "checkpoints/best/model.pt",
+  "checkpoint_sha256": "78360DDA9EFB2A925DA616047B25C2DC9852AF93436C9BD5C0988E6DF39F89BA",
+  "class_weights": {
+    "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+    "content_hash": "ABFD6EFB19B89BE4A4FD4B0D7183C4CDBAAE3AF14FD3C291E07DD431DF0B9FB0",
+    "counts": {
+      "emotion": {
+        "anger": 251,
+        "disgust": 708,
+        "enjoyment": 2037,
+        "fear": 227,
+        "other": 3687,
+        "sadness": 709,
+        "surprise": 379
+      },
+      "polarity": {
+        "negative": 1301,
+        "neutral": 4934,
+        "positive": 1763
+      },
+      "pragmatic": {
+        "code_switching": {
+          "negative": 6792,
+          "positive": 1206
+        },
+        "idiom_figurative": {
+          "negative": 7435,
+          "positive": 563
+        },
+        "implicit_sentiment": {
+          "negative": 6320,
+          "positive": 1678
+        },
+        "irony": {
+          "negative": 7444,
+          "positive": 554
+        },
+        "mocking": {
+          "negative": 7066,
+          "positive": 932
+        },
+        "sarcasm": {
+          "negative": 7453,
+          "positive": 545
+        }
+      }
+    },
+    "dataset_hash": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+    "emotion_weight": {
+      "anger": 4.552077404667046,
+      "disgust": 1.6138014527845037,
+      "enjoyment": 0.5609088996423311,
+      "fear": 5.033354310887351,
+      "other": 0.3098918981750552,
+      "sadness": 1.611525287124723,
+      "surprise": 3.0147003392385976
+    },
+    "polarity_weight": {
+      "negative": 2.0491929285165256,
+      "neutral": 0.5403323875152006,
+      "positive": 1.5121951219512195
+    },
+    "pragmatic_pos_weight": {
+      "code_switching": 5.6318407960199,
+      "idiom_figurative": 13.206039076376554,
+      "implicit_sentiment": 3.766388557806913,
+      "irony": 13.436823104693142,
+      "mocking": 7.581545064377682,
+      "sarcasm": 13.675229357798164
+    },
+    "source_split": "train"
+  },
+  "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+  "configuration_hash": "11DDCDA88D2BF8D473E7524817C02CE3659D6C368C08BC0D947126D67ED05E06",
+  "dataset_fingerprint": "A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA285F718478532AF0D",
+  "direct_classification_outputs_used": true,
+  "display_name": "ViPragSent - no auxiliary losses",
+  "early_stopping_reason": "maximum_epochs_reached",
+  "effective_batch_size": 16,
+  "end_time": "2026-08-07T08:15:41Z",
+  "execution_kind": "trainable",
+  "execution_mode": "production_sequential_review_gated",
+  "experiment_id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+  "failed_or_retried_gpu_hours": 0.0,
+  "frozen_thresholds": {
+    "code_switching": 0.9,
+    "idiom_figurative": 0.77,
+    "implicit_sentiment": 0.26,
+    "irony": 0.65,
+    "mocking": 0.4,
+    "sarcasm": 0.78
+  },
+  "gradient_accumulation_steps": 8,
+  "inference_output_source": "classification_heads",
+  "learning_rate": 0.0001,
+  "macro_pragmatic_ece": "NOT_APPLICABLE",
+  "macro_pragmatic_f1": 0.8688178080952236,
+  "maximum_epochs": 3,
+  "model_repository": "Viet-Mistral/Vistral-7B-Chat",
+  "model_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+  "native_causal_lm_generation_used": false,
+  "next_run_allowed": "NO",
+  "optimizer": "paged_adamw_8bit",
+  "peak_vram_gb": 4.459116458892822,
+  "per_label_dev_metrics": {
+    "code_switching": 0.942975604957702,
+    "idiom_figurative": 0.8917536938191383,
+    "implicit_sentiment": 0.8987756444730282,
+    "irony": 0.9740933365633171,
+    "mocking": 0.8345708575805331,
+    "sarcasm": 0.7415537943917623
+  },
+  "per_label_pragmatic_ece": "NOT_APPLICABLE",
+  "per_label_test_metrics": {
+    "code_switching": 0.917084446457787,
+    "idiom_figurative": 0.895820126568718,
+    "implicit_sentiment": 0.8786826396318967,
+    "irony": 0.9701087741707926,
+    "mocking": 0.8099581908019764,
+    "sarcasm": 0.741252670940171
+  },
+  "physical_batch_size": 2,
+  "precision": "bf16",
+  "prediction_hashes": {
+    "predictions/dev_predictions.jsonl": "36247B7B9E3BDEB333FCF9E43014F97DB9D06114F931431F51259A75474EDB6E",
+    "predictions/test_predictions.jsonl": "906F8ED68ACBC5D3E747F5847643D9DBAAB7F4C013BF244201F21E9A7988C8BE"
+  },
+  "preprocessing_name": "vncorenlp_rdrsegmenter",
+  "preprocessing_version": "locked-v1",
+  "primary_dev_selection_metric": "dev_macro_pragmatic_f1",
+  "probability_aggregation": "NOT_APPLICABLE",
+  "provenance_contract_version": 1,
+  "q3_budget_data": "NOT_APPLICABLE",
+  "rationale_applicability": {
+    "inference": false,
+    "training": false
+  },
+  "rationale_decoder_enabled_at_inference": false,
+  "research_question": "Q1a",
+  "run_id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+  "run_status": "PASS",
+  "same_seed_source": false,
+  "sarcasm_dev_f1": "NOT_APPLICABLE",
+  "sarcasm_test_f1": "NOT_APPLICABLE",
+  "scheduler": "cosine",
+  "seed": 20260521,
+  "source_checkpoint_id": "NOT_APPLICABLE",
+  "source_prediction_hash": "NOT_APPLICABLE",
+  "source_system_id": "NOT_APPLICABLE",
+  "split_hashes": {
+    "dev": "36247B7B9E3BDEB333FCF9E43014F97DB9D06114F931431F51259A75474EDB6E",
+    "test": "906F8ED68ACBC5D3E747F5847643D9DBAAB7F4C013BF244201F21E9A7988C8BE"
+  },
+  "start_time": "2026-08-07T06:50:01Z",
+  "successful_gpu_hours": 1.2824947788566836,
+  "summary_hash_input": "DF04913549FDE7F6950966580229EB3E5B904935C0AB6812096712185290B93A",
+  "system_id": "vipragsent_no_auxiliary_vistral",
+  "temperature_scaling": false,
+  "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
+  "user_review_status": "PENDING",
+  "validation_status": "PASS",
+  "variant": "no_auxiliary",
+  "wall_clock_seconds": 0.0,
+  "warmup_ratio": 0.05,
+  "warnings": [],
+  "weight_decay": 0.01
+}

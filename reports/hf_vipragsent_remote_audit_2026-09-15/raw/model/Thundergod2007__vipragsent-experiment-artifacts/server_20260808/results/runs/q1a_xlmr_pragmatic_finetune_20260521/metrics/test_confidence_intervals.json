@@ -1,0 +1,57 @@
+{
+  "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+  "config_hash": "5E38C21CFEC7C3D6B08BBADCD82DA3BB6622CF0B13AD7B46A09171E9DD0EAF66",
+  "interval_count": 7,
+  "labels": {
+    "code_switching": {
+      "estimate": 0.9431662469156852,
+      "high": 0.9569464433827555,
+      "low": 0.9290001147244595
+    },
+    "idiom_figurative": {
+      "estimate": 0.9351439613305408,
+      "high": 0.9571814111215423,
+      "low": 0.9127285229654799
+    },
+    "implicit_sentiment": {
+      "estimate": 0.9201465753971598,
+      "high": 0.9344709237289548,
+      "low": 0.9055568529006712
+    },
+    "irony": {
+      "estimate": 0.9786671010820628,
+      "high": 0.9901078233057947,
+      "low": 0.9645379719552876
+    },
+    "mocking": {
+      "estimate": 0.9227694625551417,
+      "high": 0.9403861215994833,
+      "low": 0.9025662196233327
+    },
+    "sarcasm": {
+      "estimate": 0.8861930093138173,
+      "high": 0.9120279711259949,
+      "low": 0.8593646661070021
+    }
+  },
+  "macro": {
+    "estimate": 0.9310143927657345,
+    "high": 0.939504304183581,
+    "low": 0.9218908530109969
+  },
+  "method": {
+    "azure_fixed_prediction_behavior": "test-example resampling only",
+    "bootstrap_seed": 20260525,
+    "confidence_level": 0.95,
+    "cross_seed_behavior": "hierarchical resampling; estimate and interval computed jointly, bounds are not averaged",
+    "method_id": "paired_hierarchical_bootstrap_sign_plus_one_v1",
+    "prediction_source": "effective_full_split_all_zero_fallback_when_present_else_predictions",
+    "resamples": 1000,
+    "resampling_unit": "seed_then_test_example",
+    "valid_only_usage": "diagnostic_only"
+  },
+  "prediction_hash": "86B78C698E79EFBE1274644A1CA82BD2CFD3EE4EC43E677C3A2258170092921C",
+  "result_hash": "78128900F731B85DD9969E3E3BEA0556483708953A8CC25F7C864886FF73A82D",
+  "seed_count": 1,
+  "status": "PASS"
+}

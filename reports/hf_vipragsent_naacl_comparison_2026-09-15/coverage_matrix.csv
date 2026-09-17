@@ -1,0 +1,42 @@
+question,system,scope,backbone,requested_seed_count,found_seed_count,found_seeds,status,note
+Q1a,PhoBERT (single-task),baseline,PhoBERT-base,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files
+Q1a,PhoBERT (fine-tune),baseline,PhoBERT-base,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files
+Q1a,XLM-R-large (baseline),baseline,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files
+Q1a,Sailor-7B SFT,baseline,Sailor-7B,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files
+Q1a,Vistral-7B SFT,baseline,Vistral-7B,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files
+Q1a,ViPragSent (XLM-R-large),primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files
+Q1a,ViPragSent full (Vistral),excluded_non_xlmr_vipragsent,Vistral-7B,3,3,"21,22,23",COMPLETE_SEEDS,Excluded by the XLM-R-large ViPragSent scope
+Q1a,ViPragSent-CoT-only (Vistral),excluded_non_xlmr_vipragsent,Vistral-7B,3,2,"21,23",PARTIAL,Excluded by the XLM-R-large ViPragSent scope
+Q1a,ViPragSent-explanation-only (Vistral),excluded_non_xlmr_vipragsent,Vistral-7B,3,3,"21,22,23",COMPLETE_SEEDS,Excluded by the XLM-R-large ViPragSent scope
+Q1a,ViPragSent-no-aux (Vistral),excluded_non_xlmr_vipragsent,Vistral-7B,3,3,"21,22,23",COMPLETE_SEEDS,Excluded by the XLM-R-large ViPragSent scope
+Q1a,GPT-4.1-mini zero-shot,missing_or_incomplete,GPT-4.1-mini,1,0,,MISSING,HF status is NOT_STARTED rather than a completed comparable test metric pack.
+Q1a,GPT-4.1-mini 8-shot,missing_or_incomplete,GPT-4.1-mini,1,0,,MISSING,HF status is NOT_STARTED rather than a completed comparable test metric pack.
+Q2,ViPragSent XLM-R: Full,primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; six ablation variants
+Q2,ViPragSent XLM-R: − emotion auxiliary,primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; six ablation variants
+Q2,ViPragSent XLM-R: − explanation/CoT auxiliary,primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; six ablation variants
+Q2,ViPragSent XLM-R: − multi-task bundle,primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; six ablation variants
+Q2,ViPragSent XLM-R: − polarity auxiliary,primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; six ablation variants
+Q2,ViPragSent XLM-R: − task-uncertainty weighting,primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; six ablation variants
+Q3,PhoBERT (fine-tune) [32],baseline,fine-tune,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,PhoBERT (fine-tune) [64],baseline,fine-tune,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,PhoBERT (fine-tune) [128],baseline,fine-tune,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,PhoBERT (fine-tune) [256],baseline,fine-tune,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,PhoBERT (fine-tune) [512],baseline,fine-tune,3,0,,MISSING,HF test metric files; incomplete budgets remain visible
+Q3,PhoBERT (fine-tune) [full],baseline,fine-tune,3,0,,MISSING,HF test metric files; incomplete budgets remain visible
+Q3,Vistral-7B SFT [32],baseline,Vistral-7B SFT,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,Vistral-7B SFT [64],baseline,Vistral-7B SFT,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,Vistral-7B SFT [128],baseline,Vistral-7B SFT,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,Vistral-7B SFT [256],baseline,Vistral-7B SFT,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,Vistral-7B SFT [512],baseline,Vistral-7B SFT,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,Vistral-7B SFT [full],baseline,Vistral-7B SFT,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,ViPragSent (XLM-R-large) [32],primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,ViPragSent (XLM-R-large) [64],primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,ViPragSent (XLM-R-large) [128],primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,ViPragSent (XLM-R-large) [256],primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,ViPragSent (XLM-R-large) [512],primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q3,ViPragSent (XLM-R-large) [full],primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,HF test metric files; incomplete budgets remain visible
+Q4,ViPragSent (XLM-R-large),primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,Dedicated calibration JSON
+Q4,Vistral-7B SFT,baseline,Vistral-7B,3,3,"21,22,23",COMPLETE_SEEDS,Dedicated calibration JSON
+Q1b,Sailor-7B SFT,baseline,Sailor-7B SFT,3,3,"21,22,23",COMPLETE_SEEDS,External retention metrics
+Q1b,ViPragSent (XLM-R-large),primary,XLM-R-large,3,3,"21,22,23",COMPLETE_SEEDS,External retention metrics
+Q1b,Vistral-7B SFT,baseline,Vistral-7B SFT,3,3,"21,22,23",COMPLETE_SEEDS,External retention metrics
