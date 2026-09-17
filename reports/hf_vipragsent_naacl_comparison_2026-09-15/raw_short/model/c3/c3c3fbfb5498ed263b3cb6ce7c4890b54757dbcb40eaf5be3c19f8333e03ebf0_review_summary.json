@@ -1,0 +1,339 @@
+{
+  "NEXT_RUN_ALLOWED": "NO",
+  "RUN_STATUS": "PASS",
+  "USER_REVIEW_STATUS": "PENDING",
+  "actual_epochs": 10,
+  "additional_training": true,
+  "applicability": {},
+  "artifact_paths": [
+    "_engine_checkpoints/model/best.pt",
+    "_engine_checkpoints/model/epoch_001.pt",
+    "_engine_checkpoints/model/epoch_002.pt",
+    "_engine_checkpoints/model/epoch_003.pt",
+    "_engine_checkpoints/model/epoch_004.pt",
+    "_engine_checkpoints/model/epoch_005.pt",
+    "_engine_checkpoints/model/epoch_006.pt",
+    "_engine_checkpoints/model/epoch_007.pt",
+    "_engine_checkpoints/model/epoch_008.pt",
+    "_engine_checkpoints/model/epoch_009.pt",
+    "_engine_checkpoints/model/epoch_010.pt",
+    "_engine_checkpoints/model/load_reports/best.json",
+    "_engine_checkpoints/model/run_state.json",
+    "_engine_checkpoints/model/thresholds.json",
+    "_engine_output/dev_predictions.jsonl",
+    "_engine_output/run_manifest.json",
+    "_engine_output/test_predictions.jsonl",
+    "_engine_output/thresholds.json",
+    "_engine_output/training_history.json",
+    "checkpoints/best/model.pt",
+    "checkpoints/checkpoint_manifest.json",
+    "checkpoints/latest/model.pt",
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "metrics/dev_metrics.json",
+    "metrics/test_confidence_intervals.json",
+    "metrics/test_metrics.json",
+    "predictions/dev_predictions.jsonl",
+    "predictions/test_predictions.jsonl",
+    "preflight.json",
+    "provenance.json",
+    "run_manifest.json",
+    "selection/best_checkpoint.json",
+    "selection/freeze_manifest.json",
+    "selection/selection_metric.json",
+    "selection/thresholds.json",
+    "training/class_weights.json",
+    "training/device_report.json",
+    "training/history.csv",
+    "training/history.json",
+    "training/optimizer_summary.json",
+    "training/resolved_training_config.json",
+    "training/resource_usage.json",
+    "training/scheduler_summary.json"
+  ],
+  "artifact_sha256": {
+    "_engine_checkpoints/model/best.pt": "3267CC2799FE2BCE1ADEC8632DA0A2AE3F1426CC0FF2A0102F203232AF53D39A",
+    "_engine_checkpoints/model/epoch_001.pt": "44D6649E158695E726B698DE6BCB8AD734D682BE727E77CE0F9A9A4C031E1847",
+    "_engine_checkpoints/model/epoch_002.pt": "7300EC10D52058E4F940019D07F69C665287CAE58D653ED88B0E389A11B5B634",
+    "_engine_checkpoints/model/epoch_003.pt": "F71298509030FBF323585FDEAAE13FA9DB2E6999C5219CCF440DCE8A694C621A",
+    "_engine_checkpoints/model/epoch_004.pt": "F09385599EB0B430A5B6D197061FBF2C8C317B1DFCF0A3C4F6541BD9227A6A81",
+    "_engine_checkpoints/model/epoch_005.pt": "7564FBC62B01AE866D35B4EAE39E389A9C088BEB6CA60F81BA1BE770E7A9293C",
+    "_engine_checkpoints/model/epoch_006.pt": "726801C80031261ADFE4FAD9DF7D047604B1C9AE46FFD821FA09607DB9EF0B33",
+    "_engine_checkpoints/model/epoch_007.pt": "121A8FCFCC4B71D4356A6AD151CDD67BDD40889259E50A36CB32E132975E9B5E",
+    "_engine_checkpoints/model/epoch_008.pt": "A76BFDDECBA1EA2DAA22B12D80A8055C812C9FA18DF4A849A99AA22DB61744D4",
+    "_engine_checkpoints/model/epoch_009.pt": "888BCC6BAB9734A9235D6077FDCDDF0D336D18A81BC1CCA18A8EC863CEAC0A89",
+    "_engine_checkpoints/model/epoch_010.pt": "3267CC2799FE2BCE1ADEC8632DA0A2AE3F1426CC0FF2A0102F203232AF53D39A",
+    "_engine_checkpoints/model/load_reports/best.json": "12012E5A29398DEB6A01AC1C3394C3410CE3B6262F0CA574B8D9A51AA29C7B4D",
+    "_engine_checkpoints/model/run_state.json": "9A7BCF66DBFF466D0D7AE975AC786A9635581A4322E9831160F0EF75316E913A",
+    "_engine_checkpoints/model/thresholds.json": "4583E6833C11E34922CA37DEF9579CD73766D7E580B625C3D72B27AC3EA53421",
+    "_engine_output/dev_predictions.jsonl": "BF8F67E6A4363905D066355397393167D6B57D4DE570EA8731AD32557BF5C43F",
+    "_engine_output/run_manifest.json": "C26D395E3E3C92BA7435C0E087098287B2621B7D1BF3DBB8BB51809C9CC17BD0",
+    "_engine_output/test_predictions.jsonl": "FF6F855C82CD3759DB93FF43ACDED59658752C9702EA0808B51641A69FBF0DC1",
+    "_engine_output/thresholds.json": "4583E6833C11E34922CA37DEF9579CD73766D7E580B625C3D72B27AC3EA53421",
+    "_engine_output/training_history.json": "0B1633A7140F339BA37363301E3AAA5ABC44705ADC8DCE886B6597CA38ECB74B",
+    "checkpoints/best/model.pt": "3267CC2799FE2BCE1ADEC8632DA0A2AE3F1426CC0FF2A0102F203232AF53D39A",
+    "checkpoints/checkpoint_manifest.json": "C12AD4839B5DE3F74D089EDEF31048FFD344B08CA2BBB6CE1AA041790BD9A409",
+    "checkpoints/latest/model.pt": "3267CC2799FE2BCE1ADEC8632DA0A2AE3F1426CC0FF2A0102F203232AF53D39A",
+    "config_snapshot.yaml": "99CF83BC25A6854E2B02C0075CB12193B542622F658305C434DC4BB85BACDFE6",
+    "environment.json": "D067A685EDCF53E59CFF79454592E07D20A44EE17FCC1995922CDE4F27229E90",
+    "metrics.json": "FA70770EF81925AA5531D294DE89234F0AC76051A7AA9BD0A8C3689ADBFA4A7F",
+    "metrics/dev_metrics.json": "BD244E08A483D0EBF1DC86952D8A46E7E9B70C05346D7F3111C9C25FCE585A59",
+    "metrics/test_confidence_intervals.json": "6726B2211D2E5EEBF10B6B8A5BFAD71D465BA0BA6694791F303B469B7D256285",
+    "metrics/test_metrics.json": "C386A91314D61EA10BD1D5CBE73B7DD09586FA799E56E56F85CE8A125DF952A4",
+    "predictions/dev_predictions.jsonl": "BF8F67E6A4363905D066355397393167D6B57D4DE570EA8731AD32557BF5C43F",
+    "predictions/test_predictions.jsonl": "FF6F855C82CD3759DB93FF43ACDED59658752C9702EA0808B51641A69FBF0DC1",
+    "preflight.json": "DC9E7E5C7578FB2C0ADF63D95B2646CC4D37666372188C6DCFE7E91F70E93369",
+    "provenance.json": "F922BBD0A3932BD93D1E679C007B3ACC997A26A594ED1B8ADBD3E6F89883EAA7",
+    "run_manifest.json": "3DCF1E33E791EFB9337B4B615537FC47056DA75EE6928E22A58877FA7B7D2EC9",
+    "selection/best_checkpoint.json": "29B32852D29C4C2C4918D1BA67CFE2E9EFB1704E9822CBA32B845D700480F172",
+    "selection/freeze_manifest.json": "942F1830817CADDE92A51CC9F383B1FFA47A1F08600D629A2F6AD24EA2E8F530",
+    "selection/selection_metric.json": "3FB67EDDCC230419550EAA3B8EDA218A3CF3F95D299EC089DB56FA0B92965CA3",
+    "selection/thresholds.json": "4583E6833C11E34922CA37DEF9579CD73766D7E580B625C3D72B27AC3EA53421",
+    "training/class_weights.json": "16029AB15792B28193E3D92211612D92F264AFA123E2113DE010BF4094DF3379",
+    "training/device_report.json": "61F50436CDAE4FDDF9C64BD3B954C3D06DFE650B53EC80DC29F3740920A33FD8",
+    "training/history.csv": "3789EF26AD06712087AC185C13C2DFA091A5778C425AFE5D930B5D1E33CA7A5F",
+    "training/history.json": "0B1633A7140F339BA37363301E3AAA5ABC44705ADC8DCE886B6597CA38ECB74B",
+    "training/optimizer_summary.json": "93821266B9D5DE3B16BBED2FBBD59E068B3F3CDC34AB2B97B3DD489E138C9620",
+    "training/resolved_training_config.json": "957C5B0E1F4382E5C0B77BD6076D87397C6DC2AF5A05321F3F9C30854EE2478D",
+    "training/resource_usage.json": "C023D28C804E62E8FC0EB54245A4BDCD6F5A36FADA74843F623804A3B8DB0C3A",
+    "training/scheduler_summary.json": "ACDE24A96AFC6C57730B2FD133D057A8BA21BF9CA556BEB34B9D9D07B2CC4082"
+  },
+  "azure_cache_hits": "NOT_APPLICABLE",
+  "azure_cache_misses": "NOT_APPLICABLE",
+  "azure_failed_requests": "NOT_APPLICABLE",
+  "azure_input_tokens": "NOT_APPLICABLE",
+  "azure_invalid_output_rate": "NOT_APPLICABLE",
+  "azure_job_id": null,
+  "azure_output_tokens": "NOT_APPLICABLE",
+  "azure_request_count": "NOT_APPLICABLE",
+  "azure_retried_requests": "NOT_APPLICABLE",
+  "backbone": "phobert_base",
+  "best_dev_loss": 3.666183903103783,
+  "best_dev_metric": 0.8654480912065551,
+  "best_epoch": 10,
+  "bin_count": "NOT_APPLICABLE",
+  "blockers": [],
+  "budget": "NOT_APPLICABLE",
+  "changed_components": {
+    "baseline_system_id": "full_phobert",
+    "changed_components": {
+      "active_heads": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ]
+      },
+      "active_losses": {
+        "full": [
+          "pragmatic",
+          "polarity",
+          "emotion",
+          "rationale"
+        ],
+        "variant": [
+          "pragmatic"
+        ]
+      },
+      "rationale_training": {
+        "full": true,
+        "variant": false
+      },
+      "uncertainty_tasks": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": []
+      }
+    },
+    "status": "RESOLVED",
+    "variant_system_id": "phobert_pragmatic_finetune"
+  },
+  "checkpoint_path": "checkpoints/best/model.pt",
+  "checkpoint_sha256": "3267CC2799FE2BCE1ADEC8632DA0A2AE3F1426CC0FF2A0102F203232AF53D39A",
+  "class_weights": {
+    "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+    "content_hash": "ABFD6EFB19B89BE4A4FD4B0D7183C4CDBAAE3AF14FD3C291E07DD431DF0B9FB0",
+    "counts": {
+      "emotion": {
+        "anger": 251,
+        "disgust": 708,
+        "enjoyment": 2037,
+        "fear": 227,
+        "other": 3687,
+        "sadness": 709,
+        "surprise": 379
+      },
+      "polarity": {
+        "negative": 1301,
+        "neutral": 4934,
+        "positive": 1763
+      },
+      "pragmatic": {
+        "code_switching": {
+          "negative": 6792,
+          "positive": 1206
+        },
+        "idiom_figurative": {
+          "negative": 7435,
+          "positive": 563
+        },
+        "implicit_sentiment": {
+          "negative": 6320,
+          "positive": 1678
+        },
+        "irony": {
+          "negative": 7444,
+          "positive": 554
+        },
+        "mocking": {
+          "negative": 7066,
+          "positive": 932
+        },
+        "sarcasm": {
+          "negative": 7453,
+          "positive": 545
+        }
+      }
+    },
+    "dataset_hash": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+    "emotion_weight": {
+      "anger": 4.552077404667046,
+      "disgust": 1.6138014527845037,
+      "enjoyment": 0.5609088996423311,
+      "fear": 5.033354310887351,
+      "other": 0.3098918981750552,
+      "sadness": 1.611525287124723,
+      "surprise": 3.0147003392385976
+    },
+    "polarity_weight": {
+      "negative": 2.0491929285165256,
+      "neutral": 0.5403323875152006,
+      "positive": 1.5121951219512195
+    },
+    "pragmatic_pos_weight": {
+      "code_switching": 5.6318407960199,
+      "idiom_figurative": 13.206039076376554,
+      "implicit_sentiment": 3.766388557806913,
+      "irony": 13.436823104693142,
+      "mocking": 7.581545064377682,
+      "sarcasm": 13.675229357798164
+    },
+    "source_split": "train"
+  },
+  "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+  "configuration_hash": "99CF83BC25A6854E2B02C0075CB12193B542622F658305C434DC4BB85BACDFE6",
+  "dataset_fingerprint": "A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA285F718478532AF0D",
+  "direct_classification_outputs_used": true,
+  "display_name": "PhoBERT pragmatic fine-tune",
+  "early_stopping_reason": "maximum_epochs_reached",
+  "effective_batch_size": 32,
+  "end_time": "2026-08-06T18:02:03Z",
+  "execution_kind": "trainable",
+  "execution_mode": "production_sequential_review_gated",
+  "experiment_id": "q1a_phobert_pragmatic_finetune_20260523",
+  "failed_or_retried_gpu_hours": 0.0,
+  "frozen_thresholds": {
+    "code_switching": 0.87,
+    "idiom_figurative": 0.72,
+    "implicit_sentiment": 0.78,
+    "irony": 0.89,
+    "mocking": 0.73,
+    "sarcasm": 0.88
+  },
+  "gradient_accumulation_steps": 1,
+  "inference_output_source": "classification_heads",
+  "learning_rate": 2e-05,
+  "macro_pragmatic_ece": "NOT_APPLICABLE",
+  "macro_pragmatic_f1": 0.8548862773812139,
+  "maximum_epochs": 10,
+  "model_repository": "vinai/phobert-base",
+  "model_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
+  "native_causal_lm_generation_used": false,
+  "next_run_allowed": "NO",
+  "optimizer": "AdamW",
+  "peak_vram_gb": 3.3344454765319824,
+  "per_label_dev_metrics": {
+    "code_switching": 0.9331872266468038,
+    "idiom_figurative": 0.8590427032210752,
+    "implicit_sentiment": 0.8916756229509677,
+    "irony": 0.9801402797647433,
+    "mocking": 0.8005391901228803,
+    "sarcasm": 0.7281035245328603
+  },
+  "per_label_pragmatic_ece": "NOT_APPLICABLE",
+  "per_label_test_metrics": {
+    "code_switching": 0.9168593475178932,
+    "idiom_figurative": 0.8594837114903732,
+    "implicit_sentiment": 0.858658760437329,
+    "irony": 0.9727579819112999,
+    "mocking": 0.7897982062780269,
+    "sarcasm": 0.7317596566523605
+  },
+  "physical_batch_size": 32,
+  "precision": "bf16",
+  "prediction_hashes": {
+    "predictions/dev_predictions.jsonl": "BF8F67E6A4363905D066355397393167D6B57D4DE570EA8731AD32557BF5C43F",
+    "predictions/test_predictions.jsonl": "FF6F855C82CD3759DB93FF43ACDED59658752C9702EA0808B51641A69FBF0DC1"
+  },
+  "preprocessing_name": "vncorenlp_rdrsegmenter",
+  "preprocessing_version": "locked-v1",
+  "primary_dev_selection_metric": "dev_macro_pragmatic_f1",
+  "probability_aggregation": "NOT_APPLICABLE",
+  "provenance_contract_version": 1,
+  "q3_budget_data": "NOT_APPLICABLE",
+  "rationale_applicability": {
+    "inference": false,
+    "training": false
+  },
+  "rationale_decoder_enabled_at_inference": false,
+  "research_question": "Q1a",
+  "run_id": "q1a_phobert_pragmatic_finetune_20260523",
+  "run_status": "PASS",
+  "same_seed_source": false,
+  "sarcasm_dev_f1": "NOT_APPLICABLE",
+  "sarcasm_test_f1": "NOT_APPLICABLE",
+  "scheduler": "linear",
+  "seed": 20260523,
+  "source_checkpoint_id": "NOT_APPLICABLE",
+  "source_prediction_hash": "NOT_APPLICABLE",
+  "source_system_id": "NOT_APPLICABLE",
+  "split_hashes": {
+    "dev": "BF8F67E6A4363905D066355397393167D6B57D4DE570EA8731AD32557BF5C43F",
+    "test": "FF6F855C82CD3759DB93FF43ACDED59658752C9702EA0808B51641A69FBF0DC1"
+  },
+  "start_time": "2026-08-06T17:54:45Z",
+  "successful_gpu_hours": 0.04445698780859756,
+  "summary_hash_input": "D711AE202EB93F3732846A18708D244827D8DF2386E9FA580B12B70DEC8A19BD",
+  "system_id": "phobert_pragmatic_finetune",
+  "temperature_scaling": false,
+  "tokenizer_revision": "01daacda68afe13d83023d16ec647239e344a1e6",
+  "user_review_status": "PENDING",
+  "validation_status": "PASS",
+  "variant": "pragmatic_finetune",
+  "wall_clock_seconds": 0.0,
+  "warmup_ratio": 0.1,
+  "warnings": [],
+  "weight_decay": 0.01
+}

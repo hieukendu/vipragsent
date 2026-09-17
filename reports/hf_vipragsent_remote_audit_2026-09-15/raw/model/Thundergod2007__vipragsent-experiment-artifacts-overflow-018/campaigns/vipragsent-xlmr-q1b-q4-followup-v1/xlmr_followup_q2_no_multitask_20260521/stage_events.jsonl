@@ -1,0 +1,42 @@
+{"event": "run_initialized", "fixture": false, "run_status": "NOT_STARTED", "timestamp": "2026-09-13T10:32:12Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-13T10:32:12Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-09-13T10:32:12Z"}
+{"event": "stage_started", "stage": "execute_components", "timestamp": "2026-09-13T10:32:12Z"}
+{"event": "stage_completed", "stage": "execute_components", "status": "PASS", "timestamp": "2026-09-13T12:48:16Z"}
+{"event": "stage_started", "stage": "combine_component_predictions", "timestamp": "2026-09-13T12:48:16Z"}
+{"event": "stage_completed", "stage": "combine_component_predictions", "status": "PASS", "timestamp": "2026-09-13T12:48:16Z"}
+{"event": "stage_started", "stage": "evaluate_dev", "timestamp": "2026-09-13T12:48:16Z"}
+{"event": "stage_completed", "stage": "evaluate_dev", "status": "FAIL", "timestamp": "2026-09-13T12:48:16Z"}
+{"current_code_commit": "319b11985696896d54a335fc31c5626e13e937fd", "current_code_tree": "4b9c9335892ea2db175565d13732ba780a1b027a", "current_source_fingerprint": "5c8ed1649d6a26b033297a3e540894782c31bc81e767386e411b51d0dd61ab58", "event": "preflight_invalidated", "reason": "code commit or tree changed", "recorded_code_commit": "bc48618827da8833785f7cdca5acf6a96957ebf8", "recorded_code_tree": "a59f266ad517cd7f0249812834338a704566f185", "recorded_source_fingerprint": "4f0d74ed6738b80792ba643d553418ed3c277d05502ed4a09c27386249acd020", "timestamp": "2026-09-13T12:48:25Z"}
+{"event": "run_retry_prepared", "previous_statuses": {"evaluate_dev": "FAIL", "evaluate_test": "NOT_STARTED", "export_artifacts": "NOT_STARTED", "freeze_component_selection": "NOT_STARTED", "generate_review_summary": "NOT_STARTED", "validate_artifacts": "NOT_STARTED"}, "start_stage": "evaluate_dev", "timestamp": "2026-09-13T12:48:25Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-13T12:48:25Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-09-13T12:52:59Z"}
+{"event": "stage_started", "stage": "evaluate_dev", "timestamp": "2026-09-13T12:52:59Z"}
+{"event": "stage_completed", "stage": "evaluate_dev", "status": "FAIL", "timestamp": "2026-09-13T12:52:59Z"}
+{"event": "run_retry_prepared", "previous_statuses": {"evaluate_dev": "FAIL", "evaluate_test": "NOT_STARTED", "export_artifacts": "NOT_STARTED", "freeze_component_selection": "NOT_STARTED", "generate_review_summary": "NOT_STARTED", "validate_artifacts": "NOT_STARTED"}, "start_stage": "evaluate_dev", "timestamp": "2026-09-13T12:53:07Z"}
+{"event": "stage_started", "stage": "evaluate_dev", "timestamp": "2026-09-13T12:53:07Z"}
+{"event": "stage_completed", "stage": "evaluate_dev", "status": "FAIL", "timestamp": "2026-09-13T12:53:07Z"}
+{"current_code_commit": "319b11985696896d54a335fc31c5626e13e937fd", "current_code_tree": "4b9c9335892ea2db175565d13732ba780a1b027a", "current_source_fingerprint": "56aa848dc751f4daa8028f0e19ded4ba7bfa168c37f6910e3221d9f4071514ce", "event": "preflight_invalidated", "reason": "code commit or tree changed", "recorded_code_commit": "319b11985696896d54a335fc31c5626e13e937fd", "recorded_code_tree": "4b9c9335892ea2db175565d13732ba780a1b027a", "recorded_source_fingerprint": "5c8ed1649d6a26b033297a3e540894782c31bc81e767386e411b51d0dd61ab58", "timestamp": "2026-09-13T12:59:54Z"}
+{"event": "run_retry_prepared", "previous_statuses": {"evaluate_dev": "FAIL", "evaluate_test": "NOT_STARTED", "export_artifacts": "NOT_STARTED", "freeze_component_selection": "NOT_STARTED", "generate_review_summary": "NOT_STARTED", "validate_artifacts": "NOT_STARTED"}, "start_stage": "evaluate_dev", "timestamp": "2026-09-13T12:59:54Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-13T12:59:54Z"}
+{"event": "stale_run_recovered", "run_id": "xlmr_followup_q2_no_multitask_20260521", "timestamp": "2026-09-13T13:01:45Z"}
+{"event": "run_retry_prepared", "previous_statuses": {"combine_component_predictions": "PASS", "evaluate_dev": "NOT_STARTED", "evaluate_test": "NOT_STARTED", "execute_components": "PASS", "export_artifacts": "NOT_STARTED", "freeze_component_selection": "NOT_STARTED", "generate_review_summary": "NOT_STARTED", "preflight": "RUNNING_STALE", "validate_artifacts": "NOT_STARTED"}, "start_stage": "preflight", "timestamp": "2026-09-13T13:01:45Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-13T13:01:45Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-09-13T13:06:47Z"}
+{"event": "stage_started", "stage": "execute_components", "timestamp": "2026-09-13T13:06:47Z"}
+{"event": "stage_completed", "stage": "execute_components", "status": "PASS", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_started", "stage": "combine_component_predictions", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_completed", "stage": "combine_component_predictions", "status": "PASS", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_started", "stage": "evaluate_dev", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_completed", "stage": "evaluate_dev", "status": "PASS", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_started", "stage": "freeze_component_selection", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_completed", "stage": "freeze_component_selection", "status": "PASS", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_started", "stage": "evaluate_test", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_completed", "stage": "evaluate_test", "status": "PASS", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_started", "stage": "export_artifacts", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_completed", "stage": "export_artifacts", "status": "PASS", "timestamp": "2026-09-13T13:10:04Z"}
+{"event": "stage_started", "stage": "validate_artifacts", "timestamp": "2026-09-13T13:10:05Z"}
+{"event": "stage_completed", "stage": "validate_artifacts", "status": "PASS", "timestamp": "2026-09-13T13:10:05Z"}
+{"event": "stage_started", "stage": "generate_review_summary", "timestamp": "2026-09-13T13:10:05Z"}
+{"event": "stage_completed", "stage": "generate_review_summary", "status": "PASS", "timestamp": "2026-09-13T13:10:05Z"}
+{"event": "run_completed_pending_approval", "timestamp": "2026-09-13T13:10:05Z"}

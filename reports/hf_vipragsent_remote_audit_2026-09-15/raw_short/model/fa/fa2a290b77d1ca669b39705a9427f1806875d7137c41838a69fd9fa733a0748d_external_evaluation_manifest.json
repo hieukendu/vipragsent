@@ -1,0 +1,43 @@
+{
+  "applicable_external_datasets": [
+    "vsfc",
+    "vsmec",
+    "aivivn"
+  ],
+  "backward_calls": 0,
+  "checkpoint_key": "xlmr_followup_full:20260521",
+  "external_dataset_manifest_sha256": "CF290336EFEB37903D51AA1FCA5EAE56FD4123229872F7D8C6A2E41C3027E2EE",
+  "external_finetuning": false,
+  "followup_lane": "xlmr_q1b_train_and_external",
+  "normalized_test_hashes": {
+    "aivivn": "27DA59A452ACC0FA63E26A7F49325DE7D963353E1179C5FE21BC92DB9394EDA8",
+    "vsfc": "C27B61C70DE1090BD0A12F0F2824148D1691C68FB9CB18A07F23AE5282E75D96",
+    "vsmec": "1D2E604BD06A4AAAAD33A3B98DE2FB910E9020F4D468EF8BC16DDCDEADB3D955"
+  },
+  "optimizer_steps": 0,
+  "partial": false,
+  "predictor_factory": "xlmr_followup_current_checkpoint",
+  "producer_id": "xlmr_followup_q1b_vipragsent_full_20260521",
+  "producer_kind": "xlmr_followup_trainable_checkpoint",
+  "producer_run_id": "xlmr_followup_q1b_vipragsent_full_20260521",
+  "research_question": "Q1b",
+  "source_checkpoint_sha256": "A82FEE6195C375957C54431F9C11D8C6114CF851E20D77487BFC948E1A1E1CBA",
+  "source_run_id": "xlmr_followup_q1b_vipragsent_full_20260521",
+  "source_seed": 20260521,
+  "source_summary": {
+    "backbone": "xlmr_large",
+    "checkpoint_path": "checkpoints/best/model.pt",
+    "checkpoint_sha256": "A82FEE6195C375957C54431F9C11D8C6114CF851E20D77487BFC948E1A1E1CBA",
+    "model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "run_id": "xlmr_followup_q1b_vipragsent_full_20260521",
+    "seed": 20260521,
+    "system_id": "xlmr_followup_full",
+    "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "variant_id": "vipragsent_full_xlmr_large"
+  },
+  "source_summary_sha256": "19439620FA9006F6DE043403F3521772AF78EBFC0D0133D41E0D32C466A94894",
+  "source_variant_fingerprint": "EBA4FFCF78DC65E828A779E8AD0512AF3E34858870404BD26B82EF5C515BBC21",
+  "status": "PASS",
+  "train_loader_created": false,
+  "training_applicability": "NEW_SOURCE_TRAINED;_EXTERNAL_EVALUATION_ONLY"
+}

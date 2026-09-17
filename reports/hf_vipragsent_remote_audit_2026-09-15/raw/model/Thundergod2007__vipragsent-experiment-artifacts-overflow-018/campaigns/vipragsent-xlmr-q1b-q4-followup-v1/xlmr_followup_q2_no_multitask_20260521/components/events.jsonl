@@ -1,0 +1,28 @@
+{"component_count": 8, "event": "bundle_started", "resume": false}
+{"component": "implicit_sentiment", "event": "component_started"}
+{"component": "implicit_sentiment", "cost_gpu_hours": 0.24097081976024332, "event": "component_completed"}
+{"component": "sarcasm", "event": "component_started"}
+{"component": "sarcasm", "cost_gpu_hours": 0.19336545861054522, "event": "component_completed"}
+{"component": "irony", "event": "component_started"}
+{"component": "irony", "cost_gpu_hours": 0.14043152583944093, "event": "component_completed"}
+{"component": "idiom_figurative", "event": "component_started"}
+{"component": "idiom_figurative", "cost_gpu_hours": 0.1389230460389, "event": "component_completed"}
+{"component": "code_switching", "event": "component_started"}
+{"component": "code_switching", "cost_gpu_hours": 0.19137165870388143, "event": "component_completed"}
+{"component": "mocking", "event": "component_started"}
+{"component": "mocking", "cost_gpu_hours": 0.4300722749297145, "event": "component_completed"}
+{"component": "polarity", "event": "component_started"}
+{"component": "polarity", "cost_gpu_hours": 0.24334048436553632, "event": "component_completed"}
+{"component": "emotion", "event": "component_started"}
+{"component": "emotion", "cost_gpu_hours": 0.48380911949388167, "event": "component_completed"}
+{"cost_gpu_hours": 2.0622843877421433, "event": "bundle_completed"}
+{"component_count": 8, "event": "bundle_started", "resume": true}
+{"component": "implicit_sentiment", "event": "component_skipped", "reason": "valid_complete"}
+{"component": "sarcasm", "event": "component_skipped", "reason": "valid_complete"}
+{"component": "irony", "event": "component_skipped", "reason": "valid_complete"}
+{"component": "idiom_figurative", "event": "component_skipped", "reason": "valid_complete"}
+{"component": "code_switching", "event": "component_skipped", "reason": "valid_complete"}
+{"component": "mocking", "event": "component_skipped", "reason": "valid_complete"}
+{"component": "polarity", "event": "component_skipped", "reason": "valid_complete"}
+{"component": "emotion", "event": "component_skipped", "reason": "valid_complete"}
+{"cost_gpu_hours": 2.0622843877421433, "event": "bundle_completed"}

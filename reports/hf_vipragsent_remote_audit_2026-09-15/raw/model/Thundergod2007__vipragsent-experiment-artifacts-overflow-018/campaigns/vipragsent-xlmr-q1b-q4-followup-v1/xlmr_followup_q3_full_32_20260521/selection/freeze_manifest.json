@@ -1,0 +1,19 @@
+{
+  "checkpoint": {
+    "best_epoch": 6,
+    "path": "checkpoints/best/model.pt",
+    "sha256": "1DE25128465B725C47554D863D9A1A15015F1121FD7E8CCAF2BBDEC5502E9D3D"
+  },
+  "config_hash": "92E452E137116A8B16B55E5ADDDFE896741ED58D9CA8FDF3927AB4F3F5246B6E",
+  "dev_prediction_hash": "FAF86E84ACC870FECD7F2BAECEAF165A537D39471FA60E1267B750E44053D921",
+  "frozen": true,
+  "frozen_at": "2026-09-13T19:34:12Z",
+  "thresholds": {
+    "code_switching": 0.95,
+    "idiom_figurative": 0.95,
+    "implicit_sentiment": 0.87,
+    "irony": 0.86,
+    "mocking": 0.95,
+    "sarcasm": 0.84
+  }
+}

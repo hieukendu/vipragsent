@@ -1,0 +1,24 @@
+{"event": "run_initialized", "fixture": false, "run_status": "NOT_STARTED", "timestamp": "2026-09-11T23:16:19Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-11T23:16:19Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-09-11T23:16:19Z"}
+{"event": "stage_started", "stage": "resolve_approved_source", "timestamp": "2026-09-11T23:16:19Z"}
+{"event": "stage_completed", "stage": "resolve_approved_source", "status": "BLOCKED", "timestamp": "2026-09-11T23:16:19Z"}
+{"current_code_commit": "4a84d762141a557b4383eb71fbc49af4755778b5", "current_code_tree": "cec61d7133810c55c56a77ca62b567719a076b9d", "current_source_fingerprint": "e1caf3fbb1c71b2795190959f362c75649296cb2f3b38ef37acc47dfccc1d3b2", "event": "preflight_invalidated", "reason": "code commit or tree changed", "recorded_code_commit": "4a84d762141a557b4383eb71fbc49af4755778b5", "recorded_code_tree": "cec61d7133810c55c56a77ca62b567719a076b9d", "recorded_source_fingerprint": "61fce56437aa5e219dc72c73a903a50f6b0759c771843645285e73b4ed1b4e47", "timestamp": "2026-09-11T23:16:42Z"}
+{"event": "run_retry_prepared", "previous_statuses": {"export_artifacts": "NOT_STARTED", "extract_learning_history": "NOT_STARTED", "extract_pragmatic_calibration": "NOT_STARTED", "generate_review_summary": "NOT_STARTED", "resolve_approved_source": "BLOCKED", "validate_artifacts": "NOT_STARTED", "validate_source_predictions": "NOT_STARTED"}, "start_stage": "resolve_approved_source", "timestamp": "2026-09-11T23:16:42Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-11T23:16:43Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-09-11T23:16:43Z"}
+{"event": "stage_started", "stage": "resolve_approved_source", "timestamp": "2026-09-11T23:16:43Z"}
+{"event": "stage_completed", "stage": "resolve_approved_source", "status": "PASS", "timestamp": "2026-09-11T23:17:21Z"}
+{"event": "stage_started", "stage": "validate_source_predictions", "timestamp": "2026-09-11T23:17:21Z"}
+{"event": "stage_completed", "stage": "validate_source_predictions", "status": "PASS", "timestamp": "2026-09-11T23:17:25Z"}
+{"event": "stage_started", "stage": "extract_pragmatic_calibration", "timestamp": "2026-09-11T23:17:25Z"}
+{"event": "stage_completed", "stage": "extract_pragmatic_calibration", "status": "PASS", "timestamp": "2026-09-11T23:17:31Z"}
+{"event": "stage_started", "stage": "extract_learning_history", "timestamp": "2026-09-11T23:17:31Z"}
+{"event": "stage_completed", "stage": "extract_learning_history", "status": "PASS", "timestamp": "2026-09-11T23:17:35Z"}
+{"event": "stage_started", "stage": "export_artifacts", "timestamp": "2026-09-11T23:17:35Z"}
+{"event": "stage_completed", "stage": "export_artifacts", "status": "PASS", "timestamp": "2026-09-11T23:17:49Z"}
+{"event": "stage_started", "stage": "validate_artifacts", "timestamp": "2026-09-11T23:17:49Z"}
+{"event": "stage_completed", "stage": "validate_artifacts", "status": "PASS", "timestamp": "2026-09-11T23:17:59Z"}
+{"event": "stage_started", "stage": "generate_review_summary", "timestamp": "2026-09-11T23:17:59Z"}
+{"event": "stage_completed", "stage": "generate_review_summary", "status": "PASS", "timestamp": "2026-09-11T23:18:08Z"}
+{"event": "run_completed_pending_approval", "timestamp": "2026-09-11T23:18:08Z"}

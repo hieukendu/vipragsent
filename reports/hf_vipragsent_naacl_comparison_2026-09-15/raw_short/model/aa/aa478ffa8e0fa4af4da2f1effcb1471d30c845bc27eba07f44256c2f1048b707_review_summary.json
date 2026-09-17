@@ -1,0 +1,339 @@
+{
+  "NEXT_RUN_ALLOWED": "NO",
+  "RUN_STATUS": "PASS",
+  "USER_REVIEW_STATUS": "PENDING",
+  "actual_epochs": 10,
+  "additional_training": true,
+  "applicability": {},
+  "artifact_paths": [
+    "_engine_checkpoints/model/best.pt",
+    "_engine_checkpoints/model/epoch_001.pt",
+    "_engine_checkpoints/model/epoch_002.pt",
+    "_engine_checkpoints/model/epoch_003.pt",
+    "_engine_checkpoints/model/epoch_004.pt",
+    "_engine_checkpoints/model/epoch_005.pt",
+    "_engine_checkpoints/model/epoch_006.pt",
+    "_engine_checkpoints/model/epoch_007.pt",
+    "_engine_checkpoints/model/epoch_008.pt",
+    "_engine_checkpoints/model/epoch_009.pt",
+    "_engine_checkpoints/model/epoch_010.pt",
+    "_engine_checkpoints/model/load_reports/best.json",
+    "_engine_checkpoints/model/run_state.json",
+    "_engine_checkpoints/model/thresholds.json",
+    "_engine_output/dev_predictions.jsonl",
+    "_engine_output/run_manifest.json",
+    "_engine_output/test_predictions.jsonl",
+    "_engine_output/thresholds.json",
+    "_engine_output/training_history.json",
+    "checkpoints/best/model.pt",
+    "checkpoints/checkpoint_manifest.json",
+    "checkpoints/latest/model.pt",
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "metrics/dev_metrics.json",
+    "metrics/test_confidence_intervals.json",
+    "metrics/test_metrics.json",
+    "predictions/dev_predictions.jsonl",
+    "predictions/test_predictions.jsonl",
+    "preflight.json",
+    "provenance.json",
+    "run_manifest.json",
+    "selection/best_checkpoint.json",
+    "selection/freeze_manifest.json",
+    "selection/selection_metric.json",
+    "selection/thresholds.json",
+    "training/class_weights.json",
+    "training/device_report.json",
+    "training/history.csv",
+    "training/history.json",
+    "training/optimizer_summary.json",
+    "training/resolved_training_config.json",
+    "training/resource_usage.json",
+    "training/scheduler_summary.json"
+  ],
+  "artifact_sha256": {
+    "_engine_checkpoints/model/best.pt": "680662EFAE10721C217D9DE12B635AD523E34960C7AA6FE02D41AD8D95E5A5E4",
+    "_engine_checkpoints/model/epoch_001.pt": "C1BAC1E4BD9CDD143D92659F7C921EC7F121BA793E88E70CD88C5389AFDB3F0F",
+    "_engine_checkpoints/model/epoch_002.pt": "5D0C35C16ACA41EC4092F50CA6279291C0E2EF31508FDEADC52D4E7D0891D614",
+    "_engine_checkpoints/model/epoch_003.pt": "2080DDE0627D7FB23DFE08E6CC831CE29833EA17BC0D7E0AFC7FEF4FEE5D3010",
+    "_engine_checkpoints/model/epoch_004.pt": "A2CFCBFFCBA6FAB03B366BCAB8D3A00584B79BCDBF547480B8C61663B5DEB07E",
+    "_engine_checkpoints/model/epoch_005.pt": "B06A8DAD5C2B72F0D76000B53068A2BD09AE3B11BDF9290D128822A18A1BC28A",
+    "_engine_checkpoints/model/epoch_006.pt": "370F20B4D6F2F354C4B7275E68EC277327A60AD97BF8A62D1ABEA07913BE25B7",
+    "_engine_checkpoints/model/epoch_007.pt": "55F4D07B4101420A3C62F12E85D21B7B888CE936C1F2F3FBF7A6B89D282B7497",
+    "_engine_checkpoints/model/epoch_008.pt": "3F697157B93E2B5ED56657F4152B2082A91EEB832CB3D6AAD5C7C745DE14FD45",
+    "_engine_checkpoints/model/epoch_009.pt": "BC949D54655F367EE3DE8FDAD600D05648050E099446FC154F4AF8118EFCF701",
+    "_engine_checkpoints/model/epoch_010.pt": "680662EFAE10721C217D9DE12B635AD523E34960C7AA6FE02D41AD8D95E5A5E4",
+    "_engine_checkpoints/model/load_reports/best.json": "5EF3E7758A0F921333EF6EF6234532C95146B15B3FBCC0807D3BF89E61C02CCB",
+    "_engine_checkpoints/model/run_state.json": "FA00F6B55C8379AF1829FACDBA830E2CA2C30C1BD60601E80DDEE74EF0245123",
+    "_engine_checkpoints/model/thresholds.json": "F89C450169C71CA49F5D10846B71AA9CDB69DE0FD077624A74C2E933DB2A1173",
+    "_engine_output/dev_predictions.jsonl": "7ABEEFE8793089275C41E8549D371803943A4DC4600C6AF4CA2B5A5B3586D023",
+    "_engine_output/run_manifest.json": "CDED34B58AE927A4904A93568E6414E9817285AD99D7465215DD3ADB67B5127C",
+    "_engine_output/test_predictions.jsonl": "3E88894EBC0C89393AD90A063787274D01B16F25E14AF44CCCE93D9BC7588502",
+    "_engine_output/thresholds.json": "F89C450169C71CA49F5D10846B71AA9CDB69DE0FD077624A74C2E933DB2A1173",
+    "_engine_output/training_history.json": "E429821756F5C62FF8BCDBFFFB5F657B8C1D7920391DD4608BA0C1DF0110B61A",
+    "checkpoints/best/model.pt": "680662EFAE10721C217D9DE12B635AD523E34960C7AA6FE02D41AD8D95E5A5E4",
+    "checkpoints/checkpoint_manifest.json": "2B7A0F39290B2E211B123C766DE4425C65C3987C8D7EF1863029DCB93761EA30",
+    "checkpoints/latest/model.pt": "680662EFAE10721C217D9DE12B635AD523E34960C7AA6FE02D41AD8D95E5A5E4",
+    "config_snapshot.yaml": "5E38C21CFEC7C3D6B08BBADCD82DA3BB6622CF0B13AD7B46A09171E9DD0EAF66",
+    "environment.json": "D067A685EDCF53E59CFF79454592E07D20A44EE17FCC1995922CDE4F27229E90",
+    "metrics.json": "96DCCB7A41A85D6EC61B1F4A68DBAEB899BD5AE021D28FDB24224ADA6C8C7D12",
+    "metrics/dev_metrics.json": "ACD7CF77D508A128FB7CC1FB0C4BAF5AF2FF0BB1BFD2D9D817D4B4F12C3A68C1",
+    "metrics/test_confidence_intervals.json": "6746A8D708EA9F058B44509483A551E86FBD885073C00256B0BB7EEAB7DC186B",
+    "metrics/test_metrics.json": "F011B0DC70A3F74D9EF08493E1DA34488860E0744C3CA459175502FAD6B40F4E",
+    "predictions/dev_predictions.jsonl": "7ABEEFE8793089275C41E8549D371803943A4DC4600C6AF4CA2B5A5B3586D023",
+    "predictions/test_predictions.jsonl": "3E88894EBC0C89393AD90A063787274D01B16F25E14AF44CCCE93D9BC7588502",
+    "preflight.json": "AC97E0D6FCB36AF14DE063384FE239B56CA61C3A05A8A0D435FD7FD211AA8B9D",
+    "provenance.json": "3AFFF10D5519D1F3170DB65FA77D2E05BDC75B2EB0B9B2B7780EBBC1E9070163",
+    "run_manifest.json": "BA22C60DFDE62E466F1436143263DC03A91DC174B82C9323AD7B020949DADBBE",
+    "selection/best_checkpoint.json": "B53EB8F1924B6A204D28DD96F5B893F2C58E0E8CBF317FE6AA959660A6864694",
+    "selection/freeze_manifest.json": "18D8EEB44F9C4D6DEA495817779C6834865464A5747BDAF8E64D3C48CBBBB61D",
+    "selection/selection_metric.json": "C847B7F448945D0F0A59D55B452297E37C411CC010C4278DC214F0BF2705B315",
+    "selection/thresholds.json": "F89C450169C71CA49F5D10846B71AA9CDB69DE0FD077624A74C2E933DB2A1173",
+    "training/class_weights.json": "16029AB15792B28193E3D92211612D92F264AFA123E2113DE010BF4094DF3379",
+    "training/device_report.json": "D1772C85423C34BA9B90985EC82BB9C51A3058352B7FB86BFDE3F5E77CB13AD3",
+    "training/history.csv": "64B11E9127D22C60921BAE961EDF24B52FCA2FF9A47E00E0ED90D565B8F77077",
+    "training/history.json": "E429821756F5C62FF8BCDBFFFB5F657B8C1D7920391DD4608BA0C1DF0110B61A",
+    "training/optimizer_summary.json": "08BAB94359AEE74F3A90AA85196DB0B39A64C77D1DBAA83495DBDEB81686C888",
+    "training/resolved_training_config.json": "34FF48ECB2A4AB70F2F66A66CB159C8B19E7C5E11F5F5BFA47A9DC5F0A6799D5",
+    "training/resource_usage.json": "3F523BFB0A19C997B1170B967578A4B0894730AC10D6854923D800963E01F7B7",
+    "training/scheduler_summary.json": "151D96C680B063F7193DC943723EEFBB4256DE41BE6CEBFAB8BDBFCBFCB05242"
+  },
+  "azure_cache_hits": "NOT_APPLICABLE",
+  "azure_cache_misses": "NOT_APPLICABLE",
+  "azure_failed_requests": "NOT_APPLICABLE",
+  "azure_input_tokens": "NOT_APPLICABLE",
+  "azure_invalid_output_rate": "NOT_APPLICABLE",
+  "azure_job_id": null,
+  "azure_output_tokens": "NOT_APPLICABLE",
+  "azure_request_count": "NOT_APPLICABLE",
+  "azure_retried_requests": "NOT_APPLICABLE",
+  "backbone": "xlmr_large",
+  "best_dev_loss": 2.619079137921333,
+  "best_dev_metric": 0.9276918742858289,
+  "best_epoch": 10,
+  "bin_count": "NOT_APPLICABLE",
+  "blockers": [],
+  "budget": "NOT_APPLICABLE",
+  "changed_components": {
+    "baseline_system_id": "full_phobert",
+    "changed_components": {
+      "active_heads": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ]
+      },
+      "active_losses": {
+        "full": [
+          "pragmatic",
+          "polarity",
+          "emotion",
+          "rationale"
+        ],
+        "variant": [
+          "pragmatic"
+        ]
+      },
+      "rationale_training": {
+        "full": true,
+        "variant": false
+      },
+      "uncertainty_tasks": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": []
+      }
+    },
+    "status": "RESOLVED",
+    "variant_system_id": "xlmr_pragmatic_finetune"
+  },
+  "checkpoint_path": "checkpoints/best/model.pt",
+  "checkpoint_sha256": "680662EFAE10721C217D9DE12B635AD523E34960C7AA6FE02D41AD8D95E5A5E4",
+  "class_weights": {
+    "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+    "content_hash": "ABFD6EFB19B89BE4A4FD4B0D7183C4CDBAAE3AF14FD3C291E07DD431DF0B9FB0",
+    "counts": {
+      "emotion": {
+        "anger": 251,
+        "disgust": 708,
+        "enjoyment": 2037,
+        "fear": 227,
+        "other": 3687,
+        "sadness": 709,
+        "surprise": 379
+      },
+      "polarity": {
+        "negative": 1301,
+        "neutral": 4934,
+        "positive": 1763
+      },
+      "pragmatic": {
+        "code_switching": {
+          "negative": 6792,
+          "positive": 1206
+        },
+        "idiom_figurative": {
+          "negative": 7435,
+          "positive": 563
+        },
+        "implicit_sentiment": {
+          "negative": 6320,
+          "positive": 1678
+        },
+        "irony": {
+          "negative": 7444,
+          "positive": 554
+        },
+        "mocking": {
+          "negative": 7066,
+          "positive": 932
+        },
+        "sarcasm": {
+          "negative": 7453,
+          "positive": 545
+        }
+      }
+    },
+    "dataset_hash": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+    "emotion_weight": {
+      "anger": 4.552077404667046,
+      "disgust": 1.6138014527845037,
+      "enjoyment": 0.5609088996423311,
+      "fear": 5.033354310887351,
+      "other": 0.3098918981750552,
+      "sadness": 1.611525287124723,
+      "surprise": 3.0147003392385976
+    },
+    "polarity_weight": {
+      "negative": 2.0491929285165256,
+      "neutral": 0.5403323875152006,
+      "positive": 1.5121951219512195
+    },
+    "pragmatic_pos_weight": {
+      "code_switching": 5.6318407960199,
+      "idiom_figurative": 13.206039076376554,
+      "implicit_sentiment": 3.766388557806913,
+      "irony": 13.436823104693142,
+      "mocking": 7.581545064377682,
+      "sarcasm": 13.675229357798164
+    },
+    "source_split": "train"
+  },
+  "code_commit": "a765b2bca625ff66cf97dc608eacb3a3c63553b5",
+  "configuration_hash": "5E38C21CFEC7C3D6B08BBADCD82DA3BB6622CF0B13AD7B46A09171E9DD0EAF66",
+  "dataset_fingerprint": "A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA285F718478532AF0D",
+  "direct_classification_outputs_used": true,
+  "display_name": "XLM-R pragmatic fine-tune",
+  "early_stopping_reason": "maximum_epochs_reached",
+  "effective_batch_size": 32,
+  "end_time": "2026-08-06T20:30:10Z",
+  "execution_kind": "trainable",
+  "execution_mode": "production_sequential_review_gated",
+  "experiment_id": "q1a_xlmr_pragmatic_finetune_20260523",
+  "failed_or_retried_gpu_hours": 0.0,
+  "frozen_thresholds": {
+    "code_switching": 0.94,
+    "idiom_figurative": 0.95,
+    "implicit_sentiment": 0.93,
+    "irony": 0.95,
+    "mocking": 0.94,
+    "sarcasm": 0.95
+  },
+  "gradient_accumulation_steps": 4,
+  "inference_output_source": "classification_heads",
+  "learning_rate": 2e-05,
+  "macro_pragmatic_ece": "NOT_APPLICABLE",
+  "macro_pragmatic_f1": 0.9285110882349082,
+  "maximum_epochs": 10,
+  "model_repository": "FacebookAI/xlm-roberta-large",
+  "model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "native_causal_lm_generation_used": false,
+  "next_run_allowed": "NO",
+  "optimizer": "AdamW",
+  "peak_vram_gb": 10.4989333152771,
+  "per_label_dev_metrics": {
+    "code_switching": 0.9509988969236427,
+    "idiom_figurative": 0.9166046548179568,
+    "implicit_sentiment": 0.9333340744363912,
+    "irony": 0.976168335717692,
+    "mocking": 0.9282160440627261,
+    "sarcasm": 0.8608292397565644
+  },
+  "per_label_pragmatic_ece": "NOT_APPLICABLE",
+  "per_label_test_metrics": {
+    "code_switching": 0.9423938105566759,
+    "idiom_figurative": 0.9216396127429661,
+    "implicit_sentiment": 0.9225957042118833,
+    "irony": 0.9788086410655785,
+    "mocking": 0.9268432554751314,
+    "sarcasm": 0.8787855053572144
+  },
+  "physical_batch_size": 8,
+  "precision": "bf16",
+  "prediction_hashes": {
+    "predictions/dev_predictions.jsonl": "7ABEEFE8793089275C41E8549D371803943A4DC4600C6AF4CA2B5A5B3586D023",
+    "predictions/test_predictions.jsonl": "3E88894EBC0C89393AD90A063787274D01B16F25E14AF44CCCE93D9BC7588502"
+  },
+  "preprocessing_name": "vncorenlp_rdrsegmenter",
+  "preprocessing_version": "locked-v1",
+  "primary_dev_selection_metric": "dev_macro_pragmatic_f1",
+  "probability_aggregation": "NOT_APPLICABLE",
+  "provenance_contract_version": 1,
+  "q3_budget_data": "NOT_APPLICABLE",
+  "rationale_applicability": {
+    "inference": false,
+    "training": false
+  },
+  "rationale_decoder_enabled_at_inference": false,
+  "research_question": "Q1a",
+  "run_id": "q1a_xlmr_pragmatic_finetune_20260523",
+  "run_status": "PASS",
+  "same_seed_source": false,
+  "sarcasm_dev_f1": "NOT_APPLICABLE",
+  "sarcasm_test_f1": "NOT_APPLICABLE",
+  "scheduler": "linear",
+  "seed": 20260523,
+  "source_checkpoint_id": "NOT_APPLICABLE",
+  "source_prediction_hash": "NOT_APPLICABLE",
+  "source_system_id": "NOT_APPLICABLE",
+  "split_hashes": {
+    "dev": "7ABEEFE8793089275C41E8549D371803943A4DC4600C6AF4CA2B5A5B3586D023",
+    "test": "3E88894EBC0C89393AD90A063787274D01B16F25E14AF44CCCE93D9BC7588502"
+  },
+  "start_time": "2026-08-06T19:54:33Z",
+  "successful_gpu_hours": 0.23034564338694002,
+  "summary_hash_input": "BE737F15D85DC402C66A56B280686F2C4EAA17716D906FF0C3FCCB06E92764B7",
+  "system_id": "xlmr_pragmatic_finetune",
+  "temperature_scaling": false,
+  "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "user_review_status": "PENDING",
+  "validation_status": "PASS",
+  "variant": "pragmatic_finetune",
+  "wall_clock_seconds": 0.0,
+  "warmup_ratio": 0.1,
+  "warnings": [],
+  "weight_decay": 0.01
+}

@@ -1,0 +1,48 @@
+{
+  "approval_status": "APPROVED",
+  "artifact_pack": {
+    "content_bytes": 13258047,
+    "file_count": 39,
+    "filename": "q1b_train_xlmr_multitask_8head_20260521.tar.gz",
+    "sha256": "DEDCB0D478B65AC84406B86261B3CAA29E251F5C903BED84ECFCCB075179E7C3",
+    "size_bytes": 3496686
+  },
+  "blockers": [],
+  "campaign_id": "vipragsent-v7-compact-20260820-190bb0f24a7e75a8",
+  "finalization_status": "PASS",
+  "host_id": "nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f",
+  "metrics": {
+    "azure_cost_usd": "NOT_APPLICABLE",
+    "macro_pragmatic_ece": "NOT_APPLICABLE",
+    "macro_pragmatic_f1": 0.9244169787827144
+  },
+  "next_run_allowed": "NO",
+  "policy_version": "V8_FINAL_R5",
+  "review_run_status": "PASS",
+  "run_id": "q1b_train_xlmr_multitask_8head_20260521",
+  "run_status": "APPROVED",
+  "schema_version": 1,
+  "shard_id": "SHARD_H100_MIG20_COMPACT",
+  "source_identity": {
+    "code_commit": "f163bd9ff1607cebf6f3b008388857a3004c6303",
+    "code_tree": "0951eefa99ef7de3846bf3163ca0b47d562d01e7",
+    "config_hash": "B15064BB0CCDA12A1A354E61C15662E15E9D853FE720AAF91488E00E6760770F",
+    "data_fingerprint": "A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA285F718478532AF0D",
+    "model_repository": "FacebookAI/xlm-roberta-large",
+    "model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "source_fingerprint": "f07113feae93ccb3676bf4fd545173abdbade618c0c425762f126ae8b011b791",
+    "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389"
+  },
+  "stage_status": {
+    "evaluate_dev": "PASS",
+    "evaluate_test": "PASS",
+    "export_artifacts": "PASS",
+    "freeze_selection": "PASS",
+    "generate_review_summary": "PASS",
+    "preflight": "PASS",
+    "train": "PASS",
+    "validate_artifacts": "PASS"
+  },
+  "user_review_status": "PENDING",
+  "validation_status": "PASS"
+}

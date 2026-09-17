@@ -1,0 +1,38 @@
+{"event": "run_initialized", "fixture": false, "run_status": "NOT_STARTED", "timestamp": "2026-09-11T23:20:23Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-11T23:20:23Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-09-11T23:20:23Z"}
+{"event": "stage_started", "stage": "train", "timestamp": "2026-09-11T23:20:23Z"}
+{"event": "stage_completed", "stage": "train", "status": "PASS", "timestamp": "2026-09-12T00:55:30Z"}
+{"event": "stage_started", "stage": "evaluate_dev", "timestamp": "2026-09-12T00:55:30Z"}
+{"event": "stage_completed", "stage": "evaluate_dev", "status": "PASS", "timestamp": "2026-09-12T00:57:19Z"}
+{"event": "stage_started", "stage": "freeze_selection", "timestamp": "2026-09-12T00:57:19Z"}
+{"event": "stage_completed", "stage": "freeze_selection", "status": "PASS", "timestamp": "2026-09-12T00:59:06Z"}
+{"event": "stage_started", "stage": "evaluate_xlmr_external_tests", "timestamp": "2026-09-12T00:59:06Z"}
+{"event": "stage_completed", "stage": "evaluate_xlmr_external_tests", "status": "BLOCKED", "timestamp": "2026-09-12T00:59:06Z"}
+{"current_code_commit": "3ab1851fd4f12f64a64e8e3dcdd2a96965a26030", "current_code_tree": "715e5d559d4d5ede0ad6659540d857b777288b8d", "current_source_fingerprint": "5c8ed1649d6a26b033297a3e540894782c31bc81e767386e411b51d0dd61ab58", "event": "preflight_invalidated", "reason": "code commit or tree changed", "recorded_code_commit": "4a84d762141a557b4383eb71fbc49af4755778b5", "recorded_code_tree": "cec61d7133810c55c56a77ca62b567719a076b9d", "recorded_source_fingerprint": "e1caf3fbb1c71b2795190959f362c75649296cb2f3b38ef37acc47dfccc1d3b2", "timestamp": "2026-09-12T01:04:27Z"}
+{"event": "run_retry_prepared", "previous_statuses": {"evaluate_xlmr_external_tests": "BLOCKED", "export_artifacts": "NOT_STARTED", "generate_review_summary": "NOT_STARTED", "validate_artifacts": "NOT_STARTED"}, "start_stage": "evaluate_xlmr_external_tests", "timestamp": "2026-09-12T01:04:27Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-12T01:04:27Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-09-12T01:06:16Z"}
+{"event": "stage_started", "stage": "evaluate_xlmr_external_tests", "timestamp": "2026-09-12T01:06:16Z"}
+{"event": "stage_completed", "stage": "evaluate_xlmr_external_tests", "status": "BLOCKED", "timestamp": "2026-09-12T01:06:16Z"}
+{"current_code_commit": "3ab1851fd4f12f64a64e8e3dcdd2a96965a26030", "current_code_tree": "715e5d559d4d5ede0ad6659540d857b777288b8d", "current_source_fingerprint": "6216708058788fbb3a9db90feb3af76003b800c3b3923d5aa248e3dc7c4bbdb6", "event": "preflight_invalidated", "reason": "code commit or tree changed", "recorded_code_commit": "3ab1851fd4f12f64a64e8e3dcdd2a96965a26030", "recorded_code_tree": "715e5d559d4d5ede0ad6659540d857b777288b8d", "recorded_source_fingerprint": "5c8ed1649d6a26b033297a3e540894782c31bc81e767386e411b51d0dd61ab58", "timestamp": "2026-09-12T01:15:50Z"}
+{"event": "run_retry_prepared", "previous_statuses": {"evaluate_xlmr_external_tests": "BLOCKED", "export_artifacts": "NOT_STARTED", "generate_review_summary": "NOT_STARTED", "validate_artifacts": "NOT_STARTED"}, "start_stage": "evaluate_xlmr_external_tests", "timestamp": "2026-09-12T01:15:50Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-12T01:15:50Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-09-12T01:19:30Z"}
+{"event": "stage_started", "stage": "evaluate_xlmr_external_tests", "timestamp": "2026-09-12T01:19:30Z"}
+{"event": "stage_completed", "stage": "evaluate_xlmr_external_tests", "status": "PASS", "timestamp": "2026-09-12T01:23:43Z"}
+{"event": "stage_started", "stage": "export_artifacts", "timestamp": "2026-09-12T01:23:43Z"}
+{"event": "stage_completed", "stage": "export_artifacts", "status": "PASS", "timestamp": "2026-09-12T01:32:08Z"}
+{"event": "stage_started", "stage": "validate_artifacts", "timestamp": "2026-09-12T01:32:08Z"}
+{"event": "stage_completed", "stage": "validate_artifacts", "status": "PASS", "timestamp": "2026-09-12T01:37:21Z"}
+{"event": "stage_started", "stage": "generate_review_summary", "timestamp": "2026-09-12T01:37:22Z"}
+{"event": "stage_completed", "stage": "generate_review_summary", "status": "FAIL", "timestamp": "2026-09-12T01:40:07Z"}
+{"current_code_commit": "6591cb8bca45e90ac4e494cfdf53983446369b85", "current_code_tree": "0966c1e98cc99d6110791e0a86f9ec001135da8d", "current_source_fingerprint": "5c8ed1649d6a26b033297a3e540894782c31bc81e767386e411b51d0dd61ab58", "event": "preflight_invalidated", "reason": "code commit or tree changed", "recorded_code_commit": "3ab1851fd4f12f64a64e8e3dcdd2a96965a26030", "recorded_code_tree": "715e5d559d4d5ede0ad6659540d857b777288b8d", "recorded_source_fingerprint": "6216708058788fbb3a9db90feb3af76003b800c3b3923d5aa248e3dc7c4bbdb6", "timestamp": "2026-09-12T01:54:16Z"}
+{"event": "run_retry_prepared", "previous_statuses": {"generate_review_summary": "FAIL"}, "start_stage": "generate_review_summary", "timestamp": "2026-09-12T01:54:16Z"}
+{"event": "stage_started", "stage": "preflight", "timestamp": "2026-09-12T01:54:16Z"}
+{"event": "stage_completed", "stage": "preflight", "status": "PASS", "timestamp": "2026-09-12T01:57:04Z"}
+{"event": "stage_started", "stage": "generate_review_summary", "timestamp": "2026-09-12T01:57:04Z"}
+{"event": "stage_completed", "stage": "generate_review_summary", "status": "PASS", "timestamp": "2026-09-12T02:02:06Z"}
+{"event": "run_completed_pending_approval", "timestamp": "2026-09-12T02:02:06Z"}
+{"event": "run_completed_pending_approval", "timestamp": "2026-09-12T02:07:57Z"}
+{"event": "run_completed_pending_approval", "timestamp": "2026-09-12T02:15:33Z"}

@@ -1,0 +1,9 @@
+{
+  "epochs": 10,
+  "gradient_accumulation_steps": 4,
+  "scheduler": "linear",
+  "steps_per_epoch": 250,
+  "total_optimizer_steps": 2500,
+  "warmup_ratio": 0.1,
+  "warmup_steps": 250
+}
