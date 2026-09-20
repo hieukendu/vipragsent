@@ -1,0 +1,102 @@
+{
+  "ledger_type": "evidence_claim_ledger",
+  "created_utc": "2026-09-17",
+  "status_vocabulary": {
+    "VERIFIED_IMPLEMENTATION": "Directly supported by inspected local implementation.",
+    "RECORDED_ARTIFACT": "Present in supplied artifact metadata or raw metric files.",
+    "DETERMINISTIC_RECOMPUTE": "Recomputed from stored prediction rows; not a new model inference.",
+    "ID_GOLD_COHORT_ONLY": "Exact sample IDs and six pragmatic gold labels agree; text/tokenization is not attested.",
+    "NOT_PERFORMED": "No independent model reload, training, or inference rerun was performed.",
+    "DO_NOT_CLAIM": "Inspected evidence does not support the claim."
+  },
+  "claims": [
+    {
+      "claim_id": "Q1A-COHORT",
+      "claim": "All 45 target-vs-baseline Q1a comparisons share the same 2,000 sample-ID set and identical six pragmatic gold tuples by sample ID.",
+      "status": "ID_GOLD_COHORT_ONLY",
+      "authority": "D:\\vipragsent\\paper\\evidence\\q1a_fairness_comparison.json",
+      "independent_rerun": "NOT_PERFORMED",
+      "limitation": "Prediction JSONL has no text or token IDs; identical raw text/tokenization is not verified."
+    },
+    {
+      "claim_id": "Q1A-METRIC-RECOMPUTE",
+      "claim": "Recorded per-seed macro-pragmatic-F1 values match deterministic recomputation from stored prediction rows within 1e-12.",
+      "status": "DETERMINISTIC_RECOMPUTE",
+      "authority": "D:\\vipragsent\\paper\\evidence\\q1a_fairness_comparison.json",
+      "independent_rerun": "NOT_PERFORMED"
+    },
+    {
+      "claim_id": "Q1A-HEADLINE",
+      "claim": "The recorded ViPragSent mean is 0.9366583803341149 and the recorded XLM-R baseline mean is 0.929342505569368; derived gap is 0.7315874764746821 percentage points.",
+      "status": "RECORDED_ARTIFACT_PLUS_DETERMINISTIC_RECOMPUTE",
+      "authority": "D:\\vipragsent\\paper\\evidence\\q1a_numeric_claim_ledger.json",
+      "summary_sd_convention": "sample SD (n-1), statistics.stdev",
+      "independent_rerun": "NOT_PERFORMED"
+    },
+    {
+      "claim_id": "METHOD-LABELS",
+      "claim": "The six heads are independent binary pragmatic phenomena; polarity and seven-way emotion are separate heads.",
+      "status": "VERIFIED_IMPLEMENTATION",
+      "authority": "D:\\vipragsent\\paper\\evidence\\method_evidence.json"
+    },
+    {
+      "claim_id": "METHOD-LOSS",
+      "claim": "The target full variant uses per-label pragmatic BCE-with-logits, polarity/emotion cross-entropy, eight uncertainty-weighted classification components, and a rationale term beta=0.3.",
+      "status": "VERIFIED_IMPLEMENTATION_PLUS_RECORDED_TARGET_MANIFEST",
+      "authority": "D:\\vipragsent\\paper\\evidence\\method_evidence.json",
+      "independent_rerun": "NOT_PERFORMED"
+    },
+    {
+      "claim_id": "METHOD-RATIONALE",
+      "claim": "The rationale component is a two-layer causal TransformerDecoder with a memory projection and tied token output projection; teacher forcing shifts targets and masks padding to -100; inference uses classification heads only.",
+      "status": "VERIFIED_IMPLEMENTATION",
+      "authority": "D:\\vipragsent\\paper\\evidence\\method_evidence.json"
+    },
+    {
+      "claim_id": "Q1A-V37-PROTOCOL",
+      "claim": "Q1a target V37 consists of three actual date-coded seeds 20260521/22/23 with the recorded V37 training configuration.",
+      "status": "RECORDED_ARTIFACT",
+      "authority": "D:\\vipragsent\\paper\\evidence\\protocol_lineage.json and method_evidence.json"
+    },
+    {
+      "claim_id": "Q2-DISTINCT-RUNS",
+      "claim": "Q2 comprises 18 distinct XLM-R follow-up runs: six named variants across actual seeds 20260521/22/23.",
+      "status": "RECORDED_ARTIFACT",
+      "authority": "D:\\vipragsent\\paper\\evidence\\protocol_lineage.json",
+      "independent_rerun": "NOT_PERFORMED"
+    },
+    {
+      "claim_id": "Q3-DISTINCT-RUNS",
+      "claim": "Q3 comprises 18 distinct XLM-R low-resource runs: budgets 32/64/128/256/512/full across actual seeds 20260521/22/23.",
+      "status": "RECORDED_ARTIFACT",
+      "authority": "D:\\vipragsent\\paper\\evidence\\protocol_lineage.json",
+      "independent_rerun": "NOT_PERFORMED"
+    },
+    {
+      "claim_id": "Q4-LINEAGE",
+      "claim": "Q4 primary is calibration/extraction from the same-seed Q1a V37 checkpoint with no additional training; calibration records are present, while outer extraction manifests are marked NOT_STARTED.",
+      "status": "RECORDED_SOURCE_LINEAGE",
+      "authority": "D:\\vipragsent\\paper\\evidence\\protocol_lineage.json",
+      "independent_rerun": "NOT_PERFORMED"
+    },
+    {
+      "claim_id": "DATA-SOURCE",
+      "claim": "The supplied V8 dataset package declares SEACrowd/ViSoBERT as the ViPragSent source and includes 7,998/1,999/2,000 train/dev/test rows plus cleaned annotator and adjudicated-gold files.",
+      "status": "RECORDED_DATASET_PACKAGE",
+      "authority": "D:\\vipragsent-pr\\data\\raw\\vipragsent_package\\ViPragSent_Experiment_Dataset_FINAL_V8\\README.md and PACKAGE_SUMMARY.json"
+    },
+    {
+      "claim_id": "ETHICS-BOUNDARY",
+      "claim": "Payment, IRB/ethics approval, consent, and latency/release claims are not supported by the inspected evidence package.",
+      "status": "DO_NOT_CLAIM",
+      "authority": "Evidence-boundary review of supplied dataset package, artifact manifests, and reference PDF",
+      "limitation": "Do not convert absence of support into a claim that no such process occurred."
+    },
+    {
+      "claim_id": "GPT-BASELINES",
+      "claim": "Selected GPT-4.1-mini zero-shot and 8-shot Q1a records remain NOT_STARTED; no values are imputed.",
+      "status": "RECORDED_ARTIFACT",
+      "authority": "D:\\vipragsent-pr\\reports\\hf_vipragsent_naacl_comparison_2026-09-15\\baseline_status_records.jsonl"
+    }
+  ]
+}

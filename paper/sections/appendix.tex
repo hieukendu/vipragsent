@@ -1,0 +1,40 @@
+\section{Reproducibility record}
+The following record is part of the manuscript rather than a future action list. All paths are relative to the paper workspace unless a source path is explicitly identified.
+
+\begin{description}
+\setlength{\itemsep}{2pt}
+\item[\textbf{Primary backbone}] \texttt{Facebook\allowbreak{}AI/xlm-r\allowbreak{}oberta-l\allowbreak{}arge}, revision \texttt{c23d21b0\allowbreak{}620b635a\allowbreak{}76227c60\allowbreak{}4d44e43a\allowbreak{}9f0ee389}
+\item[\textbf{Model interface}] First nonpadding-token pooling; six binary pragmatic heads, three-way polarity head, seven-way emotion head; classification heads are the inference source
+\item[\textbf{Rationale implementation}] Two-layer causal TransformerDecoder with memory projection; hidden 128, four heads, feed-forward 512, dropout 0.1; tied token embeddings; teacher forcing; beta 0.3; target maximum length 160; decoder discarded at inference
+\item[\textbf{Rationale target provenance}] Target manifest artifact \texttt{approved\allowbreak{}\_generat\allowbreak{}ed\_ratio\allowbreak{}nales\_tr\allowbreak{}ain.json\allowbreak{}l}; 7,998 training rows; provider unspecified in the inspected evidence; not treated as original annotation-history evidence
+\item[\textbf{Dataset package}] SEACrowd/ViSoBERT source package; 11,997 rows; train/dev/test = 7,998/1,999/2,000; split seed 20260520; local processed fingerprint \texttt{7C39BEEB\allowbreak{}C462D1F9\allowbreak{}076F5DF1\allowbreak{}565E924B\allowbreak{}D884263D\allowbreak{}5503F233\allowbreak{}98BD83A6\allowbreak{}BF4205EB}
+\item[\textbf{Q1a target artifact provenance}] Remote target dataset fingerprint \texttt{B906C090\allowbreak{}400BAE11\allowbreak{}5C9C5E3C\allowbreak{}35E32FA4\allowbreak{}10AC519A\allowbreak{}E09209EB\allowbreak{}A741F198\allowbreak{}087C24F9}
+\item[\textbf{Q1a baseline artifact provenance}] Remote baseline dataset fingerprint \texttt{A13573E3\allowbreak{}8550ABD5\allowbreak{}5D7F63E9\allowbreak{}83C602BE\allowbreak{}A13C2765\allowbreak{}A1FFECA2\allowbreak{}85F71847\allowbreak{}8532AF0D}
+\item[\textbf{Training seeds}] Date-coded seeds 20260521, 20260522, 20260523; logical labels 21, 22, 23
+\item[\textbf{Primary Q1a optimizer}] AdamW, learning rate 2e-5, weight decay 0.01, bf16, physical batch 8, accumulation 4, effective batch 32, maximum 10 epochs, patience 10, gradient clipping 1.0
+\item[\textbf{Primary Q1a schedule}] Cosine, warmup ratio 0.20, development macro-pragmatic-F1 selection; task multipliers implicit 1.01, sarcasm 1.01, irony 1.05, code-switching 1.04, remaining tasks 1.0
+\item[\textbf{Follow-up Q2/Q3 schedule}] AdamW, learning rate 2e-5, bf16, physical batch 8, accumulation 4, effective batch 32, maximum 10 epochs, linear schedule, warmup ratio 0.10, patience 2
+\item[\textbf{Threshold rule}] Candidate thresholds 0.05--0.95, step 0.01; development binary macro-F1; ties toward 0.5
+\item[\textbf{Q3 mask rule}] Nested positive subsets of 32, 64, 128, 256, 512, and full; fixed negative pool; positive weights recomputed per budget; development threshold per seed/budget
+\item[\textbf{Q4 rule}] Six pragmatic heads; raw positive sigmoid probabilities; ten equal-width bins; no temperature scaling; test split; mean and sample SD across seeds; no new training
+\item[\textbf{Q1a evidence}] \texttt{evidence\allowbreak{}/q1a\_fai\allowbreak{}rness\_co\allowbreak{}mparison\allowbreak{}.json}, \texttt{evidence\allowbreak{}/q1a\_fai\allowbreak{}rness\_ru\allowbreak{}n\_table.\allowbreak{}csv}, \texttt{evidence\allowbreak{}/q1a\_ver\allowbreak{}ified\_ta\allowbreak{}ble\_inpu\allowbreak{}ts.json}, \texttt{evidence\allowbreak{}/q1a\_num\allowbreak{}eric\_cla\allowbreak{}im\_ledge\allowbreak{}r.json}
+\item[\textbf{Method evidence}] \texttt{evidence\allowbreak{}/method\_\allowbreak{}evidence\allowbreak{}.json}, \texttt{evidence\allowbreak{}/evidenc\allowbreak{}e\_claim\_\allowbreak{}ledger.j\allowbreak{}son}
+\item[\textbf{Protocol lineage}] \texttt{evidence\allowbreak{}/protoco\allowbreak{}l\_lineag\allowbreak{}e.json}; records distinct Q1a v37, Q2, Q3, and Q4 run families and Q4 source-checkpoint lineage
+\item[\textbf{Prediction rows}] \texttt{raw\_fairness/*.jsonl}; 18 files, 2,000 rows per file; deterministic metric recomputation matches recorded values
+\end{description}
+
+The Q1a comparison covers 45 target--baseline pairs across the five complete baseline families. Each pair has the same sample-ID set and six-label gold tuples after alignment by ID. The comparison is descriptive over saved predictions. No independent training or inference rerun is part of this record. The three fingerprints above are retained as separate local and remote provenance identifiers; the direct score comparison is scoped to the verified same-ID, same-gold cohort rather than treated as a fingerprint-equality test.
+
+
+\section{Table-specific protocol and missingness}
+Q1a uses the optimized v37 target and the complete three-seed baseline families listed in Table 1. The target and standard XLM-R macro means are 93.665838 and 92.934251, with sample SDs 0.187121 and 0.144790 percentage points. Their difference is 0.731587 percentage points. The per-head means and SDs in Table 1 were recomputed from the same saved JSONL prediction rows.
+
+Q1b uses the external retention records and reports ordinary F1 as the unweighted mean of the three external macro-F1 values. Q2 uses the six follow-up variants: full, no emotion auxiliary, no polarity auxiliary, no rationale, no multitask, and no uncertainty weighting. The selected Q2 metric artifacts expose the legacy field \texttt{polarity\_dev\_ece}; Table 3 reports macro-pragmatic F1 on the Q2 test split and the verified ten-bin top-label polarity ECE from the development split on the $10^3$ scale. The no-polarity row is not applicable for all three seeds because its polarity head was removed. The no-multitask row is a separate single-task component-bundle recipe. Relative cost is normalized to the full XLM-R Q2 run using the recorded mean GPU-hour values. Q3 reports the six nested target budgets and the available contextual baseline rows; missing baseline budget cells are not imputed. Q4 extracts raw probabilities from the same-seed Q1a v37 full checkpoints.
+
+Audit note: the corresponding test-file values are valid test ECE, but the prior paper version incorrectly labeled them as development ECE. This revision corrects that split label and uses the verified development values in Table 3.
+
+For auditability, the no-multitask component-bundle manifest records \texttt{status = NOT\_STARTED} with \texttt{executio\allowbreak{}n\_kind =\allowbreak{} compone\allowbreak{}nt\_bundl\allowbreak{}e}, direct classification outputs used, synthetic results false, and review status PASS. These technical flags identify the recipe protocol and are not a failed-run claim; the component execution proof is the basis for retaining its reported metrics.
+
+Incomplete GPT records and ViSoBERT prediction records are not inserted into any table. The retained ViPragSent Vistral variants are shown only where the compact canonical rows provide an explicit evidence status; the incomplete CoT-only row remains marked provisional. Q2 ECE for the no-polarity row is reported as not applicable for all three seeds because the polarity head was removed. These exclusions define the comparison scope and do not support claims about systems without verified rows.
+
+The exact Hugging Face seed-22 run directory is present in the current \texttt{overflow-006} and Vistral-checkpoint trees. It contains development predictions/metrics and checkpoint/receipt artifacts, but the exhaustive live tree audit found no test predictions or test metrics for this exact run. The development metric is not substituted for a test score, so the COT row remains provisional at 2/3 test seeds. The detailed audit is recorded in \texttt{revision\allowbreak{}\_q1a\_ext\allowbreak{}ra/q1a\_c\allowbreak{}ot\_seed2\allowbreak{}2\_hf\_aud\allowbreak{}it.json}.

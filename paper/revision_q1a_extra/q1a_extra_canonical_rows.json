@@ -1,0 +1,1730 @@
+{
+  "aggregate_rows": [
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.020534797902333812,
+        "idiom_figurative": 0.02593108011081946,
+        "implicit_sentiment": 0.019249309265460535,
+        "irony": 0.01696902428678737,
+        "macro_pragmatic_f1": 0.011439472692229669,
+        "mocking": 0.03861728624931393,
+        "sarcasm": 0.03416475417444037
+      },
+      "display_name": "PhoBERT (single-task)",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.9108407841921509,
+        "idiom_figurative": 0.9121266949570682,
+        "implicit_sentiment": 0.8800146585024307,
+        "irony": 0.9712729847239184,
+        "macro_pragmatic_f1": 0.8624271012304049,
+        "mocking": 0.7915680486286674,
+        "sarcasm": 0.7087394363781937
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.015103342492024061,
+        "idiom_figurative": 0.0077786106563450825,
+        "implicit_sentiment": 0.012895217530436971,
+        "irony": 0.0105543549302949,
+        "macro_pragmatic_f1": 0.004850612407389662,
+        "mocking": 0.02986010348080333,
+        "sarcasm": 0.01336568450065642
+      },
+      "seed_count": 3,
+      "seed_source_ids": [
+        "q1a_phobert_pragmatic_single_task_20260521",
+        "q1a_phobert_pragmatic_single_task_20260522",
+        "q1a_phobert_pragmatic_single_task_20260523"
+      ],
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "phobert_pragmatic_single_task"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.01631771273592647,
+        "idiom_figurative": 0.02957199402095534,
+        "implicit_sentiment": 0.018289735636072224,
+        "irony": 0.013134935313728946,
+        "macro_pragmatic_f1": 0.012097645544307034,
+        "mocking": 0.028540662302073305,
+        "sarcasm": 0.03741786526493446
+      },
+      "display_name": "PhoBERT fine-tune",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.9173241668448199,
+        "idiom_figurative": 0.8663231312284516,
+        "implicit_sentiment": 0.8575667140113864,
+        "irony": 0.9745071770727809,
+        "macro_pragmatic_f1": 0.8545650658243372,
+        "mocking": 0.7852600224075886,
+        "sarcasm": 0.7264091833809954
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.005292900681219354,
+        "idiom_figurative": 0.006619533493550472,
+        "implicit_sentiment": 0.0071619784752648755,
+        "irony": 0.0018780588789032596,
+        "macro_pragmatic_f1": 0.0036106045939239416,
+        "mocking": 0.01008745029401132,
+        "sarcasm": 0.0050131299966028175
+      },
+      "seed_count": 3,
+      "seed_source_ids": [
+        "q1a_phobert_pragmatic_finetune_20260521",
+        "q1a_phobert_pragmatic_finetune_20260522",
+        "q1a_phobert_pragmatic_finetune_20260523"
+      ],
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "phobert_pragmatic_finetune"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.013296095101897831,
+        "idiom_figurative": 0.022620445393261412,
+        "implicit_sentiment": 0.013081594743430125,
+        "irony": 0.01150500323950232,
+        "macro_pragmatic_f1": 0.008391221120750691,
+        "mocking": 0.01684287956519709,
+        "sarcasm": 0.027841044858561426
+      },
+      "display_name": "XLM-R-large fine-tune",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.9426512893430123,
+        "idiom_figurative": 0.9285011828556056,
+        "implicit_sentiment": 0.9216367596235837,
+        "irony": 0.9792952151111276,
+        "macro_pragmatic_f1": 0.929342505569368,
+        "mocking": 0.9227402370780134,
+        "sarcasm": 0.8812303494048656
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.0004459663398058473,
+        "idiom_figurative": 0.006754832346493092,
+        "implicit_sentiment": 0.0013081359457690052,
+        "irony": 0.0009679387994591222,
+        "macro_pragmatic_f1": 0.0014479038590645334,
+        "mocking": 0.004117708921951947,
+        "sarcasm": 0.004297944421503656
+      },
+      "seed_count": 3,
+      "seed_source_ids": [
+        "q1a_xlmr_pragmatic_finetune_20260521",
+        "q1a_xlmr_pragmatic_finetune_20260522",
+        "q1a_xlmr_pragmatic_finetune_20260523"
+      ],
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "xlmr_pragmatic_finetune"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.017551211697460878,
+        "idiom_figurative": 0.027525156956521135,
+        "implicit_sentiment": 0.018531819378068637,
+        "irony": 0.017074947277335162,
+        "macro_pragmatic_f1": 0.012921038199706303,
+        "mocking": 0.02953288388547587,
+        "sarcasm": 0.04220029975221956
+      },
+      "display_name": "Sailor-7B SFT",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.9103292999692313,
+        "idiom_figurative": 0.9115459697649155,
+        "implicit_sentiment": 0.8542362245938664,
+        "irony": 0.957496555022043,
+        "macro_pragmatic_f1": 0.8554370057355398,
+        "mocking": 0.7775657813503422,
+        "sarcasm": 0.7214482037128408
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.007440822084230514,
+        "idiom_figurative": 0.014004211846919338,
+        "implicit_sentiment": 0.0026999320063162717,
+        "irony": 0.005231220300472464,
+        "macro_pragmatic_f1": 0.004764727661750579,
+        "mocking": 0.012133796411236185,
+        "sarcasm": 0.029603130787598353
+      },
+      "seed_count": 3,
+      "seed_source_ids": [
+        "q1a_sailor_pragmatic_sft_20260521",
+        "q1a_sailor_pragmatic_sft_20260522",
+        "q1a_sailor_pragmatic_sft_20260523"
+      ],
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "sailor_pragmatic_sft"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.015910656807916368,
+        "idiom_figurative": 0.025829055016360458,
+        "implicit_sentiment": 0.017914783082816965,
+        "irony": 0.015641927506757247,
+        "macro_pragmatic_f1": 0.011122341289371396,
+        "mocking": 0.024246372128048477,
+        "sarcasm": 0.03463063345542278
+      },
+      "display_name": "Vistral-7B SFT",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.927979601880444,
+        "idiom_figurative": 0.914788677521223,
+        "implicit_sentiment": 0.8735629394319029,
+        "irony": 0.9669016648462583,
+        "macro_pragmatic_f1": 0.8716188257397464,
+        "mocking": 0.7990935691473277,
+        "sarcasm": 0.747386501611322
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.006025291604462443,
+        "idiom_figurative": 0.015487269945741173,
+        "implicit_sentiment": 0.0030567261755151823,
+        "irony": 0.0022931199252889485,
+        "macro_pragmatic_f1": 0.003289463930029276,
+        "mocking": 0.0025693482253392333,
+        "sarcasm": 0.009378247509194979
+      },
+      "seed_count": 3,
+      "seed_source_ids": [
+        "q1a_vistral_pragmatic_sft_20260521",
+        "q1a_vistral_pragmatic_sft_20260522",
+        "q1a_vistral_pragmatic_sft_20260523"
+      ],
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "vistral_pragmatic_sft"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.015711695189680075,
+        "idiom_figurative": 0.024949743376713962,
+        "implicit_sentiment": 0.017667209162187336,
+        "irony": 0.013732933253488455,
+        "macro_pragmatic_f1": 0.012289813737496658,
+        "mocking": 0.0371890441903277,
+        "sarcasm": 0.036043871612714495
+      },
+      "display_name": "ViPragSent - no auxiliary loss",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.9287641298160704,
+        "idiom_figurative": 0.9150639130583794,
+        "implicit_sentiment": 0.8742996739958401,
+        "irony": 0.9715198871110574,
+        "macro_pragmatic_f1": 0.872115173960342,
+        "mocking": 0.7951285250053456,
+        "sarcasm": 0.7479149147753591
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.00630263827633659,
+        "idiom_figurative": 0.009852278381839748,
+        "implicit_sentiment": 0.006175041037796479,
+        "irony": 0.0027307591121044023,
+        "macro_pragmatic_f1": 0.00579742924440962,
+        "mocking": 0.028107327293586705,
+        "sarcasm": 0.005273071972370881
+      },
+      "seed_count": 3,
+      "seed_source_ids": [
+        "q1a_vipragsent_no_auxiliary_vistral_20260521",
+        "q1a_vipragsent_no_auxiliary_vistral_20260522",
+        "q1a_vipragsent_no_auxiliary_vistral_20260523"
+      ],
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "vipragsent_no_auxiliary_vistral"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.00438965053514126,
+        "idiom_figurative": 0.0030211005748550235,
+        "implicit_sentiment": 0.011428493451643831,
+        "irony": 0.0030195355900581866,
+        "macro_pragmatic_f1": 0.0018669198131219256,
+        "mocking": 0.0040259278218717776,
+        "sarcasm": 0.0029502660282408333
+      },
+      "display_name": "Vistral CoT-only clean rerun 003",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.4591671173607355,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.17355371900826447,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.42465442106622775,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.4824016563146998
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "missing_seed_source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.0,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": 0.0,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 0.0,
+        "mocking": 0.0,
+        "sarcasm": 0.0
+      },
+      "seed_count": 2,
+      "seed_source_ids": [
+        "q1a_cot_only_vistral_clean_rerun_003__seed_20260521",
+        "q1a_cot_only_vistral_clean_rerun_003__seed_20260523"
+      ],
+      "status": "PROVISIONAL_2_OF_3_MISSING_TEST_SCORE",
+      "system_id": "cot_only_vistral"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.005561617146822878,
+        "idiom_figurative": 0.0029563855023761465,
+        "implicit_sentiment": 0.005388742308156086,
+        "irony": 0.002751350305941619,
+        "macro_pragmatic_f1": 0.0021287584209382926,
+        "mocking": 0.0038771258457244717,
+        "sarcasm": 0.0028808461916217942
+      },
+      "display_name": "ViPragSent - explanation only",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.4601550934678288,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.441340782122905,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.4694502609365167,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.4824016563146998
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.0018393703009568104,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": 0.0,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 0.00030656171682616744,
+        "mocking": 0.0,
+        "sarcasm": 0.0
+      },
+      "seed_count": 3,
+      "seed_source_ids": [
+        "q1a_explanation_only_vistral_20260521",
+        "q1a_explanation_only_vistral_20260522",
+        "q1a_explanation_only_vistral_20260523"
+      ],
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "explanation_only_vistral"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.2306073204999967,
+        "idiom_figurative": 0.19384222906529264,
+        "implicit_sentiment": 0.04889465367582885,
+        "irony": 0.033346634826308896,
+        "macro_pragmatic_f1": 0.10787564583954395,
+        "mocking": 0.07998076957114197,
+        "sarcasm": 0.07383623809883377
+      },
+      "display_name": "ViPragSent (ours, Vistral)",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.7836019978768721,
+        "idiom_figurative": 0.7937965807615102,
+        "implicit_sentiment": 0.8492625271774296,
+        "irony": 0.9475458606758383,
+        "macro_pragmatic_f1": 0.8119291246500239,
+        "mocking": 0.7714700753691395,
+        "sarcasm": 0.7258977060393536
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.2644326615826389,
+        "idiom_figurative": 0.22133542341252238,
+        "implicit_sentiment": 0.054891601969916826,
+        "irony": 0.03177762556062502,
+        "macro_pragmatic_f1": 0.12232294364665386,
+        "mocking": 0.08595217334986294,
+        "sarcasm": 0.07729367435346864
+      },
+      "seed_count": 3,
+      "seed_source_ids": [
+        "q1a_vipragsent_full_vistral_20260521",
+        "q1a_vipragsent_full_vistral_20260522",
+        "q1a_vipragsent_full_vistral_20260523"
+      ],
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "vipragsent_full_vistral"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.027058653889409034,
+        "idiom_figurative": 0.0241400199319749,
+        "implicit_sentiment": 0.02178143418452816,
+        "irony": 0.026977717805009016,
+        "macro_pragmatic_f1": 0.012941820464564047,
+        "mocking": 0.02561195896352847,
+        "sarcasm": 0.03142540289853912
+      },
+      "display_name": "GPT-4.1-mini zero-shot",
+      "expected_seed_count": 1,
+      "mean": {
+        "code_switching": 0.624173295832143,
+        "idiom_figurative": 0.5245356024461824,
+        "implicit_sentiment": 0.45444640138890335,
+        "irony": 0.5317232584090548,
+        "macro_pragmatic_f1": 0.5411368091832071,
+        "mocking": 0.5468592622181561,
+        "sarcasm": 0.5650830348048024
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "model_identity": "GPT-4.1-mini (source identity retained; not GPT-4o-mini)",
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": null,
+        "idiom_figurative": null,
+        "implicit_sentiment": null,
+        "irony": null,
+        "macro_pragmatic_f1": null,
+        "mocking": null,
+        "sarcasm": null
+      },
+      "seed_count": 1,
+      "seed_source_ids": [
+        "azure_pragmatic_zero_shot"
+      ],
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "azure_pragmatic_zero_shot"
+    },
+    {
+      "ci_half_width_from_report": {
+        "code_switching": 0.026386709802757813,
+        "idiom_figurative": 0.02468936705117364,
+        "implicit_sentiment": 0.023316408520489884,
+        "irony": 0.025675705729536924,
+        "macro_pragmatic_f1": 0.013479107789301004,
+        "mocking": 0.025129238162149126,
+        "sarcasm": 0.03398010198466023
+      },
+      "display_name": "GPT-4.1-mini 8-shot",
+      "expected_seed_count": 1,
+      "mean": {
+        "code_switching": 0.5688507335877959,
+        "idiom_figurative": 0.508677472350313,
+        "implicit_sentiment": 0.490433631788772,
+        "irony": 0.5237347936717627,
+        "macro_pragmatic_f1": 0.5409782739146386,
+        "mocking": 0.5432388772494162,
+        "sarcasm": 0.6109341348397718
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "model_identity": "GPT-4.1-mini (source identity retained; not GPT-4o-mini)",
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": null,
+        "idiom_figurative": null,
+        "implicit_sentiment": null,
+        "irony": null,
+        "macro_pragmatic_f1": null,
+        "mocking": null,
+        "sarcasm": null
+      },
+      "seed_count": 1,
+      "seed_source_ids": [
+        "azure_gpt41_mini_8shot"
+      ],
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "azure_gpt41_mini_8shot"
+    },
+    {
+      "ci_half_width_from_report": null,
+      "display_name": "ViPragSent XLM-R-large (primary)",
+      "expected_seed_count": 3,
+      "mean": {
+        "code_switching": 0.9483808787152407,
+        "idiom_figurative": 0.9334908734953515,
+        "implicit_sentiment": 0.9266933597745228,
+        "irony": 0.9843275320586826,
+        "macro_pragmatic_f1": 0.9366583803341149,
+        "mocking": 0.933451894659107,
+        "sarcasm": 0.8936057433017844
+      },
+      "metric_definition": {
+        "class_average": "macro over classes 0 and 1 for each label",
+        "labels": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking"
+        ],
+        "metric": "binary macro-F1",
+        "raw_scale": "0_to_1",
+        "table_scale": "percent"
+      },
+      "note": "sample_sd is computed from per-seed F1 values; report CI half_width is a separate bootstrap quantity.",
+      "sample_sd": {
+        "code_switching": 0.0056397088889329145,
+        "idiom_figurative": 0.006617848649112766,
+        "implicit_sentiment": 0.002356902005323168,
+        "irony": 0.0019545822284192976,
+        "macro_pragmatic_f1": 0.001871210373416054,
+        "mocking": 0.007294225437715745,
+        "sarcasm": 0.00896975104347313
+      },
+      "seed_count": 3,
+      "seed_source_ids": [
+        "local_target_21",
+        "local_target_22",
+        "local_target_23"
+      ],
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "vipragsent_xlmr_large"
+    }
+  ],
+  "coverage_note": "ANALYZED_REMOTE_DEV_ONLY means the exact remote run exists with development/checkpoint evidence but no test six-head metric/prediction evidence; UNVERIFIED/NOT_AVAILABLE remains for rows with no usable remote evidence. No value is imputed.",
+  "live_hf_audit": "paper/revision_q1a_extra/q1a_cot_seed22_hf_audit.json",
+  "per_seed_rows": [
+    {
+      "display_name": "PhoBERT (single-task)",
+      "f1": {
+        "code_switching": 0.9096699273960401,
+        "idiom_figurative": 0.9211057813683413,
+        "implicit_sentiment": 0.8651741904013113,
+        "irony": 0.9595437693070137,
+        "macro_pragmatic_f1": 0.8619618894652946,
+        "mocking": 0.8224394924791791,
+        "sarcasm": 0.6938381758398816
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_phobert_pragmatic_single_task_20260521",
+      "seed": "20260521",
+      "source": {
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260521/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260521/metrics/test_metrics.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260521/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_phobert_pragmatic_single_task_20260521"
+      },
+      "source_id": "q1a_phobert_pragmatic_single_task_20260521",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "phobert_pragmatic_single_task"
+    },
+    {
+      "display_name": "PhoBERT (single-task)",
+      "f1": {
+        "code_switching": 0.8963569466756491,
+        "idiom_figurative": 0.9074402021203749,
+        "implicit_sentiment": 0.8863827447202062,
+        "irony": 0.9742716654841528,
+        "macro_pragmatic_f1": 0.8578258552082235,
+        "mocking": 0.762834159693526,
+        "sarcasm": 0.7196694125554328
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_phobert_pragmatic_single_task_20260522",
+      "seed": "20260522",
+      "source": {
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260522/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260522/metrics/test_metrics.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260522/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_phobert_pragmatic_single_task_20260522"
+      },
+      "source_id": "q1a_phobert_pragmatic_single_task_20260522",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "phobert_pragmatic_single_task"
+    },
+    {
+      "display_name": "PhoBERT (single-task)",
+      "f1": {
+        "code_switching": 0.9264954785047632,
+        "idiom_figurative": 0.9078341013824884,
+        "implicit_sentiment": 0.8884870403857745,
+        "irony": 0.9800035193805889,
+        "macro_pragmatic_f1": 0.8674935590176965,
+        "mocking": 0.789430493713297,
+        "sarcasm": 0.7127107207392667
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_phobert_pragmatic_single_task_20260523",
+      "seed": "20260523",
+      "source": {
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260523/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260523/metrics/test_metrics.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_single_task_20260523/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_phobert_pragmatic_single_task_20260523"
+      },
+      "source_id": "q1a_phobert_pragmatic_single_task_20260523",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "phobert_pragmatic_single_task"
+    },
+    {
+      "display_name": "PhoBERT fine-tune",
+      "f1": {
+        "code_switching": 0.9122790055834884,
+        "idiom_figurative": 0.8667873416630425,
+        "implicit_sentiment": 0.8499214294542436,
+        "irony": 0.9764918838228899,
+        "macro_pragmatic_f1": 0.8508045874251716,
+        "mocking": 0.7737005957742695,
+        "sarcasm": 0.7256472682530957
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_phobert_pragmatic_finetune_20260521",
+      "seed": "20260521",
+      "source": {
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260521/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260521/metrics/test_metrics.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260521/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_phobert_pragmatic_finetune_20260521"
+      },
+      "source_id": "q1a_phobert_pragmatic_finetune_20260521",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "phobert_pragmatic_finetune"
+    },
+    {
+      "display_name": "PhoBERT fine-tune",
+      "f1": {
+        "code_switching": 0.9228341474330779,
+        "idiom_figurative": 0.8726983405319391,
+        "implicit_sentiment": 0.8641199521425865,
+        "irony": 0.9742716654841528,
+        "macro_pragmatic_f1": 0.858004332666626,
+        "mocking": 0.7922812651704694,
+        "sarcasm": 0.72182062523753
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_phobert_pragmatic_finetune_20260522",
+      "seed": "20260522",
+      "source": {
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260522/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260522/metrics/test_metrics.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260522/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_phobert_pragmatic_finetune_20260522"
+      },
+      "source_id": "q1a_phobert_pragmatic_finetune_20260522",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "phobert_pragmatic_finetune"
+    },
+    {
+      "display_name": "PhoBERT fine-tune",
+      "f1": {
+        "code_switching": 0.9168593475178932,
+        "idiom_figurative": 0.8594837114903732,
+        "implicit_sentiment": 0.858658760437329,
+        "irony": 0.9727579819112999,
+        "macro_pragmatic_f1": 0.8548862773812139,
+        "mocking": 0.7897982062780269,
+        "sarcasm": 0.7317596566523605
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_phobert_pragmatic_finetune_20260523",
+      "seed": "20260523",
+      "source": {
+        "ci_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260523/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260523/metrics/test_metrics.json",
+        "prediction_path": "server_20260808/results/runs/q1a_phobert_pragmatic_finetune_20260523/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_phobert_pragmatic_finetune_20260523"
+      },
+      "source_id": "q1a_phobert_pragmatic_finetune_20260523",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "phobert_pragmatic_finetune"
+    },
+    {
+      "display_name": "XLM-R-large fine-tune",
+      "f1": {
+        "code_switching": 0.9431662469156852,
+        "idiom_figurative": 0.9351439613305408,
+        "implicit_sentiment": 0.9201465753971598,
+        "irony": 0.9786671010820628,
+        "macro_pragmatic_f1": 0.9310143927657345,
+        "mocking": 0.9227694625551417,
+        "sarcasm": 0.8861930093138173
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_xlmr_pragmatic_finetune_20260521",
+      "seed": "20260521",
+      "source": {
+        "ci_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260521/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260521/metrics/test_metrics.json",
+        "prediction_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260521/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_xlmr_pragmatic_finetune_20260521"
+      },
+      "source_id": "q1a_xlmr_pragmatic_finetune_20260521",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "xlmr_pragmatic_finetune"
+    },
+    {
+      "display_name": "XLM-R-large fine-tune",
+      "f1": {
+        "code_switching": 0.9423938105566759,
+        "idiom_figurative": 0.9287199744933098,
+        "implicit_sentiment": 0.9221679992617079,
+        "irony": 0.9804099031857416,
+        "macro_pragmatic_f1": 0.9285020357074613,
+        "mocking": 0.9186079932037674,
+        "sarcasm": 0.8787125335435649
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_xlmr_pragmatic_finetune_20260522",
+      "seed": "20260522",
+      "source": {
+        "ci_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260522/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260522/metrics/test_metrics.json",
+        "prediction_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260522/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_xlmr_pragmatic_finetune_20260522"
+      },
+      "source_id": "q1a_xlmr_pragmatic_finetune_20260522",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "xlmr_pragmatic_finetune"
+    },
+    {
+      "display_name": "XLM-R-large fine-tune",
+      "f1": {
+        "code_switching": 0.9423938105566759,
+        "idiom_figurative": 0.9216396127429661,
+        "implicit_sentiment": 0.9225957042118833,
+        "irony": 0.9788086410655785,
+        "macro_pragmatic_f1": 0.9285110882349082,
+        "mocking": 0.9268432554751314,
+        "sarcasm": 0.8787855053572144
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_xlmr_pragmatic_finetune_20260523",
+      "seed": "20260523",
+      "source": {
+        "ci_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260523/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260523/metrics/test_metrics.json",
+        "prediction_path": "server_20260808/results/runs/q1a_xlmr_pragmatic_finetune_20260523/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_xlmr_pragmatic_finetune_20260523"
+      },
+      "source_id": "q1a_xlmr_pragmatic_finetune_20260523",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "xlmr_pragmatic_finetune"
+    },
+    {
+      "display_name": "Sailor-7B SFT",
+      "f1": {
+        "code_switching": 0.9187127268113184,
+        "idiom_figurative": 0.8969462756687125,
+        "implicit_sentiment": 0.855124056805315,
+        "irony": 0.9550725170418111,
+        "macro_pragmatic_f1": 0.8586475352880477,
+        "mocking": 0.7893447729832885,
+        "sarcasm": 0.7366848624178406
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_sailor_pragmatic_sft_20260521",
+      "seed": "20260521",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260521/science/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260521/science/metrics/test_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260521/science/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_sailor_pragmatic_sft_20260521"
+      },
+      "source_id": "q1a_sailor_pragmatic_sft_20260521",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "sailor_pragmatic_sft"
+    },
+    {
+      "display_name": "Sailor-7B SFT",
+      "f1": {
+        "code_switching": 0.9077668345577621,
+        "idiom_figurative": 0.9248670001415968,
+        "implicit_sentiment": 0.8512041724190826,
+        "irony": 0.9635000973330737,
+        "macro_pragmatic_f1": 0.8499623734806137,
+        "mocking": 0.7651058569000154,
+        "sarcasm": 0.6873302795321521
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_sailor_pragmatic_sft_20260522",
+      "seed": "20260522",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260522/science/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260522/science/metrics/test_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260522/science/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_sailor_pragmatic_sft_20260522"
+      },
+      "source_id": "q1a_sailor_pragmatic_sft_20260522",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "sailor_pragmatic_sft"
+    },
+    {
+      "display_name": "Sailor-7B SFT",
+      "f1": {
+        "code_switching": 0.9045083385386133,
+        "idiom_figurative": 0.9128246334844373,
+        "implicit_sentiment": 0.8563804445572016,
+        "irony": 0.9539170506912442,
+        "macro_pragmatic_f1": 0.8577011084379581,
+        "mocking": 0.7782467141677225,
+        "sarcasm": 0.7403294691885296
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_sailor_pragmatic_sft_20260523",
+      "seed": "20260523",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260523/science/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260523/science/metrics/test_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_sailor_pragmatic_sft_20260523/science/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_sailor_pragmatic_sft_20260523"
+      },
+      "source_id": "q1a_sailor_pragmatic_sft_20260523",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "sailor_pragmatic_sft"
+    },
+    {
+      "display_name": "Vistral-7B SFT",
+      "f1": {
+        "code_switching": 0.9283103093309181,
+        "idiom_figurative": 0.9199511897498475,
+        "implicit_sentiment": 0.873909551118002,
+        "irony": 0.9642537980339589,
+        "macro_pragmatic_f1": 0.8707719993127375,
+        "mocking": 0.8000199980002001,
+        "sarcasm": 0.7381871496434982
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_vistral_pragmatic_sft_20260521",
+      "seed": "20260521",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260521/science/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260521/science/metrics/test_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260521/science/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_vistral_pragmatic_sft_20260521"
+      },
+      "source_id": "q1a_vistral_pragmatic_sft_20260521",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "vistral_pragmatic_sft"
+    },
+    {
+      "display_name": "Vistral-7B SFT",
+      "f1": {
+        "code_switching": 0.92179576717115,
+        "idiom_figurative": 0.9270353302611367,
+        "implicit_sentiment": 0.8764315852923448,
+        "irony": 0.968225598252408,
+        "macro_pragmatic_f1": 0.8752489096096876,
+        "mocking": 0.8010712249526895,
+        "sarcasm": 0.7569339517283966
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_vistral_pragmatic_sft_20260522",
+      "seed": "20260522",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260522/science/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260522/science/metrics/test_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260522/science/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_vistral_pragmatic_sft_20260522"
+      },
+      "source_id": "q1a_vistral_pragmatic_sft_20260522",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "vistral_pragmatic_sft"
+    },
+    {
+      "display_name": "Vistral-7B SFT",
+      "f1": {
+        "code_switching": 0.9338327291392641,
+        "idiom_figurative": 0.8973795125526847,
+        "implicit_sentiment": 0.8703476818853619,
+        "irony": 0.968225598252408,
+        "macro_pragmatic_f1": 0.8688355682968139,
+        "mocking": 0.7961894844890933,
+        "sarcasm": 0.7470384034620714
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_vistral_pragmatic_sft_20260523",
+      "seed": "20260523",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260523/science/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260523/science/metrics/test_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vistral_pragmatic_sft_20260523/science/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_vistral_pragmatic_sft_20260523"
+      },
+      "source_id": "q1a_vistral_pragmatic_sft_20260523",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "vistral_pragmatic_sft"
+    },
+    {
+      "display_name": "ViPragSent - no auxiliary loss",
+      "f1": {
+        "code_switching": 0.92369652659828,
+        "idiom_figurative": 0.9171610514381708,
+        "implicit_sentiment": 0.8813664185873293,
+        "irony": 0.9686558450971865,
+        "macro_pragmatic_f1": 0.8660203074235883,
+        "mocking": 0.7626758586358493,
+        "sarcasm": 0.7425661441847142
+      },
+      "prediction_sha256": "12f9b575543c1fb298a29a70da909a70a3e18ae873181ba4f3380134f814e068",
+      "recompute_deltas_vs_report": {
+        "code_switching": 1.1102230246251565e-16,
+        "idiom_figurative": 1.1102230246251565e-16,
+        "implicit_sentiment": 0.0,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 2.220446049250313e-16,
+        "mocking": 0.0,
+        "sarcasm": 0.0
+      },
+      "recomputed_f1": {
+        "code_switching": 0.9236965265982802,
+        "idiom_figurative": 0.917161051438171,
+        "implicit_sentiment": 0.8813664185873293,
+        "irony": 0.9686558450971865,
+        "macro_pragmatic_f1": 0.8660203074235885,
+        "mocking": 0.7626758586358493,
+        "sarcasm": 0.7425661441847142
+      },
+      "report_status": "COMPLETE",
+      "row_count": 2000,
+      "run_id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+      "seed": "20260521",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260521/science/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260521/science/metrics/test_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260521/science/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260521"
+      },
+      "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260521",
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "vipragsent_no_auxiliary_vistral"
+    },
+    {
+      "display_name": "ViPragSent - no auxiliary loss",
+      "f1": {
+        "code_switching": 0.9358215137954573,
+        "idiom_figurative": 0.9236987780359303,
+        "implicit_sentiment": 0.8699435183279596,
+        "irony": 0.9718095452879655,
+        "macro_pragmatic_f1": 0.8775604473543956,
+        "mocking": 0.8109804496946937,
+        "sarcasm": 0.7531088789843678
+      },
+      "prediction_sha256": "355a8187cdf3eb71892b70257e9f5480fd559ae9dc5b28f7deba1193b3c219a7",
+      "recompute_deltas_vs_report": {
+        "code_switching": 0.0,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": 0.0,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 0.0,
+        "mocking": 0.0,
+        "sarcasm": 0.0
+      },
+      "recomputed_f1": {
+        "code_switching": 0.9358215137954573,
+        "idiom_figurative": 0.9236987780359303,
+        "implicit_sentiment": 0.8699435183279596,
+        "irony": 0.9718095452879655,
+        "macro_pragmatic_f1": 0.8775604473543956,
+        "mocking": 0.8109804496946937,
+        "sarcasm": 0.7531088789843678
+      },
+      "report_status": "COMPLETE",
+      "row_count": 2000,
+      "run_id": "q1a_vipragsent_no_auxiliary_vistral_20260522",
+      "seed": "20260522",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260522/science/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260522/science/metrics/test_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260522/science/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260522"
+      },
+      "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260522",
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "vipragsent_no_auxiliary_vistral"
+    },
+    {
+      "display_name": "ViPragSent - no auxiliary loss",
+      "f1": {
+        "code_switching": 0.9267743490544738,
+        "idiom_figurative": 0.9043319097010372,
+        "implicit_sentiment": 0.8715890850722312,
+        "irony": 0.9740942709480201,
+        "macro_pragmatic_f1": 0.872764767103042,
+        "mocking": 0.8117292666854937,
+        "sarcasm": 0.7480697211569953
+      },
+      "prediction_sha256": "e85952a5c9f711a282c4e9317a55db9b5e17638bd34f8285382e9aeca2a669d5",
+      "recompute_deltas_vs_report": {
+        "code_switching": 0.0,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": -1.1102230246251565e-16,
+        "irony": 1.1102230246251565e-16,
+        "macro_pragmatic_f1": 0.0,
+        "mocking": -1.1102230246251565e-16,
+        "sarcasm": -1.1102230246251565e-16
+      },
+      "recomputed_f1": {
+        "code_switching": 0.9267743490544738,
+        "idiom_figurative": 0.9043319097010372,
+        "implicit_sentiment": 0.8715890850722311,
+        "irony": 0.9740942709480203,
+        "macro_pragmatic_f1": 0.872764767103042,
+        "mocking": 0.8117292666854936,
+        "sarcasm": 0.7480697211569952
+      },
+      "report_status": "COMPLETE",
+      "row_count": 2000,
+      "run_id": "q1a_vipragsent_no_auxiliary_vistral_20260523",
+      "seed": "20260523",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260523/science/metrics/test_confidence_intervals.json",
+        "metric_note": "Persisted test metrics and prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260523/science/metrics/test_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_no_auxiliary_vistral_20260523/science/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260523"
+      },
+      "source_id": "q1a_vipragsent_no_auxiliary_vistral_20260523",
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "vipragsent_no_auxiliary_vistral"
+    },
+    {
+      "display_name": "Vistral CoT-only clean rerun 003",
+      "f1": {
+        "code_switching": 0.4591671173607355,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.17355371900826447,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.42465442106622775,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.4824016563146998
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260521",
+      "seed": "20260521",
+      "source": {
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260521/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260521/predictions/test_predictions.jsonl",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-003",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-006",
+        "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260521"
+      },
+      "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260521",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "cot_only_vistral"
+    },
+    {
+      "display_name": "Vistral CoT-only clean rerun 003",
+      "f1": {
+        "code_switching": null,
+        "idiom_figurative": null,
+        "implicit_sentiment": null,
+        "irony": null,
+        "macro_pragmatic_f1": null,
+        "mocking": null,
+        "sarcasm": null
+      },
+      "reason": "The exact seed-22 run exists on current HF trees with development predictions/metrics and checkpoint/receipt artifacts, but exhaustive tree audit found no test predictions or test metrics.",
+      "report_status": "MISSING_TEST_SCORE",
+      "run_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+      "seed": "20260522",
+      "source": {
+        "checkpoint_paths": [
+          "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/checkpoints/epoch_0001/model.pt",
+          "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/checkpoints/epoch_0002/model.pt"
+        ],
+        "checkpoint_repo": "Thundergod2007/vipragsent-vistral7b-checkpoints",
+        "dev_metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/epochs/epoch_1/metrics/dev_reasoning_metrics.json",
+        "dev_prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/epochs/epoch_1/predictions/dev_predictions.jsonl",
+        "dev_row_count": 1999,
+        "dev_metric_status": "PASS_DEV_ONLY",
+        "metric_path": null,
+        "note": "Exact run directory exists in overflow-006 and the checkpoint repository; current HF evidence is dev/checkpoint-only. No test predictions or test metrics were found, and the dev all-zero-fallback value is not used.",
+        "prediction_path": null,
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-006",
+        "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+        "test_score_status": "MISSING_TEST_SCORE_ARTIFACT",
+        "training_checkpoint_status": "REMOTE_CHECKPOINTS_PRESENT_EPOCH_0001_0002"
+      },
+      "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+      "status": "ANALYZED_REMOTE_DEV_ONLY",
+      "system_id": "cot_only_vistral"
+    },
+    {
+      "display_name": "Vistral CoT-only clean rerun 003",
+      "f1": {
+        "code_switching": 0.4591671173607355,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.17355371900826447,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.42465442106622775,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.4824016563146998
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260523",
+      "seed": "20260523",
+      "source": {
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260523/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260523/predictions/test_predictions.jsonl",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-024",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-024",
+        "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260523"
+      },
+      "source_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260523",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "cot_only_vistral"
+    },
+    {
+      "display_name": "ViPragSent - explanation only",
+      "f1": {
+        "code_switching": 0.4591671173607355,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.441340782122905,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.46928559825200117,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.4824016563146998
+      },
+      "prediction_sha256": "e84e210c7ccb02032c9cad2ba0630df0007e51149b61a73d7041407271014525",
+      "recompute_deltas_vs_report": {
+        "code_switching": 0.0,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": 5.551115123125783e-17,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 0.0,
+        "mocking": 0.0,
+        "sarcasm": 5.551115123125783e-17
+      },
+      "recomputed_f1": {
+        "code_switching": 0.4591671173607355,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.44134078212290506,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.46928559825200117,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.48240165631469983
+      },
+      "report_status": "COMPLETE",
+      "row_count": 2000,
+      "run_id": "q1a_explanation_only_vistral_20260521",
+      "seed": "20260521",
+      "source": {
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260521/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260521/predictions/test_predictions.jsonl",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-003",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-003",
+        "source_id": "q1a_explanation_only_vistral_20260521"
+      },
+      "source_id": "q1a_explanation_only_vistral_20260521",
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "explanation_only_vistral"
+    },
+    {
+      "display_name": "ViPragSent - explanation only",
+      "f1": {
+        "code_switching": 0.46227733534461724,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.441340782122905,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.4698039679159815,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.4824016563146998
+      },
+      "prediction_sha256": "39fb0ccf063cac7a3abcfc24af021c6d1a4b18bceafdfae0419ba2659dfc5c2a",
+      "recompute_deltas_vs_report": {
+        "code_switching": 0.0,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": 5.551115123125783e-17,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 0.0,
+        "mocking": 0.0,
+        "sarcasm": 5.551115123125783e-17
+      },
+      "recomputed_f1": {
+        "code_switching": 0.46227733534461724,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.44134078212290506,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.4698039679159815,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.48240165631469983
+      },
+      "report_status": "COMPLETE",
+      "row_count": 2000,
+      "run_id": "q1a_explanation_only_vistral_20260522",
+      "seed": "20260522",
+      "source": {
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260522/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260522/predictions/test_predictions.jsonl",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-004",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-010",
+        "source_id": "q1a_explanation_only_vistral_20260522"
+      },
+      "source_id": "q1a_explanation_only_vistral_20260522",
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "explanation_only_vistral"
+    },
+    {
+      "display_name": "ViPragSent - explanation only",
+      "f1": {
+        "code_switching": 0.4590208276981336,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.441340782122905,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.4692612166415675,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.4824016563146998
+      },
+      "prediction_sha256": "10a7efed81f873329da1d9cbad1110c882c6a16610adc4c714bb532486816ee2",
+      "recompute_deltas_vs_report": {
+        "code_switching": 0.0,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": 5.551115123125783e-17,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 0.0,
+        "mocking": 0.0,
+        "sarcasm": 5.551115123125783e-17
+      },
+      "recomputed_f1": {
+        "code_switching": 0.4590208276981336,
+        "idiom_figurative": 0.48173101839854887,
+        "implicit_sentiment": 0.44134078212290506,
+        "irony": 0.481999481999482,
+        "macro_pragmatic_f1": 0.4692612166415675,
+        "mocking": 0.4690735333156358,
+        "sarcasm": 0.48240165631469983
+      },
+      "report_status": "COMPLETE",
+      "row_count": 2000,
+      "run_id": "q1a_explanation_only_vistral_20260523",
+      "seed": "20260523",
+      "source": {
+        "metric_note": "Persisted test reasoning metrics; primary full-split macro-F1 is used.",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260523/metrics/test_reasoning_metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_explanation_only_vistral_20260523/predictions/test_predictions.jsonl",
+        "prediction_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-004",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-014",
+        "source_id": "q1a_explanation_only_vistral_20260523"
+      },
+      "source_id": "q1a_explanation_only_vistral_20260523",
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "explanation_only_vistral"
+    },
+    {
+      "display_name": "ViPragSent (ours, Vistral)",
+      "f1": {
+        "code_switching": 0.4783902159964421,
+        "idiom_figurative": 0.5382487964090338,
+        "implicit_sentiment": 0.7859265551694126,
+        "irony": 0.9112412905516354,
+        "macro_pragmatic_f1": 0.6708685704118457,
+        "mocking": 0.673842755688705,
+        "sarcasm": 0.6375618086558452
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_vipragsent_full_vistral_20260521",
+      "seed": "20260521",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260521/metrics/test_confidence_intervals.json",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260521/metrics/test_metrics.json",
+        "prediction_derivation": "Reconstructed six pragmatic columns from persisted raw test gold/probability arrays using frozen per-seed selection thresholds; reproduces the persisted test metrics.",
+        "prediction_path": "results/runs/q1a_vipragsent_full_vistral_20260521/predictions/test_predictions.jsonl",
+        "remote_prediction_note": "Remote prediction JSONL contains partial record shards, so the validated local prediction file is derived from the complete persisted metric arrays.",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-017",
+        "source_id": "q1a_vipragsent_full_vistral_20260521",
+        "threshold_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260521/selection/thresholds.json",
+        "threshold_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-009"
+      },
+      "source_id": "q1a_vipragsent_full_vistral_20260521",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "vipragsent_full_vistral"
+    },
+    {
+      "display_name": "ViPragSent (ours, Vistral)",
+      "f1": {
+        "code_switching": 0.9438863432649583,
+        "idiom_figurative": 0.9182739457339,
+        "implicit_sentiment": 0.8830527653279896,
+        "irony": 0.9703134601740224,
+        "macro_pragmatic_f1": 0.88873176742299,
+        "mocking": 0.8357580992536584,
+        "sarcasm": 0.7811059907834101
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_vipragsent_full_vistral_20260522",
+      "seed": "20260522",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260522/metrics/test_confidence_intervals.json",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260522/metrics/test_metrics.json",
+        "prediction_derivation": "Reconstructed six pragmatic columns from persisted raw test gold/probability arrays using frozen per-seed selection thresholds; reproduces the persisted test metrics.",
+        "prediction_path": "results/runs/q1a_vipragsent_full_vistral_20260522/predictions/test_predictions.jsonl",
+        "remote_prediction_note": "Remote prediction JSONL contains partial record shards, so the validated local prediction file is derived from the complete persisted metric arrays.",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-017",
+        "source_id": "q1a_vipragsent_full_vistral_20260522",
+        "threshold_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260522/selection/thresholds.json",
+        "threshold_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-017"
+      },
+      "source_id": "q1a_vipragsent_full_vistral_20260522",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "vipragsent_full_vistral"
+    },
+    {
+      "display_name": "ViPragSent (ours, Vistral)",
+      "f1": {
+        "code_switching": 0.928529434369216,
+        "idiom_figurative": 0.9248670001415968,
+        "implicit_sentiment": 0.8788082610348865,
+        "irony": 0.9610828313018571,
+        "macro_pragmatic_f1": 0.8761870361152361,
+        "mocking": 0.804809371165055,
+        "sarcasm": 0.7590253186788053
+      },
+      "prediction_sha256": null,
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": null,
+      "run_id": "q1a_vipragsent_full_vistral_20260523",
+      "seed": "20260523",
+      "source": {
+        "ci_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260523/metrics/test_confidence_intervals.json",
+        "metric_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260523/metrics/test_metrics.json",
+        "prediction_derivation": "Reconstructed six pragmatic columns from persisted raw test gold/probability arrays using frozen per-seed selection thresholds; reproduces the persisted test metrics.",
+        "prediction_path": "results/runs/q1a_vipragsent_full_vistral_20260523/predictions/test_predictions.jsonl",
+        "remote_prediction_note": "Remote prediction JSONL contains partial record shards, so the validated local prediction file is derived from the complete persisted metric arrays.",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-016",
+        "source_id": "q1a_vipragsent_full_vistral_20260523",
+        "threshold_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_vipragsent_full_vistral_20260523/selection/thresholds.json",
+        "threshold_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-016"
+      },
+      "source_id": "q1a_vipragsent_full_vistral_20260523",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "vipragsent_full_vistral"
+    },
+    {
+      "display_name": "GPT-4.1-mini zero-shot",
+      "f1": {
+        "code_switching": 0.624173295832143,
+        "idiom_figurative": 0.5245356024461824,
+        "implicit_sentiment": 0.45444640138890335,
+        "irony": 0.5317232584090548,
+        "macro_pragmatic_f1": 0.5411368091832071,
+        "mocking": 0.5468592622181561,
+        "sarcasm": 0.5650830348048024
+      },
+      "prediction_sha256": "f1ce896501326c23a98d495c55c705eaabb0c0dab4042ba4588f47756ab12545",
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": 2000,
+      "run_id": "azure_pragmatic_zero_shot",
+      "seed": "single",
+      "source": {
+        "metric_note": "metrics.json has an empty test object; F1 is computed from the valid 2000-row prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_pragmatic_zero_shot/E4C5F0681894/metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_pragmatic_zero_shot/E4C5F0681894/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "response_manifest_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_pragmatic_zero_shot/E4C5F0681894/azure/response_manifest.json",
+        "source_id": "azure_pragmatic_zero_shot"
+      },
+      "source_id": "azure_pragmatic_zero_shot",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "azure_pragmatic_zero_shot"
+    },
+    {
+      "display_name": "GPT-4.1-mini 8-shot",
+      "f1": {
+        "code_switching": 0.5688507335877959,
+        "idiom_figurative": 0.508677472350313,
+        "implicit_sentiment": 0.490433631788772,
+        "irony": 0.5237347936717627,
+        "macro_pragmatic_f1": 0.5409782739146386,
+        "mocking": 0.5432388772494162,
+        "sarcasm": 0.6109341348397718
+      },
+      "prediction_sha256": "12539a086b293c4387a46be9307e8ad7407d3979ee41d16e0df0462b894d19ee",
+      "recompute_deltas_vs_report": null,
+      "recomputed_f1": null,
+      "report_status": "COMPLETE",
+      "row_count": 2000,
+      "run_id": "azure_gpt41_mini_8shot",
+      "seed": "single",
+      "source": {
+        "metric_note": "metrics.json has an empty test object; F1 is computed from the valid 2000-row prediction JSONL.",
+        "metric_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_gpt41_mini_8shot/1292C4E7F429/metrics.json",
+        "prediction_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_gpt41_mini_8shot/1292C4E7F429/predictions/test_predictions.jsonl",
+        "repo": "Thundergod2007/vipragsent-experiment-artifacts",
+        "response_manifest_path": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT/nb-170d4c47-8a39-47ad-9425-d231de44fc92-857677f648-2qn8f/science/runs/azure_gpt41_mini_8shot/1292C4E7F429/azure/response_manifest.json",
+        "source_id": "azure_gpt41_mini_8shot"
+      },
+      "source_id": "azure_gpt41_mini_8shot",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "system_id": "azure_gpt41_mini_8shot"
+    },
+    {
+      "display_name": "ViPragSent XLM-R-large (primary)",
+      "exact_recomputed_match": true,
+      "f1": {
+        "code_switching": 0.9484519730998604,
+        "idiom_figurative": 0.937311690194373,
+        "implicit_sentiment": 0.929099160048944,
+        "irony": 0.9824283099450885,
+        "macro_pragmatic_f1": 0.9370458870556461,
+        "mocking": 0.9417225933445962,
+        "sarcasm": 0.8832615957010141
+      },
+      "metric_path": "paper\\raw_fairness\\target_21_metrics.json",
+      "metric_sha256": "762a519945776d4638d367db32b2608080243616c9f1fde88f1514ed1b9b708c",
+      "prediction_path": "paper\\raw_fairness\\target_21.jsonl",
+      "prediction_sha256": "8dec2920f20e49415ce8004207e72af993acc27e828b607e6cf4d15b3fae784e",
+      "recompute_deltas": {
+        "code_switching": 0.0,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": 0.0,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 0.0,
+        "mocking": 0.0,
+        "sarcasm": 0.0
+      },
+      "row_count": 2000,
+      "run_id": "local_target_21",
+      "seed": "21",
+      "source_id": "local_target_21",
+      "source_type": "local_saved_prediction_jsonl",
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "vipragsent_xlmr_large"
+    },
+    {
+      "display_name": "ViPragSent XLM-R-large (primary)",
+      "exact_recomputed_match": true,
+      "f1": {
+        "code_switching": 0.9539847043199061,
+        "idiom_figurative": 0.937311690194373,
+        "implicit_sentiment": 0.9243886062703016,
+        "irony": 0.9842211562736682,
+        "macro_pragmatic_f1": 0.9383054982798659,
+        "mocking": 0.9306958140271673,
+        "sarcasm": 0.8992310185937784
+      },
+      "metric_path": "paper\\raw_fairness\\target_22_metrics.json",
+      "metric_sha256": "fc15b4ce5990fad54c869878cd05fe0bf574cb8b2c7ea6a64eef87f8dc477fac",
+      "prediction_path": "paper\\raw_fairness\\target_22.jsonl",
+      "prediction_sha256": "d379c33c07cfac1accad93724cef7628eda32dc2708602f0a9871b51bbd4ffe4",
+      "recompute_deltas": {
+        "code_switching": 0.0,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": -1.1102230246251565e-16,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 0.0,
+        "mocking": 0.0,
+        "sarcasm": 0.0
+      },
+      "row_count": 2000,
+      "run_id": "local_target_22",
+      "seed": "22",
+      "source_id": "local_target_22",
+      "source_type": "local_saved_prediction_jsonl",
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "vipragsent_xlmr_large"
+    },
+    {
+      "display_name": "ViPragSent XLM-R-large (primary)",
+      "exact_recomputed_match": true,
+      "f1": {
+        "code_switching": 0.9427059587259554,
+        "idiom_figurative": 0.9258492400973086,
+        "implicit_sentiment": 0.926592313004323,
+        "irony": 0.986333129957291,
+        "macro_pragmatic_f1": 0.9346237556668328,
+        "mocking": 0.9279372766055576,
+        "sarcasm": 0.8983246156105607
+      },
+      "metric_path": "paper\\raw_fairness\\target_23_metrics.json",
+      "metric_sha256": "266381f76286772e7770a7dc72a4379aaee3225a4f97ec0457a0e21e79dafcb4",
+      "prediction_path": "paper\\raw_fairness\\target_23.jsonl",
+      "prediction_sha256": "58b26d7b2593cc7f1fbb820abd2bf49784be103b9c452092f1be057a7b84c639",
+      "recompute_deltas": {
+        "code_switching": 1.1102230246251565e-16,
+        "idiom_figurative": 0.0,
+        "implicit_sentiment": -2.220446049250313e-16,
+        "irony": 0.0,
+        "macro_pragmatic_f1": 0.0,
+        "mocking": 1.1102230246251565e-16,
+        "sarcasm": 0.0
+      },
+      "row_count": 2000,
+      "run_id": "local_target_23",
+      "seed": "23",
+      "source_id": "local_target_23",
+      "source_type": "local_saved_prediction_jsonl",
+      "status": "ANALYZED_RECOMPUTED",
+      "system_id": "vipragsent_xlmr_large"
+    }
+  ],
+  "schema_version": 1,
+  "source_report": "reports\\q1a_best_f1_table.json",
+  "status": "ANALYZED"
+}

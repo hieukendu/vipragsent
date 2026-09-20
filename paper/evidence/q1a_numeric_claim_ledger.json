@@ -1,0 +1,60 @@
+{
+  "claims": [
+    {
+      "authority": "recorded metric JSON files plus row recomputation",
+      "claim": "The recorded three-seed ViPragSent XLM-R-large macro-pragmatic-F1 mean is 0.9366583803341149 (93.66583803341149%).",
+      "claim_id": "Q1A-HEADLINE-PRIMARY",
+      "display_percent": 93.66583803341149,
+      "independent_rerun": "NOT_PERFORMED",
+      "source_run_ids": [
+        "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+        "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522",
+        "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523"
+      ],
+      "status": "RECORDED_AND_DETERMINISTICALLY_RECOMPUTED",
+      "value": 0.9366583803341149
+    },
+    {
+      "authority": "recorded metric JSON files plus row recomputation",
+      "claim": "The recorded three-seed XLM-R pragmatic baseline macro-pragmatic-F1 mean is 0.929342505569368 (92.9342505569368%).",
+      "claim_id": "Q1A-HEADLINE-XLMR-BASELINE",
+      "display_percent": 92.9342505569368,
+      "independent_rerun": "NOT_PERFORMED",
+      "source_run_ids": [
+        "q1a_xlmr_pragmatic_finetune_20260521",
+        "q1a_xlmr_pragmatic_finetune_20260522",
+        "q1a_xlmr_pragmatic_finetune_20260523"
+      ],
+      "status": "RECORDED_AND_DETERMINISTICALLY_RECOMPUTED",
+      "value": 0.929342505569368
+    },
+    {
+      "authority": "derived from the two recorded three-seed means",
+      "claim": "The recorded primary-minus-XLM-R-baseline mean gap is 0.73158747647469 percentage points.",
+      "claim_id": "Q1A-HEADLINE-GAP",
+      "independent_rerun": "NOT_APPLICABLE",
+      "status": "DERIVED_FROM_RECORDED_VALUES",
+      "value_percentage_points": 0.7315874764746821
+    },
+    {
+      "authority": "statistics.stdev over three recorded seed values",
+      "claim": "The three-seed primary macro-pragmatic-F1 sample SD is derived from the recorded per-seed metrics.",
+      "claim_id": "Q1A-PRIMARY-SAMPLE-SD",
+      "display_percent": 0.1871210373416054,
+      "independent_rerun": "NOT_APPLICABLE",
+      "status": "DERIVED_FROM_RECORDED_VALUES",
+      "value": 0.001871210373416054
+    },
+    {
+      "authority": "statistics.stdev over three recorded seed values",
+      "claim": "The three-seed XLM-R baseline macro-pragmatic-F1 sample SD is derived from the recorded per-seed metrics.",
+      "claim_id": "Q1A-XLMR-BASELINE-SAMPLE-SD",
+      "display_percent": 0.14479038590645335,
+      "independent_rerun": "NOT_APPLICABLE",
+      "status": "DERIVED_FROM_RECORDED_VALUES",
+      "value": 0.0014479038590645334
+    }
+  ],
+  "ledger_type": "numeric_claim_ledger",
+  "question": "Q1a"
+}

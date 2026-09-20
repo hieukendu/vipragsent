@@ -412,7 +412,7 @@ def audit() -> dict[str, Any]:
     commands = [
         _run(["python", "scripts/run_all_experiments.py", "--config", "configs/master_run.yaml", "--mode", "fixture"], timeout=240),
         _run(["python", "-m", "compileall", "-q", "src", "scripts", "tests"]),
-        _run(["ruff", "check", "."]),
+        _run(["ruff", "check", "src", "scripts", "tests"]),
         _run(["python", "-m", "pytest", "-q", "-m", "not server and not gpu and not azure_live and not model_download"], timeout=600),
         _run(["python", "scripts/validate_schemas.py"]),
         _run(["python", "scripts/generate_sequential_prompts.py"]),

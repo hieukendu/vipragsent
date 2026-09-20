@@ -1,0 +1,24 @@
+{
+  "preview": true,
+  "question": "Q1b",
+  "input": "paper\\figures\\source_data\\q1b_expanded_working_draft.csv",
+  "input_sha256": "A73D89D4A0DF10CEA8F912377DD6C152B980E496BE8A93D87A87C4D15A8EC3F0",
+  "row_count": 7,
+  "primary_system": "ViPragSent (ours, XLM-R-large)",
+  "datasets": [
+    "UIT_VSFC",
+    "UIT_VSMEC",
+    "AIVIVN",
+    "ordinary_f1"
+  ],
+  "unit": "percentage-point macro-F1",
+  "aggregate_definition": "ordinary F1 is the unweighted mean of UIT-VSFC, UIT-VSMEC, and AIVIVN",
+  "coverage_status": "working full-inventory layout; blank cells are unverified placeholders; regenerate from canonical evidence",
+  "ordinary_ranking_status": "WITHHELD_PENDING_MATCHED_ID_GOLD_PROOF",
+  "cohort_provenance": {
+    "primary_aivivn_normalized_test_sha256_prefix": "27DA59A4...",
+    "baseline_normalized_test_sha256_prefix": "F6F6A78E...",
+    "hash_comparison_semantics": "per-dataset cross-group matching; not cross-dataset hash equality",
+    "baseline_hash_scope_reported": "dataset-specific prefixes; semantic cohort equality under investigation"
+  }
+}

@@ -1,0 +1,882 @@
+      ViPragSent: XLM-R-large for Vietnamese Pragmatic Sentiment
+                               Analysis
+
+
+                                       Anonymous ACL submission
+
+
+
+
+001                      Abstract                            category. These phenomena are therefore use-        044
+                                                             ful prediction targets in their own right. Treat-   045
+002       Pragmatic sentiment in Vietnamese text is
+                                                             ing them as six emotion classes would col-          046
+003       not exhausted by polarity. Sarcasm, irony,
+004       idiomaticity, implicitness, code-switching,
+                                                             lapse distinct communicative functions and ob-      047
+
+005       and mocking can change how a reader                scure the role of emotion as an auxiliary signal.   048
+006       should interpret an utterance even when            ViPragSent adopts the narrower formulation:         049
+007       its surface sentiment is positive or nega-         six pragmatic phenomena are six binary tasks,       050
+008       tive. We introduce ViPragSent, an XLM-             while polarity and emotion are separate auxil-      051
+009       R-large encoder with six distinct binary           iary tasks.                                         052
+010       pragmatic heads, separate three-way polar-            Vietnamese offers a demanding setting.           053
+011       ity and seven-way emotion auxiliaries, and
+                                                             PhoBERT shows the value of language-                054
+012       a training-only teacher-forced rationale ob-
+013       jective. The model uses a shared first-            specific pretraining (Nguyen and Nguyen,            055
+
+014       nonpadding-token representation and ho-            2020), whereas XLM-R provides a multilin-           056
+015       moscedastic uncertainty weighting to cou-          gual transfer regime across one hundred lan-        057
+016       ple these tasks while keeping their seman-         guages (Conneau et al., 2020). ViSoBERT ap-         058
+017       tic roles separate. On a matched 2,000-            plies the XLM-R architecture to Vietnamese          059
+018       example ID/gold test cohort, ViPragSent            social-media tasks (Nguyen et al., 2023b).          060
+019       reaches 93.67 ± 0.19 macro-pragmatic F1
+                                                             These contrasting settings motivate testing a       061
+020       versus 92.93 ± 0.14 for the standard XLM-
+021       R baseline, an observed +0.73 percentage-
+                                                             large multilingual encoder on a bundle of prag-     062
+
+022       point difference. Its mean is also high-           matic distinctions rather than one sentiment        063
+023       est on all six pragmatic heads and on the          label.                                              064
+024       macro average among five complete three-              The challenge is also objective design. Prag-    065
+025       seed baseline families. Follow-up analyses         matic labels may correlate with polarity and        066
+026       show that the full objective is an operating       emotion without being identical. Multi-task         067
+027       point rather than a uniform winner: Q2 re-         learning can use related signals (Caruana,          068
+028       ports accuracy, calibration, and cost trade-
+                                                             1997), while uncertainty weighting adapts           069
+029       offs; Q3 reports a non-monotonic positive-
+030       label budget curve with contextual base-           relative loss scales (Kendall et al., 2018).        070
+
+031       lines; and Q4 reports target ECE 0.0386            These are empirical choices, so we report the       071
+032       ± 0.0069 versus Vistral 0.0345 ± 0.0041.           training losses, causal rationale decoder, and      072
+033       These results define what the implemented          classification-head inference interface explic-     073
+034       model contributes while keeping rationale          itly.                                               074
+035       supervision separate from inference.                  This paper studies ViPragSent XLM-R-             075
+                                                             large through four linked questions:                076
+036   1   Introduction
+                                                              • Q1a–Q1b: How does the primary model              077
+037   Sentiment analysis is often framed as a polar-
+                                                                behave in-domain, and how much of that           078
+038   ity problem, but pragmatic meaning can re-
+                                                                behavior is retained on external Viet-           079
+039   verse or qualify the interpretation suggested by
+                                                                namese sentiment and emotion datasets?           080
+040   a surface-positive or surface-negative expres-
+041   sion. A Vietnamese utterance may be sarcas-             • Q2: What changes when the polarity,              081
+042   tic, ironic, idiomatic, implicit, code-switched,          emotion, explanation, multitask, or task-        082
+043   or mocking without belonging to an emotion                uncertainty components are removed?              083
+
+
+                                                         1
+084       • Q3: How does pragmatic performance                2.2    Pragmatic and affective                      130
+085         change as the number of positive exam-                   supervision                                  131
+086         ples is constrained while the evaluation          The target formulation combines signals that        132
+087         procedure is held fixed?                          are related but not interchangeable. UIT-           133
+                                                              VSFC provides Vietnamese student feedback           134
+088       • Q4: How well calibrated are the result-           with sentiment-oriented labels (Nguyen et al.,      135
+089         ing confidence estimates relative to com-         2018), whereas UIT-VSMEC is a Vietnamese            136
+090         parison models under a common expected-           social-media emotion corpus (Ho et al., 2020).      137
+091         calibration-error protocol?                       ViPragSent uses these label families as auxil-      138
+                                                              iary signals while retaining separate pragmatic     139
+                                                              outputs.                                            140
+092       The contribution is a focused analysis of
+                                                                 Sarcasm detection studies show why con-          141
+093   one primary XLM-R-large model rather than a
+                                                              text can matter beyond the current utter-           142
+094   leaderboard claim. We contribute (i) an imple-
+                                                              ance: conversation-aware models can outper-         143
+095   mented shared encoder with separated prag-
+                                                              form models that read only the current turn         144
+096   matic, polarity, emotion, and teacher-forced
+                                                              (Ghosh et al., 2018). A complementary line          145
+097   rationale objectives; (ii) a six-head comparison
+                                                              of work distills teacher-generated rationales as    146
+098   on a matched ID/gold prediction cohort; and
+                                                              additional supervision in a multi-task objec-       147
+099   (iii) follow-up analyses that expose accuracy,
+                                                              tive (Hsieh et al., 2023); earlier rationale mod-   148
+100   calibration, cost, and budget trade-offs. All
+                                                              els likewise separate prediction from explana-      149
+101   reported means summarize three saved runs,
+                                                              tion (Lei et al., 2016). ViPragSent brings this     150
+102   and comparison claims concern the evaluated
+                                                              rationale-supervision idea to a shared XLM-         151
+103   prediction artifacts rather than a fresh train-
+                                                              R-large encoder and tests it alongside Viet-        152
+104   ing or inference rerun.
+                                                              namese pragmatic heads, while keeping ratio-        153
+                                                              nale generation outside the deployed predic-        154
+105   2     Related Work                                      tion interface.                                     155
+
+
+106   2.1    Multilingual and Vietnamese                      2.3    Multi-task objectives, rationale             156
+
+107          encoders                                                supervision, and calibration                 157
+
+                                                              Multi-task learning shares a representation         158
+108   XLM-R established a strong multilingual
+                                                              across related objectives and can transfer use-     159
+109   masked-language-model baseline by scaling
+                                                              ful domain information between them (Caru-          160
+110   pretraining across languages and evaluating
+                                                              ana, 1997). The uncertainty-weighted objec-         161
+111   cross-lingual transfer (Conneau et al., 2020).
+                                                              tive follows the motivation that task losses        162
+112   PhoBERT demonstrates the complementary
+                                                              need not contribute equally (Kendall et al.,        163
+113   case for a Vietnamese-specific encoder trained
+                                                              2018). The implemented rationale decoder            164
+114   on word-segmented Vietnamese data (Nguyen
+                                                              supplies a teacher-forced auxiliary loss during     165
+115   and Nguyen, 2020). ViSoBERT moves toward
+                                                              training and is discarded at inference.             166
+116   Vietnamese social-media text while retain-
+                                                                 Confidence is evaluated separately from dis-     167
+117   ing the XLM-R architecture (Nguyen et al.,
+                                                              crimination: expected calibration error mea-        168
+118   2023b). ViPragSent uses XLM-R-large as its
+                                                              sures the gap between confidence and empiri-        169
+119   primary encoder so that the study can focus
+                                                              cal correctness across bins, which can remain       170
+120   on the pragmatic multi-task formulation and
+                                                              large when accuracy is strong (Guo et al.,          171
+121   its auxiliary objectives.
+                                                              2017). Q4 is therefore a protocol-specific cal-     172
+122      The Q1a comparison contains standard                 ibration comparison, not a universal uncer-         173
+123   XLM-R, PhoBERT, Sailor, and Vistral pre-                tainty claim.                                       174
+124   diction artifacts. ViSoBERT is discussed here
+125   as contextual prior work, not as an evaluated           3     Method                                        175
+126   Q1a baseline: no ViSoBERT prediction fam-
+127   ily is included in the verified comparison table.       3.1    Task definition                              176
+
+128   This distinction prevents a related model fam-          Given a Vietnamese utterance x, ViPragSent          177
+129   ily from being mistaken for a measured result.          predicts six binary pragmatic labels in the         178
+
+
+                                                          2
+179   manifest order:                             Here ℓt is the task loss before the multiplier, so
+                           implicit sentiment, sar-                                                            223
+180                                               the multiplier is applied inside the uncertainty-
+      casm, irony, idiom/figurative language, code-                                                            224
+181   switching, and mocking. These labels rep-   weighted classification term. The rationale                  225
+182   resent distinct pragmatic phenomena. The    term is present only for the full rationale-                 226
+183   model may also predict a three-way polarity enabled variant.                                             227
+184   label and a seven-way emotion label. The       The rationale component is a two-layer                    228
+185   auxiliary labels are not additional pragmatic
+                                                  causal TransformerDecoder.            It uses a              229
+186   classes.                                    memory projection from the encoder hid-                      230
+187                                               den size to a decoder hidden size of 128,
+         For each pragmatic head, the metric is bi-                                                            231
+188   nary macro-F1: the arithmetic mean of the   four attention heads, feed-forward size                      232
+189                                               512, dropout 0.1, causal masking, and
+      F1 values for class 0 and class 1. The macro-                                                            233
+190   pragmatic F1 is the arithmetic mean of the  tied token input/output embeddings. Dur-                     234
+191                                               ing training it consumes rationale tokens
+      six binary macro-F1 values. This definition is                                                           235
+192                                               with teacher forcing and contributes to-
+      important for the head-level table because it                                                            236
+193   differs from a positive-class-only F1.      ken cross-entropy as βLrat with β = 0.3.                     237
+                                                  For the target run, the manifest identifies                  238
+194   3.2 XLM-R-large encoder and                 approved_generated_rationales_train.jsonl                    239
+195         prediction heads                      with 7,998 training rows. The inspected ev-                  240
+
+196   The         primary      model         uses idence does not identify a provider for these                241
+
+197   FacebookAI/xlm-roberta-large at revision    generated targets, so we treat this as a                     242
+
+198   c23d21b0620b635a76227c604d44e43a9f0ee389. run-level training artifact rather than evi-                   243
+
+199   The encoder returns a hidden state for each dence about the original dataset’s annotation                244
+
+200   input token. For the XLM-R family, the      history. The decoder is discarded from the                   245
+
+201   implementation pools the first nonpadding   inference path and produces no reported                      246
+
+202   representation: the hidden state at the     prediction.                                                  247
+
+203   first position with an active attention mask,          3.4   Training and selection                      248
+204   rather than a mean over the sequence. A 0.1
+205   dropout layer feeds task-specific linear heads:        The      frozen    ViPragSent     package    is   249
+
+206   six one-logit binary heads, one three-logit            identified in the data handoff as the             250
+
+207   polarity head, and one seven-logit emotion             SEACrowd/ViSoBERT            source    package    251
+
+208   head. At inference, predictions come from              and contains 11,997 rows: 7,998 training,         252
+
+209   these classification heads.                            1,999 development, and 2,000 test examples.       253
+                                                             The split seed is 20260520. Training uses         254
+
+210   3.3   Implemented auxiliary objective                  date-coded seeds 20260521, 20260522, and          255
+                                                             20260523, reported in the paper as logical        256
+211   The six pragmatic heads use weighted binary            seeds 21, 22, and 23. The primary Q1a v37         257
+212   cross-entropy with logits, with positive-class         configuration uses AdamW with learning rate       258
+213   weights computed from the training split. Po-          2 × 10−5 , weight decay 0.01, a maximum           259
+214   larity and emotion use class-weighted cross-           of 10 epochs, bf16 precision, physical batch      260
+215   entropy. For the full model, the eight classi-         size 8 with four accumulation steps (effective    261
+216   fication losses have independent learned log-          batch size 32), gradient clipping 1.0, cosine     262
+217   variance parameters. Let T be the eight classi-        scheduling, and a 0.20 warmup ratio. Early        263
+218   fication tasks, let mt be the recorded task mul-       stopping patience is 10. The primary loss         264
+219   tiplier, and let st be the learned log variance.       multipliers are 1.01 for implicit sentiment,      265
+220   The implementation clamps the log variance             1.01 for sarcasm, 1.05 for irony, and 1.04 for    266
+221   before applying uncertainty weighting:                 code-switching; the other task multipliers        267
+                                                             are 1.0. The selection metric is development      268
+                                                             macro-pragmatic F1.                               269
+                          sct = clip(st , −5, 5),
+                       ∑[                         ]             For each binary pragmatic head, the devel-     270
+                          1 −sct
+222         Lcls+rat =    2 e    (m t ℓ t ) + 1 c
+                                               s
+                                              2 t            opment threshold is selected from 0.05 through    271
+                        t∈T                                  0.95 in steps of 0.01 by binary macro-F1, with    272
+                          + βLrat ,      β = 0.3.            ties resolved toward 0.5. Q3 applies this rule    273
+
+
+                                                         3
+      Figure 1: ViPragSent architecture and training objective. XLM-R-large produces a hidden sequence
+      that feeds first-nonpadding pooling for six pragmatic binary heads, three-way polarity, and seven-way
+      emotion prediction. The same hidden sequence is used as memory by a two-layer rationale decoder with
+      teacher-forced shifted rationale tokens during training only; its rationale loss contributes to the objective
+      and is not an inference output.
+
+
+274   independently for each seed and budget. Q4               4     Experimental Setup                               300
+275   uses raw positive-class sigmoid probabilities
+276   and therefore does not threshold the probabil-           4.1    Separate experimental cohorts                   301
+
+277   ities before computing ECE.                              Q1a, Q2, Q3, and Q4 are related but distinct           302
+                                                               artifact cohorts. The distinction is material          303
+278     For Q2, polarity ECE is the ten-bin top-
+                                                               when interpreting the full-model values.               304
+279   label ECE computed from the saved devel-
+280   opment predictions and development metrics                 The Q2 full value is not a rerun of Q1a v37:         305
+
+281   for each seed, then reported on the 103 scale.           the cohorts differ in scheduler, warmup ratio,         306
+
+282   The legacy field name polarity_dev_ece is                and early-stopping patience. Q2 is therefore           307
+
+283   retained for provenance; it does not indicate            interpreted within its own follow-up cohort,           308
+
+284   that the test-file value was used.                       not as an explanation of the difference between        309
+                                                               Q1a’s 93.67 and Q2’s 92.8.                             310
+
+
+                                                               4.2    Data and external evaluation                    311
+285   3.5   Provenance and comparison scope                    Q1a evaluates the 2,000-example pragmatic              312
+                                                               test cohort. Q1b reports retention on UIT-             313
+286   The Q1a evidence package contains 18 saved               VSFC, UIT-VSMEC, and AIVIVN. The exter-                314
+287   prediction JSONL files: three ViPragSent tar-            nal aggregate is called ordinary F1 in this pa-        315
+288   get runs and three runs for each of five com-            per: it is the unweighted mean of the three            316
+289   plete baseline families. Every one of the 45             external macro-F1 values. It is not ordinal F1         317
+290   target–baseline pairs has 2,000 rows with the            and does not encode an ordinal relation among          318
+291   same sample-ID set and the same six prag-                labels. External datasets have different do-           319
+292   matic gold-label tuples when aligned by sam-             mains and label semantics, so their scores are         320
+293   ple ID. The Q1a scores were deterministically            not pooled with the primary macro-pragmatic            321
+294   recomputed from those saved rows using the               F1.                                                    322
+295   metric above. This supports a direct score                  Counts are declared split counts where              323
+296   comparison for the evaluated ID/gold cohort.             the inspected manifests provide them; *                324
+297   It does not claim identical upstream input               means that only the supplied oﬀicial test-             325
+298   text, identical training, a significance test, or        file count is evidenced. The original AI-              326
+299   an independent rerun.                                    VIVN 2019 binary Kaggle files are provenance-          327
+
+
+                                                           4
+      Cohort          Run family and      Key protocol         steps, linear scheduling with 0.10 warmup,          350
+                      purpose
+      Q1a             Optimized v37    Cosine                  and a ten-epoch maximum; its selection met-         351
+                      ViPragSent and   scheduler,              ric is development macro-pragmatic F1. The          352
+                      five complete    warmup 0.20,            PhoBERT fine-tune uses AdamW at 2 × 10−5 ,          353
+                      baseline familiespatience 10,
+                                       development             bf16, physical batch size 32, linear scheduling     354
+                                       macro-                  with 0.10 warmup, and the same ten-epoch            355
+                                       pragmatic-F1
+                                       selection; target
+                                                               maximum. The PhoBERT single-task record             356
+                                       task multipliers        is a bundle of six separately trained compo-        357
+                                       as above                nent artifacts and exposes no single aggre-         358
+      Q2              XLM-R            Linear
+                      follow-up full   scheduler,              gate optimizer recipe. Sailor-7B and Vistral-       359
+                      model and five warmup 0.10,              7B-Chat are causal-7B pragmatic-SFT records         360
+                      ablations        patience 2;             (Dou et al., 2024; Nguyen et al., 2023a) using      361
+                                       named auxiliary
+                                       and uncertainty         paged AdamW 8-bit, learning rate 10−4 , bf16,       362
+                                       variants                physical batch size 2 with eight accumulation       363
+      Q3              XLM-R            Linear                  steps, cosine scheduling, 0.05 warmup, and          364
+                      follow-up nested scheduler,
+                      positive-label   warmup 0.10,            a three-epoch maximum; their reported infer-        365
+                      budgets          patience 2;             ence source is the classification heads. These      366
+                                       development             records are described for provenance and in-        367
+                                       sarcasm binary
+                                       macro-F1                terpretation only: the ViPragSent v37 cosine        368
+                                       selection               schedule, warmup, patience, and task multipli-      369
+      Q4              Calibration      Same-seed
+                      extraction       extraction from
+                                                               ers are not claimed for the baselines.              370
+                                       each Q1a v37               Unless otherwise stated, a value is the arith-   371
+                                       full checkpoint;        metic mean over three saved runs and the            372
+                                       no new training
+                                                               uncertainty is the sample standard deviation        373
+      Experimental cohorts and protocols; quantita-            with n = 3. Q1a and Q3 report F1 in percent-        374
+      tive entries elsewhere summarize three saved runs        age points. Q2 reports macro-pragmatic F1,          375
+      where reported (n = 3, mean ± sample SD).                ECE multiplied by 103 , and relative cost. Q4       376
+                                                               reports ECE on its native [0,1] scale. Lower        377
+                                                               ECE is better. No significance test is applied      378
+328   only; Q1b evaluates the bundled derived three-
+                                                               to the three-seed summaries.                        379
+329   way split. Hashes are scope-specific evidence
+330   rather than license verification. The table re-          5     Results                                       380
+331   ports dataset/package validation and saved ar-
+332   tifact analysis, not an independent experiment           5.1    Q1a: in-domain pragmatic                     381
+333   rerun.                                                          performance                                  382
+
+                                                               Table 1 gives the expanded canonical Q1a re-        383
+334   4.3   Baselines and reporting
+                                                               sult with systems as rows and the six prag-         384
+335         conventions
+                                                               matic metrics plus their macro average as           385
+336   ViPragSent XLM-R-large is the only primary               columns. Values are mean ± sample SD in per-        386
+337   model.    Comparison records include stan-               centage points. The target remains highest in       387
+338   dard XLM-R, PhoBERT single-task and fine-                mean on every metric among the five complete        388
+339   tuned variants, Sailor, and Vistral where com-           three-seed baseline families; the other rows are    389
+340   plete three-seed summaries are available. Vis-           contextual variants, provisional coverage, or       390
+341   tral ViPragSent variants and incomplete GPT              one-shot records as marked in the caption and       391
+342   records are outside the primary Q1a compari-             the machine-readable canonical row ledger.          392
+343   son. ViSoBERT is contextual prior work, not                 Against the strongest complete baseline, the     393
+344   an evaluated baseline in this study.                     observed mean gaps are +0.51 pp for implicit        394
+345     The available baseline manifests describe              sentiment, +1.24 pp for sarcasm, +0.50 pp for       395
+346   family-specific recipes rather than one recipe           irony, +0.50 pp for idiom/figurative language,      396
+347   shared with the target. The standard XLM-                +0.57 pp for code-switching, and +1.07 pp for       397
+348   R baseline uses AdamW at 2 × 10−5 , bf16,                mocking. The two largest observed head gaps         398
+349   physical batch size 8 with four accumulation             are therefore sarcasm and mocking, but these        399
+
+
+                                                           5
+      Dataset / source Task / domain      Labels /          Declared split   Evaluation slice / Provenance /        Evidence status
+                                          cardinality       counts (train /  split rule         hash / license
+                                                            dev / test)                         caveat
+                       Vietnamese        Six binary fields: 7,998 / 1,999 /
+      ViPragSent_Experiment_Dataset_FINAL_V8                                 Q1a scores the     Source ZIP          PACKAGE-
+                       pragmatic         implicit_sentiment,2,000            2,000-example      SHA-256             VALIDATED;
+                       sentiment; six    sarcasm, irony,                     test cohort;       23150E...32844AC2;experiments
+                       binary pragmatic idiom_figurative,                    deterministic      package             ANALYZED;
+                       heads plus        code_switching,                     multilabel         fingerprint         independent
+                       polarity/emotion mocking; polarity:                   stratification,    7C39...F4205EB;     rerun not
+                       auxiliaries       nega-                               split seed         upstream            performed
+                                         tive/neutral/positive;              20260520           SEACrowd/ViSoBERT
+                                         emotion:                                               artifact is labeled
+                                         anger/disgust/enjoyment/fear/other/sadness/surprise CC BY-NC 4.0,
+                                                                                                while this local
+                                                                                                derivative has no
+                                                                                                separately
+                                                                                                recorded license
+                       Vietnamese
+      AIVIVN-human-derived-3way          3: negative,       12,869 / 1,609 / Q1b scores 1,609 Primary               ANALYZED;
+                       sentiment;        neutral, positive 1,609             test records;      normalized-test     ID/gold/raw-
+                       human-derived                                         project-defined    hash                text/NFC parity
+                       three-way                                             held-out splits,   27DA...394EDA8;     PASS;
+                       polarity                                              split seed not     common/legacy manifest-hash
+                                                                             recorded           manifest hash       difference
+                                                                                                F6F6...13C6D3;      retained as
+                                                                                                original Kaggle     limitation
+                                                                                                provenance
+                                                                                                reports
+                                                                                                Apache-2.0, but
+                                                                                                the derived split
+                                                                                                has no separately
+                                                                                                recorded license
+      UIT-VSFC         Vietnamese        3: 0=negative,     — / — / 3,166* Oﬀicial supplied Normalized test ANALYZED;
+                       student feedback; 1=neutral,                          test file, 3,166   SHA-256             observed
+                       three-way         2=positive                          records; no        C27B...2E75D96;     ID/gold/text
+                       polarity                                              project split seed author-contact      parity PASS
+                                                                                                research access is
+                                                                                                private; no open
+                                                                                                license asserted
+      UIT-VSMEC        Vietnamese        7: anger, disgust, — / — / 693*     Oﬀicial supplied Normalized test ANALYZED;
+                       social-media      enjoyment, fear,                    test file, 693     SHA-256             observed
+                       emotion           other, sadness,                     records; no        1D2E...3D955;       ID/gold/text
+                                         surprise                            project split seed author-contact      parity PASS
+                                                                                                research access is
+                                                                                                private; no open
+                                                                                                license asserted
+
+
+      Current dataset statistics and evidence scope. Counts are declared train/dev/test split counts when
+      available; an asterisk marks a supplied oﬀicial test-file count, an em dash denotes an unavailable split
+      count, and license status is reported only when present in the inspected evidence.
+
+
+400   are descriptive differences across saved predic-                  tual saved recipe names for the six compa-                    419
+401   tions, not significance claims. The macro dif-                    rable three-seed records and adds the com-                    420
+402   ference is 93.665838 - 92.934251 = +0.731587                      plete three-seed PhoBERT-backed ViPragSent                    421
+403   percentage points, reported as +0.73 pp.                          inventory as a contextual variant. The contex-                422
+404      The expanded remote candidate coverage re-                     tual row is not the primary model and is not                  423
+405   mains in Appendix B. The canonical row sta-                       a substitute for a reference-row recipe. The                  424
+406   tus fields are retained in the machine-readable                   identity-mismatched Azure deployment and                      425
+407   ledger, and the two cohorts are kept separate                     unresolved GPT-4o-mini 8-shot record remain                   426
+408   because the report has a different cohort for                     in the machine-readable audit ledger and are                  427
+409   some rows; its bootstrap confidence-interval                      not printed as manuscript rows.                               428
+410   half-widths are not used as sample SD.
+                                                                           All entries in the main table are mean                     429
+                                                                        plus/minus sample SD over three saved runs,                   430
+411   5.2   Q1b: external retention
+                                                                        including the contextual inventory row. The                   431
+412   Table 2 expands Q1b using the canonical                           external datasets differ in domain and tar-                   432
+413   external-retention artifact. It shows mixed                       get semantics, so the table is a retention pro-               433
+414   transfer rather than uniformly preserved per-                     file rather than a single generalization score.               434
+415   formance: the primary is not the highest                          The primary-versus-standard descriptive com-                  435
+416   ordinary-F1 record in this analyzed set, and                      parison has observed ID/gold/raw-text/ NFC                    436
+417   its per-dataset profile differs from the classi-                  parity on all three evaluated cohorts, while                  437
+418   fication baselines. The table retains the ac-                     the AIVIVN source-manifest hash discrepancy                   438
+
+
+                                                                    6
+      Figure 2: Q1a macro-pragmatic F1 across the expanded rows in Table 1. Bars show saved means on the
+      0–100 percentage-point scale; whiskers show sample SD when a multi-seed estimate is available. Complete
+      three-seed rows are directly comparable for the primary baseline claim; one-shot reference records and
+      the provisional n = 2 CoT record are retained for coverage and are not treated as complete three-seed
+      baselines.
+
+                                       Implicit                               Idiom/       Code-                     Macro-pragmatic
+      Model                            sentiment    Sarcasm      Irony        figurative   switching    Mocking      F1
+      ViPragSent (ours,                92.67 ± 0.24 89.36 ± 0.90 98.43 ± 0.20 93.35 ± 0.66 94.84 ± 0.56 93.35 ± 0.73 93.67 ± 0.19
+      XLM-R-large)
+      PhoBERT (single-task)            88.00 ± 1.29 70.87 ± 1.34 97.13 ± 1.06 91.21 ± 0.78 91.08 ± 1.51 79.16 ± 2.99 86.24 ± 0.49
+      PhoBERT fine-tune                85.76 ± 0.72 72.64 ± 0.50 97.45 ± 0.19 86.63 ± 0.66 91.73 ± 0.53 78.53 ± 1.01 85.46 ± 0.36
+      XLM-R-large fine-tune            92.16 ± 0.13 88.12 ± 0.43 97.93 ± 0.10 92.85 ± 0.68 94.27 ± 0.04 92.27 ± 0.41 92.93 ± 0.14
+      Sailor-7B SFT                    85.42 ± 0.27 72.14 ± 2.96 95.75 ± 0.52 91.15 ± 1.40 91.03 ± 0.74 77.76 ± 1.21 85.54 ± 0.48
+      Vistral-7B SFT                   87.36 ± 0.31 74.74 ± 0.94 96.69 ± 0.23 91.48 ± 1.55 92.80 ± 0.60 79.91 ± 0.26 87.16 ± 0.33
+      ViPragSent - no auxiliary loss   87.43 ± 0.62 74.79 ± 0.53 97.15 ± 0.27 91.51 ± 0.99 92.88 ± 0.63 79.51 ± 2.81 87.21 ± 0.58
+      Vistral CoT-only clean rerun     17.36 ± 0.00 48.24 ± 0.00 48.20 ± 0.00 48.17 ± 0.00 45.92 ± 0.00 46.91 ± 0.00 42.47 ± 0.00
+      003 (2/3)
+      ViPragSent - explanation only    44.13 ± 0.00 48.24 ± 0.00 48.20 ± 0.00 48.17 ± 0.00 46.02 ± 0.18 46.91 ± 0.00 46.95 ± 0.03
+      ViPragSent (ours, Vistral)       84.93 ± 5.49 72.59 ± 7.73 94.75 ± 3.18 79.38 ± 22.1378.36 ± 26.4477.15 ± 8.60 81.19 ± 12.23
+      GPT-4.1-mini zero-shot           45.44 (n=1) 56.51 (n=1) 53.17 (n=1) 52.45 (n=1) 62.42 (n=1) 54.69 (n=1) 54.11 (n=1)
+      GPT-4.1-mini 8-shot              49.04 (n=1) 61.09 (n=1) 52.37 (n=1) 50.87 (n=1) 56.89 (n=1) 54.32 (n=1) 54.10 (n=1)
+
+
+      Table 1: Q1a in-domain pragmatic performance on the 2,000-example ID/gold test split. Systems are
+      rows; the six pragmatic metrics and macro-pragmatic F1 are columns. The primary row is ViPragSent
+      (ours, XLM-R-large). Entries are mean ± sample SD from the compact canonical rows; n=1 rows have no
+      SD and the CoT row is provisional at n=2. Canonical row statuses are retained in the machine-readable
+      q1a-extra ledger.
+
+
+439   remains a provenance limitation; no full-row                      5.3   Q2: auxiliary-task and uncertainty                       452
+440   ordinary-F1 superiority claim is made.                                  ablations                                                453
+
+
+                                                                        Table 3 reports the separate XLM-R follow-                     454
+441      The canonical recipe ledger is re-                             up cohort. Within this cohort, the full con-                   455
+442   tained     separately   from     the    met-                      figuration is not the highest reported macro-                  456
+443   ric    table:      phobert_pol_single      +                      pragmatic F1: removing task-uncertainty                        457
+444   phobert_emo_single for PhoBERT single-                            weighting gives 92.9 versus 92.8 for the full con-             458
+445   task routed;      phobert_multitask_8head;                        figuration. The full configuration has lower re-               459
+446   xlmr_multitask_8head;                                             ported ECE than the no-uncertainty variant,                    460
+447   xlmr_followup_full        for    the     pri-                     while removing the explanation auxiliary re-                   461
+448   mary;              sailor_multitask_8head;                        duces relative cost substantially and changes                  462
+449   vistral_multitask_8head;                 and                      F1 and ECE. Removing the multitask bundle                      463
+450   azure_gpt41_mini       dedicated     prompts                      causes a much larger F1 reduction. These are                   464
+451   for the actual GPT-4.1-mini deployment.                           trade-offs within Q2, not evidence that one                    465
+
+
+                                                                    7
+                                         UIT-        UIT-       AIVIVN-human-       Ordinary
+      Model record                       VSFC        VSMEC      derived-3way        F1
+      PhoBERT single-task routed     29.7 ± 0.5    38.8 ± 1.5         45.4 ± 2.6   38.0 ± 0.3
+      PhoBERT multitask 8-head       33.6 ± 3.0    36.4 ± 0.7         44.7 ± 1.3   38.2 ± 1.5
+      XLM-R-large multitask 8-head   39.1 ± 1.1    40.2 ± 0.2         48.3 ± 1.2   42.5 ± 0.5
+      ViPragSent (ours,              37.9 ± 2.8    40.0 ± 0.7         47.9 ± 2.2   42.0 ± 1.8
+      XLM-R-large)
+      ViPragSent full PhoBERT        34.1 ± 0.7    36.0 ± 0.3         45.5 ± 0.8   38.6 ± 0.5
+      inventory (contextual)
+      Sailor-7B SFT                  34.4 ± 3.2    40.7 ± 0.7         48.7 ± 1.4   41.3 ± 1.2
+      Vistral-7B SFT                 30.7 ± 6.4    39.4 ± 1.5         49.0 ± 0.8   39.7 ± 2.5
+
+
+      Table 2: External retention on the UIT-VSFC, UIT-VSMEC, and AIVIVN test cohorts. The primary
+      row is ViPragSent (XLM-R-large); the PhoBERT-backed inventory row is contextual rather than primary.
+      Entries are mean ± sample SD over three saved runs. Columns report macro-F1 in percentage points
+      and their unweighted ordinary-F1 aggregate.
+
+
+466   component is universally beneficial.
+467      For compactness, Table 3 labels the variants
+468   as Full, − emotion, − explanation, Single-task
+469   bundle, − polarity, and − uncertainty; these
+470   mean the full follow-up, removal of the named
+471   auxiliary or weighting component, and the no-
+472   multitask component bundle, respectively.
+473      Note: For all three no-polarity seeds, ECE
+474   is not applicable because the polarity head
+475   was removed; no polarity probability source
+476   exists. Table 3 uses the current Q2 proto-
+477   col: ten-bin top-label ECE from the saved de-         Figure 3: Q3 sarcasm F1 across pragmatic-label
+478   velopment metrics and predictions, reported           budgets. Curves show artifact-derived means and
+479   on the 103 scale. The legacy field name               sample SD over three logical runs (n = 3; run la-
+480   polarity_dev_ece is retained for provenance.          bels 21, 22, and 23, corresponding to remote ar-
+481   This is not Q4’s six-head calibration metric.         tifact seeds 20260521, 20260522, and 20260523).
+                                                            The target is shown with PhoBERT fine-tune and
+482   The no-multitask entry is a separate single-
+                                                            Vistral-7B SFT for context.
+483   task component-bundle recipe. Because Q2 is
+484   a separate cohort, its scientific comparison is
+485   the pattern across named variants, not an ex-         ally preferable; the supplied plot visualizes the   504
+486   planation of Q1a’s absolute score.                    same cohort.                                        505
+
+
+487   5.4   Q3: pragmatic label-budget                      5.5    Q4: calibration                              506
+
+488         behavior                                        Under the Q4 extraction protocol, the               507
+                                                            ViPragSent XLM-R target has ECE 0.0386 ±            508
+489   Table 4 reports the XLM-R follow-up bud-
+                                                            0.0069, while the Vistral comparison record         509
+490   get profile together with contextual PhoBERT
+                                                            has ECE 0.0345 ± 0.0041. Lower ECE is bet-          510
+491   and Vistral baseline curves. Values are mean
+                                                            ter, so the comparison does not support target      511
+492   ± sample SD over three runs. Thresholds are
+                                                            calibration dominance. Q4 extracts raw posi-        512
+493   tuned on the fixed development split; the dis-
+                                                            tive sigmoid probabilities from same-seed Q1a       513
+494   played metrics are evaluated on the fixed test
+                                                            v37 checkpoints without retraining; ECE de-         514
+495   split.
+                                                            pends on its split, ten bins, and probability       515
+496     ViPragSent (XLM-R-large) exceeds the
+                                                            source.                                             516
+497   available baseline rows at displayed budgets,
+498   but the curves are non-monotonic: macro-              6     Analysis and Discussion                       517
+499   pragmatic F1 rises from 91.1 at 32 positives
+500   to 92.3 at 512 and returns to 91.1 at full bud-       6.1    What the primary result                      518
+
+501   get. Missing 512/full PhoBERT cells limit the                establishes                                  519
+
+502   baseline curve. This is a sample-eﬀiciency di-        Q1a establishes a direct score comparison for       520
+503   agnostic, not evidence that less data is gener-       the saved matched cohort: all 45 pairs share        521
+
+
+                                                        8
+      XLM-R variant                                               Macro-pragmatic F1 Polarity dev ECE (x103 ) Relative cost
+      Full                                                                 92.8 ± 0.6             81.1 ± 11.7          1.00
+      - emotion                                                            91.7 ± 0.7             56.2 ± 22.5          0.65
+      - explanation                                                        92.3 ± 1.3             68.1 ± 22.2          0.20
+      Single-task bundle                                                   74.7 ± 2.3            118.9 ± 69.1          1.10
+      - polarity                                                           92.8 ± 0.2           not applicable         0.81
+      - uncertainty                                                        92.9 ± 0.3               90.2 ± 5.9         0.82
+
+
+      Table 3: Q2 follow-up ablations. Macro-pragmatic F1 is evaluated on the Q2 test split; polarity ECE is
+      the verified development-split ten-bin top-label ECE, shown on the x103 scale. The legacy field name is
+      polarity_dev_ece; the no-polarity row is not applicable because its polarity head was removed. Entries
+      are mean ± sample SD over n = 3 runs.
+
+      Positive examples         ViPragSent                      PhoBERT (fine-tune)          Vistral-7B SFT sarcasm /
+                                (XLM-R-large) sarcasm /         sarcasm / macro              macro
+                                macro
+      32                        84.2 ± 1.6 / 91.1 ± 1.3         69.7 ± 1.5 / 84.2 ± 0.7      70.5 ± 2.4 / 86.2 ± 0.2
+      64                        83.7 ± 1.3 / 91.2 ± 0.8         70.8 ± 2.8 / 77.7 ± 11.8     72.5 ± 0.9 / 86.7 ± 0.5
+      128                       85.2 ± 0.7 / 91.6 ± 0.2         71.8 ± 2.2 / 84.0 ± 1.2      71.3 ± 0.6 / 86.2 ± 0.4
+      256                       85.3 ± 2.6 / 91.6 ± 1.2         73.4 ± 1.2 / 84.5 ± 0.9      64.0 ± 5.1 / 70.3 ± 14.2
+      512                       87.2 ± 1.2 / 92.3 ± 0.7         –                            73.9 ± 1.2 / 87.2 ± 0.3
+      Full                      85.0 ± 2.3 / 91.1 ± 1.3         –                            75.3 ± 0.8 / 87.4 ± 0.2
+
+      Table 4: Q3 pragmatic label-budget behavior on the fixed test split, using the three available systems
+      in figures/source_data/table_q3_low_resource.csv: ViPragSent (XLM-R-large), PhoBERT (fine-
+      tune), and Vistral-7B SFT. Entries are mean ± sample SD over n = 3 logical runs; – denotes a missing
+      PhoBERT 512/full artifact cell and is not imputed.
+
+
+                                                                 differ.                                                      531
+
+                                                                 6.2   Auxiliary supervision is an                            532
+                                                                       operating-point choice                                 533
+
+                                                                 Q2 shows that auxiliary supervision is an                    534
+                                                                 operating-point choice. The full variant has                 535
+                                                                 92.8 macro-pragmatic F1, while removing un-                  536
+                                                                 certainty weighting is slightly higher; the other            537
+                                                                 variants trade F1, ECE, and cost in different                538
+                                                                 directions, with the no-multitask bundle show-               539
+                                                                 ing a large F1 reduction. These three-run com-               540
+
+      Figure 4: Q4 reliability diagrams for the calibra-         parisons do not isolate a causal mechanism.                  541
+
+      tion comparison. Curves aggregate the supplied             Q2 is a separate cohort, not an explanation                  542
+      per-label reliability bins over three logical runs         of Q1a’s 93.67.                                              543
+      (n = 3; run labels 21, 22, and 23, corresponding              The rationale component is auxiliary                      544
+      to remote artifact seeds 20260521, 20260522, and           teacher-forced token supervision during train-               545
+      20260523). The dashed line denotes perfect calibra-        ing; classification heads remain the deployed                546
+      tion; the figure is descriptive and does not imply         interface.     The results therefore support                 547
+      target dominance.
+                                                                 a representation-learning interpretation, not                548
+                                                                 faithful natural-language explanations at infer-             549
+                                                                 ence.                                                        550
+522   2,000 sample IDs and six pragmatic gold tu-
+523   ples, and macro-F1 was deterministically re-               6.3   Transfer and calibration expose                        551
+
+524   computed. ViPragSent records 93.67 versus                        different weaknesses                                   552
+
+525   92.93 for standard XLM-R (+0.73 pp), leads                 Q1b and Q4 keep in-domain performance from                   553
+526   on all six heads, and has the largest observed             carrying the argument: external retention is                 554
+527   gaps on sarcasm (+1.24 pp) and mocking                     mixed, and Vistral has lower ECE under the                   555
+528   (+1.07 pp). It has the highest recorded mean               supplied Q4 protocol. Discrimination, trans-                 556
+529   among the five complete baseline families, but             fer, and calibration answer different questions,             557
+530   the result remains descriptive because recipes             so deployment selection should match the op-                 558
+
+
+                                                            9
+559   erating point rather than a single macro-F1              an autonomous adjudicator of a person’s in-          607
+560   value.                                                   tent, emotion, credibility, or identity. Aggre-      608
+                                                               gate macro-F1 does not establish equal perfor-       609
+561   6.4    Label budgets and variance                        mance across social groups, domains, or writ-        610
+562   Q3 shows why positive-label budgets need run             ing styles. The manuscript does not reproduce        611
+563   variation. The best displayed target mean oc-            individual example text, and the system is not       612
+564   curs at 512 positives, while the full budget             intended for high-impact decisions or inference      613
+565   does not dominate; missing PhoBERT cells                 of protected attributes.                             614
+566   limit the contextual comparison. Threshold
+567   selection, class balance, and optimization vari-         9   Conclusion                                       615
+
+568   ance may contribute, but the artifacts do not            ViPragSent is an XLM-R-large multi-task              616
+569   isolate them. Budget studies therefore need a            model with separate pragmatic, polarity, and         617
+570   fixed negative pool, explicit thresholds, contex-        emotion heads and a training-only rationale          618
+571   tual baselines, and uncertainty summaries.               objective. On the matched Q1a ID/gold co-            619
+                                                               hort it records 93.67 ± 0.19 macro-pragmatic         620
+572   7     Limitations                                        F1 versus 92.93 ± 0.14 for standard XLM-             621
+
+573   The paper analyzes saved artifacts rather than           R (+0.73 pp), with the highest saved mean            622
+
+574   an independent training or inference rerun;              on all six heads among five complete base-           623
+
+575   deterministic recomputation verifies the Q1a             line families. Q1b is mixed, Q2 exposes ac-          624
+
+576   arithmetic but not fresh-run reproducibility.            curacy/calibration/cost trade-offs, Q3 is non-       625
+
+577   Q1a is scoped to the matched ID/gold pre-                monotonic with contextual baselines, and             626
+
+578   diction cohort, while Q2 and Q3 are separate             Q4 shows no blanket calibration advantage.           627
+
+579   follow-up run families and Q4 extracts calibra-          The primary result is descriptive and cohort-        628
+
+580   tion from Q1a v37 checkpoints. External re-              specific, but it supports the implemented            629
+
+581   tention is finite and heterogeneous across UIT-          model as a focused account of Vietnamese             630
+
+582   VSFC, UIT-VSMEC, and AIVIVN, and ECE                     pragmatic prediction.                                631
+
+583   depends on its specified split, binning, and
+584   probability source. The operational pragmatic            References                                           632
+585   labels do not exhaust discourse or speaker
+                                                               Rich Caruana. 1997. Multitask learning. Machine      633
+586   intent, and the evidence does not establish                Learning, 28(1):41–75.                             634
+587   group-conditional fairness, annotation history,
+588   consent, licensing, or institutional-review de-          Alexis Conneau, Kartikay Khandelwal, Naman           635
+589   tails.                                                     Goyal, Vishra Chaudhary, Guillaume Wenzek,         636
+                                                                 Francisco Guzmán, Edouard Grave, Myle Ott,         637
+                                                                 Luke Zettlemoyer, and Veselin Stoyanov. 2020.      638
+590   8     Ethics and Responsible Use                           Unsupervised cross-lingual representation learn-   639
+                                                                 ing at scale. In Proceedings of the 58th Annual    640
+591   The data handoff identifies a frozen                       Meeting of the Association for Computational       641
+592   ViPragSent      package     sourced    through             Linguistics, pages 8440–8451, Online. Associa-     642
+593   SEACrowd/ViSoBERT and records raw-                         tion for Computational Linguistics.                643
+594   text preservation, split sizes, and label fields.        Longxu Dou, Qian Liu, Guangtao Zeng, Jia Guo,        644
+595   The current project record does not provide                Jiahui Zhou, Xin Mao, Ziqi Jin, Wei Lu, and        645
+596   suﬀicient evidence for this paper to assert                Min Lin. 2024. Sailor: Open language mod-          646
+597   consent procedures, institutional review or                els for south-East Asia. In Proceedings of the     647
+                                                                 2024 Conference on Empirical Methods in Nat-       648
+598   exemption, compensation, licensing terms, or               ural Language Processing: System Demonstra-        649
+599   de-identification beyond those manifest fields.            tions, pages 424–435, Miami, Florida, USA. As-     650
+600   We make no such claims.                                    sociation for Computational Linguistics.           651
+601      Vietnamese text with pragmatic and affec-             Debanjan Ghosh, Alexander R. Fabbri, and             652
+602   tive signals may contain offensive, personal,              Smaranda Muresan. 2018. Sarcasm analysis us-       653
+603   or socially sensitive language. Classification             ing conversation context. Computational Lin-       654
+604   errors may mischaracterize speakers or am-                 guistics, 44(4):755–792.                           655
+
+605   plify stereotypes. The model is therefore                Chuan Guo, Geoff Pleiss, Yu Sun, and Kilian Q.       656
+606   an analysis aid requiring human review, not                Weinberger. 2017. On calibration of modern         657
+
+
+                                                          10
+658     neural networks. Proceedings of Machine Learn-           language model for Vietnamese social media text   715
+659     ing Research, 70:1321–1330.                              processing. In Proceedings of the 2023 Confer-    716
+                                                                 ence on Empirical Methods in Natural Language     717
+660   Vong Anh Ho, Duong Huynh-Cong Nguyen,                      Processing, pages 5191–5207, Singapore. Associ-   718
+661     Danh Hoang Nguyen, Linh Thi-Van Pham, Duc-               ation for Computational Linguistics.              719
+662     Vu Nguyen, Kiet Van Nguyen, and Ngan Luu-
+663     Thuy Nguyen. 2020. Emotion recognition for             A   Reproducibility record                          720
+664     Vietnamese social media text. In Computational
+665     Linguistics: 14th International Conference of          The following record is part of the manuscript      721
+666     the Pacific Association for Computational Lin-         rather than a future action list. All paths are     722
+667     guistics, PACLING 2019, Revised Selected Pa-           relative to the paper workspace unless a source     723
+668     pers, volume 1215 of Communications in Com-
+                                                               path is explicitly identified.                      724
+669     puter and Information Science, pages 319–333.
+670     Springer.                                              Primary backbone                              725
+
+671   Cheng-Yu Hsieh, Chun-Liang Li, Chih-kuan Yeh,               FacebookAI/xlm-roberta-large, revi-        726
+672     Hootan Nakhost, Yasuhisa Fujii, Alex Ratner,              sion c23d21b0620b635a76227c604d44e43a9f0ee389
+                                                                                                             727
+673     Ranjay Krishna, Chen-Yu Lee, and Tomas Pfis-
+674     ter. 2023. Distilling step-by-step! outperform-        Model interface First     nonpadding-token          728
+675     ing larger language models with less training            pooling; six binary pragmatic heads,              729
+676     data and smaller model sizes. In Findings of             three-way polarity head, seven-way emo-           730
+677     the Association for Computational Linguistics:           tion head; classification heads are the           731
+678     ACL 2023, pages 8003–8017, Toronto, Canada.
+679     Association for Computational Linguistics.
+                                                                 inference source                                  732
+
+                                                               Rationale implementation Two-layer                  733
+680   Alex Kendall, Yarin Gal, and Roberto Cipolla.
+681     2018. Multi-task learning using uncertainty to            causal TransformerDecoder with mem-              734
+682     weigh losses for scene geometry and semantics.            ory projection; hidden 128, four heads,          735
+683     In 2018 IEEE/CVF Conference on Computer                   feed-forward 512, dropout 0.1; tied token        736
+684     Vision and Pattern Recognition, pages 7482–               embeddings; teacher forcing; beta 0.3;           737
+685     7491. IEEE.
+                                                                  target maximum length 160; decoder               738
+686   Tao Lei, Regina Barzilay, and Tommi Jaakkola.               discarded at inference                           739
+687     2016. Rationalizing neural predictions. In Pro-
+688     ceedings of the 2016 Conference on Empirical           Rationale target provenance                   740
+689     Methods in Natural Language Processing, pages             Target          manifest          artifact 741
+690     107–117, Austin, Texas. Association for Compu-            approved_generated_rationales_train.jsonl; 742
+691     tational Linguistics.                                     7,998 training rows; provider unspecified  743
+
+692   Chien Van Nguyen, Thuat Nguyen, Quan Nguyen,                in the inspected evidence; not treated as  744
+693     Huy Nguyen, Björn Plüster, Nam Pham,                      original annotation-history evidence       745
+694     Huu Nguyen, Patrick Schramowski, and Thien
+695     Nguyen. 2023a. Vistral-7B-Chat – towards a             Dataset package SEACrowd/ViSoBERT             746
+696     state-of-the-art large language model for Viet-           source    package;        11,997     rows; 747
+697     namese. Hugging Face model card. Primary                  train/dev/test = 7,998/1,999/2,000; split  748
+698     model-release documentation and citation sup-
+                                                                  seed 20260520; local processed fingerprint 749
+699     plied by the authors.
+                                                                  7C39BEEBC462D1F9076F5DF1565E924BD884263D5503F23
+                                                                                                             750
+700   Dat Quoc Nguyen and Anh Tuan Nguyen. 2020.
+701     PhoBERT: Pre-trained language models for               Q1a target artifact provenance               751
+702     Vietnamese. In Findings of the Association                Remote target dataset fingerprint         752
+703     for Computational Linguistics: EMNLP 2020,                B906C090400BAE115C9C5E3C35E32FA410AC519AE09209E
+                                                                                                            753
+704     pages 1037–1042, Online. Association for Com-
+705     putational Linguistics.                                Q1a baseline artifact provenance             754
+                                                                  Remote baseline dataset fingerprint       755
+706   Kiet Van Nguyen, Vu Duc Nguyen, Phu X. V.                   A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA
+                                                                                                            756
+707     Nguyen, Tham T. H. Truong, and Ngan Luu-
+708     Thuy Nguyen. 2018. UIT-VSFC: Vietnamese                Training seeds Date-coded seeds 20260521,           757
+709     students’ feedback corpus for sentiment anal-              20260522, 20260523; logical labels 21, 22,      758
+710     ysis. In 2018 10th International Conference
+711     on Knowledge and Systems Engineering (KSE),                23                                              759
+712     pages 19–24. IEEE.                                     Primary Q1a optimizer AdamW, learning               760
+
+713   Nam Nguyen, Thang Phan, Duc-Vu Nguyen, and                  rate 2e-5, weight decay 0.01, bf16, phys-        761
+714     Kiet Nguyen. 2023b. ViSoBERT: A pre-trained               ical batch 8, accumulation 4, effective          762
+
+
+                                                          11
+763       batch 32, maximum 10 epochs, patience           predictions. No independent training or infer-    810
+764       10, gradient clipping 1.0                       ence rerun is part of this record. The three      811
+                                                          fingerprints above are retained as separate lo-   812
+765   Primary Q1a schedule Cosine, warmup ra-
+                                                          cal and remote provenance identifiers; the di-    813
+766      tio 0.20, development macro-pragmatic-
+                                                          rect score comparison is scoped to the verified   814
+767      F1 selection; task multipliers implicit
+                                                          same-ID, same-gold cohort rather than treated     815
+768      1.01, sarcasm 1.01, irony 1.05, code-
+                                                          as a fingerprint-equality test.                   816
+769      switching 1.04, remaining tasks 1.0
+770   Follow-up Q2/Q3 schedule AdamW,                     B   Table-specific protocol and                   817
+771       learning rate 2e-5, bf16, physical batch            missingness                                   818
+772       8, accumulation 4, effective batch 32,
+773       maximum 10 epochs, linear schedule,          Q1a uses the optimized v37 target and the            819
+
+774       warmup ratio 0.10, patience 2                complete three-seed baseline families listed in      820
+                                                       Table 1. The target and standard XLM-R               821
+775   Threshold rule Candidate thresholds 0.05– macro means are 93.665838 and 92.934251,                    822
+776       0.95, step 0.01; development binary with sample SDs 0.187121 and 0.144790 per-                    823
+777       macro-F1; ties toward 0.5                    centage points. Their difference is 0.731587         824
+778   Q3 mask rule Nested positive subsets of 32, percentage points. The per-head means and                 825
+779       64, 128, 256, 512, and full; fixed neg- SDs in Table 1 were recomputed from the same              826
+780       ative pool; positive weights recomputed      saved JSONL prediction rows.                         827
+781       per budget; development threshold per           Q1b uses the external retention records and       828
+782       seed/budget                                  reports ordinary F1 as the unweighted mean           829
+                                                       of the three external macro-F1 values. Q2            830
+783   Q4 rule Six pragmatic heads; raw positive
+                                                       uses the six follow-up variants: full, no emo-       831
+784       sigmoid probabilities; ten equal-width
+                                                       tion auxiliary, no polarity auxiliary, no ratio-     832
+785       bins; no temperature scaling; test split;
+                                                       nale, no multitask, and no uncertainty weight-       833
+786       mean and sample SD across seeds; no new
+                                                       ing. The selected Q2 metric artifacts expose         834
+787       training
+                                                       the legacy field polarity_dev_ece; Table 3           835
+788   Q1a evidence                                     reports macro-pragmatic F1 on the Q2 test            836
+789       evidence/q1a_fairness_comparison.json,split and the verified ten-bin top-label polar-             837
+790       evidence/q1a_fairness_run_table.csv, ity ECE from the development split on the                    838
+791       evidence/q1a_verified_table_inputs.json,     103 scale. The no-polarity row is not appli-         839
+792       evidence/q1a_numeric_claim_ledger.jsoncable for all three seeds because its polarity              840
+                                                       head was removed. The no-multitask row is a          841
+793   Method evidence
+                                                       separate single-task component-bundle recipe.        842
+794       evidence/method_evidence.json,
+                                                       Relative cost is normalized to the full XLM-         843
+795       evidence/evidence_claim_ledger.json
+                                                       R Q2 run using the recorded mean GPU-hour            844
+796   Protocol lineage                                 values. Q3 reports the six nested target bud-        845
+797       evidence/protocol_lineage.json;              gets and the available contextual baseline rows;     846
+798       records distinct Q1a v37, Q2, Q3, and Q4     missing baseline budget cells are not imputed.       847
+799       run families and Q4 source-checkpoint        Q4 extracts raw probabilities from the same-         848
+800       lineage                                      seed Q1a v37 full checkpoints.                       849
+
+801   Prediction rows raw_fairness/*.jsonl;               Audit note: the corresponding test-file val-      850
+
+802       18 files, 2,000 rows per file; deterministic ues  are valid test ECE, but the prior paper         851
+
+803       metric recomputation matches recorded        version incorrectly labeled them as develop-         852
+
+804       values                                       ment ECE. This revision corrects that split la-      853
+                                                       bel and uses the verified development values         854
+805     The Q1a comparison covers 45 target– in Table 3.                                                    855
+806   baseline pairs across the five complete baseline    For    auditability,    the     no-multitask      856
+807   families. Each pair has the same sample-ID set   component-bundle manifest records status             857
+808   and six-label gold tuples after alignment by     = NOT_STARTED with execution_kind =                  858
+809   ID. The comparison is descriptive over saved     component_bundle, direct classification out-         859
+
+
+                                                     12
+860   puts used, synthetic results false, and review
+861   status PASS. These technical flags identify
+862   the recipe protocol and are not a failed-run
+863   claim; the component execution proof is the
+864   basis for retaining its reported metrics.
+865      Incomplete GPT records and ViSoBERT
+866   prediction records are not inserted into any ta-
+867   ble. The retained ViPragSent Vistral variants
+868   are shown only where the compact canonical
+869   rows provide an explicit evidence status; the
+870   incomplete CoT-only row remains marked pro-
+871   visional. Q2 ECE for the no-polarity row is
+872   reported as not applicable for all three seeds
+873   because the polarity head was removed. These
+874   exclusions define the comparison scope and do
+875   not support claims about systems without ver-
+876   ified rows.
+877      The exact Hugging Face seed-22 run direc-
+878   tory is present in the current overflow-006
+879   and Vistral-checkpoint trees.       It contains
+880   development predictions/metrics and check-
+881   point/receipt artifacts, but the exhaustive live
+882   tree audit found no test predictions or test
+883   metrics for this exact run. The development
+884   metric is not substituted for a test score,
+885   so the COT row remains provisional at 2/3
+886   test seeds. The detailed audit is recorded in
+887   revision_q1a_extra/q1a_cot_seed22_hf_audit.json.
+888
+
+
+
+
+                                             13
+

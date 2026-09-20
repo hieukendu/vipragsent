@@ -1,0 +1,9 @@
+model,backbone,scope,record_status,n,seeds,UIT_VSFC_mean,UIT_VSFC_sd,UIT_VSMEC_mean,UIT_VSMEC_sd,AIVIVN_mean,AIVIVN_sd,ordinary_f1_mean,ordinary_f1_sd
+PhoBERT (single-task),PhoBERT-base,baseline,unverified-placeholder,3,"21,22,23",,,,,,,
+PhoBERT (fine-tune),PhoBERT-base,baseline,unverified-placeholder,3,"21,22,23",,,,,,,
+XLM-R-large (standard baseline),XLM-R-large,baseline,unverified-placeholder,3,"21,22,23",,,,,,,
+Sailor-7B SFT,Sailor-7B,baseline,current-manuscript-subset-only,3,"21,22,23",34.4,3.2,40.7,0.7,48.7,1.4,41.3,1.2
+Vistral-7B SFT,Vistral-7B,baseline,current-manuscript-subset-only,3,"21,22,23",30.7,6.4,39.4,1.5,49.0,0.8,39.7,2.5
+GPT zero-shot (artifact identity pending),azure-artifact (identity pending),baseline,unverified-placeholder,3,"21,22,23",,,,,,,
+GPT 8-shot (artifact identity pending),azure-artifact (identity pending),baseline,unverified-placeholder,3,"21,22,23",,,,,,,
+"ViPragSent (ours, XLM-R-large)",XLM-R-large,primary,current-manuscript-subset-only,3,"21,22,23",37.9,2.8,40.0,0.7,47.9,2.2,42.0,1.8

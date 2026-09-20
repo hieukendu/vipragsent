@@ -1,0 +1,18 @@
+\section{Introduction}
+
+Sentiment analysis is often framed as a polarity problem, but pragmatic meaning can reverse or qualify the interpretation suggested by a surface-positive or surface-negative expression. A Vietnamese utterance may be sarcastic, ironic, idiomatic, implicit, code-switched, or mocking without belonging to an emotion category. These phenomena are therefore useful prediction targets in their own right. Treating them as six emotion classes would collapse distinct communicative functions and obscure the role of emotion as an auxiliary signal. ViPragSent adopts the narrower formulation: six pragmatic phenomena are six binary tasks, while polarity and emotion are separate auxiliary tasks.
+
+Vietnamese offers a demanding setting. PhoBERT shows the value of language-specific pretraining \citep{nguyen-tuan-nguyen-2020-phobert}, whereas XLM-R provides a multilingual transfer regime across one hundred languages \citep{conneau-etal-2020-unsupervised}. ViSoBERT applies the XLM-R architecture to Vietnamese social-media tasks \citep{nguyen-etal-2023-visobert}. These contrasting settings motivate testing a large multilingual encoder on a bundle of pragmatic distinctions rather than one sentiment label.
+
+The challenge is also objective design. Pragmatic labels may correlate with polarity and emotion without being identical. Multi-task learning can use related signals \citep{caruana1997multitask}, while uncertainty weighting adapts relative loss scales \citep{kendall2018multitask}. These are empirical choices, so we report the training losses, causal rationale decoder, and classification-head inference interface explicitly.
+
+This paper studies ViPragSent XLM-R-large through four linked questions:
+
+\begin{itemize}
+\item \textbf{Q1a--Q1b:} How does the primary model behave in-domain, and how much of that behavior is retained on external Vietnamese sentiment and emotion datasets?
+\item \textbf{Q2:} What changes when the polarity, emotion, explanation, multitask, or task-uncertainty components are removed?
+\item \textbf{Q3:} How does pragmatic performance change as the number of positive examples is constrained while the evaluation procedure is held fixed?
+\item \textbf{Q4:} How well calibrated are the resulting confidence estimates relative to comparison models under a common expected-calibration-error protocol?
+\end{itemize}
+
+The contribution is a focused analysis of one primary XLM-R-large model rather than a leaderboard claim. We contribute (i) an implemented shared encoder with separated pragmatic, polarity, emotion, and teacher-forced rationale objectives; (ii) a six-head comparison on a matched ID/gold prediction cohort; and (iii) follow-up analyses that expose accuracy, calibration, cost, and budget trade-offs. All reported means summarize three saved runs, and comparison claims concern the evaluated prediction artifacts rather than a fresh training or inference rerun.

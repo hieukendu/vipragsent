@@ -1,0 +1,348 @@
+{
+  "NEXT_RUN_ALLOWED": "NO",
+  "RUN_STATUS": "PASS",
+  "USER_REVIEW_STATUS": "PENDING",
+  "actual_epochs": 7,
+  "additional_training": true,
+  "applicability": {},
+  "artifact_paths": [
+    "_engine_checkpoints/model/best.pt",
+    "_engine_checkpoints/model/epoch_001.pt",
+    "_engine_checkpoints/model/epoch_002.pt",
+    "_engine_checkpoints/model/epoch_003.pt",
+    "_engine_checkpoints/model/epoch_004.pt",
+    "_engine_checkpoints/model/epoch_005.pt",
+    "_engine_checkpoints/model/epoch_006.pt",
+    "_engine_checkpoints/model/epoch_007.pt",
+    "_engine_checkpoints/model/load_reports/best.json",
+    "_engine_checkpoints/model/run_state.json",
+    "_engine_checkpoints/model/thresholds.json",
+    "_engine_output/dev_predictions.jsonl",
+    "_engine_output/run_manifest.json",
+    "_engine_output/test_predictions.jsonl",
+    "_engine_output/thresholds.json",
+    "_engine_output/training_history.json",
+    "checkpoints/best/model.pt",
+    "checkpoints/checkpoint_manifest.json",
+    "checkpoints/latest/model.pt",
+    "config_snapshot.yaml",
+    "environment.json",
+    "metrics.json",
+    "metrics/dev_metrics.json",
+    "metrics/test_metrics.json",
+    "predictions/dev_predictions.jsonl",
+    "predictions/test_predictions.jsonl",
+    "preflight.json",
+    "provenance.json",
+    "run_manifest.json",
+    "selection/best_checkpoint.json",
+    "selection/freeze_manifest.json",
+    "selection/selection_metric.json",
+    "selection/thresholds.json",
+    "training/class_weights.json",
+    "training/device_report.json",
+    "training/history.csv",
+    "training/history.json",
+    "training/optimizer_summary.json",
+    "training/resolved_training_config.json",
+    "training/resource_usage.json",
+    "training/scheduler_summary.json"
+  ],
+  "artifact_sha256": {
+    "_engine_checkpoints/model/best.pt": "9031AA6362C8D79A17CDB3D3B9B7EC755CC666DC33CE30D77C87FC33B9EA253A",
+    "_engine_checkpoints/model/epoch_001.pt": "BC082D867484951613F208185EB1ECBC99BE80D4928F1150DC0953CE52B6B5AB",
+    "_engine_checkpoints/model/epoch_002.pt": "EC23D40959681F178FC200CCAF069A9CBD7F048D69E7E7E7D37F9B52CD05EA8B",
+    "_engine_checkpoints/model/epoch_003.pt": "6F44CE0C7CF34482CEFF44028EA5C604469664A2671E6453B3EFB8468FE6EAAD",
+    "_engine_checkpoints/model/epoch_004.pt": "8F76D5E715B1D9A9D3CCE4EBAD7E5F644A4D456D25C0A1EED5062D86940297EA",
+    "_engine_checkpoints/model/epoch_005.pt": "9031AA6362C8D79A17CDB3D3B9B7EC755CC666DC33CE30D77C87FC33B9EA253A",
+    "_engine_checkpoints/model/epoch_006.pt": "625CABEBDDDF84791EB9A310B0FECEE064537E7292C6AEC91C42E409D5B9F831",
+    "_engine_checkpoints/model/epoch_007.pt": "276A7ABBCF04DA55455A275FA4D82741087FEF68502AFD5471329219C2404E1F",
+    "_engine_checkpoints/model/load_reports/best.json": "0D9FC62F4D46DF859310719D3F06F575F7564EF8258963400116888E0B57392E",
+    "_engine_checkpoints/model/run_state.json": "0FFEDA093E1F02C9F4E31675CCEC68CE64C8D954758F0742E38D1431FC91EBA6",
+    "_engine_checkpoints/model/thresholds.json": "B9A6DD0E5262AB4C48614D99644205810E98E5E155A821C10D81CFC47A9257AC",
+    "_engine_output/dev_predictions.jsonl": "93D10909821D0B197508353EA30B00CEFDA53AAE0354213F1B5EE523DF67C56A",
+    "_engine_output/run_manifest.json": "CB18B55EB8A66A9FCAC885120D195D4AAA19323F74856B5D25B86C045DB1D8C7",
+    "_engine_output/test_predictions.jsonl": "CADAEC1FB1EB370F2E942800872952B463FB1CE279CF7055E5DE7DD2932EC13C",
+    "_engine_output/thresholds.json": "B9A6DD0E5262AB4C48614D99644205810E98E5E155A821C10D81CFC47A9257AC",
+    "_engine_output/training_history.json": "A43D2BFE0FB94DDC84B44613C4E51E051D6B3A86D0E9A752CBBCC64660A36E07",
+    "checkpoints/best/model.pt": "9031AA6362C8D79A17CDB3D3B9B7EC755CC666DC33CE30D77C87FC33B9EA253A",
+    "checkpoints/checkpoint_manifest.json": "EA50AE4E0B8A070B77FC154571A98FDA790226C5375D6CBAAA82F43261EC04BA",
+    "checkpoints/latest/model.pt": "276A7ABBCF04DA55455A275FA4D82741087FEF68502AFD5471329219C2404E1F",
+    "config_snapshot.yaml": "AD5980592FB73FDA5E535B9DA95A76E9AA07B13829B38BC5A9DABFE5562C313B",
+    "environment.json": "62884CF03E13B01025C48242839BC5367E4AB10EC756AF77EB6BDA7458568347",
+    "metrics.json": "80C635D7B9D19768736261CDBA283F2887D70C4C8D7B130852C9F61D3EB468B9",
+    "metrics/dev_metrics.json": "CD72F6A49839D230AC6FFBBCB2619B8C6415444C91D4093659FC88B95011A5CF",
+    "metrics/test_metrics.json": "BBEFDDD1F1FF9D3FCA08750299B9CEFFA2577181A5C92FFB8B706933802C2975",
+    "predictions/dev_predictions.jsonl": "93D10909821D0B197508353EA30B00CEFDA53AAE0354213F1B5EE523DF67C56A",
+    "predictions/test_predictions.jsonl": "CADAEC1FB1EB370F2E942800872952B463FB1CE279CF7055E5DE7DD2932EC13C",
+    "preflight.json": "A02B93E99D47FB3E614EF6A1FAABAE92B33FC75382C0B8DA153AD44D12CC2996",
+    "provenance.json": "CAB26B5BD444C3273A0D1982E5F508FE2E7F5B525674750B013C3D53BBAA1C60",
+    "run_manifest.json": "0EE55D617EEF415287E6AFAF94A00743A484374AF17ED9DD29896BD652F31A58",
+    "selection/best_checkpoint.json": "8C7B0F4D768C54ACA7EB646A3DA9D6E7B540382738FD807A99EF6B8812F81432",
+    "selection/freeze_manifest.json": "0AB7616A0F2042F04599F71ABC6F73A4FEE7CC76F5CE2BC5E9A7D3AC2C413E95",
+    "selection/selection_metric.json": "98A3DD9DB372A95BBB9F05F017B16BF3094BDCCBA0C68D507E709C5E93F34037",
+    "selection/thresholds.json": "B9A6DD0E5262AB4C48614D99644205810E98E5E155A821C10D81CFC47A9257AC",
+    "training/class_weights.json": "916300EB3D0655955BAB0F0BBAE448449E0994D5DDC83E2E38850342A65B6146",
+    "training/device_report.json": "5401F7C960BDC26405AF06A2CF353302D74EB1D15E151C4C75CED5D121A2A632",
+    "training/history.csv": "2BCB570F30EBED92429BB03E2CA7D1A1EBA6F8E035A7DD7A1F17F1827050E927",
+    "training/history.json": "A43D2BFE0FB94DDC84B44613C4E51E051D6B3A86D0E9A752CBBCC64660A36E07",
+    "training/optimizer_summary.json": "50FADE7BC2DE50C9E18F21C1F59495E0E2689F28BA88DD7D917A23F7197A3579",
+    "training/resolved_training_config.json": "D86EA7BFDDBD0FFF85C4B5BFCE73C104471B3FAE824BFC6C31F4C916D221A815",
+    "training/resource_usage.json": "CCB8537863C98FD29383B25F5DCF3A8B0C59B164F8C02D96169BF638C072AFA4",
+    "training/scheduler_summary.json": "151D96C680B063F7193DC943723EEFBB4256DE41BE6CEBFAB8BDBFCBFCB05242"
+  },
+  "azure_cache_hits": "NOT_APPLICABLE",
+  "azure_cache_misses": "NOT_APPLICABLE",
+  "azure_cached_input_cost_usd": "NOT_APPLICABLE",
+  "azure_cached_input_tokens": "NOT_APPLICABLE",
+  "azure_cost_accounting_method": "NOT_APPLICABLE",
+  "azure_cost_ledger_path": "NOT_APPLICABLE",
+  "azure_cost_usd": "NOT_APPLICABLE",
+  "azure_cost_verification_status": "NOT_APPLICABLE",
+  "azure_failed_requests": "NOT_APPLICABLE",
+  "azure_input_tokens": "NOT_APPLICABLE",
+  "azure_invalid_output_rate": "NOT_APPLICABLE",
+  "azure_job_id": null,
+  "azure_non_cached_input_cost_usd": "NOT_APPLICABLE",
+  "azure_non_cached_input_tokens": "NOT_APPLICABLE",
+  "azure_output_cost_usd": "NOT_APPLICABLE",
+  "azure_output_tokens": "NOT_APPLICABLE",
+  "azure_request_count": "NOT_APPLICABLE",
+  "azure_retried_requests": "NOT_APPLICABLE",
+  "azure_usage_records_path": "NOT_APPLICABLE",
+  "backbone": "xlmr_large",
+  "best_dev_loss": 1.5647042881473898,
+  "best_dev_metric": 0.9230997661490653,
+  "best_epoch": 5,
+  "bin_count": "NOT_APPLICABLE",
+  "blockers": [],
+  "budget": "NOT_APPLICABLE",
+  "changed_components": {
+    "baseline_system_id": "full_phobert",
+    "changed_components": {
+      "active_heads": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity"
+        ]
+      },
+      "active_losses": {
+        "full": [
+          "pragmatic",
+          "polarity",
+          "emotion",
+          "rationale"
+        ],
+        "variant": [
+          "pragmatic",
+          "polarity",
+          "rationale"
+        ]
+      },
+      "uncertainty_tasks": {
+        "full": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity",
+          "emotion"
+        ],
+        "variant": [
+          "implicit_sentiment",
+          "sarcasm",
+          "irony",
+          "idiom_figurative",
+          "code_switching",
+          "mocking",
+          "polarity"
+        ]
+      }
+    },
+    "status": "RESOLVED",
+    "variant_system_id": "xlmr_followup_no_emotion_auxiliary"
+  },
+  "checkpoint_path": "checkpoints/best/model.pt",
+  "checkpoint_sha256": "9031AA6362C8D79A17CDB3D3B9B7EC755CC666DC33CE30D77C87FC33B9EA253A",
+  "class_weights": {
+    "code_commit": "bc48618827da8833785f7cdca5acf6a96957ebf8",
+    "content_hash": "E846273728DA6244C90D42225AEFD646F9D8B19CA9EB42301FBCBFD727C881F5",
+    "counts": {
+      "emotion": {
+        "anger": 251,
+        "disgust": 708,
+        "enjoyment": 2037,
+        "fear": 227,
+        "other": 3687,
+        "sadness": 709,
+        "surprise": 379
+      },
+      "polarity": {
+        "negative": 1301,
+        "neutral": 4934,
+        "positive": 1763
+      },
+      "pragmatic": {
+        "code_switching": {
+          "negative": 6792,
+          "positive": 1206
+        },
+        "idiom_figurative": {
+          "negative": 7435,
+          "positive": 563
+        },
+        "implicit_sentiment": {
+          "negative": 6320,
+          "positive": 1678
+        },
+        "irony": {
+          "negative": 7444,
+          "positive": 554
+        },
+        "mocking": {
+          "negative": 7066,
+          "positive": 932
+        },
+        "sarcasm": {
+          "negative": 7453,
+          "positive": 545
+        }
+      }
+    },
+    "dataset_hash": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+    "emotion_weight": {
+      "anger": 4.552077404667046,
+      "disgust": 1.6138014527845037,
+      "enjoyment": 0.5609088996423311,
+      "fear": 5.033354310887351,
+      "other": 0.3098918981750552,
+      "sadness": 1.611525287124723,
+      "surprise": 3.0147003392385976
+    },
+    "polarity_weight": {
+      "negative": 2.0491929285165256,
+      "neutral": 0.5403323875152006,
+      "positive": 1.5121951219512195
+    },
+    "pragmatic_pos_weight": {
+      "code_switching": 5.6318407960199,
+      "idiom_figurative": 13.206039076376554,
+      "implicit_sentiment": 3.766388557806913,
+      "irony": 13.436823104693142,
+      "mocking": 7.581545064377682,
+      "sarcasm": 13.675229357798164
+    },
+    "source_split": "train"
+  },
+  "code_commit": "bc48618827da8833785f7cdca5acf6a96957ebf8",
+  "configuration_hash": "AD5980592FB73FDA5E535B9DA95A76E9AA07B13829B38BC5A9DABFE5562C313B",
+  "dataset_fingerprint": "A13573E38550ABD55D7F63E983C602BEA13C2765A1FFECA285F718478532AF0D",
+  "direct_classification_outputs_used": true,
+  "display_name": "xlmr followup q2 no emotion auxiliary 20260523",
+  "early_stopping_reason": "patience_exhausted",
+  "effective_batch_size": 32,
+  "end_time": "2026-09-12T19:10:47Z",
+  "execution_kind": "trainable",
+  "execution_mode": "production_sequential_review_gated",
+  "experiment_id": "xlmr_followup_q2_no_emotion_auxiliary_20260523",
+  "failed_or_retried_gpu_hours": 0.0,
+  "frozen_thresholds": {
+    "code_switching": 0.91,
+    "idiom_figurative": 0.83,
+    "implicit_sentiment": 0.91,
+    "irony": 0.94,
+    "mocking": 0.83,
+    "sarcasm": 0.95
+  },
+  "gradient_accumulation_steps": 4,
+  "inference_output_source": "classification_heads",
+  "learning_rate": 2e-05,
+  "macro_pragmatic_ece": "NOT_APPLICABLE",
+  "macro_pragmatic_f1": 0.9171098068099193,
+  "maximum_epochs": 10,
+  "model_repository": "FacebookAI/xlm-roberta-large",
+  "model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "native_causal_lm_generation_used": false,
+  "next_run_allowed": "NO",
+  "optimizer": "AdamW",
+  "peak_vram_gb": 13.503072261810303,
+  "per_label_dev_metrics": {
+    "code_switching": 0.9625358553397331,
+    "idiom_figurative": 0.9109371426421535,
+    "implicit_sentiment": 0.9215967927143294,
+    "irony": 0.9782290793125263,
+    "mocking": 0.9012806800287805,
+    "sarcasm": 0.8640190468568685
+  },
+  "per_label_pragmatic_ece": "NOT_APPLICABLE",
+  "per_label_test_metrics": {
+    "code_switching": 0.9444867402613881,
+    "idiom_figurative": 0.9243651765636772,
+    "implicit_sentiment": 0.9003129936518215,
+    "irony": 0.9804099031857416,
+    "mocking": 0.8843709781209781,
+    "sarcasm": 0.8687130490759092
+  },
+  "physical_batch_size": 8,
+  "precision": "bf16",
+  "prediction_hashes": {
+    "predictions/dev_predictions.jsonl": "93D10909821D0B197508353EA30B00CEFDA53AAE0354213F1B5EE523DF67C56A",
+    "predictions/test_predictions.jsonl": "CADAEC1FB1EB370F2E942800872952B463FB1CE279CF7055E5DE7DD2932EC13C"
+  },
+  "preprocessing_name": "unicode_nfc",
+  "preprocessing_version": "locked-v1",
+  "primary_dev_selection_metric": "dev_macro_pragmatic_f1",
+  "probability_aggregation": "NOT_APPLICABLE",
+  "provenance_contract_version": 1,
+  "q3_budget_data": "NOT_APPLICABLE",
+  "rationale_applicability": {
+    "inference": false,
+    "training": true
+  },
+  "rationale_decoder_enabled_at_inference": false,
+  "research_question": "Q2",
+  "run_id": "xlmr_followup_q2_no_emotion_auxiliary_20260523",
+  "run_status": "PASS",
+  "same_seed_source": false,
+  "sarcasm_dev_f1": "NOT_APPLICABLE",
+  "sarcasm_test_f1": "NOT_APPLICABLE",
+  "scheduler": "linear",
+  "seed": 20260523,
+  "source_checkpoint_id": "NOT_APPLICABLE",
+  "source_prediction_hash": "NOT_APPLICABLE",
+  "source_system_id": "NOT_APPLICABLE",
+  "split_hashes": {
+    "dev": "93D10909821D0B197508353EA30B00CEFDA53AAE0354213F1B5EE523DF67C56A",
+    "test": "CADAEC1FB1EB370F2E942800872952B463FB1CE279CF7055E5DE7DD2932EC13C"
+  },
+  "start_time": "2026-09-12T17:44:34Z",
+  "successful_gpu_hours": 1.1102764216688876,
+  "summary_hash_input": "BF1ACC27796677DD8524C42AD47C24143BFC8B24DCD4B4E02D1B8517D44ACC4F",
+  "system_id": "xlmr_followup_no_emotion_auxiliary",
+  "temperature_scaling": false,
+  "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "user_review_status": "PENDING",
+  "validation_status": "PASS",
+  "variant": "no_emotion_auxiliary",
+  "wall_clock_seconds": 0.0,
+  "warmup_ratio": 0.1,
+  "warnings": [],
+  "weight_decay": 0.01
+}

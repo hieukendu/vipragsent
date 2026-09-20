@@ -1,0 +1,7 @@
+variant,macro_pragmatic_f1_test_pct,polarity_dev_ece_x1000,relative_cost_to_full_q2_xlm_r,seed_count
+full,92.8 +/- 0.6,81.1 +/- 11.7,1.00,3
+no_emotion_auxiliary,91.7 +/- 0.7,56.2 +/- 22.5,0.65,3
+no_polarity_auxiliary,92.8 +/- 0.2,not applicable (polarity head removed),0.81,3
+no_rationale,92.3 +/- 1.3,68.1 +/- 22.2,0.20,3
+no_multitask,74.7 +/- 2.3,118.9 +/- 69.1,1.10,3
+no_uncertainty_weighting,92.9 +/- 0.3,90.2 +/- 5.9,0.82,3

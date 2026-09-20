@@ -1,0 +1,119 @@
+{
+  "figure": "figure_q1a_table_macro_bars",
+  "question": "Q1a",
+  "input": "D:\\vipragsent\\paper\\revision_q1a_extra\\q1a_extra_canonical_rows.csv",
+  "input_sha256": "23D50A0313FB0E15F441E55BA9550222D47B568F9C97D0F8D4EFC75ED886466D",
+  "row_count": 12,
+  "unit_conversion": "mean and sample SD multiplied by 100 for percentage-point display",
+  "rows": [
+    {
+      "system_id": "vipragsent_xlmr_large",
+      "display_name": "ViPragSent XLM-R-large (primary)",
+      "status": "ANALYZED_RECOMPUTED",
+      "seed_count": 3,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.9366583803341149,
+      "macro_pragmatic_f1_sample_sd": "0.001871210373416054"
+    },
+    {
+      "system_id": "phobert_pragmatic_single_task",
+      "display_name": "PhoBERT (single-task)",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "seed_count": 3,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.8624271012304049,
+      "macro_pragmatic_f1_sample_sd": "0.004850612407389662"
+    },
+    {
+      "system_id": "phobert_pragmatic_finetune",
+      "display_name": "PhoBERT fine-tune",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "seed_count": 3,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.8545650658243372,
+      "macro_pragmatic_f1_sample_sd": "0.0036106045939239416"
+    },
+    {
+      "system_id": "xlmr_pragmatic_finetune",
+      "display_name": "XLM-R-large fine-tune",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "seed_count": 3,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.929342505569368,
+      "macro_pragmatic_f1_sample_sd": "0.0014479038590645334"
+    },
+    {
+      "system_id": "sailor_pragmatic_sft",
+      "display_name": "Sailor-7B SFT",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "seed_count": 3,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.8554370057355398,
+      "macro_pragmatic_f1_sample_sd": "0.004764727661750579"
+    },
+    {
+      "system_id": "vistral_pragmatic_sft",
+      "display_name": "Vistral-7B SFT",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "seed_count": 3,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.8716188257397464,
+      "macro_pragmatic_f1_sample_sd": "0.003289463930029276"
+    },
+    {
+      "system_id": "vipragsent_no_auxiliary_vistral",
+      "display_name": "ViPragSent - no auxiliary loss",
+      "status": "ANALYZED_RECOMPUTED",
+      "seed_count": 3,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.872115173960342,
+      "macro_pragmatic_f1_sample_sd": "0.00579742924440962"
+    },
+    {
+      "system_id": "cot_only_vistral",
+      "display_name": "Vistral CoT-only clean rerun 003",
+      "status": "PROVISIONAL_2_OF_3_MISSING_TEST_SCORE",
+      "seed_count": 2,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.42465442106622775,
+      "macro_pragmatic_f1_sample_sd": "0.0"
+    },
+    {
+      "system_id": "explanation_only_vistral",
+      "display_name": "ViPragSent - explanation only",
+      "status": "ANALYZED_RECOMPUTED",
+      "seed_count": 3,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.4694502609365167,
+      "macro_pragmatic_f1_sample_sd": "0.00030656171682616744"
+    },
+    {
+      "system_id": "vipragsent_full_vistral",
+      "display_name": "ViPragSent (ours, Vistral)",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "seed_count": 3,
+      "expected_seed_count": 3,
+      "macro_pragmatic_f1_mean": 0.8119291246500239,
+      "macro_pragmatic_f1_sample_sd": "0.12232294364665386"
+    },
+    {
+      "system_id": "azure_pragmatic_zero_shot",
+      "display_name": "GPT-4.1-mini zero-shot",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "seed_count": 1,
+      "expected_seed_count": 1,
+      "macro_pragmatic_f1_mean": 0.5411368091832071,
+      "macro_pragmatic_f1_sample_sd": null
+    },
+    {
+      "system_id": "azure_gpt41_mini_8shot",
+      "display_name": "GPT-4.1-mini 8-shot",
+      "status": "ANALYZED_REPORTED_REMOTE",
+      "seed_count": 1,
+      "expected_seed_count": 1,
+      "macro_pragmatic_f1_mean": 0.5409782739146386,
+      "macro_pragmatic_f1_sample_sd": null
+    }
+  ],
+  "claim_boundary": "The chart represents the expanded Table 1 inventory; primary baseline dominance is limited to complete comparable three-seed baseline families."
+}
