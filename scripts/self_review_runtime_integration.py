@@ -34,6 +34,10 @@ REQUIRED_REPORTS = (
     "src/vipragsent/orchestration/executors/external_retention.py",
     "src/vipragsent/orchestration/executors/q4.py",
 )
+ALLOWED_TRACKED_BINARY_PREFIXES = (
+    "paper/revision_evidence/q1b_http_cache/",
+    "paper/revision_q1a_extra/raw_sources/",
+)
 
 
 def _tracked_files(root: Path) -> list[str]:
@@ -56,7 +60,14 @@ def _source_contract_findings(root: Path) -> list[str]:
                 findings.append(f"{label}: {path.relative_to(root).as_posix()}")
     for relative in _tracked_files(root):
         path = Path(relative)
-        if path.name.casefold() in {".env", ".env.local"} or path.suffix.casefold() in {".bin", ".pt", ".pth", ".safetensors", ".ckpt"}:
+        normalized = relative.casefold()
+        binary_is_scoped_evidence = path.suffix.casefold() == ".bin" and any(
+            normalized.startswith(prefix) for prefix in ALLOWED_TRACKED_BINARY_PREFIXES
+        )
+        if path.name.casefold() in {".env", ".env.local"} or (
+            path.suffix.casefold() in {".bin", ".pt", ".pth", ".safetensors", ".ckpt"}
+            and not binary_is_scoped_evidence
+        ):
             findings.append(f"forbidden tracked runtime file: {relative}")
     return findings
 

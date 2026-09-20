@@ -1,0 +1,16 @@
+\section{Related Work}
+
+\subsection{Multilingual and Vietnamese encoders}
+XLM-R established a strong multilingual masked-language-model baseline by scaling pretraining across languages and evaluating cross-lingual transfer \citep{conneau-etal-2020-unsupervised}. PhoBERT demonstrates the complementary case for a Vietnamese-specific encoder trained on word-segmented Vietnamese data \citep{nguyen-tuan-nguyen-2020-phobert}. ViSoBERT moves toward Vietnamese social-media text while retaining the XLM-R architecture \citep{nguyen-etal-2023-visobert}. ViPragSent uses XLM-R-large as its primary encoder so that the study can focus on the pragmatic multi-task formulation and its auxiliary objectives.
+
+The Q1a comparison contains standard XLM-R, PhoBERT, Sailor, and Vistral prediction artifacts. ViSoBERT is discussed here as contextual prior work, not as an evaluated Q1a baseline: no ViSoBERT prediction family is included in the verified comparison table. This distinction prevents a related model family from being mistaken for a measured result.
+
+\subsection{Pragmatic and affective supervision}
+The target formulation combines signals that are related but not interchangeable. UIT-VSFC provides Vietnamese student feedback with sentiment-oriented labels \citep{vannguyen2018uitvsfc}, whereas UIT-VSMEC is a Vietnamese social-media emotion corpus \citep{ho2019emotion}. ViPragSent uses these label families as auxiliary signals while retaining separate pragmatic outputs.
+
+Sarcasm detection studies show why context can matter beyond the current utterance: conversation-aware models can outperform models that read only the current turn \citep{ghosh-etal-2018-sarcasm}. A complementary line of work distills teacher-generated rationales as additional supervision in a multi-task objective \citep{hsieh-etal-2023-distilling}; earlier rationale models likewise separate prediction from explanation \citep{lei-etal-2016-rationalizing}. ViPragSent brings this rationale-supervision idea to a shared XLM-R-large encoder and tests it alongside Vietnamese pragmatic heads, while keeping rationale generation outside the deployed prediction interface.
+
+\subsection{Multi-task objectives, rationale supervision, and calibration}
+Multi-task learning shares a representation across related objectives and can transfer useful domain information between them \citep{caruana1997multitask}. The uncertainty-weighted objective follows the motivation that task losses need not contribute equally \citep{kendall2018multitask}. The implemented rationale decoder supplies a teacher-forced auxiliary loss during training and is discarded at inference.
+
+Confidence is evaluated separately from discrimination: expected calibration error measures the gap between confidence and empirical correctness across bins, which can remain large when accuracy is strong \citep{guo2017calibration}. Q4 is therefore a protocol-specific calibration comparison, not a universal uncertainty claim.

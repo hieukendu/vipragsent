@@ -1,0 +1,19 @@
+{
+  "preview": true,
+  "question": "Q1a",
+  "input": "D:\\vipragsent\\paper\\figures\\source_data\\table2_q1a_baselines.csv",
+  "input_sha256": "9F3BBFA979AB0F29CE2C32B4E6EDF551391E7BA0D50311394C2B219BF9D969ED",
+  "row_count": 6,
+  "primary_system": "ViPragSent (XLM-R-large)",
+  "metrics": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking",
+    "macro_pragmatic_f1"
+  ],
+  "unit_conversion": "mean and sample SD multiplied by 100 for percentage-point display",
+  "coverage_status": "provisional current subset; regenerate after revision_evidence handoff"
+}

@@ -1,0 +1,12 @@
+system,backbone,n,seeds,scope,record_status,implicit_sentiment_mean,implicit_sentiment_sd,sarcasm_mean,sarcasm_sd,irony_mean,irony_sd,idiom_figurative_mean,idiom_figurative_sd,code_switching_mean,code_switching_sd,mocking_mean,mocking_sd,macro_pragmatic_f1_mean,macro_pragmatic_f1_sd
+PhoBERT (single-task),PhoBERT-base,3,"21,22,23",baseline,current-artifact-subset,0.8800146585,0.0128952175,0.7087394364,0.0133656845,0.9712729847,0.0105543549,0.9121266950,0.0077786107,0.9108407842,0.0151033425,0.7915680486,0.0298601035,0.8624271012,0.0048506124
+PhoBERT (fine-tune),PhoBERT-base,3,"21,22,23",baseline,current-artifact-subset,0.8575667140,0.0071619785,0.7264091834,0.0050131300,0.9745071771,0.0018780589,0.8663231312,0.0066195335,0.9173241668,0.0052929007,0.7852600224,0.0100874503,0.8545650658,0.0036106046
+XLM-R-large (standard baseline),XLM-R-large,3,"21,22,23",baseline,current-artifact-subset,0.9216367596,0.0013081359,0.8812303494,0.0042979444,0.9792952151,0.0009679388,0.9285011829,0.0067548323,0.9426512893,0.0004459663,0.9227402371,0.0041177089,0.9293425056,0.0014479039
+Sailor-7B SFT,Sailor-7B,3,"21,22,23",baseline,current-artifact-subset,0.8523047741,0.0011382146,0.7224183862,0.0050088135,0.9640116097,0.0055439943,0.9117361299,0.0040619914,0.9047906575,0.0087021534,0.7781511519,0.0007525262,0.8555687849,0.0010145804
+Vistral-7B SFT,Vistral-7B,3,"21,22,23",baseline,current-artifact-subset,0.8768351893,0.0041646001,0.7540381367,0.0106255549,0.9701770028,0.0001181755,0.9152081515,0.0035387438,0.9321626731,0.0045279669,0.8115925722,0.0116486284,0.8766689543,0.0006170258
+GPT zero-shot (artifact identity pending),azure-artifact (identity pending),3,"21,22,23",baseline,unverified-placeholder,,,,,,,,,,,,,,
+GPT 8-shot (artifact identity pending),azure-artifact (identity pending),3,"21,22,23",baseline,unverified-placeholder,,,,,,,,,,,,,,
+ViPragSent - no auxiliary loss (Vistral-backed; protocol pending),Vistral-7B,3,"21,22,23",comparison,unverified-placeholder,,,,,,,,,,,,,,
+ViPragSent - CoT-only (Vistral-backed; protocol pending),Vistral-7B,3,"21,22,23",comparison,unverified-placeholder,,,,,,,,,,,,,,
+ViPragSent - explanation-only (Vistral-backed; protocol pending),Vistral-7B,3,"21,22,23",comparison,unverified-placeholder,,,,,,,,,,,,,,
+"ViPragSent (ours, XLM-R-large)",XLM-R-large,3,"21,22,23",primary,current-artifact-subset,0.9266933598,0.0023569020,0.8936057433,0.0089697510,0.9843275321,0.0019545822,0.9334908735,0.0066178486,0.9483808787,0.0056397089,0.9334518947,0.0072942254,0.9366583803,0.0018712104

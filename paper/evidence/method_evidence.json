@@ -1,0 +1,175 @@
+{
+  "evidence_type": "implementation_and_recorded_protocol",
+  "created_utc": "2026-09-17",
+  "status": "VERIFIED_IMPLEMENTATION_PLUS_RECORDED_TARGET_MANIFEST",
+  "primary_model": {
+    "system": "ViPragSent (XLM-R-large)",
+    "variant_id": "vipragsent_full_xlmr_large",
+    "backbone_repository": "FacebookAI/xlm-roberta-large",
+    "backbone_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "backbone_architecture": "encoder",
+    "pooling": {
+      "rule": "first non-padding encoder state",
+      "implementation": "mask.long().argmax(dim=1), then select hidden[b, index[b]]",
+      "source": "D:\\vipragsent\\src\\vipragsent\\models\\backbones.py:34-45"
+    }
+  },
+  "label_schema": {
+    "pragmatic_binary_labels": [
+      "implicit_sentiment",
+      "sarcasm",
+      "irony",
+      "idiom_figurative",
+      "code_switching",
+      "mocking"
+    ],
+    "polarity_head": {
+      "classes": [
+        "negative",
+        "neutral",
+        "positive"
+      ],
+      "source": "D:\\vipragsent\\src\\vipragsent\\constants.py:3-13"
+    },
+    "emotion_head": {
+      "classes": [
+        "anger",
+        "disgust",
+        "enjoyment",
+        "fear",
+        "other",
+        "sadness",
+        "surprise"
+      ],
+      "source": "D:\\vipragsent\\src\\vipragsent\\constants.py:11-13"
+    },
+    "interpretation": "The six primary heads are pragmatic binary phenomena, not six emotions."
+  },
+  "classification_heads": {
+    "pragmatic": "Six independent nn.Linear(hidden_size, 1) heads in a ModuleDict.",
+    "polarity": "One nn.Linear(hidden_size, 3) head.",
+    "emotion": "One nn.Linear(hidden_size, 7) head.",
+    "source": "D:\\vipragsent\\src\\vipragsent\\models\\heads.py:8-25"
+  },
+  "rationale_component": {
+    "component_type": "two-layer TransformerDecoder",
+    "implementation_details": {
+      "token_embedding": true,
+      "memory_projection": "Linear(backbone_hidden_size, decoder_hidden_size)",
+      "causal_mask": true,
+      "output_projection": "Linear(decoder_hidden_size, vocab_size, bias=False)",
+      "output_projection_weight_tied_to_token_embedding": true,
+      "default_decoder_hidden_size": 128,
+      "attention_heads": 4,
+      "feed_forward_size": 512,
+      "decoder_layers": 2
+    },
+    "teacher_forcing": {
+      "decoder_input": "target_ids[:, :-1]",
+      "labels": "target_ids[:, 1:]",
+      "padding_label": -100,
+      "causal_mask": true,
+      "source": "D:\\vipragsent\\src\\vipragsent\\models\\rationale_decoder.py:56-81"
+    },
+    "loss": {
+      "function": "token cross entropy",
+      "ignore_index": -100,
+      "label_smoothing": 0.0,
+      "sample_mask_supported": true,
+      "source": "D:\\vipragsent\\src\\vipragsent\\models\\losses.py:110-127"
+    },
+    "inference": {
+      "rationale_training": true,
+      "rationale_inference": false,
+      "full_model_inference_output_source": "classification_heads",
+      "source": "D:\\vipragsent\\src\\vipragsent\\models\\variants.py:122-157"
+    }
+  },
+  "objective": {
+    "pragmatic_loss": "binary_cross_entropy_with_logits per pragmatic label, with optional per-label positive weighting",
+    "polarity_loss": "cross_entropy over three polarity classes",
+    "emotion_loss": "cross_entropy over seven emotion classes",
+    "classification_source": "D:\\vipragsent\\src\\vipragsent\\models\\losses.py:22-51",
+    "uncertainty_weighting": {
+      "enabled_for_target": true,
+      "task_components": [
+        "implicit_sentiment",
+        "sarcasm",
+        "irony",
+        "idiom_figurative",
+        "code_switching",
+        "mocking",
+        "polarity",
+        "emotion"
+      ],
+      "formula": "sum_k [0.5 * exp(-s_k) * L_k + 0.5 * s_k], with s_k clamped to [-5, 5]",
+      "source": "D:\\vipragsent\\src\\vipragsent\\models\\losses.py:54-84"
+    },
+    "rationale_term": "beta * rationale_loss, beta=0.3",
+    "classification_loss_multipliers_applied_before_aggregation": true,
+    "loss_multiplier_source": "D:\\vipragsent\\src\\vipragsent\\training\\engine.py:378-427",
+    "target_recorded_loss_multipliers": {
+      "code_switching": 1.04,
+      "implicit_sentiment": 1.01,
+      "irony": 1.05,
+      "sarcasm": 1.01,
+      "idiom_figurative": 1.0,
+      "mocking": 1.0,
+      "polarity": 1.0,
+      "emotion": 1.0
+    },
+    "target_manifest_source": "D:\\vipragsent-pr\\reports\\hf_vipragsent_naacl_comparison_2026-09-15\\raw_short\\model\\fd\\fd03721d1011ad2c4bbbea211e18a4d46c593ce36cb964bfec5787b6534fd7af_test_metrics.json and the corresponding V37 optimization manifest"
+  },
+  "target_training_protocol": {
+    "dataset_split_sizes": {
+      "train": 7998,
+      "dev": 1999,
+      "test": 2000
+    },
+    "dataset_fingerprint": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+    "actual_seeds": [
+      20260521,
+      20260522,
+      20260523
+    ],
+    "logical_seed_labels": [
+      21,
+      22,
+      23
+    ],
+    "optimizer": "AdamW",
+    "learning_rate": 2e-05,
+    "weight_decay": 0.01,
+    "effective_batch_size": 32,
+    "physical_batch_size": 8,
+    "gradient_accumulation_steps": 4,
+    "maximum_epochs": 10,
+    "scheduler": "cosine",
+    "warmup_ratio": 0.2,
+    "precision": "bf16",
+    "gradient_clipping": 1.0,
+    "batch_order": "fixed",
+    "selection_metric": "dev_macro_pragmatic_f1",
+    "test_evaluated_after_dev_freeze": true,
+    "test_evaluated_during_training": false,
+    "selection_protocol": "dev_only_frozen_threshold_v1",
+    "rationale_artifact": "data/processed/rationales/approved_generated_rationales_train.jsonl",
+    "rationale_record_count": 7998,
+    "rationale_artifact_sha256": "B583AC45F4BC2FDFA41DA44376AB99585075CA3EBB1FC47BC3936D84B89B21D1",
+    "authority": "V37 optimization manifests for all three target runs",
+    "status": "RECORDED_ARTIFACT_CONFIG"
+  },
+  "implementation_sources": [
+    "D:\\vipragsent\\src\\vipragsent\\constants.py:3-22",
+    "D:\\vipragsent\\src\\vipragsent\\data\\labels.py:9-52",
+    "D:\\vipragsent\\src\\vipragsent\\models\\heads.py:8-25",
+    "D:\\vipragsent\\src\\vipragsent\\models\\backbones.py:34-45",
+    "D:\\vipragsent\\src\\vipragsent\\models\\variants.py:43-157",
+    "D:\\vipragsent\\src\\vipragsent\\models\\rationale_decoder.py:7-97",
+    "D:\\vipragsent\\src\\vipragsent\\models\\losses.py:22-127",
+    "D:\\vipragsent\\src\\vipragsent\\training\\engine.py:378-427",
+    "D:\\vipragsent\\src\\vipragsent\\training\\engine.py:666-710",
+    "D:\\vipragsent\\src\\vipragsent\\training\\engine.py:825-844"
+  ],
+  "independent_rerun": "NOT_PERFORMED"
+}

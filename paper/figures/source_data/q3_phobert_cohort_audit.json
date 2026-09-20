@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "audited_at_utc": "2026-09-20T17:40:32.4734623Z",
+  "question": "Q3",
+  "system": "PhoBERT (fine-tune)",
+  "decision": {
+    "authoritative_paper_cohort": "standard_gpu40",
+    "printed_complete_budgets": [32, 128, 256],
+    "printed_missing_budgets": [64, 512, "full"],
+    "aggregate_policy": "Do not mix cohorts; do not impute missing test aggregates",
+    "table_source": "paper/figures/source_data/table_q3_low_resource.csv"
+  },
+  "standard_gpu40": {
+    "status": "ANALYZED_REMOTE_COHORT",
+    "complete_three_seed_budgets": [32, 128, 256],
+    "incomplete_budgets": {
+      "64": {
+        "test_metric_seeds_observed": [20260523],
+        "test_metric_seeds_missing": [20260521, 20260522],
+        "status": "INCOMPLETE_1_OF_3"
+      },
+      "512": {
+        "test_metric_seeds_observed": [],
+        "test_metric_seeds_missing": [20260521, 20260522, 20260523],
+        "status": "MISSING_0_OF_3"
+      },
+      "full": {
+        "test_metric_seeds_observed": [],
+        "test_metric_seeds_missing": [20260521, 20260522, 20260523],
+        "status": "MISSING_0_OF_3"
+      }
+    },
+    "source_scope": "Current Hugging Face standard GPU40 artifact-shard audit; the existing 32/128/256 table values are retained only within this cohort."
+  },
+  "compact_final_20260820": {
+    "status": "ANALYZED_SEPARATE_COHORT",
+    "repository": "Thundergod2007/vipragsent-experiment-artifacts-overflow-002",
+    "revision": "main",
+    "campaign": "vipragsent-v7-compact-20260820-190bb0f24a7e75a8",
+    "complete_three_seed_budgets": [32, 128, 512, "full"],
+    "aggregates_from_live_test_metrics": {
+      "32": {
+        "macro_pragmatic_f1": "0.7774219820 +/- 0.1081268039",
+        "sarcasm_f1": "0.6899713371 +/- 0.0174507349"
+      },
+      "128": {
+        "macro_pragmatic_f1": "0.8461866784 +/- 0.0037504633",
+        "sarcasm_f1": "0.7259523268 +/- 0.0114875792"
+      },
+      "512": {
+        "macro_pragmatic_f1": "0.7808768625 +/- 0.0913237592",
+        "sarcasm_f1": "0.7078561305 +/- 0.0275718127"
+      },
+      "full": {
+        "macro_pragmatic_f1": "0.8448127686 +/- 0.0010369229",
+        "sarcasm_f1": "0.7328306380 +/- 0.0083132085"
+      }
+    },
+    "representative_live_tree": "campaigns/vipragsent-v7-compact-20260820-190bb0f24a7e75a8/SHARD_H100_MIG20_COMPACT",
+    "not_mixed_into_table": true,
+    "reason": "Its 32 and 128 aggregates differ from the standard GPU40 cohort, and it has no 64 or 256 rows."
+  }
+}

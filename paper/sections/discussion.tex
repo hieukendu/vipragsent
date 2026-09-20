@@ -1,0 +1,15 @@
+\section{Analysis and Discussion}
+
+\subsection{What the primary result establishes}
+Q1a establishes a direct score comparison for the saved matched cohort: all 45 pairs share 2,000 sample IDs and six pragmatic gold tuples, and macro-F1 was deterministically recomputed. ViPragSent records 93.67 versus 92.93 for standard XLM-R (+0.73 pp), leads on all six heads, and has the largest observed gaps on sarcasm (+1.24 pp) and mocking (+1.07 pp). It has the highest recorded mean among the five complete baseline families, but the result remains descriptive because recipes differ.
+
+\subsection{Auxiliary supervision is an operating-point choice}
+Q2 shows that auxiliary supervision is an operating-point choice. The full variant has 92.8 macro-pragmatic F1, while removing uncertainty weighting is slightly higher; the other variants trade F1, ECE, and cost in different directions, with the no-multitask bundle showing a large F1 reduction. These three-run comparisons do not isolate a causal mechanism. Q2 is a separate cohort, not an explanation of Q1a's 93.67.
+
+The rationale component is auxiliary teacher-forced token supervision during training; classification heads remain the deployed interface. The results therefore support a representation-learning interpretation, not faithful natural-language explanations at inference.
+
+\subsection{Transfer and calibration expose different weaknesses}
+Q1b and Q4 keep in-domain performance from carrying the argument: external retention is mixed, and Vistral has lower ECE under the supplied Q4 protocol. Discrimination, transfer, and calibration answer different questions, so deployment selection should match the operating point rather than a single macro-F1 value.
+
+\subsection{Label budgets and variance}
+Q3 shows why positive-label budgets need run variation. The best displayed target mean occurs at 512 positives, while the full budget does not dominate; missing PhoBERT cells limit the contextual comparison. Threshold selection, class balance, and optimization variance may contribute, but the artifacts do not isolate them. Budget studies therefore need a fixed negative pool, explicit thresholds, contextual baselines, and uncertainty summaries.

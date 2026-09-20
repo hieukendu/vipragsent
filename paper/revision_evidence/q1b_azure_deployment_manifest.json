@@ -1,0 +1,32 @@
+{
+  "source_repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-002",
+  "remote_commit": "47619e2f4caa18bfc874af7b40457638903c4ae6",
+  "tar_sha256": "453C07B8EF1B02F58C08DD0090A0BC8411668D5DA918DB4928CD8C25F9342BD6",
+  "run_id": "q1b_azure_gpt41_mini",
+  "request_manifest": {
+    "deployment": "gpt-4.1-mini",
+    "job_type": "dedicated_prompts",
+    "requested": 5468,
+    "strict_schema": true,
+    "temperature": 0,
+    "synthetic_results": false
+  },
+  "response_manifest": {
+    "successful": 5468,
+    "failed": 0,
+    "invalid": 0,
+    "missing": 0,
+    "retried": 6
+  },
+  "prompt_manifest_hashes": {
+    "emotion": "257F51AC99339556B96204374D6EF3712AE7316AF58505D83D23FB604EF982A6",
+    "polarity": "A1F29BD244832F780BA6BCE93A1EE80264D2F9B9ABA5733B1B80D01D9975869C"
+  },
+  "external_metrics": {
+    "aivivn_macro_f1": 0.6336204105971547,
+    "vsfc_macro_f1": 0.6272609081995402,
+    "vsmec_macro_f1": 0.5307384842285198,
+    "ordinary_f1": 0.5972066010084048
+  },
+  "identity_disposition": "configured Azure deployment is gpt-4.1-mini; response-side model version is unrecorded; reference row is GPT-4o-mini; do not relabel or claim independently resolved backend"
+}

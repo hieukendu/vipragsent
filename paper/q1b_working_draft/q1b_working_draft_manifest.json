@@ -1,0 +1,31 @@
+{
+  "artifact_status": "WORKING_DRAFT_CANONICAL_EVIDENCE_UPDATED_NOT_MANUSCRIPT_APPROVAL",
+  "canonical_input": "D:\\vipragsent\\paper\\revision_evidence\\q1b_canonical_table.csv",
+  "canonical_sha256": "7608F6B762F9B8F2BC9F8FD4F40FE880E42CA32A9E753917BAAF3C90DE2AAB20",
+  "local_subset_input": "D:\\vipragsent\\paper\\figures\\source_data\\q1b_external_provisional_subset.csv",
+  "local_subset_sha256": "7AE411A00C837EFB961D214A27F2F0E79E8EFF0DCA82CC633A3BE8A42CB78DF6",
+  "output_csv": "D:\\vipragsent\\paper\\figures\\source_data\\q1b_expanded_working_draft.csv",
+  "rows_in_main_draft": [
+    "PhoBERT single-task",
+    "PhoBERT fine-tune (actual multitask recipe)",
+    "XLM-R-large standard classification baseline",
+    "ViPragSent XLM-R-large",
+    "Sailor-7B SFT",
+    "Vistral-7B SFT",
+    "Azure deployment gpt-4.1-mini (version unrecorded)",
+    "GPT-4o-mini 8-shot (reference identity)"
+  ],
+  "omitted_contextual_row": "ViPragSent full PhoBERT inventory",
+  "historical_rows_ledgered_without_values": ["Q1b-07"],
+  "q2_used": false,
+  "ordinary_ranking_status": "DESCRIPTIVE_SAME_OBSERVED_COHORT_ALLOWED_PROVENANCE_LIMITATION_RETAINED",
+  "cohort_provenance": {
+    "primary_aivivn_normalized_test_sha256_prefix": "27DA59A4...",
+    "baseline_normalized_test_sha256_prefix": "F6F6A78E...",
+    "hash_comparison_semantics": "per-dataset cross-group matching; not cross-dataset hash equality",
+    "baseline_hash_scope_reported": "full per-dataset manifest hashes plus executed ID/gold/raw-text/NFC parity proof",
+    "semantic_parity_script": "revision_evidence/q1b_split_gold_parity.py",
+    "semantic_parity_log": "revision_evidence/q1b_split_gold_parity.log",
+    "required_for_final": "parent/production review of canonical evidence; no manuscript edit made"
+  }
+}

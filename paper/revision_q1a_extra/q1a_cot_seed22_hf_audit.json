@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "status": "ANALYZED",
+  "audited_at_utc": "2026-09-20T18:05:08.4786925Z",
+  "run_id": "q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+  "scope": "Current Hugging Face main trees; exact run-id search across the paginated overflow-006 tree and direct exact-path checks across the Thundergod2007 artifact repositories.",
+  "sources": [
+    {
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-006",
+      "revision": "main",
+      "remote_commit": "6146fef0b6ed701d3f26462800a7d0a4e60a6d20",
+      "run_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+      "files": [
+        {
+          "path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/epochs/epoch_1/predictions/dev_predictions.jsonl",
+          "bytes": 11220388,
+          "split": "dev",
+          "kind": "prediction"
+        },
+        {
+          "path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/epochs/epoch_1/metrics/dev_reasoning_metrics.json",
+          "bytes": 1587,
+          "split": "dev",
+          "kind": "metric",
+          "status": "PASS",
+          "requested_count": 1999,
+          "valid_count": 1999,
+          "primary_macro_f1": 0.36993052576768,
+          "primary_metric_name": "full_split_macro_pragmatic_f1_all_zero_fallback",
+          "metric_name": "valid_only_macro_pragmatic_f1",
+          "prediction_source": "effective_full_split_all_zero_fallback",
+          "truncation_rate": 1.0
+        },
+        {
+          "path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/metrics/dev_reasoning_metrics_epoch_1.json",
+          "bytes": 1678,
+          "split": "dev",
+          "kind": "metric",
+          "status": "PASS",
+          "requested_count": 1999,
+          "valid_count": 1999,
+          "primary_macro_f1": 0.36993052576768,
+          "primary_metric_name": "full_split_macro_pragmatic_f1_all_zero_fallback",
+          "metric_name": "valid_only_macro_pragmatic_f1",
+          "prediction_source": "effective_full_split_all_zero_fallback",
+          "truncation_rate": 1.0
+        }
+      ],
+      "test_prediction_paths": [],
+      "test_metric_paths": []
+    },
+    {
+      "repo": "Thundergod2007/vipragsent-vistral7b-checkpoints",
+      "revision": "58cf389aa7a45fa5b959b5a623df7caa54db80d7",
+      "run_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+      "files": [
+        {
+          "path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/checkpoints/epoch_0001/model.pt",
+          "bytes": 4942858233,
+          "kind": "checkpoint"
+        },
+        {
+          "path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/checkpoints/epoch_0002/model.pt",
+          "bytes": 4942858233,
+          "kind": "checkpoint"
+        },
+        {
+          "path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/receipts/q1a_cot_only_vistral_clean_rerun_003__seed_20260522-epoch-0001-checkpoints.json",
+          "bytes": 1961,
+          "kind": "receipt"
+        }
+      ],
+      "test_prediction_paths": [],
+      "test_metric_paths": []
+    },
+    {
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-021",
+      "revision": "f39e6850398fc294de0e69a154ac9978290c024f",
+      "run_path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522",
+      "files": [
+        {
+          "path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/metrics.json",
+          "kind": "run_metric_manifest",
+          "status": "NOT_STARTED"
+        },
+        {
+          "path": "campaigns/vipragsent-v7-6693e7e9eef08ef1/SHARD_GPU40_7B_INTEGRATION/q1a_cot_only_vistral_clean_rerun_003__seed_20260522/state.json",
+          "kind": "run_state",
+          "test_generation": "NOT_STARTED",
+          "test_judging": "NOT_STARTED",
+          "test_metrics": "NOT_STARTED"
+        }
+      ],
+      "test_prediction_paths": [],
+      "test_metric_paths": []
+    }
+  ],
+  "exhaustive_overflow_006_scan": {
+    "tree_pages": 29,
+    "tree_entries": 28720,
+    "exact_run_id_matches": true,
+    "test_prediction_file_count": 0,
+    "test_reasoning_metric_file_count": 0,
+    "test_metric_file_count": 0,
+    "direct_exact_path_check_repository_count": 29,
+    "direct_exact_path_check_present_repository_count": 3
+  },
+  "live_recheck_2026_09_21": {
+    "method": "Direct Hugging Face resolve HEAD/content checks against the recorded immutable revisions",
+    "dev_predictions_http_status": 200,
+    "dev_reasoning_metrics_http_status": 200,
+    "test_predictions_http_status": 404,
+    "test_reasoning_metrics_http_status": 404,
+    "overflow_021_state_http_status": 200,
+    "overflow_021_metrics_http_status": 200,
+    "overflow_021_run_status": "RUNNING",
+    "overflow_021_train_generation_status": "RUNNING",
+    "overflow_021_test_generation_status": "NOT_STARTED",
+    "overflow_021_test_metrics_status": "NOT_STARTED",
+    "checkpoint_model_epoch_0001_present": true,
+    "checkpoint_model_epoch_0002_present": true
+  },
+  "decision": {
+    "seed_22_exists": true,
+    "seed_22_has_test_score": false,
+    "usable_for_q1a_test_aggregate": false,
+    "aggregate_policy": "Keep the COT test row provisional at 2/3; retain seed 20260522 in the coverage ledger, but do not substitute its dev value or impute a test value."
+  }
+}

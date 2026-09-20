@@ -1,0 +1,19 @@
+{
+  "preview": true,
+  "question": "Q1a",
+  "input": "paper\\figures\\source_data\\q1a_full_row_inventory_working.csv",
+  "input_sha256": "3D93FD9E55F20617501C3B4653CEEAAE343DBBE5C8AAD46B3AA958FF3A9563FE",
+  "row_count": 11,
+  "primary_system": "ViPragSent (ours, XLM-R-large)",
+  "metrics": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking",
+    "macro_pragmatic_f1"
+  ],
+  "unit_conversion": "mean and sample SD multiplied by 100 for percentage-point display",
+  "coverage_status": "working full-inventory layout; blank cells are unverified placeholders; regenerate from canonical evidence"
+}

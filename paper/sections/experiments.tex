@@ -1,0 +1,52 @@
+\section{Experimental Setup}
+
+\subsection{Separate experimental cohorts}
+Q1a, Q2, Q3, and Q4 are related but distinct artifact cohorts. The distinction is material when interpreting the full-model values.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\hline
+Cohort & Run family and purpose & Key protocol \\
+\hline
+Q1a & Optimized v37 ViPragSent and five complete baseline families & Cosine scheduler, warmup 0.20, patience 10, development macro-pragmatic-F1 selection; target task multipliers as above \\
+Q2 & XLM-R follow-up full model and five ablations & Linear scheduler, warmup 0.10, patience 2; named auxiliary and uncertainty variants \\
+Q3 & XLM-R follow-up nested positive-label budgets & Linear scheduler, warmup 0.10, patience 2; development sarcasm binary macro-F1 selection \\
+Q4 & Calibration extraction & Same-seed extraction from each Q1a v37 full checkpoint; no new training \\
+\hline
+\end{tabularx}
+\caption*{Experimental cohorts and protocols; quantitative entries elsewhere summarize three saved runs where reported ($n=3$, mean $\pm$ sample SD).}
+\end{table}
+
+The Q2 full value is not a rerun of Q1a v37: the cohorts differ in scheduler, warmup ratio, and early-stopping patience. Q2 is therefore interpreted within its own follow-up cohort, not as an explanation of the difference between Q1a's 93.67 and Q2's 92.8.
+
+\subsection{Data and external evaluation}
+Q1a evaluates the 2,000-example pragmatic test cohort. Q1b reports retention on UIT-VSFC, UIT-VSMEC, and AIVIVN. The external aggregate is called ordinary F1 in this paper: it is the unweighted mean of the three external macro-F1 values. It is not ordinal F1 and does not encode an ordinal relation among labels. External datasets have different domains and label semantics, so their scores are not pooled with the primary macro-pragmatic F1.
+
+\begin{table*}[t]
+\centering
+\scriptsize
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\textwidth}{>{\raggedright\arraybackslash}p{1.25in} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.85in} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\hline
+Dataset / source & Task and labels & Declared split (train / dev / test) & Evaluation slice / split rule & Evidence and provenance status \\
+\hline
+\texttt{ViPragSe\allowbreak{}nt\_Exper\allowbreak{}iment\_Da\allowbreak{}taset\_FI\allowbreak{}NAL\_V8} & Vietnamese pragmatic sentiment; six binary pragmatic heads, separate 3-way polarity, and 7-way emotion & 7,998 / 1,999 / 2,000 & Q1a: 2,000-example test cohort; deterministic multilabel stratification; split seed \texttt{20260520} & PACKAGE-VALIDATED; saved experiments ANALYZED; upstream SEACrowd/ViSoBERT artifact is labeled CC BY-NC 4.0; local derivative license not separately recorded \\
+\texttt{AIVIVN-h\allowbreak{}uman-der\allowbreak{}ived-3wa\allowbreak{}y} & Vietnamese sentiment; human-derived 3-way polarity (negative / neutral / positive) & 12,869 / 1,609 / 1,609 & Q1b: 1,609 held-out test records; project-defined split & ANALYZED; ID/gold/raw-text/NFC parity PASS; original Kaggle provenance reports Apache-2.0; manifest-hash discrepancy retained \\
+\texttt{UIT-VSFC} & Vietnamese student feedback; 3-way polarity (\texttt{0=negative}, \texttt{1=neutral}, \texttt{2=positive}) & — / — / 3,166* & Supplied official test file; no project split seed & ANALYZED; observed ID/gold/text parity PASS; author-contact research access is private; no open license asserted \\
+\texttt{UIT-VSMEC} & Vietnamese social-media emotion; 7 classes (anger, disgust, enjoyment, fear, other, sadness, surprise) & — / — / 693* & Supplied official test file; no project split seed & ANALYZED; observed ID/gold/text parity PASS; author-contact research access is private; no open license asserted \\
+\hline
+\end{tabularx}
+\caption*{Current dataset statistics and evidence scope. Counts are declared train/dev/test split counts when available; an asterisk marks a supplied official test-file count, an em dash denotes an unavailable split count, and license status is reported only when present in the inspected evidence.}
+\end{table*}
+
+Counts are declared split counts where the inspected manifests provide them; \texttt{*} means that only the supplied official test-file count is evidenced. The original AIVIVN 2019 binary Kaggle files are provenance-only; Q1b evaluates the bundled derived three-way split. The machine-readable manifests retain the source ZIP SHA-256 \texttt{23150E...32844AC2}, ViPragSent package fingerprint \texttt{7C39...F4205EB}, AIVIVN normalized-test hash \texttt{27DA...394EDA8}, UIT-VSFC hash \texttt{C27B...2E75D96}, and UIT-VSMEC hash \texttt{1D2E...3D955}. Hashes are scope-specific evidence rather than license verification. The table reports dataset/package validation and saved artifact analysis, not an independent experiment rerun.
+
+\subsection{Baselines and reporting conventions}
+ViPragSent XLM-R-large is the only primary model. Comparison records include standard XLM-R, PhoBERT single-task and fine-tuned variants, Sailor, and Vistral where complete three-seed summaries are available. Vistral ViPragSent variants and incomplete GPT records are outside the primary Q1a comparison. ViSoBERT is contextual prior work, not an evaluated baseline in this study.
+
+The available baseline manifests describe family-specific recipes rather than one recipe shared with the target. The standard XLM-R baseline uses AdamW at $2\times10^{-5}$, bf16, physical batch size 8 with four accumulation steps, linear scheduling with 0.10 warmup, and a ten-epoch maximum; its selection metric is development macro-pragmatic F1. The PhoBERT fine-tune uses AdamW at $2\times10^{-5}$, bf16, physical batch size 32, linear scheduling with 0.10 warmup, and the same ten-epoch maximum. The PhoBERT single-task record is a bundle of six separately trained component artifacts and exposes no single aggregate optimizer recipe. Sailor-7B and Vistral-7B-Chat are causal-7B pragmatic-SFT records \citep{dou-etal-2024-sailor,nguyen-etal-2023-vistral} using paged AdamW 8-bit, learning rate $10^{-4}$, bf16, physical batch size 2 with eight accumulation steps, cosine scheduling, 0.05 warmup, and a three-epoch maximum; their reported inference source is the classification heads. These records are described for provenance and interpretation only: the ViPragSent v37 cosine schedule, warmup, patience, and task multipliers are not claimed for the baselines.
+
+Unless otherwise stated, a value is the arithmetic mean over three saved runs and the uncertainty is the sample standard deviation with $n=3$. Q1a and Q3 report F1 in percentage points. Q2 reports macro-pragmatic F1, ECE multiplied by $10^3$, and relative cost. Q4 reports ECE on its native [0,1] scale. Lower ECE is better. No significance test is applied to the three-seed summaries.

@@ -1,0 +1,39 @@
+# Tectonic package/cache and temporary state are reproducible build products.
+build/cache/
+build/tmp/
+build/miktex/
+
+# Historical visual-review scratch directories are not manuscript sources.
+build/fixture*/
+build/figure-qa*/
+build/initial-render/
+build/final-render/
+build/final-render-final/
+build/review_final/
+build/review_q1b_cleanup/
+
+# Older one-off raster/text review exports; keep the current qa-render set.
+build/architecture*_page-*.png
+build/reference_main-page-*.png
+build/preview*-page-*.png
+build/review*.png
+build/q*.png
+build/*.aux
+build/*.blg
+build/*.out
+build/main.log
+build/main.txt
+
+# Keep the current reproducible final build products; ignore historical
+# one-off renders and diagnostic snapshots under the same directory.
+build/*
+!build/main.pdf
+!build/main.bbl
+!build/build_commands.log
+!build/manuscript_conversion_manifest.json
+!build/current.txt
+!build/main_layout.txt
+!build/qa-render/
+!build/qa-render/page-*.png
+!build/qa-render/paper.txt
+!build/qa-render/results.txt

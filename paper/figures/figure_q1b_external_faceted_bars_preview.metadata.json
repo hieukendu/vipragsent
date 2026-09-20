@@ -1,0 +1,17 @@
+{
+  "preview": true,
+  "question": "Q1b",
+  "input": "D:\\vipragsent\\paper\\figures\\source_data\\q1b_external_provisional_subset.csv",
+  "input_sha256": "B405053AD06676F6E448CE2C08B9266C646B61E721931633A6ADC6B2A58797AC",
+  "row_count": 3,
+  "primary_system": "ViPragSent XLM-R-large",
+  "datasets": [
+    "UIT_VSFC",
+    "UIT_VSMEC",
+    "AIVIVN",
+    "ordinary_f1"
+  ],
+  "unit": "percentage-point macro-F1",
+  "aggregate_definition": "ordinary F1 is the unweighted mean of UIT-VSFC, UIT-VSMEC, and AIVIVN",
+  "coverage_status": "provisional current subset; regenerate after revision_evidence handoff"
+}

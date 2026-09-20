@@ -1,0 +1,255 @@
+{
+  "proof": {
+    "selected_runs": [
+      "xlmr_followup_q2_no_polarity_auxiliary_20260521",
+      "xlmr_followup_q2_full_20260521"
+    ],
+    "all_source_ok": true,
+    "no_polarity_head_removed_confirmed": true,
+    "full_dev_split_match": true,
+    "full_test_split_match": true
+  },
+  "evidence": [
+    {
+      "run": "xlmr_followup_q2_no_polarity_auxiliary_20260521",
+      "variant": "no_polarity_auxiliary",
+      "seed": 20260521,
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-011",
+      "revision": "93d075edd8d2f9347edf41d5b2c28f330ce6f806",
+      "raw_sources": {
+        "config_snapshot.yaml": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/config_snapshot.yaml?download=true",
+          "status": 200,
+          "bytes": 1028,
+          "sha256": "c36e586c19d53f54dce437e64ef2d32eadaf730ec682611d870c27e4954dd7ae"
+        },
+        "training/resolved_training_config.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/training/resolved_training_config.json?download=true",
+          "status": 200,
+          "bytes": 1050,
+          "sha256": "b253ea4bbe7d7cc44fb3ea33cf9e2cca13d36c78fbe0cb9abaed76ab71470654"
+        },
+        "run_manifest.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/run_manifest.json?download=true",
+          "status": 200,
+          "bytes": 32996,
+          "sha256": "3b1e46e5f0628fbe956525a4464b14bc87b5ef10717e95bbe11f4738fd222254"
+        },
+        "review_summary.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/review_summary.json?download=true",
+          "status": 200,
+          "bytes": 14806,
+          "sha256": "8d1bd6223ad30677283cb5213ab077658e98b2381738882f7c7eab24558f8c72"
+        },
+        "metrics/dev_metrics.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/metrics/dev_metrics.json?download=true",
+          "status": 200,
+          "bytes": 442433,
+          "sha256": "becd93309fa1ec87ae373a5aa173e39fda02c6aaf175502aac3329967aab2040"
+        },
+        "metrics/test_metrics.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/metrics/test_metrics.json?download=true",
+          "status": 200,
+          "bytes": 442791,
+          "sha256": "50bb5697c4789aadaa3932efdadc4e383281bf26f0880c341d294ed8b1ad060a"
+        },
+        "predictions/dev_predictions.jsonl": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/predictions/dev_predictions.jsonl?download=true",
+          "status": 200,
+          "bytes": 2161320,
+          "sha256": "a7ca1258e1ac987a1856455309b94d71db5aec29e68f9a0c214943b66bf56bcc"
+        },
+        "predictions/test_predictions.jsonl": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/predictions/test_predictions.jsonl?download=true",
+          "status": 200,
+          "bytes": 2162521,
+          "sha256": "64873e773542f2e16b0e1ad8ede8f0b5a0e459cb983af1084660b5a6a3fd989c"
+        },
+        "selection/best_checkpoint.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/selection/best_checkpoint.json?download=true",
+          "status": 200,
+          "bytes": 141,
+          "sha256": "d949b61aa3b4be8268f0d7aea7e76ad27007398ca1b7b38dd48bb5aa644ac330"
+        },
+        "selection/freeze_manifest.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/selection/freeze_manifest.json?download=true",
+          "status": 200,
+          "bytes": 577,
+          "sha256": "553a7ff131ec01dbc016077e51df02c65985788f38befba04f7f44eb85675823"
+        },
+        "selection/selection_metric.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-011/resolve/93d075edd8d2f9347edf41d5b2c28f330ce6f806/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_no_polarity_auxiliary_20260521/selection/selection_metric.json?download=true",
+          "status": 200,
+          "bytes": 88,
+          "sha256": "70004a9d4c94a9eefe5002d9b688cb8d324eb81cc6a1b5bad43bb6bdcfeb9d11"
+        }
+      },
+      "artifact_tree_status": 200,
+      "artifact_tree_revision": "93d075edd8d2f9347edf41d5b2c28f330ce6f806",
+      "status": "PASS",
+      "review_status": "PASS",
+      "source_ok": true,
+      "active_uncertainty_tasks": [
+        "implicit_sentiment",
+        "sarcasm",
+        "irony",
+        "idiom_figurative",
+        "code_switching",
+        "mocking",
+        "emotion"
+      ],
+      "variant_active_heads_from_review": [
+        "implicit_sentiment",
+        "sarcasm",
+        "irony",
+        "idiom_figurative",
+        "code_switching",
+        "mocking",
+        "emotion"
+      ],
+      "polarity_presence_counts": {
+        "dev_gold": 0,
+        "dev_logits": 0,
+        "dev_predictions": 0,
+        "dev_probabilities": 0,
+        "test_gold": 0,
+        "test_logits": 0,
+        "test_predictions": 0,
+        "test_probabilities": 0
+      },
+      "dev_prediction_count": 1999,
+      "test_prediction_count": 2000,
+      "dev_macro_pragmatic_f1": 0.926835480876881,
+      "test_macro_pragmatic_f1": 0.9302131822110674,
+      "saved_dev_metrics_polarity_dev_ece": null,
+      "saved_test_metrics_polarity_dev_ece": null,
+      "recomputed_dev_polarity_ece": null,
+      "recomputed_test_polarity_ece": null,
+      "dev_ece_abs_delta": null,
+      "test_ece_abs_delta": null,
+      "dev_split_match": false,
+      "test_split_match": false,
+      "split_match_verdict": "not_applicable_head_removed",
+      "successful_gpu_hours": 1.5832517411972449,
+      "head_diagnosis": "not applicable (polarity head removed)",
+      "head_removed_confirmed": true
+    },
+    {
+      "run": "xlmr_followup_q2_full_20260521",
+      "variant": "full",
+      "seed": 20260521,
+      "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-019",
+      "revision": "b0feda11a917ce7f621ff7773aac5989ec9fbd9f",
+      "raw_sources": {
+        "config_snapshot.yaml": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/config_snapshot.yaml?download=true",
+          "status": 200,
+          "bytes": 1024,
+          "sha256": "d08c6f865eb34f003816cd3e4a59bec879a33654c5bcfd773e2ac33045b083b5"
+        },
+        "training/resolved_training_config.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/training/resolved_training_config.json?download=true",
+          "status": 200,
+          "bytes": 1049,
+          "sha256": "4974b7c79be1b205adc129a061dbec0c815108423767152f4304f97bed9d5cd4"
+        },
+        "run_manifest.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/run_manifest.json?download=true",
+          "status": 200,
+          "bytes": 32961,
+          "sha256": "b4a2212b2326f705c175ed52e61bd2b4f3580636a494cdfefb7cd8acea3a857a"
+        },
+        "review_summary.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/review_summary.json?download=true",
+          "status": 200,
+          "bytes": 13372,
+          "sha256": "c0831f574022b4f9057c1a5d1df970c12ea7c4211ff1c0b636aa8136ab6d1530"
+        },
+        "metrics/dev_metrics.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/metrics/dev_metrics.json?download=true",
+          "status": 200,
+          "bytes": 440317,
+          "sha256": "918b7fef7a19a399425795d9b3e75441debde6e02d44ea211abc30f56aebd068"
+        },
+        "metrics/test_metrics.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/metrics/test_metrics.json?download=true",
+          "status": 200,
+          "bytes": 440484,
+          "sha256": "00b3618e0d82ca0139e1ab3c2dbd0b86e409a81741fcef939f3c7f8ca657eaad"
+        },
+        "predictions/dev_predictions.jsonl": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/predictions/dev_predictions.jsonl?download=true",
+          "status": 200,
+          "bytes": 2494129,
+          "sha256": "3b0c18d771464b2c6f379ed24fe7f6a9d7b79861dbe06471f7463a7fc164b1f0"
+        },
+        "predictions/test_predictions.jsonl": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/predictions/test_predictions.jsonl?download=true",
+          "status": 200,
+          "bytes": 2495884,
+          "sha256": "4debbc64e86c4883e070ab4f12a47a6cff269ae7d9b625681a92167b80cbd508"
+        },
+        "selection/best_checkpoint.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/selection/best_checkpoint.json?download=true",
+          "status": 200,
+          "bytes": 141,
+          "sha256": "8e5f088634b03ee21e2b842f6823f2b373770722504f087f742b840a76466085"
+        },
+        "selection/freeze_manifest.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/selection/freeze_manifest.json?download=true",
+          "status": 200,
+          "bytes": 576,
+          "sha256": "e632b761da555ff4c4427f666167330349f7c560fef59ce808fc68cc13619c15"
+        },
+        "selection/selection_metric.json": {
+          "url": "https://huggingface.co/Thundergod2007/vipragsent-experiment-artifacts-overflow-019/resolve/b0feda11a917ce7f621ff7773aac5989ec9fbd9f/campaigns/vipragsent-xlmr-q1b-q4-followup-v1/xlmr_followup_q2_full_20260521/selection/selection_metric.json?download=true",
+          "status": 200,
+          "bytes": 89,
+          "sha256": "49488ed196f418bf95360eebe42391270dee9bfd8706fda8fa529b62c4287b6e"
+        }
+      },
+      "artifact_tree_status": 200,
+      "artifact_tree_revision": "b0feda11a917ce7f621ff7773aac5989ec9fbd9f",
+      "status": "PASS",
+      "review_status": "PASS",
+      "source_ok": true,
+      "active_uncertainty_tasks": [
+        "implicit_sentiment",
+        "sarcasm",
+        "irony",
+        "idiom_figurative",
+        "code_switching",
+        "mocking",
+        "polarity",
+        "emotion"
+      ],
+      "variant_active_heads_from_review": null,
+      "polarity_presence_counts": {
+        "dev_gold": 1999,
+        "dev_logits": 1999,
+        "dev_predictions": 0,
+        "dev_probabilities": 1999,
+        "test_gold": 2000,
+        "test_logits": 2000,
+        "test_predictions": 0,
+        "test_probabilities": 2000
+      },
+      "dev_prediction_count": 1999,
+      "test_prediction_count": 2000,
+      "dev_macro_pragmatic_f1": 0.9204025344266752,
+      "test_macro_pragmatic_f1": 0.921064255003197,
+      "saved_dev_metrics_polarity_dev_ece": 0.08015336569635316,
+      "saved_test_metrics_polarity_dev_ece": 0.08452923804521562,
+      "recomputed_dev_polarity_ece": 0.08015336569635316,
+      "recomputed_test_polarity_ece": 0.08452923804521562,
+      "dev_ece_abs_delta": 0.0,
+      "test_ece_abs_delta": 0.0,
+      "dev_split_match": true,
+      "test_split_match": true,
+      "split_match_verdict": "dev_and_test_saved_fields_match_respective_split",
+      "successful_gpu_hours": 2.6075306696493903,
+      "head_diagnosis": "recomputable from saved polarity probabilities",
+      "head_removed_confirmed": false
+    }
+  ]
+}
