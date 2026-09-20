@@ -323,6 +323,13 @@ def _changed_paths() -> list[str]:
 def _hygiene_evidence(paths: list[str]) -> dict[str, Any]:
     forbidden_suffixes = (".pt", ".pth", ".bin", ".safetensors", ".ckpt")
     forbidden_names = {".env", ".env.local"}
+    # The paper package intentionally preserves small binary transport caches
+    # and raw evidence payloads. They are not executable/model-weight paths;
+    # keep the runtime-weight guard strict everywhere else.
+    allowed_evidence_binary_prefixes = (
+        "paper/revision_evidence/q1b_http_cache/",
+        "paper/revision_q1a_extra/raw_sources/",
+    )
     tracked_paths = set(
         item
         for item in subprocess.run(
@@ -336,7 +343,16 @@ def _hygiene_evidence(paths: list[str]) -> dict[str, Any]:
     forbidden = sorted(
         path
         for path in tracked_paths
-        if Path(path).suffix.casefold() in forbidden_suffixes or Path(path).name.casefold() in forbidden_names
+        if (
+            Path(path).name.casefold() in forbidden_names
+            or (
+                Path(path).suffix.casefold() in forbidden_suffixes
+                and not (
+                    Path(path).suffix.casefold() == ".bin"
+                    and path.replace("\\", "/").startswith(allowed_evidence_binary_prefixes)
+                )
+            )
+        )
     )
     secret_pattern = re.compile(r"(?:sk-[A-Za-z0-9]{20,}|AKIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{30,})")
     secret_matches: list[str] = []
