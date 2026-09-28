@@ -1,0 +1,70 @@
+{
+  "code_commit": "4a84d762141a557b4383eb71fbc49af4755778b5",
+  "content_hash": "B9D8F5447B09639F9DC6DBCB8E1BA0DABBE91C347CC28593520D0BDFC943CF8F",
+  "counts": {
+    "emotion": {
+      "anger": 251,
+      "disgust": 708,
+      "enjoyment": 2037,
+      "fear": 227,
+      "other": 3687,
+      "sadness": 709,
+      "surprise": 379
+    },
+    "polarity": {
+      "negative": 1301,
+      "neutral": 4934,
+      "positive": 1763
+    },
+    "pragmatic": {
+      "code_switching": {
+        "negative": 6792,
+        "positive": 1206
+      },
+      "idiom_figurative": {
+        "negative": 7435,
+        "positive": 563
+      },
+      "implicit_sentiment": {
+        "negative": 6320,
+        "positive": 1678
+      },
+      "irony": {
+        "negative": 7444,
+        "positive": 554
+      },
+      "mocking": {
+        "negative": 7066,
+        "positive": 932
+      },
+      "sarcasm": {
+        "negative": 7453,
+        "positive": 545
+      }
+    }
+  },
+  "dataset_hash": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+  "emotion_weight": {
+    "anger": 4.552077404667046,
+    "disgust": 1.6138014527845037,
+    "enjoyment": 0.5609088996423311,
+    "fear": 5.033354310887351,
+    "other": 0.3098918981750552,
+    "sadness": 1.611525287124723,
+    "surprise": 3.0147003392385976
+  },
+  "polarity_weight": {
+    "negative": 2.0491929285165256,
+    "neutral": 0.5403323875152006,
+    "positive": 1.5121951219512195
+  },
+  "pragmatic_pos_weight": {
+    "code_switching": 5.6318407960199,
+    "idiom_figurative": 13.206039076376554,
+    "implicit_sentiment": 3.766388557806913,
+    "irony": 13.436823104693142,
+    "mocking": 7.581545064377682,
+    "sarcasm": 13.675229357798164
+  },
+  "source_split": "train"
+}

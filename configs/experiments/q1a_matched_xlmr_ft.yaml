@@ -1,0 +1,64 @@
+experiment_name: xlmr_large_ft_q1a_matched
+model:
+  family: xlmr_large
+  repo_id: FacebookAI/xlm-roberta-large
+  revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  architecture: encoder
+  max_sequence_length: 128
+variant:
+  id: xlmr_pragmatic_finetune
+  active_heads:
+    - implicit_sentiment
+    - sarcasm
+    - irony
+    - idiom_figurative
+    - code_switching
+    - mocking
+  dropout: 0.1
+  pooling: first_attended_token
+  auxiliary_heads: false
+  rationale_decoder: false
+  uncertainty_weighting: false
+loss:
+  name: binary_cross_entropy_with_logits
+  aggregation: equal_weight
+  positive_weight_policy: train_only_negative_over_positive
+optimizer:
+  name: AdamW
+  learning_rate: 2.0e-5
+  weight_decay: 0.01
+scheduler:
+  name: cosine
+  warmup_ratio: 0.20
+training:
+  maximum_epochs: 10
+  patience: 10
+  minimum_delta: 0.0001
+  precision: bf16
+  physical_batch_size: 8
+  gradient_accumulation_steps: 4
+  effective_batch_size: 32
+  gradient_clipping: 1.0
+  gradient_checkpointing: false
+  deterministic_algorithms: warn_only
+selection:
+  metric: dev_macro_pragmatic_f1
+  threshold_grid_start: 0.05
+  threshold_grid_stop: 0.95
+  threshold_grid_step: 0.01
+  threshold_tie_break: nearest_to_0.5_then_threshold
+  test_access: after_checkpoint_and_threshold_freeze
+data:
+  expected_split_counts:
+    train: 7998
+    dev: 1999
+    test: 2000
+seeds:
+  - 20260521
+  - 20260522
+  - 20260523
+upload:
+  checkpoint_repository: Thundergod2007/vipragsent-xlmr-checkpoints
+  artifact_repository_family: Thundergod2007/vipragsent-experiment-artifacts
+  campaign_id: matched_xlmr_ft_q1a

@@ -1,0 +1,16 @@
+Q1a matched paired hierarchical bootstrap confidence intervals
+Comparison is existing proposed XLM-R Q1a predictions minus the new matched six-head baseline.
+Resampling: 10000 replicates; seed resampling followed by the locked shared test-example resampling; bootstrap seed 20260525.
+All values are percentage points. CI is the 2.5th to 97.5th percentile interval; crosses_zero is inclusive.
+
+Metric | Observed delta pp | 95% CI pp | Crosses zero | p-value
+--- | ---: | --- | --- | ---:
+implicit_sentiment | 0.414694 | [-0.645424, 1.443092] | True | 0.420758
+sarcasm | 0.963950 | [-1.082517, 2.995165] | True | 0.320968
+irony | 0.248074 | [-0.301112, 0.870785] | True | 0.406959
+idiom_figurative | 0.763602 | [-0.468052, 2.026740] | True | 0.213379
+code_switching | 0.498467 | [-0.542317, 1.632932] | True | 0.341366
+mocking | 0.893997 | [-0.554983, 2.325025] | True | 0.225577
+macro_pragmatic | 0.630464 | [0.068308, 1.195883] | False | 0.028997
+
+Primary TEST macro result: proposed-minus-matched = 0.630464 pp, 95% CI [0.068308, 1.195883], crosses zero=False.
