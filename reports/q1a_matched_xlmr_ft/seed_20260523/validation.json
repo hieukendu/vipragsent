@@ -1,0 +1,55 @@
+{
+  "checkpoint_sha256": "1E1701D1897031EBFDEEE9EA894EFC377E2E364E27398E271E4F9E247F4A8C5B",
+  "dev_only_selection": true,
+  "gold_matches_frozen_dataset": true,
+  "ids_unique_and_frozen_order": true,
+  "metric_reproducibility": true,
+  "metrics": {
+    "dev": {
+      "macro_pragmatic_f1": 0.9281114754499217,
+      "per_label_f1": {
+        "code_switching": 0.955861628023071,
+        "idiom_figurative": 0.9166046548179568,
+        "implicit_sentiment": 0.9373539392745539,
+        "irony": 0.9746177325226479,
+        "mocking": 0.9263253420788218,
+        "sarcasm": 0.8579055559824791
+      },
+      "prediction_count": 1999
+    },
+    "test": {
+      "macro_pragmatic_f1": 0.930538873693609,
+      "per_label_f1": {
+        "code_switching": 0.9449468048501865,
+        "idiom_figurative": 0.9215340288735636,
+        "implicit_sentiment": 0.9235651918910993,
+        "irony": 0.9843279225485932,
+        "mocking": 0.9287644313436502,
+        "sarcasm": 0.8800948626545622
+      },
+      "prediction_count": 2000
+    },
+    "train": {
+      "macro_pragmatic_f1": 0.9852533109156826,
+      "per_label_f1": {
+        "code_switching": 0.9904177254476602,
+        "idiom_figurative": 0.989576659147347,
+        "implicit_sentiment": 0.9716687750368964,
+        "irony": 0.9966145489255005,
+        "mocking": 0.9853605144495916,
+        "sarcasm": 0.9778816424871002
+      },
+      "prediction_count": 7998
+    }
+  },
+  "paired_with_proposed_test_ids_and_gold": true,
+  "probabilities_finite_and_bounded": true,
+  "seed": 20260523,
+  "split_counts": {
+    "dev": 1999,
+    "test": 2000,
+    "train": 7998
+  },
+  "status": "PASS",
+  "test_rows": 2000
+}

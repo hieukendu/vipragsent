@@ -1,0 +1,137 @@
+source: configs/experiments/q1a_matched_xlmr_ft.yaml
+resolved:
+  experiment_name: xlmr_large_ft_q1a_matched
+  run_id: xlmr_large_ft_q1a_matched_20260522
+  seed: 20260522
+  model_family: xlmr_large
+  variant_id: xlmr_pragmatic_finetune
+  model_repository: FacebookAI/xlm-roberta-large
+  model_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  architecture: encoder
+  max_sequence_length: 128
+  preprocessing:
+    name: unicode_nfc
+    version: locked-v1
+    normalization: NFC
+  active_heads:
+  - implicit_sentiment
+  - sarcasm
+  - irony
+  - idiom_figurative
+  - code_switching
+  - mocking
+  pooling: first_attended_token
+  dropout: 0.1
+  auxiliary_heads: false
+  rationale_decoder: false
+  uncertainty_weighting: false
+  loss:
+    name: binary_cross_entropy_with_logits
+    aggregation: equal_weight
+    positive_weight_policy: train_only_negative_over_positive
+    active_task: pragmatic
+  training_config:
+    learning_rate: 2.0e-05
+    weight_decay: 0.01
+    max_epochs: 10
+    effective_batch_size: 32
+    physical_batch_size: 8
+    max_grad_norm: 1.0
+    patience: 10
+    min_delta: 0.0001
+    precision: bf16
+    gradient_accumulation_steps: 4
+    primary_metric: dev_macro_pragmatic_f1
+    scheduler: cosine
+    warmup_ratio: 0.2
+    use_uncertainty_weighting: false
+    rationale_beta: 0.3
+    rationale_target_max_length: 160
+    optimizer: AdamW
+    gradient_checkpointing: false
+    deterministic_algorithms: warn_only
+    qlora:
+      quantization:
+        type: none
+      lora: {}
+  selection:
+    metric: dev_macro_pragmatic_f1
+    threshold_grid_start: 0.05
+    threshold_grid_stop: 0.95
+    threshold_grid_step: 0.01
+    threshold_tie_break: nearest_to_0.5_then_threshold
+    test_access: after_checkpoint_and_threshold_freeze
+  dataset:
+    root: data/processed/vipragsent
+    fingerprint: B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9
+    split_sizes:
+      train: 7998
+      dev: 1999
+      test: 2000
+    sample_id_order: frozen CSV order
+  class_weights:
+    pragmatic_pos_weight:
+      implicit_sentiment: 3.766388557806913
+      sarcasm: 13.675229357798164
+      irony: 13.436823104693142
+      idiom_figurative: 13.206039076376554
+      code_switching: 5.6318407960199
+      mocking: 7.581545064377682
+    polarity_weight:
+      negative: 2.0491929285165256
+      neutral: 0.5403323875152006
+      positive: 1.5121951219512195
+    emotion_weight:
+      anger: 4.552077404667046
+      disgust: 1.6138014527845037
+      enjoyment: 0.5609088996423311
+      fear: 5.033354310887351
+      other: 0.3098918981750552
+      sadness: 1.611525287124723
+      surprise: 3.0147003392385976
+    counts:
+      pragmatic:
+        implicit_sentiment:
+          negative: 6320
+          positive: 1678
+        sarcasm:
+          negative: 7453
+          positive: 545
+        irony:
+          negative: 7444
+          positive: 554
+        idiom_figurative:
+          negative: 7435
+          positive: 563
+        code_switching:
+          negative: 6792
+          positive: 1206
+        mocking:
+          negative: 7066
+          positive: 932
+      polarity:
+        negative: 1301
+        neutral: 4934
+        positive: 1763
+      emotion:
+        anger: 251
+        disgust: 708
+        enjoyment: 2037
+        fear: 227
+        other: 3687
+        sadness: 709
+        surprise: 379
+    source_split: train
+    dataset_hash: B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9
+    code_commit: bbf2e4bb9ca52b1ae28ae266e361d3e22e1e3af8
+    content_hash: 6E50641D83EB685EF439ED6D2B91D182018F6AC1963CBB3D9B36B5F37E552C74
+  code_commit: bbf2e4bb9ca52b1ae28ae266e361d3e22e1e3af8
+  local_snapshot: models/xlm-roberta-large
+  test_evaluated_during_training: false
+  model_parameter_count: 558846982
+  trainable_parameter_count: 558846982
+  resolved_model_spec:
+    repo_id: FacebookAI/xlm-roberta-large
+    revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+    tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389

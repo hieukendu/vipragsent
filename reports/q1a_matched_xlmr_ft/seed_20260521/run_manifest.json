@@ -1,0 +1,218 @@
+{
+  "checkpoint": {
+    "best_dev_macro_pragmatic_f1": 0.9217142034989149,
+    "best_epoch": 10,
+    "checkpoint_path": "checkpoints/best/model.pt",
+    "checkpoint_sha256": "B19587D8E1D35B2B09532165A7323D57FC7449A3DB703849DF3E8A4AE8D1F600",
+    "selection_split": "dev",
+    "status": "PASS",
+    "test_evaluated_after_freeze": true,
+    "test_used_for_selection": false,
+    "threshold_source_split": "dev"
+  },
+  "dataset_split_sizes": {
+    "dev": 1999,
+    "test": 2000,
+    "train": 7998
+  },
+  "experiment_name": "xlmr_large_ft_q1a_matched",
+  "history": [
+    {
+      "dev_loss": 5.9414280834198,
+      "dev_macro_pragmatic_f1": 0.6385089971504758,
+      "dev_metric": 0.6385089971504758,
+      "epoch": 1.0,
+      "peak_memory_gb": 10.496898174285889,
+      "seconds": 142.96839435305446,
+      "train_loss": 6.993511666536331
+    },
+    {
+      "dev_loss": 4.6253640666008,
+      "dev_macro_pragmatic_f1": 0.755966994375893,
+      "dev_metric": 0.755966994375893,
+      "epoch": 2.0,
+      "peak_memory_gb": 10.493125438690186,
+      "seconds": 136.1151976622641,
+      "train_loss": 5.370645221948624
+    },
+    {
+      "dev_loss": 3.2937884846925733,
+      "dev_macro_pragmatic_f1": 0.846523092869632,
+      "dev_metric": 0.846523092869632,
+      "epoch": 3.0,
+      "peak_memory_gb": 10.493125438690186,
+      "seconds": 138.43905826564878,
+      "train_loss": 3.6966278469860554
+    },
+    {
+      "dev_loss": 2.449122110724449,
+      "dev_macro_pragmatic_f1": 0.8877297541287316,
+      "dev_metric": 0.8877297541287316,
+      "epoch": 4.0,
+      "peak_memory_gb": 10.493125438690186,
+      "seconds": 131.18635596428066,
+      "train_loss": 2.442531927987933
+    },
+    {
+      "dev_loss": 2.312984975516796,
+      "dev_macro_pragmatic_f1": 0.8997724118050959,
+      "dev_metric": 0.8997724118050959,
+      "epoch": 5.0,
+      "peak_memory_gb": 10.493125438690186,
+      "seconds": 140.90941676031798,
+      "train_loss": 1.790603598818183
+    },
+    {
+      "dev_loss": 2.2743573739528657,
+      "dev_macro_pragmatic_f1": 0.913450779403658,
+      "dev_metric": 0.913450779403658,
+      "epoch": 6.0,
+      "peak_memory_gb": 10.493125438690186,
+      "seconds": 140.322667485103,
+      "train_loss": 1.2926579293757676
+    },
+    {
+      "dev_loss": 2.4312020851373672,
+      "dev_macro_pragmatic_f1": 0.9186358252642234,
+      "dev_metric": 0.9186358252642234,
+      "epoch": 7.0,
+      "peak_memory_gb": 10.493125438690186,
+      "seconds": 137.8709256434813,
+      "train_loss": 0.8927385577298701
+    },
+    {
+      "dev_loss": 2.3950347768366336,
+      "dev_macro_pragmatic_f1": 0.9190514244006796,
+      "dev_metric": 0.9190514244006796,
+      "epoch": 8.0,
+      "peak_memory_gb": 10.493125438690186,
+      "seconds": 134.46140081994236,
+      "train_loss": 0.6905803665854037
+    },
+    {
+      "dev_loss": 2.463008719578385,
+      "dev_macro_pragmatic_f1": 0.9197687987336723,
+      "dev_metric": 0.9197687987336723,
+      "epoch": 9.0,
+      "peak_memory_gb": 10.493125438690186,
+      "seconds": 134.7688352195546,
+      "train_loss": 0.573290120497346
+    },
+    {
+      "dev_loss": 2.5015823223367333,
+      "dev_macro_pragmatic_f1": 0.9217142034989149,
+      "dev_metric": 0.9217142034989149,
+      "epoch": 10.0,
+      "peak_memory_gb": 10.493125438690186,
+      "seconds": 135.9771984666586,
+      "train_loss": 0.46159746996872125
+    }
+  ],
+  "metrics": {
+    "dev": {
+      "loss": 2.5015823223367333,
+      "macro_pragmatic_f1": 0.9217142034989149,
+      "per_label_f1": {
+        "code_switching": 0.9483225139311771,
+        "idiom_figurative": 0.909451706388101,
+        "implicit_sentiment": 0.9326437091448211,
+        "irony": 0.974787453782173,
+        "mocking": 0.9265807721690074,
+        "sarcasm": 0.8384990655782096
+      },
+      "prediction_count": 1999,
+      "selection_metric": 0.9217142034989149,
+      "thresholds": {
+        "code_switching": 0.88,
+        "idiom_figurative": 0.95,
+        "implicit_sentiment": 0.9,
+        "irony": 0.9,
+        "mocking": 0.94,
+        "sarcasm": 0.95
+      }
+    },
+    "test": {
+      "loss": 2.226971544332802,
+      "macro_pragmatic_f1": 0.9306575630452837,
+      "per_label_f1": {
+        "code_switching": 0.9439044441220561,
+        "idiom_figurative": 0.9270353302611367,
+        "implicit_sentiment": 0.9216253425194347,
+        "irony": 0.9806710247062962,
+        "mocking": 0.9259909219712255,
+        "sarcasm": 0.8847183146915529
+      },
+      "prediction_count": 2000,
+      "selection_metric": 0.9306575630452837,
+      "thresholds": {
+        "code_switching": 0.88,
+        "idiom_figurative": 0.95,
+        "implicit_sentiment": 0.9,
+        "irony": 0.9,
+        "mocking": 0.94,
+        "sarcasm": 0.95
+      }
+    },
+    "train": {
+      "loss": 0.36084538490697743,
+      "macro_pragmatic_f1": 0.9827864257717822,
+      "per_label_f1": {
+        "code_switching": 0.9889889833234694,
+        "idiom_figurative": 0.9881263287362619,
+        "implicit_sentiment": 0.9681674346137468,
+        "irony": 0.9956472771899293,
+        "mocking": 0.9861109768840943,
+        "sarcasm": 0.9696775538831914
+      },
+      "prediction_count": 7998,
+      "selection_metric": 0.9827864257717822,
+      "thresholds": {
+        "code_switching": 0.88,
+        "idiom_figurative": 0.95,
+        "implicit_sentiment": 0.9,
+        "irony": 0.9,
+        "mocking": 0.94,
+        "sarcasm": 0.95
+      }
+    }
+  },
+  "metrics_files": {
+    "dev": "metrics_dev.json",
+    "test": "metrics_test.json",
+    "train": "metrics_train.json"
+  },
+  "model_family": "xlmr_large",
+  "peak_vram_gb": 10.496898174285889,
+  "prediction_files": {
+    "dev": "predictions/predictions_dev.jsonl",
+    "test": "predictions/predictions_test.jsonl",
+    "train": "predictions/predictions_train.jsonl"
+  },
+  "resolved_config": "resolved_config.json",
+  "resolved_thresholds": {
+    "seed": 20260521,
+    "selection_metric": "dev_macro_pragmatic_f1",
+    "source_split": "dev",
+    "threshold_grid": {
+      "start": 0.05,
+      "step": 0.01,
+      "stop": 0.95
+    },
+    "thresholds": {
+      "code_switching": 0.88,
+      "idiom_figurative": 0.95,
+      "implicit_sentiment": 0.9,
+      "irony": 0.9,
+      "mocking": 0.94,
+      "sarcasm": 0.95
+    },
+    "tie_break": "nearest_to_0.5_then_threshold"
+  },
+  "run_id": "xlmr_large_ft_q1a_matched_20260521",
+  "seed": 20260521,
+  "status": "PASS",
+  "test_evaluated_after_checkpoint_and_threshold_freeze": true,
+  "test_evaluated_during_training": false,
+  "variant_id": "xlmr_pragmatic_finetune",
+  "wall_seconds": 1373.0194506403059
+}

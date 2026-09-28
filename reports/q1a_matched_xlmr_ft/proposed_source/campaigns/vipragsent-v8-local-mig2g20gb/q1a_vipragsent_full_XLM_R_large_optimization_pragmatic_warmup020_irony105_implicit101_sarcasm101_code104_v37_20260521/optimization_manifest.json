@@ -1,0 +1,335 @@
+{
+  "backbone_architecture": "XLM-R-large encoder",
+  "base_model_repository": "FacebookAI/xlm-roberta-large",
+  "base_model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "batch_order": "fixed",
+  "batch_probe": {
+    "candidate_order": [
+      8,
+      4,
+      2,
+      1
+    ],
+    "category": "batch",
+    "effective_batch_size": 32,
+    "failed_candidates": [],
+    "fixture_probe": false,
+    "frozen": true,
+    "gradient_accumulation_steps": 4,
+    "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
+    "model_family": "xlmr_large",
+    "oom_evidence": [],
+    "probe_hash": "D019D87E95612F7B1408B4DBCED92BA4C9ACB66F7A8FDF8343B0A4584280D4B1",
+    "status": "PASS",
+    "successful_batch": 8,
+    "successful_candidates": [
+      8,
+      4,
+      2,
+      1
+    ]
+  },
+  "best_dev_metric": 0.9275962387940221,
+  "best_epoch": 10,
+  "checkpoint_path": "checkpoints/best/model.pt",
+  "checkpoint_sha256": "AFB6CB6DB2FD8E7F78E07B01C0300C348BAF7A036351B97BD0C8AD22B4D28845",
+  "code_commit": "4a84d762141a557b4383eb71fbc49af4755778b5",
+  "dataset_fingerprint": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+  "dataset_split_sizes": {
+    "dev": 1999,
+    "test": 2000,
+    "train": 7998
+  },
+  "experiment_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+  "final_dev": {
+    "loss": 1.8218660763204098,
+    "macro_pragmatic_f1": 0.9275962387940221,
+    "per_label_f1": {
+      "code_switching": 0.9555064160876381,
+      "idiom_figurative": 0.907830630907554,
+      "implicit_sentiment": 0.940931011434071,
+      "irony": 0.9763308705124563,
+      "mocking": 0.9332531971017396,
+      "sarcasm": 0.8517253067206731
+    },
+    "prediction_count": 1999,
+    "selection_metric": 0.9275962387940221,
+    "thresholds": {
+      "code_switching": 0.95,
+      "idiom_figurative": 0.88,
+      "implicit_sentiment": 0.85,
+      "irony": 0.93,
+      "mocking": 0.93,
+      "sarcasm": 0.94
+    }
+  },
+  "gradient_strategy": "sum",
+  "history": [
+    {
+      "dev_loss": 4.505818956375122,
+      "dev_macro_pragmatic_f1": 0.6664085560206859,
+      "dev_metric": 0.6664085560206859,
+      "epoch": 1.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 567.767133041285,
+      "train_loss": 23.058113382339478
+    },
+    {
+      "dev_loss": 4.606260042190552,
+      "dev_macro_pragmatic_f1": 0.7840923336544005,
+      "dev_metric": 0.7840923336544005,
+      "epoch": 2.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 564.9083147258498,
+      "train_loss": 15.899019145011902
+    },
+    {
+      "dev_loss": 2.671779218673706,
+      "dev_macro_pragmatic_f1": 0.8624376866692862,
+      "dev_metric": 0.8624376866692862,
+      "epoch": 3.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 585.0150534859858,
+      "train_loss": 13.116071012496949
+    },
+    {
+      "dev_loss": 2.139790044784546,
+      "dev_macro_pragmatic_f1": 0.8923576522630885,
+      "dev_metric": 0.8923576522630885,
+      "epoch": 4.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 565.0187315819785,
+      "train_loss": 11.493703964233399
+    },
+    {
+      "dev_loss": 1.9584704514741897,
+      "dev_macro_pragmatic_f1": 0.9014885814497311,
+      "dev_metric": 0.9014885814497311,
+      "epoch": 5.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 570.3436640566215,
+      "train_loss": 10.443721238136291
+    },
+    {
+      "dev_loss": 2.0373190611600878,
+      "dev_macro_pragmatic_f1": 0.898158069216502,
+      "dev_metric": 0.898158069216502,
+      "epoch": 6.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 587.8434492889792,
+      "train_loss": 9.66304707813263
+    },
+    {
+      "dev_loss": 1.863358365058899,
+      "dev_macro_pragmatic_f1": 0.9232057095980784,
+      "dev_metric": 0.9232057095980784,
+      "epoch": 7.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 583.1366912270896,
+      "train_loss": 9.11345394039154
+    },
+    {
+      "dev_loss": 1.882768283098936,
+      "dev_macro_pragmatic_f1": 0.9254283499280715,
+      "dev_metric": 0.9254283499280715,
+      "epoch": 8.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 584.532143753022,
+      "train_loss": 8.757706074237824
+    },
+    {
+      "dev_loss": 1.8234321225881576,
+      "dev_macro_pragmatic_f1": 0.9250700230704473,
+      "dev_metric": 0.9250700230704473,
+      "epoch": 9.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 577.3660791991279,
+      "train_loss": 8.575396906375884
+    },
+    {
+      "dev_loss": 1.8218660763204098,
+      "dev_macro_pragmatic_f1": 0.9275962387940221,
+      "dev_metric": 0.9275962387940221,
+      "epoch": 10.0,
+      "peak_memory_gb": 13.503221988677979,
+      "seconds": 559.3144483910874,
+      "train_loss": 8.50807834815979
+    }
+  ],
+  "initial_dev": {
+    "loss": 5.672145737648011,
+    "macro_pragmatic_f1": 0.48533416366735144,
+    "per_label_f1": {
+      "code_switching": 0.4633983329635504,
+      "idiom_figurative": 0.4977312700453746,
+      "implicit_sentiment": 0.47750526361329027,
+      "irony": 0.4821243523316062,
+      "mocking": 0.469791623837775,
+      "sarcasm": 0.5214541392125123
+    },
+    "prediction_count": 1999,
+    "selection_metric": 0.48533416366735144,
+    "thresholds": {
+      "code_switching": 0.38,
+      "idiom_figurative": 0.32,
+      "implicit_sentiment": 0.45,
+      "irony": 0.73,
+      "mocking": 0.36,
+      "sarcasm": 0.36
+    }
+  },
+  "initialization": "pinned_pretrained_base",
+  "local_snapshot": "data/model_cache/xlmr_large",
+  "loss_multipliers": {
+    "code_switching": 1.04,
+    "emotion": 1.0,
+    "idiom_figurative": 1.0,
+    "implicit_sentiment": 1.01,
+    "irony": 1.05,
+    "mocking": 1.0,
+    "polarity": 1.0,
+    "sarcasm": 1.01
+  },
+  "model_family": "xlmr_large",
+  "model_parameter_count": 591517840,
+  "peak_vram_gb": 13.503221988677979,
+  "preprocessing_name": "unicode_nfc",
+  "preprocessing_version": "locked-v1",
+  "rationale_artifact": "data/processed/rationales/approved_generated_rationales_train.jsonl",
+  "rationale_artifact_sha256": "B583AC45F4BC2FDFA41DA44376AB99585075CA3EBB1FC47BC3936D84B89B21D1",
+  "rationale_record_count": 7998,
+  "resolved_training_config": {
+    "active_uncertainty_tasks": [
+      "implicit_sentiment",
+      "sarcasm",
+      "irony",
+      "idiom_figurative",
+      "code_switching",
+      "mocking",
+      "polarity",
+      "emotion"
+    ],
+    "batch_order": "fixed",
+    "deterministic_algorithms": "warn_only",
+    "effective_batch_size": 32,
+    "gradient_accumulation_steps": 4,
+    "gradient_checkpointing": false,
+    "gradient_clipping": 1.0,
+    "gradient_strategy": "sum",
+    "learning_rate": 2e-05,
+    "loss_multipliers": {
+      "code_switching": 1.04,
+      "emotion": 1.0,
+      "idiom_figurative": 1.0,
+      "implicit_sentiment": 1.01,
+      "irony": 1.05,
+      "mocking": 1.0,
+      "polarity": 1.0,
+      "sarcasm": 1.01
+    },
+    "maximum_epochs": 10,
+    "minimum_delta": 0.0001,
+    "model_family": "xlmr_large",
+    "model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "optimizer": "AdamW",
+    "patience": 10,
+    "physical_batch_size": 8,
+    "precision": "bf16",
+    "qlora": {
+      "lora": {},
+      "quantization": {
+        "type": "none"
+      }
+    },
+    "rationale_beta": 0.3,
+    "rationale_inference": false,
+    "rationale_target_max_length": 160,
+    "rationale_training": true,
+    "scheduler": "cosine",
+    "selection_metric": "dev_macro_pragmatic_f1",
+    "system_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+    "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "trial": "pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37",
+    "uncertainty_weighting_enabled": true,
+    "variant_id": "vipragsent_full_xlmr_large",
+    "warmup_ratio": 0.2,
+    "weight_adjustments": {
+      "code_switching_weight_multiplier": 1.0,
+      "sarcasm_weight_multiplier": 1.0
+    },
+    "weight_decay": 0.01
+  },
+  "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+  "schema_version": 1,
+  "seed": 20260521,
+  "selected_thresholds": {
+    "code_switching": 0.95,
+    "idiom_figurative": 0.88,
+    "implicit_sentiment": 0.85,
+    "irony": 0.93,
+    "mocking": 0.93,
+    "sarcasm": 0.94
+  },
+  "selection_protocol": "dev_only_frozen_threshold_v1",
+  "status": "PASS",
+  "test": {
+    "loss": 1.7420808891952038,
+    "macro_pragmatic_f1": 0.9370458870556461,
+    "per_label_f1": {
+      "code_switching": 0.9484519730998604,
+      "idiom_figurative": 0.937311690194373,
+      "implicit_sentiment": 0.929099160048944,
+      "irony": 0.9824283099450885,
+      "mocking": 0.9417225933445962,
+      "sarcasm": 0.8832615957010141
+    },
+    "prediction_count": 2000,
+    "selection_metric": 0.9370458870556461,
+    "thresholds": {
+      "code_switching": 0.95,
+      "idiom_figurative": 0.88,
+      "implicit_sentiment": 0.85,
+      "irony": 0.93,
+      "mocking": 0.93,
+      "sarcasm": 0.94
+    }
+  },
+  "test_evaluated_after_dev_freeze": true,
+  "test_evaluated_during_training": false,
+  "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "trainable_parameter_count": 591517848,
+  "training_config": {
+    "deterministic_algorithms": "warn_only",
+    "effective_batch_size": 32,
+    "gradient_accumulation_steps": 4,
+    "gradient_checkpointing": false,
+    "learning_rate": 2e-05,
+    "max_epochs": 10,
+    "max_grad_norm": 1.0,
+    "min_delta": 0.0001,
+    "optimizer": "AdamW",
+    "patience": 10,
+    "physical_batch_size": 8,
+    "precision": "bf16",
+    "primary_metric": "dev_macro_pragmatic_f1",
+    "qlora": {
+      "lora": {},
+      "quantization": {
+        "type": "none"
+      }
+    },
+    "rationale_beta": 0.3,
+    "rationale_target_max_length": 160,
+    "scheduler": "cosine",
+    "use_uncertainty_weighting": true,
+    "warmup_ratio": 0.2,
+    "weight_decay": 0.01
+  },
+  "trial": "pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37",
+  "variant_id": "vipragsent_full_xlmr_large",
+  "wall_seconds": 5745.2457087510265,
+  "weight_adjustments": {
+    "code_switching_weight_multiplier": 1.0,
+    "sarcasm_weight_multiplier": 1.0
+  }
+}

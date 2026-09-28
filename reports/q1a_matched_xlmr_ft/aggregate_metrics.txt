@@ -1,0 +1,29 @@
+Q1a matched XLM-R-large aggregate metrics (binary macro-F1 percentages)
+Sample SD uses ddof=1 across seeds 20260521, 20260522, 20260523.
+
+Split | Metric | Seed1 | Seed2 | Seed3 | Mean | Sample SD
+--- | --- | ---: | ---: | ---: | ---: | ---:
+train | implicit_sentiment | 96.816743 | 97.833654 | 97.166878 | 97.272425 | 0.516606
+train | sarcasm | 96.967755 | 97.934123 | 97.788164 | 97.563348 | 0.520935
+train | irony | 99.564728 | 99.614695 | 99.661455 | 99.613626 | 0.048372
+train | idiom_figurative | 98.812633 | 99.243169 | 98.957666 | 99.004489 | 0.219054
+train | code_switching | 98.898898 | 99.236754 | 99.041773 | 99.059142 | 0.169596
+train | mocking | 98.611098 | 98.766056 | 98.536051 | 98.637735 | 0.117293
+train | macro_pragmatic | 98.278643 | 98.771409 | 98.525331 | 98.525127 | 0.246383
+dev | implicit_sentiment | 93.264371 | 93.651100 | 93.735394 | 93.550288 | 0.251173
+dev | sarcasm | 83.849907 | 85.406517 | 85.790556 | 85.015660 | 1.027670
+dev | irony | 97.478745 | 97.649102 | 97.461773 | 97.529874 | 0.103603
+dev | idiom_figurative | 90.945171 | 92.504776 | 91.660465 | 91.703471 | 0.780691
+dev | code_switching | 94.832251 | 95.538639 | 95.586163 | 95.319018 | 0.422221
+dev | mocking | 92.658077 | 92.988601 | 92.632534 | 92.759737 | 0.198613
+dev | macro_pragmatic | 92.171420 | 92.956456 | 92.811148 | 92.646341 | 0.417661
+test | implicit_sentiment | 92.162534 | 92.244871 | 92.356519 | 92.254642 | 0.097361
+test | sarcasm | 88.471831 | 88.708555 | 88.009486 | 88.396624 | 0.355551
+test | irony | 98.067102 | 98.054142 | 98.432792 | 98.184679 | 0.214970
+test | idiom_figurative | 92.703533 | 92.899520 | 92.153403 | 92.585485 | 0.386813
+test | code_switching | 94.390444 | 94.133739 | 94.494680 | 94.339621 | 0.185760
+test | mocking | 92.599092 | 91.878041 | 92.876443 | 92.451192 | 0.515371
+test | macro_pragmatic | 93.065756 | 92.986478 | 93.053887 | 93.035374 | 0.042759
+
+Compact TEST summary: macro pragmatic F1 = 93.035374 +/- 0.042759 percent (sample SD).
+The six head values above are the frozen-threshold test results for the matched baseline.

@@ -1,0 +1,19 @@
+{
+  "seed": 20260523,
+  "selection_metric": "dev_macro_pragmatic_f1",
+  "source_split": "dev",
+  "threshold_grid": {
+    "start": 0.05,
+    "step": 0.01,
+    "stop": 0.95
+  },
+  "thresholds": {
+    "code_switching": 0.9,
+    "idiom_figurative": 0.86,
+    "implicit_sentiment": 0.94,
+    "irony": 0.95,
+    "mocking": 0.78,
+    "sarcasm": 0.95
+  },
+  "tie_break": "nearest_to_0.5_then_threshold"
+}

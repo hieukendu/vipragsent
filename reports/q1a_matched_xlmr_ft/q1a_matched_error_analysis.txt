@@ -1,0 +1,12 @@
+Q1a matched paired error analysis
+Here `ours` means the existing proposed Q1a XLM-R predictions and `baseline` means the new matched six-head baseline.
+Counts are paired on the same 2,000 test IDs per seed. corrected_ge2_labels counts examples where ours fixes at least two head errors made by the matched baseline; regressed_ge2_labels is the reverse.
+
+Observed all-seed mean head gains (ours minus matched baseline, percentage points):
+- sarcasm: 0.963950 pp
+- mocking: 0.893997 pp
+- sarcasm: ours mean F1 89.360574%, matched mean F1 88.396624%, gain 0.963950 pp; among ours' two lowest mean-F1 heads=True.
+- mocking: ours mean F1 93.345189%, matched mean F1 92.451192%, gain 0.893997 pp; among ours' two lowest mean-F1 heads=False.
+Total corrected >=2-label examples across seeds: 42; reverse regressions >=2 labels: 27.
+
+Per-head TP/TN/FP/FN and paired correctness counts are in q1a_matched_error_analysis.csv.
