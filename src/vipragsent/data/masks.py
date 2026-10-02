@@ -15,6 +15,7 @@ REQUIRED_MASK_COLUMNS = {
     "rationale_loss_mask",
 }
 EXPECTED_BUDGETS = ("32", "64", "128", "256", "512", "full")
+Q3_RATIONALE_POLICIES = ("legacy", "sarcasm_only")
 
 
 def read_mask(path: str | Path) -> list[dict[str, str]]:
@@ -28,7 +29,10 @@ def validate_q3_masks(
     *,
     expected_hashes: dict[str, str] | None = None,
     strict_frozen: bool = False,
+    rationale_policy: str = "legacy",
 ) -> dict[str, Any]:
+    if rationale_policy not in Q3_RATIONALE_POLICIES:
+        raise ValueError(f"Unknown Q3 rationale mask policy: {rationale_policy}")
     root = Path(q3_dir)
     positive_ids = {sample_id for sample_id, example in train_by_id.items() if int(example.labels["sarcasm"]) == 1}
     negative_ids = set(train_by_id) - positive_ids
@@ -59,12 +63,21 @@ def validate_q3_masks(
                 raise ValueError(f"Negative sample selected as Q3 positive: {sample_id}")
             if positive == 1 and ((selected == 1) != (sarcasm_mask == 1)):
                 raise ValueError(f"Positive selection and sarcasm mask disagree: {sample_id}")
-            if positive == 1 and ((selected == 1) != (rationale_mask == 1)):
+            if rationale_policy == "legacy" and positive == 1 and ((selected == 1) != (rationale_mask == 1)):
                 raise ValueError(f"Positive selection and rationale mask disagree: {sample_id}")
+            if rationale_policy == "sarcasm_only":
+                expected_rationale_mask = positive
+                if rationale_mask != expected_rationale_mask:
+                    raise ValueError(
+                        "Corrected Q3 must preserve positive-only rationale supervision: "
+                        f"{sample_id} expected {expected_rationale_mask}, got {rationale_mask}"
+                    )
             if positive == 0 and sarcasm_mask != 1:
                 raise ValueError(f"Negative sample must retain sarcasm target loss: {sample_id}")
-            if selected == 0 and positive == 1 and (sarcasm_mask != 0 or rationale_mask != 0):
-                raise ValueError(f"Out-of-budget positive must mask sarcasm and rationale losses: {sample_id}")
+            if selected == 0 and positive == 1 and sarcasm_mask != 0:
+                raise ValueError(f"Out-of-budget positive must mask sarcasm loss: {sample_id}")
+            if rationale_policy == "legacy" and selected == 0 and positive == 1 and rationale_mask != 0:
+                raise ValueError(f"Legacy out-of-budget positive must mask rationale loss: {sample_id}")
         masks[budget] = by_id
     selected_sets: dict[str, set[str]] = {}
     for budget, rows in masks.items():
@@ -94,6 +107,7 @@ def validate_q3_masks(
         "fixed_negative_count": len(negative_ids),
         "positive_count_full": len(positive_ids),
         "nested": True,
+        "rationale_policy": rationale_policy,
         "expected_train_rows": EXPECTED_SPLIT_COUNTS["train"],
         "mask_hashes": mask_hashes,
         "fixed_negative_ids_hash": sha256_json(sorted(negative_ids)) if strict_frozen else None,
@@ -106,9 +120,16 @@ def load_validated_q3_masks(
     *,
     expected_hashes: dict[str, str] | None = None,
     strict_frozen: bool = True,
+    rationale_policy: str = "legacy",
 ) -> tuple[dict[str, dict[str, dict[str, str]]], dict[str, Any]]:
     """Load all locked budget masks only after semantic validation."""
-    report = validate_q3_masks(q3_dir, train_by_id, expected_hashes=expected_hashes, strict_frozen=strict_frozen)
+    report = validate_q3_masks(
+        q3_dir,
+        train_by_id,
+        expected_hashes=expected_hashes,
+        strict_frozen=strict_frozen,
+        rationale_policy=rationale_policy,
+    )
     masks = {
         budget: {row["sample_id"]: row for row in read_mask(Path(q3_dir) / f"budget_{budget}_masks.csv")}
         for budget in report["valid_budgets"]

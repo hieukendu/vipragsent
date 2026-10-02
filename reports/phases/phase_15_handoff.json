@@ -2,16 +2,16 @@
   "phase": "15",
   "status": "PASS",
   "inputs_read": [
-    "data/model_cache_manifest.json",
     "configs/models/model_registry.yaml",
-    ".codex_input/prompt_pack/ViPragSent_Codex_Setup_First_OneClick_EXPERIMENT_READY_FINAL/32_RUNTIME_PREFLIGHT_CHECKLIST.md"
+    ".codex_input/prompt_pack/ViPragSent_Codex_Setup_First_OneClick_EXPERIMENT_READY_FINAL/32_RUNTIME_PREFLIGHT_CHECKLIST.md",
+    "data/model_cache_manifest.json"
   ],
   "files_created": [
-    "data/model_smoke_report.json",
-    "data/model_smoke_status/vistral_7b.json",
+    "data/batch_probe_status/xlmr_large.json",
     "data/model_cache_manifest.json",
-    "data/model_cache_status/vistral_7b.json",
-    "data/batch_probe_status/vistral_7b.json"
+    "data/model_cache_status/xlmr_large.json",
+    "data/model_smoke_status/xlmr_large.json",
+    "data/model_smoke_report.json"
   ],
   "tests_run": [
     "locked cache/revision validation",
@@ -27,25 +27,25 @@
   "blockers": [],
   "next_phase_ready": true,
   "phase15_evidence": {
-    "model_family": "vistral_7b",
-    "repo_id": "Viet-Mistral/Vistral-7B-Chat",
-    "model_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
-    "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
-    "physical_batch": 2,
-    "effective_batch_size": 16,
-    "gradient_accumulation_steps": 8,
+    "model_family": "xlmr_large",
+    "repo_id": "FacebookAI/xlm-roberta-large",
+    "model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "physical_batch": 8,
+    "effective_batch_size": 32,
+    "gradient_accumulation_steps": 4,
     "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
-    "local_snapshot": "data/model_cache/vistral_7b",
+    "local_snapshot": "data/model_cache/xlmr_large",
     "hashes": {
-      "cache_manifest_hash": "40E475581B1F46DF24388182361D6BBEAC5BA1A554E536164781B864FA82D888",
-      "smoke_verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF",
-      "batch_probe_hash": "5D5437A57B3879477004D0876262573A525D013E629C2530F232A1F27B6AF667"
+      "cache_manifest_hash": "EC7C3A99C58A38EBB702A2297F1C4586944E841B5EB29D201FF87E0F9C9ABE0E",
+      "smoke_verification_hash": "A8F92BECA7F29131E72AEA1CBDDA7B02284D4F44385337263C70F25936E1D93B",
+      "batch_probe_hash": "D019D87E95612F7B1408B4DBCED92BA4C9ACB66F7A8FDF8343B0A4584280D4B1"
     },
     "status_artifacts": {
       "cache_manifest": "data/model_cache_manifest.json",
-      "cache_status": "data/model_cache_status/vistral_7b.json",
-      "smoke_status": "data/model_smoke_status/vistral_7b.json",
-      "batch_status": "data/batch_probe_status/vistral_7b.json",
+      "cache_status": "data/model_cache_status/xlmr_large.json",
+      "smoke_status": "data/model_smoke_status/xlmr_large.json",
+      "batch_status": "data/batch_probe_status/xlmr_large.json",
       "smoke_report": "data/model_smoke_report.json"
     },
     "validation": {
@@ -54,5 +54,5 @@
       "physical_batch": true
     }
   },
-  "generated_at_utc": "2026-09-04T18:06:14.613069+00:00"
+  "generated_at_utc": "2026-10-02T10:27:08.464424+00:00"
 }

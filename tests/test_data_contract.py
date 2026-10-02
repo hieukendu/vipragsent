@@ -72,3 +72,18 @@ def test_q3_masks_zero_only_sarcasm_and_rationale_losses() -> None:
     token_targets = torch.tensor([[1, 2, 3], [1, 2, 3]])
     assert token_cross_entropy(token_logits, token_targets, sample_mask=mask).item() > 0
     assert token_cross_entropy(token_logits, token_targets, sample_mask=torch.zeros(2)).item() == 0
+
+
+def test_corrected_q3_masks_keep_positive_rationales_and_negative_policy() -> None:
+    root = Path(__file__).resolve().parents[1]
+    bundle = load_vipragsent(root / "data/processed/vipragsent")
+    report = validate_q3_masks(
+        root / "data/processed/q3_low_resource_sarcasm_corrected",
+        {item.sample_id: item for item in bundle.train},
+        strict_frozen=True,
+        rationale_policy="sarcasm_only",
+    )
+    assert report["rationale_policy"] == "sarcasm_only"
+    rows = {row["sample_id"]: row for row in __import__("vipragsent.data.masks", fromlist=["read_mask"]).read_mask(root / "data/processed/q3_low_resource_sarcasm_corrected/budget_32_masks.csv")}
+    assert all(row["rationale_loss_mask"] == row["is_sarcasm_positive"] for row in rows.values())
+    assert any(row["is_sarcasm_positive"] == "1" and row["positive_selected_for_budget"] == "0" and row["rationale_loss_mask"] == "1" for row in rows.values())

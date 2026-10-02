@@ -1,0 +1,15 @@
+schema_version: 1
+experiment: priority2_q3_corrected
+source_of_truth: data/processed/q3_low_resource_sarcasm_corrected
+budgets: [32, 64, 128, 256, 512, full]
+positive_subsets: nested_frozen_subset_reused_without_resampling
+negative_pool: all_train_sarcasm_negatives_fixed_across_budgets
+out_of_budget_positive:
+  sarcasm_target_mask: 0
+  rationale_loss_mask: 1
+  other_task_targets: active
+dev_test: fixed
+threshold_selection: dev_only_per_seed_and_budget
+primary_metric: sarcasm_binary_macro_f1
+secondary_metrics: [sarcasm_positive_precision, sarcasm_positive_recall, sarcasm_positive_f1, macro_pragmatic_f1]
+scientific_policy: retain_all_valid_seeds_without_outcome_based_selection

@@ -804,8 +804,14 @@ def _real_train(context: RunContext, entry: RunEntry) -> StageOutcome:
     if entry.research_question == "Q3":
         from ..data.masks import load_validated_q3_masks
 
-        q3_path = root / "data/processed/q3_low_resource_sarcasm"
-        q3_masks, q3_report = load_validated_q3_masks(q3_path, {item.sample_id: item for item in bundle.train}, strict_frozen=True)
+        configured_mask_path = entry.q3_mask_path or entry.raw.get("q3_mask_path")
+        q3_path = (root / configured_mask_path).parent if configured_mask_path else root / "data/processed/q3_low_resource_sarcasm"
+        q3_masks, q3_report = load_validated_q3_masks(
+            q3_path,
+            {item.sample_id: item for item in bundle.train},
+            strict_frozen=True,
+            rationale_policy=str(entry.raw.get("q3_rationale_policy") or "legacy"),
+        )
         q3_mask_hash = q3_report["mask_hashes"][str(entry.budget)]
     preprocessor = _build_production_preprocessor(
         family,

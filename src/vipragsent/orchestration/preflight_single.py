@@ -90,10 +90,10 @@ def _vncorenlp_runtime_status(root: Path) -> dict[str, Any]:
     }
 
 
-def _mask_hash(root: Path, budget: str | int | None) -> tuple[Path | None, str | None]:
+def _mask_hash(root: Path, budget: str | int | None, configured_path: str | None = None) -> tuple[Path | None, str | None]:
     if budget in (None, "", "None"):
         return None, None
-    path = root / "data/processed/q3_low_resource_sarcasm" / f"budget_{budget}_masks.csv"
+    path = root / configured_path if configured_path else root / "data/processed/q3_low_resource_sarcasm" / f"budget_{budget}_masks.csv"
     return path, sha256_file(path) if path.exists() else None
 
 
@@ -295,7 +295,8 @@ def run_single_preflight(
             if not rationale_ok:
                 blockers.append("approved canonical rationale promotion is missing or invalid")
 
-    q3_path, q3_hash = _mask_hash(root, entry.budget if entry.research_question == "Q3" else None)
+    configured_q3_path = entry.q3_mask_path or entry.raw.get("q3_mask_path")
+    q3_path, q3_hash = _mask_hash(root, entry.budget if entry.research_question == "Q3" else None, configured_q3_path)
     if entry.research_question == "Q3":
         expected_mask = entry.q3_mask_hash or entry.raw.get("mask_hash") or entry.raw.get("q3_mask_hash")
         mask_match = fixture or (q3_hash is not None and (expected_mask in (None, "") or expected_mask == q3_hash))
@@ -308,7 +309,13 @@ def run_single_preflight(
                 from ..data.masks import validate_q3_masks
 
                 train = load_vipragsent(root / "data/processed/vipragsent").train
-                q3_report = validate_q3_masks(root / "data/processed/q3_low_resource_sarcasm", {item.sample_id: item for item in train}, strict_frozen=True)
+                q3_root = q3_path.parent if q3_path is not None else root / "data/processed/q3_low_resource_sarcasm"
+                q3_report = validate_q3_masks(
+                    q3_root,
+                    {item.sample_id: item for item in train},
+                    strict_frozen=True,
+                    rationale_policy=str(entry.raw.get("q3_rationale_policy") or "legacy"),
+                )
                 _check(checks, "q3_mask_semantics_deep", True, detail=json.dumps({"counts": q3_report["selected_positive_counts"], "fixed_negative_count": q3_report["fixed_negative_count"], "nested": q3_report["nested"]}, sort_keys=True))
             except Exception as exc:
                 _check(checks, "q3_mask_semantics_deep", False, detail=str(exc))
