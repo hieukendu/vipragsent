@@ -1,0 +1,76 @@
+## Material Passport
+
+Artifact ID: q1a-paired-bootstrap-ci-matched-2026-09-28
+Type: Read-only paired hierarchical bootstrap report
+Verification Status: ANALYZED
+Analysis date: 2026-09-28
+Scope: Existing proposed Q1a XLM-R predictions versus the new matched six-head XLM-R-large baseline
+
+## Safety and reproducibility boundary
+
+- No model was downloaded, loaded, trained, or run.
+- The calculation uses recorded prediction JSONL files for seeds 20260521,
+  20260522, and 20260523 under `reports/q1a_matched_xlmr_ft/` and its
+  `proposed_source/` subdirectory.
+- Each seed has 2,000 paired test rows with matching sample IDs and matching
+  six-label gold tuples between the two systems.
+- This is a deterministic calculation over stored artifacts, not a fresh
+  training or inference reproducibility rerun.
+
+## Method
+
+- Statistic: binary macro-F1 for each of the six pragmatic labels, plus the
+  unweighted macro-pragmatic F1 across the six labels.
+- Difference: proposed (`ours`) minus matched baseline, in percentage points
+  (pp).
+- Resampling: 10,000 paired hierarchical bootstrap replicates; first resample
+  the three seeds, then resample the 2,000 paired test examples within each
+  selected seed.
+- Bootstrap random seed: 20260525.
+- Interval: percentile 95% CI.
+- `crosses zero` is inclusive. The raw p-value is the paired sign-based
+  two-sided p-value from the locked analysis implementation.
+
+## Recorded mean scores
+
+Proposed mean macro-pragmatic F1: 0.9366583803 (93.665838%)
+Matched mean macro-pragmatic F1:  0.9303537390 (93.035374%)
+Observed mean gap:                +0.630464 pp (+0.63 pp rounded)
+
+## Paired bootstrap results
+
+Metric | Delta pp | 95% CI pp | Raw sign p | CI crosses 0?
+--- | ---: | --- | ---: | ---
+Implicit sentiment | +0.414694 | [-0.645424, +1.443092] | 0.420758 | Yes
+Sarcasm | +0.963950 | [-1.082517, +2.995165] | 0.320968 | Yes
+Irony | +0.248074 | [-0.301112, +0.870785] | 0.406959 | Yes
+Idiom/figurative | +0.763602 | [-0.468052, +2.026740] | 0.213379 | Yes
+Code-switching | +0.498467 | [-0.542317, +1.632932] | 0.341366 | Yes
+Mocking | +0.893997 | [-0.554983, +2.325025] | 0.225577 | Yes
+Macro-pragmatic F1 | +0.630464 | [+0.068308, +1.195883] | 0.028997 | No
+
+## Interpretation
+
+- The nominal macro-pragmatic 95% bootstrap CI is entirely above zero.
+- All six individual-head CIs cross zero. The stored data therefore support
+  observed positive head gains, but not a zero-crossing-free claim for any
+  individual head under this interval calculation.
+- The raw macro sign p is approximately 0.0290. With seven metrics, the
+  rank-one Holm adjustment is approximately 0.2030; do not claim family-wise
+  significance after Holm correction.
+- The evidence-bounded summary is: the observed three-seed macro gap is
+  +0.63 pp and its nominal paired-bootstrap 95% CI is [+0.07, +1.20] pp;
+  individual head gains remain uncertain because their CIs cross zero.
+
+## Source artifacts
+
+- reports/q1a_matched_xlmr_ft/q1a_matched_paired_bootstrap_ci.csv
+- reports/q1a_matched_xlmr_ft/q1a_matched_paired_bootstrap_ci.txt
+- reports/q1a_matched_xlmr_ft/aggregate_metrics.csv
+- reports/q1a_matched_xlmr_ft/seed_20260521/predictions_test.jsonl
+- reports/q1a_matched_xlmr_ft/seed_20260522/predictions_test.jsonl
+- reports/q1a_matched_xlmr_ft/seed_20260523/predictions_test.jsonl
+- reports/q1a_matched_xlmr_ft/proposed_source/
+- configs/statistics.yaml
+- configs/statistics/significance_method.yaml
+- src/vipragsent/statistics/bootstrap.py

@@ -1,0 +1,73 @@
+ViPragSent FINAL V8 - Krippendorff's Alpha IAA Report
+=======================================================
+
+Source archive
+--------------
+Archive: ViPragSent_Experiment_Dataset_FINAL_V8.zip
+Archive SHA-256: 23150e5165bfabb202499fa1ccab1b76770addd57c8dbb0fd81dc79732844ac2
+Internal folder: ViPragSent_Experiment_Dataset_FINAL_V8/01_clean_human_annotations/
+Rows aligned by sample_id: 11,997
+
+Files included
+--------------
+Annotator 1: 01_annotator_1_clean.csv (annotation_role=human_annotator_1)
+Annotator 2: 02_annotator_2_clean.csv (annotation_role=human_annotator_2)
+Gold:        03_gold_adjudicated_clean.csv (annotation_role=human_adjudicator)
+
+Method
+------
+Metric: Krippendorff's alpha with nominal distance.
+The calculation uses the repository's authoritative
+krippendorff_alpha_nominal implementation and reads the three CSV files
+directly from the ZIP archive.
+
+The primary IAA is the agreement between the two independent human
+annotators (Annotator 1 vs Annotator 2). The gold file is an adjudicated
+reference, not an independent annotator, so it is reported separately as a
+three-source supplementary analysis rather than silently mixing it into the
+primary IAA.
+
+Fields: implicit_sentiment, sarcasm, irony, idiom_figurative,
+        code_switching, mocking, polarity, emotion.
+
+1. Primary pairwise IAA: Annotator 1 vs Annotator 2
+----------------------------------------------------
+Field                  N      Raw agreement       Krippendorff alpha     Disagreements
+implicit_sentiment     11997  0.9736600816870884  0.9180897326033587    316
+sarcasm                11997  0.9864132699841627  0.8957330956818907    163
+irony                  11997  0.9989997499374844  0.9922771550609585     12
+idiom_figurative       11997  0.9584896224056014  0.5745715990691393    498
+code_switching         11997  0.9459864966241560  0.7629519193567195    648
+mocking                11997  0.9404017671084438  0.7598678624760677    715
+polarity               11997  0.9242310577644411  0.8539117840634743    909
+emotion                11997  0.8282070517629407  0.7569886658043596   2061
+
+Macro pragmatic alpha (six fields: implicit sentiment, sarcasm, irony,
+idiom/figurative, code-switching, mocking): 0.8172485607080224
+
+Rows with at least one A1/A2 disagreement across the eight fields: 3,847
+Adjudication rate: 0.3206634992081354 (32.06634992081354%)
+
+2. Supplementary three-source alpha: Annotator 1 + Annotator 2 + Gold
+----------------------------------------------------------------------
+This section includes all three files in each unit. It is supplementary
+because the gold labels were produced by adjudication after the independent
+annotations.
+
+Field                  N      Krippendorff alpha (3 sources)  Non-unanimous  Unanimous
+implicit_sentiment     11997  0.9457877535499738               317            11680
+sarcasm                11997  0.9298830579108138               163            11834
+irony                  11997  0.9948437465861669                12            11985
+idiom_figurative       11997  0.7456689195108799               498            11499
+code_switching         11997  0.8467100280927626               655            11342
+mocking                11997  0.8302983557692694               716            11281
+polarity               11997  0.9041892238260528               909            11088
+emotion                11997  0.8359883638047734              2061             9936
+
+Macro pragmatic alpha (three sources, six pragmatic fields): 0.8821986435699777
+
+Verification
+------------
+The eight pairwise alpha values and the pairwise macro pragmatic alpha match
+the embedded package reports within 1e-12. The ZIP archive was not modified.
+

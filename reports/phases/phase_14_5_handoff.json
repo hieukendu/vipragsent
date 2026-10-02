@@ -1,5 +1,7 @@
 {
-  "blockers": [],
+  "blockers": [
+    "compile or CPU pytest command failed"
+  ],
   "deferred_server_requirements": [
     "Java 17 and VnCoreNLP resources",
     "PEFT",
@@ -29,6 +31,7 @@
     "src/vipragsent/artifacts/schemas.py",
     "src/vipragsent/atomic.py",
     "src/vipragsent/azure/__init__.py",
+    "src/vipragsent/azure/async_judge.py",
     "src/vipragsent/azure/client.py",
     "src/vipragsent/azure/prompts.py",
     "src/vipragsent/azure/rationale.py",
@@ -69,6 +72,7 @@
     "src/vipragsent/orchestration/__init__.py",
     "src/vipragsent/orchestration/aggregation.py",
     "src/vipragsent/orchestration/approval.py",
+    "src/vipragsent/orchestration/azure_rationale_recovery.py",
     "src/vipragsent/orchestration/context.py",
     "src/vipragsent/orchestration/contracts.py",
     "src/vipragsent/orchestration/dag.py",
@@ -79,6 +83,8 @@
     "src/vipragsent/orchestration/executors/external_retention.py",
     "src/vipragsent/orchestration/executors/generation.py",
     "src/vipragsent/orchestration/executors/q4.py",
+    "src/vipragsent/orchestration/explanation_runtime.py",
+    "src/vipragsent/orchestration/generation_persistence.py",
     "src/vipragsent/orchestration/handlers/__init__.py",
     "src/vipragsent/orchestration/inventory.py",
     "src/vipragsent/orchestration/preflight.py",
@@ -98,16 +104,22 @@
     "src/vipragsent/orchestration/status.py",
     "src/vipragsent/orchestration/system_registry.py",
     "src/vipragsent/orchestration/variant_diff.py",
+    "src/vipragsent/orchestration/xlmr_followup.py",
     "src/vipragsent/phase.py",
     "src/vipragsent/profiling.py",
     "src/vipragsent/protocol.py",
     "src/vipragsent/runtime/__init__.py",
+    "src/vipragsent/runtime/artifact_reuse.py",
     "src/vipragsent/runtime/batch_probe.py",
     "src/vipragsent/runtime/device.py",
     "src/vipragsent/runtime/disk.py",
+    "src/vipragsent/runtime/estimator.py",
     "src/vipragsent/runtime/hardware.py",
     "src/vipragsent/runtime/model_assets.py",
     "src/vipragsent/runtime/model_smoke.py",
+    "src/vipragsent/runtime/naacl_profile.py",
+    "src/vipragsent/runtime/phase15_state.py",
+    "src/vipragsent/runtime/scheduler.py",
     "src/vipragsent/statistics/__init__.py",
     "src/vipragsent/statistics/bootstrap.py",
     "src/vipragsent/statistics/significance.py",
@@ -116,6 +128,7 @@
     "src/vipragsent/training/class_weights.py",
     "src/vipragsent/training/config_resolver.py",
     "src/vipragsent/training/engine.py",
+    "src/vipragsent/training/generation_checkpoint.py",
     "src/vipragsent/training/optimizers.py",
     "src/vipragsent/training/schedulers.py",
     "src/vipragsent/training/seeding.py"
@@ -127,16 +140,16 @@
     "31_IMPLEMENTATION_DECISIONS.md",
     ".codex_input/prompt_pack/ViPragSent_Codex_Setup_First_OneClick_EXPERIMENT_READY_FINAL/32_RUNTIME_PREFLIGHT_CHECKLIST.md"
   ],
-  "next_phase": "15",
-  "next_phase_ready": true,
+  "next_phase": null,
+  "next_phase_ready": false,
   "phase": "14.5",
-  "production_implementation_audit_passed": true,
+  "production_implementation_audit_passed": false,
   "scientific_protocol_conflicts": [],
-  "status": "PASS",
-  "tests_passed": true,
+  "status": "FAIL",
+  "tests_passed": false,
   "tests_run": [
-    "/root/vipragsent/.venv/bin/python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
-    "/root/vipragsent/.venv/bin/python -m compileall -q src scripts tests",
-    "/root/vipragsent/.venv/bin/python -m pytest -q -m not server and not gpu and not azure_live and not model_download"
+    "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
+    "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -m compileall -q src scripts tests",
+    "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -m pytest -q -m not server and not gpu and not azure_live and not model_download"
   ]
 }

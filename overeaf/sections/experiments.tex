@@ -1,0 +1,75 @@
+\section{Experimental Setup}
+
+\subsection{Separate experimental cohorts}
+Q1a, Q2, Q3, and Q4 use related but distinct experiment cohorts. Q2 is a follow-up cohort with its own scheduler, warmup ratio, and early-stopping configuration; its full-model score is therefore interpreted within Q2 rather than as a rerun of Q1a. Q1a uses cosine scheduling, a 0.20 warmup ratio, and patience 10; Q2 uses a linear scheduler, a 0.10 warmup ratio, and patience 2. Values are arithmetic means over three runs with sample standard deviations unless otherwise stated.
+
+\begin{table}[tb]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\hline
+Cohort & Experiment contents \\
+\hline
+Q1a & XLM-R-large multi-task (ours) and complete baseline systems \\
+Q2 & Full model and component ablations \\
+Q3 & Nested positive sarcasm supervision budgets \\
+Q4 & Calibration extraction from Q1a checkpoints; no new training \\
+\hline
+\end{tabularx}
+\caption{Experimental cohorts.}
+\label{tab:cohorts}
+\end{table}
+
+\subsection{Data, annotation, and external evaluation}
+
+\begin{figure*}[t]
+  \centering
+  \begin{tikzpicture}[
+    flowbox/.style={draw=blue!45!black, fill=blue!10, rounded corners=8pt,
+      minimum height=0.72in, align=center, font=\scriptsize},
+    flowarrow/.style={-{Latex[length=2mm]}, draw=blue!55!black, line width=0.5pt},
+    node distance=0.04in
+  ]
+    \node[flowbox, text width=0.80in] (input) {\textbf{Input:}\\Vietnamese comments};
+    \node[flowbox, text width=1.42in, right=of input] (review) {\textbf{Two annotators}\\independently label\\each sample};
+    \node[flowbox, text width=0.88in, right=of review] (diff) {Disagreement?};
+    \node[flowbox, text width=1.44in, right=of diff] (adj) {Disagreements resolved\\by designated\\adjudicator};
+    \node[flowbox, text width=0.80in, right=of adj] (output) {\textbf{Output:}\\Final labels};
+    \draw[flowarrow] (input) -- (review);
+    \draw[flowarrow] (review) -- (diff);
+    \draw[flowarrow] (diff) -- (adj);
+    \draw[flowarrow] (adj) -- (output);
+  \end{tikzpicture}
+  \caption{ViPragSent annotation workflow.}
+  \label{fig:annotation-pipeline}
+\end{figure*}
+
+We constructed ViPragSent from 11,997 Vietnamese social-media comments from the ViSoBERT Vietnamese social-media corpus, distributed through SEACrowd \citep{nguyen-etal-2023-visobert,lovenia-etal-2024-seacrowd}. Deterministic iterative multilabel stratification over the six pragmatic labels, polarity, and emotion, with split seed 20260520, produced 7,998 training, 1,999 development, and 2,000 test examples. The dataset contains the six pragmatic labels, three-way polarity, and seven-way emotion. Across all 11,997 examples, positive-label prevalence is 20.98\%, 6.81\%, 6.93\%, 7.04\%, 15.08\%, and 11.65\% for implicit sentiment, sarcasm, irony, idiom/figurative language, code-switching, and mocking, respectively. The pragmatic labels also co-occur: 37.82\% of all examples contain at least one positive pragmatic label, and 17.38\% contain at least two. The most frequent pair is implicit sentiment with mocking (1,178 examples; 9.82\% of the dataset). This overlap motivates a multi-label formulation rather than mutually exclusive pragmatic categories. Two native Vietnamese-speaking university students independently annotated each example using the operational definitions in Section 3 and dictionary-based definitions where applicable. A third native Vietnamese-speaking university student served as adjudicator, reviewing the two first-pass annotations and assigning the final label when they disagreed. Annotation was unpaid. The unweighted mean nominal Krippendorff's alpha across pragmatic labels is $0.817$; per-label alphas are 0.9181 (implicit sentiment), 0.8957 (sarcasm), 0.9923 (irony), 0.5746 (idiom/figurative language), 0.7630 (code-switching), and 0.7599 (mocking). Polarity and emotion agreement are Cohen's $\kappa=0.854$ and $0.759$; 3,847 samples (32.1\%) were adjudicated. Figure~\ref{fig:annotation-pipeline} summarizes this workflow.
+
+\begin{table}[tb]
+\centering
+\small
+\setlength{\tabcolsep}{2pt}
+\begin{tabularx}{\columnwidth}{>{\raggedright\arraybackslash}p{1.45in} >{\raggedright\arraybackslash}X}
+\hline
+Dataset / source & Task and labels \\
+\hline
+ViPragSent dataset & Six pragmatic labels; 3-way polarity; 7-way emotion \\
+AIVIVN (human-reannotated 3-way) & Negative / neutral / positive polarity \\
+UIT-VSFC & Negative / neutral / positive polarity \\
+UIT-VSMEC & Seven-class social-media emotion \\
+\hline
+\end{tabularx}
+\caption{Datasets and label spaces.}
+\label{tab:data-annotation}
+\end{table}
+
+Q1a evaluates the 2,000-example pragmatic test cohort. Q1b reports external affective transfer on UIT-VSFC, UIT-VSMEC, and AIVIVN; mean external macro-F1 is the unweighted mean of those three external macro-F1 values. For AIVIVN, originally released for the 2019 Vietnamese sentiment challenge \citep{nguyen-etal-2020-aivivn}, we use a fully human-reannotated three-way version of all 16,087 reviews. The original labels were discarded and the examples were reannotated from scratch as negative, neutral, or positive by the same three Vietnamese annotators used for ViPragSent, following the same independent-annotation and adjudication procedure. The reannotated corpus contains 12,869/1,609/1,609 train/dev/test examples; Q1b uses only its 1,609-example test partition, and no AIVIVN examples are used for model training, development, or hyperparameter selection. The Q1b routing uses the polarity head for UIT-VSFC and AIVIVN and the emotion head for UIT-VSMEC. These external evaluation partitions were held out from model training, and no external evaluation example was used for fine-tuning.
+
+\subsection{Baselines and measures}
+Q1a reports XLM-R-large multi-task (ours), an XLM-R-large pragmatic-only baseline, PhoBERT variants, Sailor-7B SFT \citep{dou-etal-2024-sailor}, and Vistral-7B SFT \citep{nguyen-etal-2023-vistral} when complete three-run summaries are available. For the closest XLM-R-large comparison, we train a pragmatic-only baseline using the same Q1a training and model-selection settings as the proposed model. It uses maximum length 128, AdamW with learning rate $2\times10^{-5}$ and weight decay 0.01, bf16, cosine scheduling with 20\% warmup, effective batch size 32, gradient clipping at 1.0, up to ten epochs with patience 10, the same three seeds, development-set checkpoint selection, and development-set threshold search. The baseline predicts only the six pragmatic labels, uses train-derived positive class weights, and averages the six pragmatic losses equally. It does not use polarity, emotion, rationale supervision, uncertainty weighting, or task multipliers. Other comparison systems follow their family-specific recipes: PhoBERT fine-tune uses AdamW at $2\times10^{-5}$, bf16, physical batch size 32, a linear schedule, 0.10 warmup, and ten epochs. PhoBERT single-task comprises six independent component runs and has no aggregate optimizer recipe. Sailor-7B and Vistral-7B SFT use paged AdamW 8-bit at $10^{-4}$, bf16, physical batch size 2 with eight accumulation steps, cosine scheduling, 0.05 warmup, and three epochs. Each baseline follows its family recipe. Trainable rows have three runs and report mean $\pm$ sample SD; GPT-4.1-mini rows are single-run references. Classifier rows use the same development threshold grid (0.05--0.95 by 0.01, ties toward 0.5); GPT rows expose no such threshold. Classifier checkpoints are selected by development macro-pragmatic F1.
+
+GPT-4.1-mini uses the \texttt{gpt-4.1-mini-2025-04-14} snapshot, temperature 0, strict JSON, and a fixed prompt/schema. Zero-shot supplies no demonstrations; 8-shot prepends eight training-only demonstrations selected in sample-ID order as the first unused positive for each pragmatic label plus ordinary controls. Responses map to the six binary pragmatic labels.
+
+Q1a and Q3 report F1 in percentage points. Q2 reports macro-pragmatic F1, ten-bin top-label polarity development ECE multiplied by $10^3$, and relative successful GPU-hours. Q4 uses raw positive-class sigmoid probabilities without thresholding, ten equal bins, and ECE on its native $[0,1]$ scale; lower ECE is better. For the primary Q1a comparison between the proposed model and the XLM-R-large pragmatic-only baseline, we additionally use a 10,000-replicate paired hierarchical bootstrap, resampling the three seeds and then the 2,000 paired test examples within each selected seed. We report percentile 95\% confidence intervals for the difference in F1 (proposed model minus baseline). For the two largest head-level gains, sarcasm and mocking, we also pool per-run confusion counts across the three seeds to characterize the direction of the observed errors.

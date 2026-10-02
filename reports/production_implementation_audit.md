@@ -1,11 +1,11 @@
 # Production implementation audit
 
-- implementation_passed: `true`
-- phase14_ready: `true`
+- implementation_passed: `false`
+- phase14_ready: `false`
 
 ## Errors
 
-- None
+- compile or CPU pytest command failed
 
 ## Scientific protocol conflicts
 

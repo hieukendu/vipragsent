@@ -1,22 +1,22 @@
 {
   "commands_run": [
     {
-      "command": "/root/vipragsent/.venv/bin/python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
+      "command": "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
       "returncode": 0,
       "stderr_tail": "",
-      "stdout_tail": "013F50CEC5BE59AE\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"q1b_external_retention\": {\n      \"node_id\": \"q1b_external_retention\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"q1b_external_retention\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"17C012A79C5B56F02584B634AA0ABD191BEC3FB9F24F63C7013F50CEC5BE59AE\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"q2_ablations\": {\n      \"node_id\": \"q2_ablations\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"q2_ablations\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"17C012A79C5B56F02584B634AA0ABD191BEC3FB9F24F63C7013F50CEC5BE59AE\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"qualitative_candidate_export\": {\n      \"node_id\": \"qualitative_candidate_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"17C012A79C5B56F02584B634AA0ABD191BEC3FB9F24F63C7013F50CEC5BE59AE\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"17C012A79C5B56F02584B634AA0ABD191BEC3FB9F24F63C7013F50CEC5BE59AE\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"17C012A79C5B56F02584B634AA0ABD191BEC3FB9F24F63C7013F50CEC5BE59AE\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"17C012A79C5B56F02584B634AA0ABD191BEC3FB9F24F63C7013F50CEC5BE59AE\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"17C012A79C5B56F02584B634AA0ABD191BEC3FB9F24F63C7013F50CEC5BE59AE\",\n        \"fixture_validation_manifest\": \"/root/vipragsent/runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"17C012A79C5B56F02584B634AA0ABD191BEC3FB9F24F63C7013F50CEC5BE59AE\",\n        \"fixture_validation_manifest\": \"/root/vipragsent/runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
+      "stdout_tail": "BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"q1b_external_retention\": {\n      \"node_id\": \"q1b_external_retention\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"q1b_external_retention\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"q2_ablations\": {\n      \"node_id\": \"q2_ablations\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"q2_ablations\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"qualitative_candidate_export\": {\n      \"node_id\": \"qualitative_candidate_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
     },
     {
-      "command": "/root/vipragsent/.venv/bin/python -m compileall -q src scripts tests",
+      "command": "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -m compileall -q src scripts tests",
       "returncode": 0,
       "stderr_tail": "",
       "stdout_tail": ""
     },
     {
-      "command": "/root/vipragsent/.venv/bin/python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
-      "returncode": 0,
+      "command": "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+      "returncode": 1,
       "stderr_tail": "",
-      "stdout_tail": "........................................................................ [ 38%]\n........................................................................ [ 77%]\n.........................................                                [100%]\n"
+      "stdout_tail": "thon_interpreter() -> None:\n>       assert _runtime_command([\"python\", \"-m\", \"pytest\"])[0].endswith(\"/python\")\nE       AssertionError: assert False\nE        +  where False = <built-in method endswith of str object at 0x00000216FF908B20>('/python')\nE        +    where <built-in method endswith of str object at 0x00000216FF908B20> = 'C:\\\\Users\\\\ADM\\\\AppData\\\\Local\\\\Programs\\\\Python\\\\Python312\\\\python.exe'.endswith\n\ntests\\test_runtime_repairs.py:98: AssertionError\n_____________ test_cache_status_paths_are_portable_and_resolvable _____________\n\ntmp_path = WindowsPath('C:/Users/ADM/AppData/Local/Temp/pytest-of-ADM/pytest-1263/test_cache_status_paths_are_po0')\n\n    def test_cache_status_paths_are_portable_and_resolvable(tmp_path: Path) -> None:\n        snapshot = tmp_path / \"data/model_cache/phobert_base\"\n        snapshot.mkdir(parents=True)\n        record = cache_record_from_snapshot(\n            \"phobert_base\",\n            {\"repo_id\": \"fixture/repo\", \"revision\": \"model\", \"tokenizer_revision\": \"tokenizer\"},\n            snapshot,\n            root=tmp_path,\n        )\n        assert record[\"local_path\"] == \"data/model_cache/phobert_base\"\n        write_family_status(tmp_path, \"phobert_base\", \"cache\", record)\n        stored = read_family_status(tmp_path, \"phobert_base\", \"cache\")\n        assert stored[\"local_path\"] == \"data/model_cache/phobert_base\"\n        assert resolve_local_snapshot(tmp_path, stored[\"local_path\"]) == snapshot\n>       assert resolve_local_snapshot(tmp_path, \"/old/checkout/data/model_cache/phobert_base\") == snapshot\nE       AssertionError: assert WindowsPath('C:/old/checkout/data/model_cache/phobert_base') == WindowsPath('C:/Users/ADM/AppData/Local/Temp/pytest-of-ADM/pytest-1263/test_cache_status_paths_are_po0/data/model_cache/phobert_base')\nE        +  where WindowsPath('C:/old/checkout/data/model_cache/phobert_base') = resolve_local_snapshot(WindowsPath('C:/Users/ADM/AppData/Local/Temp/pytest-of-ADM/pytest-1263/test_cache_status_paths_are_po0'), '/old/checkout/data/model_cache/phobert_base')\n\ntests\\test_runtime_repairs.py:158: AssertionError\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:292: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ===========================\nFAILED tests/test_generation_checkpoint_pointers.py::test_pointer_preserves_canonical_name_for_migrated_symlink\nFAILED tests/test_generation_wave2.py::test_training_epoch_generation_binds_to_persisted_checkpoint_without_live_hash\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_contradictory_report_azure_exclusion\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_binding_drift\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_q3_alias_drift\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_q3_budget_seed_and_cell_drift\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_when_xlmr_exclusion_is_removed\nFAILED tests/test_naacl_balanced_profile.py::test_validator_rejects_invented_azure_seed_axis\nFAILED tests/test_runtime_repairs.py::test_audits_use_the_active_python_interpreter\nFAILED tests/test_runtime_repairs.py::test_cache_status_paths_are_portable_and_resolvable\n"
     }
   ],
   "defects_confirmed": [
@@ -71,7 +71,7 @@
         "classification": "manual_drop_documentation",
         "path": "data/external/manual_drop/aivivn_original/README.md",
         "recommendation": "keep local README; do not add raw files",
-        "sha256": "34A1A7CC5BB68BD6524C837304ECB96E3DF72B013BDAEEA24A6B7988EC258F79"
+        "sha256": "A58397BBBE52D2960445CB4ECD36549633228FCE12BC0357E655889A70B05C16"
       },
       {
         "classification": "manual_drop_documentation",
@@ -89,7 +89,7 @@
         "classification": "manual_drop_documentation",
         "path": "data/external/manual_drop/uit_vsfc/README.md",
         "recommendation": "keep local README; do not add raw files",
-        "sha256": "165BB1A2658BC6B444813C90836E0F1815EF7AB5C9249C97F981752DD9CE8599"
+        "sha256": "5130B78F556C3040F793BD34BC23B908C8AE0E2BEA01C7CB620A41F69AC5A860"
       },
       {
         "classification": "manual_drop_documentation",
@@ -119,7 +119,7 @@
         "classification": "manual_drop_documentation",
         "path": "data/external/manual_drop/uit_vsmec/README.md",
         "recommendation": "keep local README; do not add raw files",
-        "sha256": "C0C8F3944957706E3EEEEABE36F5ACEA821B54C89A6F16A40DC108C218AF13E6"
+        "sha256": "DEB0179B6FC6F883E783D38A30C9E0B43E2463F5B4FB6CFDD08AFDF1B2E0CF81"
       },
       {
         "classification": "manual_drop_documentation",
@@ -132,6 +132,12 @@
         "path": "data/input/.gitkeep",
         "recommendation": "retain under the existing project contract",
         "sha256": "EA46756D0083EAD1EFF2DDEAABD2BE519E59C736B384F1AD5C97CF39663B4CE7"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/approved_generated_rationales_train.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "8E3347B5AD28082B478FE2E0F800D01AE4DF12DC08B356AD74BBF331A5507C8B"
       },
       {
         "classification": "frozen_manifest_or_project_data",
@@ -237,6 +243,12 @@
       },
       {
         "classification": "frozen_manifest_or_project_data",
+        "path": "data/manifests/tokenization_cache_manifest.json",
+        "recommendation": "retain under the existing project contract",
+        "sha256": "45574B883588948A17FF122A83151B5BB5B43E46EDD96A8A8BF05E1B9AFB722C"
+      },
+      {
+        "classification": "frozen_manifest_or_project_data",
         "path": "data/model_cache/.gitkeep",
         "recommendation": "retain under the existing project contract",
         "sha256": "EA46756D0083EAD1EFF2DDEAABD2BE519E59C736B384F1AD5C97CF39663B4CE7"
@@ -245,7 +257,7 @@
         "classification": "frozen_manifest_or_project_data",
         "path": "data/model_cache_manifest.json",
         "recommendation": "retain under the existing project contract",
-        "sha256": "81EA1EB526386614BAED8A8823E3378C745B23884D6005F0F1B90C9FA4334AC7"
+        "sha256": "8707EAE0E08F55DBDA05BAC6CED614D549F8BF710336883666EF26F69F0F0817"
       },
       {
         "classification": "frozen_manifest_or_project_data",
@@ -275,7 +287,7 @@
         "classification": "frozen_manifest_or_project_data",
         "path": "data/model_smoke_report.json",
         "recommendation": "retain under the existing project contract",
-        "sha256": "8587ABB347DDAE9B9E353624A4D9E13AB14F67F12015B262D93562431B603308"
+        "sha256": "FC1CF2301E1D379D2DE4A14D2B90D4B2668392E7108C10414D5E87DA14AE0F85"
       },
       {
         "classification": "frozen_manifest_or_project_data",
@@ -381,6 +393,12 @@
       },
       {
         "classification": "processed_text_input_restricted_review",
+        "path": "data/processed/rationales/approved_generated_rationales_train.jsonl",
+        "recommendation": "review index tracking; do not remove automatically: git rm --cached data/processed/rationales/approved_generated_rationales_train.jsonl",
+        "sha256": "B583AC45F4BC2FDFA41DA44376AB99585075CA3EBB1FC47BC3936D84B89B21D1"
+      },
+      {
+        "classification": "processed_text_input_restricted_review",
         "path": "data/processed/rationales/azure_rationale_input_train.jsonl",
         "recommendation": "review index tracking; do not remove automatically: git rm --cached data/processed/rationales/azure_rationale_input_train.jsonl",
         "sha256": "FD35A3B5FC1242C79750B15C62DB29FCDA82E10D2F0CA6DFA7E7316A6C8DC915"
@@ -389,19 +407,19 @@
         "classification": "generated_or_fixture_cache",
         "path": "data/processed/tokenized_text/phobert_base/dev.jsonl",
         "recommendation": "git rm --cached data/processed/tokenized_text/phobert_base/dev.jsonl",
-        "sha256": "ABE7714E57BBBCFEFADCDDE77F359422ABC01057A1F52717C24BC73F7BB59378"
+        "sha256": "C6CD4D0ECB3C6648D3B0E31A90EA3B9BCA7F2A26E3B1B168B95C82E38458264D"
       },
       {
         "classification": "generated_or_fixture_cache",
         "path": "data/processed/tokenized_text/phobert_base/test.jsonl",
         "recommendation": "git rm --cached data/processed/tokenized_text/phobert_base/test.jsonl",
-        "sha256": "11B6AB75B75F1FE17B4D803669267595E3AE5414F9136CDA0D9B67907A50E22F"
+        "sha256": "98849066B473B78D0EF48368554FF62AEBE885929D5CE19DB597996E8E14536B"
       },
       {
         "classification": "generated_or_fixture_cache",
         "path": "data/processed/tokenized_text/phobert_base/train.jsonl",
         "recommendation": "git rm --cached data/processed/tokenized_text/phobert_base/train.jsonl",
-        "sha256": "C6DB89A66F02D580915BC489098418CEE2F2E42FAB1F39BA0BBEFD782EE4EBC6"
+        "sha256": "03EF6A4EF62C1165DEF5EA1938E964FBAB19A60E25CB46C16649A93C27F45353"
       },
       {
         "classification": "frozen_manifest_or_project_data",
@@ -711,7 +729,7 @@
     ],
     "history_rewrite_performed": false,
     "index_cleanup_performed": false,
-    "tracked_file_count": 110
+    "tracked_file_count": 113
   },
   "implementation_changes": {
     "config_validation": {
@@ -733,9 +751,9 @@
     "named_production_handlers": true,
     "temporary_behavior": true
   },
-  "implementation_passed": true,
+  "implementation_passed": false,
   "phase": "14.5",
-  "phase14_ready": true,
+  "phase14_ready": false,
   "production_dag_kinds_have_named_handlers": true,
   "repair_items": [
     {
@@ -848,7 +866,9 @@
       "Q4": 9,
       "backbone_sensitivity": 6
     },
-    "errors": [],
+    "errors": [
+      "compile or CPU pytest command failed"
+    ],
     "expected_run_count": 162,
     "warnings": []
   },

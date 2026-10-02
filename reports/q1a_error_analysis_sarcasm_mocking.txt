@@ -1,0 +1,102 @@
+## Material Passport
+
+Artifact ID: q1a-error-analysis-sarcasm-mocking-matched-2026-09-28
+Type: Read-only paired error analysis report
+Verification Status: ANALYZED
+Analysis date: 2026-09-28
+Scope: Six pragmatic heads, with detailed confusion and directional analysis for sarcasm and mocking
+
+## Safety and reproducibility boundary
+
+- No model was downloaded, loaded, trained, or run.
+- The comparison uses stored prediction JSONL artifacts for seeds 20260521,
+  20260522, and 20260523, with 2,000 paired test rows per seed: 6,000
+  paired rows in total.
+- The matched baseline is the new six-head XLM-R-large artifact. `ours` is
+  the existing proposed Q1a prediction artifact. The two systems are paired
+  on the same sample IDs and the same six-label gold tuples.
+- Counts below pool the three seeds. The same test sample can therefore appear
+  once per seed; these are pooled prediction records, not 6,000 unique texts.
+
+## Definition
+
+For each head, `ours_correct_matched_wrong` means that the proposed prediction
+equals gold while the matched-baseline prediction does not. The reverse count
+means that the matched baseline is correct while the proposed prediction is
+wrong. The F1 table reports the arithmetic mean of the three recorded seed F1
+values; the macro row is the unweighted mean across the six pragmatic heads.
+
+## All-six pragmatic F1 means
+
+Head | Ours mean F1 (%) | Matched mean F1 (%) | Ours minus matched (pp)
+--- | ---: | ---: | ---:
+Implicit sentiment | 92.669336 | 92.254642 | +0.414694
+Sarcasm | 89.360574 | 88.396624 | +0.963950
+Irony | 98.432753 | 98.184679 | +0.248074
+Idiom/figurative | 93.349087 | 92.585485 | +0.763602
+Code-switching | 94.838088 | 94.339621 | +0.498467
+Mocking | 93.345189 | 92.451192 | +0.893997
+Macro-pragmatic F1 | 93.665838 | 93.035374 | +0.630464
+
+## Pooled confusion matrices
+
+The confusion counts sum the three seed-level test rows. The F1 column remains
+the mean across seeds, not a F1 recomputed from the pooled counts.
+
+Sarcasm
+
+System | TP | TN | FP | FN | Mean F1 across seeds
+--- | ---: | ---: | ---: | ---: | ---:
+Ours | 343 | 5488 | 104 | 65 | 0.893606
+Matched XLM-R-large | 333 | 5484 | 108 | 75 | 0.883966
+
+Mocking
+
+System | TP | TN | FP | FN | Mean F1 across seeds
+--- | ---: | ---: | ---: | ---: | ---:
+Ours | 610 | 5227 | 74 | 89 | 0.933452
+Matched XLM-R-large | 589 | 5229 | 72 | 110 | 0.924512
+
+## Paired directional counts
+
+Label | Ours correct / matched wrong | Matched correct / ours wrong | Net direction
+--- | ---: | ---: | ---:
+Sarcasm | 65 | 51 | +14
+Mocking | 73 | 54 | +19
+
+For sarcasm, the proposed system has 10 more TP and 10 fewer FN than the
+matched baseline, plus 4 fewer FP. For mocking, it has 21 more TP and 21
+fewer FN, while FP is 2 higher. These are descriptive properties of the
+stored predictions and are not causal evidence.
+
+Across all six heads, examples corrected on at least two labels versus the
+matched baseline, and the reverse regressions, are:
+
+Seed | Corrected >=2 labels | Regressed >=2 labels
+---: | ---: | ---:
+20260521 | 15 | 11
+20260522 | 17 | 8
+20260523 | 10 | 8
+Total | 42 | 27
+
+## Limits of semantic error categories
+
+The artifacts support exact counts by target label, prediction direction,
+confusion matrix, and multi-label correction. They do not contain a manual
+category field for semantic claims such as surface-positive/intended-negative,
+target-directed ridicule, or lexical polarity mismatch. Such categories
+should not be assigned exact counts without a separate human annotation pass.
+
+No causal claim is made that rationale supervision or any other training choice
+caused the observed differences; this report only describes stored predictions
+and gold labels.
+
+## Source artifacts
+
+- reports/q1a_matched_xlmr_ft/q1a_matched_error_analysis.csv
+- reports/q1a_matched_xlmr_ft/aggregate_metrics.csv
+- reports/q1a_matched_xlmr_ft/seed_20260521/predictions_test.jsonl
+- reports/q1a_matched_xlmr_ft/seed_20260522/predictions_test.jsonl
+- reports/q1a_matched_xlmr_ft/seed_20260523/predictions_test.jsonl
+- reports/q1a_matched_xlmr_ft/proposed_source/
+- scripts/analyze_matched_xlmr_ft_q1a.py

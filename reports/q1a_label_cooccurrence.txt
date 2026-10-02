@@ -1,0 +1,104 @@
+## Material Passport
+
+Artifact ID: q1a-label-cooccurrence-2026-09-28
+Type: Read-only dataset calculation report
+Verification Status: ANALYZED
+Analysis date: 2026-09-28
+Scope: Co-occurrence of the six binary pragmatic labels in ViPragSent V8
+
+## Safety and data boundary
+
+- No model was downloaded, loaded, trained, or run.
+- The primary calculation uses the local frozen V8 full dataset and its frozen
+  test split. The raw V8 source and processed V8 files were checked for equal
+  row counts, split counts, sample-ID order, and six-label values.
+- The account-level Hugging Face dataset repo checked in this audit contains
+  only .gitattributes at its root; it is not a row-bearing source for this
+  calculation. The local V8 package is therefore the authoritative row source.
+- Recomputed from the current merged worktree on 2026-09-28; all counts,
+  percentages, and pair rankings matched this report, so no numeric update was
+  required.
+
+## Definition
+
+For each row, k is the number of positive labels among:
+
+implicit_sentiment, sarcasm, irony, idiom_figurative, code_switching, mocking
+
+P(k=0), P(k=1), and P(k>=2) use all rows in the stated scope as the
+denominator. Pair percentages are also pair count divided by all rows; they are
+not conditional probabilities given one label.
+
+## Label-count distribution
+
+Scope                 n       k=0 count/%             k=1 count/%             k>=2 count/%          mean k
+---------------------------------------------------------------------------------------------------------
+Full V8              11,997   7,460 / 62.1822%       2,452 / 20.4384%       2,085 / 17.3793%       0.684838
+Q1a test              2,000   1,158 / 57.9000%         525 / 26.2500%         317 / 15.8500%       0.685500
+
+Full V8 exact k counts:
+k=0: 7,460    k=1: 2,452    k=2: 1,065    k=3: 553
+k=4: 369      k=5: 89       k=6: 9
+
+Q1a test exact k counts:
+k=0: 1,158    k=1: 525      k=2: 156      k=3: 112
+k=4: 47       k=5: 2        k=6: 0
+
+## Six-label prevalence in full V8
+
+Label                         Positive count       Prevalence
+-------------------------------------------------------------
+Implicit sentiment                 2,517             20.9802%
+Sarcasm                              817              6.8100%
+Irony                                831              6.9267%
+Idiom/figurative                     844              7.0351%
+Code-switching                     1,809             15.0788%
+Mocking                             1,398             11.6529%
+
+## Top label pairs: full V8
+
+Pair                                      Count      % of all 11,997 rows
+-----------------------------------------------------------------------
+implicit_sentiment + mocking              1,178              9.8191%
+implicit_sentiment + sarcasm                 764              6.3683%
+implicit_sentiment + irony                   719              5.9932%
+sarcasm + mocking                            670              5.5847%
+implicit_sentiment + idiom_figurative        423              3.5259%
+irony + mocking                              412              3.4342%
+implicit_sentiment + code_switching          332              2.7674%
+sarcasm + irony                              326              2.7173%
+idiom_figurative + mocking                   243              2.0255%
+code_switching + mocking                     222              1.8505%
+
+## Top label pairs: Q1a test split
+
+Pair                                      Count      % of 2,000 test rows
+---------------------------------------------------------------------
+implicit_sentiment + mocking                178              8.9000%
+implicit_sentiment + sarcasm                126              6.3000%
+sarcasm + mocking                           118              5.9000%
+implicit_sentiment + irony                  107              5.3500%
+irony + mocking                              64              3.2000%
+sarcasm + irony                              36              1.8000%
+implicit_sentiment + idiom_figurative        35              1.7500%
+code_switching + mocking                     29              1.4500%
+implicit_sentiment + code_switching          28              1.4000%
+sarcasm + code_switching                     19              0.9500%
+
+## Interpretation
+
+- Across all V8 rows, 37.8178% have at least one pragmatic label and 17.3793%
+  have at least two.
+- The Q1a test split has fewer zero-label rows than full V8 (57.90% versus
+  62.18%) and more exactly-one-label rows (26.25% versus 20.44%).
+- Implicit sentiment + mocking is the most frequent pair in both scopes.
+
+## Source artifacts
+
+- data/manifests/dataset_manifest.json
+- data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/02_vipragsent/vipragsent_full.csv
+- data/processed/vipragsent/vipragsent_full.csv
+- data/processed/vipragsent/train.csv
+- data/processed/vipragsent/dev.csv
+- data/processed/vipragsent/test.csv
+- paper/sections/experiments.tex

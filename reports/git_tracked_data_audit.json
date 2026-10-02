@@ -28,7 +28,7 @@
       "classification": "manual_drop_documentation",
       "path": "data/external/manual_drop/aivivn_original/README.md",
       "recommendation": "keep local README; do not add raw files",
-      "sha256": "34A1A7CC5BB68BD6524C837304ECB96E3DF72B013BDAEEA24A6B7988EC258F79"
+      "sha256": "A58397BBBE52D2960445CB4ECD36549633228FCE12BC0357E655889A70B05C16"
     },
     {
       "classification": "manual_drop_documentation",
@@ -46,7 +46,7 @@
       "classification": "manual_drop_documentation",
       "path": "data/external/manual_drop/uit_vsfc/README.md",
       "recommendation": "keep local README; do not add raw files",
-      "sha256": "165BB1A2658BC6B444813C90836E0F1815EF7AB5C9249C97F981752DD9CE8599"
+      "sha256": "5130B78F556C3040F793BD34BC23B908C8AE0E2BEA01C7CB620A41F69AC5A860"
     },
     {
       "classification": "manual_drop_documentation",
@@ -76,7 +76,7 @@
       "classification": "manual_drop_documentation",
       "path": "data/external/manual_drop/uit_vsmec/README.md",
       "recommendation": "keep local README; do not add raw files",
-      "sha256": "C0C8F3944957706E3EEEEABE36F5ACEA821B54C89A6F16A40DC108C218AF13E6"
+      "sha256": "DEB0179B6FC6F883E783D38A30C9E0B43E2463F5B4FB6CFDD08AFDF1B2E0CF81"
     },
     {
       "classification": "manual_drop_documentation",
@@ -89,6 +89,12 @@
       "path": "data/input/.gitkeep",
       "recommendation": "retain under the existing project contract",
       "sha256": "EA46756D0083EAD1EFF2DDEAABD2BE519E59C736B384F1AD5C97CF39663B4CE7"
+    },
+    {
+      "classification": "frozen_manifest_or_project_data",
+      "path": "data/manifests/approved_generated_rationales_train.json",
+      "recommendation": "retain under the existing project contract",
+      "sha256": "8E3347B5AD28082B478FE2E0F800D01AE4DF12DC08B356AD74BBF331A5507C8B"
     },
     {
       "classification": "frozen_manifest_or_project_data",
@@ -194,6 +200,12 @@
     },
     {
       "classification": "frozen_manifest_or_project_data",
+      "path": "data/manifests/tokenization_cache_manifest.json",
+      "recommendation": "retain under the existing project contract",
+      "sha256": "45574B883588948A17FF122A83151B5BB5B43E46EDD96A8A8BF05E1B9AFB722C"
+    },
+    {
+      "classification": "frozen_manifest_or_project_data",
       "path": "data/model_cache/.gitkeep",
       "recommendation": "retain under the existing project contract",
       "sha256": "EA46756D0083EAD1EFF2DDEAABD2BE519E59C736B384F1AD5C97CF39663B4CE7"
@@ -202,7 +214,7 @@
       "classification": "frozen_manifest_or_project_data",
       "path": "data/model_cache_manifest.json",
       "recommendation": "retain under the existing project contract",
-      "sha256": "81EA1EB526386614BAED8A8823E3378C745B23884D6005F0F1B90C9FA4334AC7"
+      "sha256": "8707EAE0E08F55DBDA05BAC6CED614D549F8BF710336883666EF26F69F0F0817"
     },
     {
       "classification": "frozen_manifest_or_project_data",
@@ -232,7 +244,7 @@
       "classification": "frozen_manifest_or_project_data",
       "path": "data/model_smoke_report.json",
       "recommendation": "retain under the existing project contract",
-      "sha256": "8587ABB347DDAE9B9E353624A4D9E13AB14F67F12015B262D93562431B603308"
+      "sha256": "FC1CF2301E1D379D2DE4A14D2B90D4B2668392E7108C10414D5E87DA14AE0F85"
     },
     {
       "classification": "frozen_manifest_or_project_data",
@@ -338,6 +350,12 @@
     },
     {
       "classification": "processed_text_input_restricted_review",
+      "path": "data/processed/rationales/approved_generated_rationales_train.jsonl",
+      "recommendation": "review index tracking; do not remove automatically: git rm --cached data/processed/rationales/approved_generated_rationales_train.jsonl",
+      "sha256": "B583AC45F4BC2FDFA41DA44376AB99585075CA3EBB1FC47BC3936D84B89B21D1"
+    },
+    {
+      "classification": "processed_text_input_restricted_review",
       "path": "data/processed/rationales/azure_rationale_input_train.jsonl",
       "recommendation": "review index tracking; do not remove automatically: git rm --cached data/processed/rationales/azure_rationale_input_train.jsonl",
       "sha256": "FD35A3B5FC1242C79750B15C62DB29FCDA82E10D2F0CA6DFA7E7316A6C8DC915"
@@ -346,19 +364,19 @@
       "classification": "generated_or_fixture_cache",
       "path": "data/processed/tokenized_text/phobert_base/dev.jsonl",
       "recommendation": "git rm --cached data/processed/tokenized_text/phobert_base/dev.jsonl",
-      "sha256": "ABE7714E57BBBCFEFADCDDE77F359422ABC01057A1F52717C24BC73F7BB59378"
+      "sha256": "C6CD4D0ECB3C6648D3B0E31A90EA3B9BCA7F2A26E3B1B168B95C82E38458264D"
     },
     {
       "classification": "generated_or_fixture_cache",
       "path": "data/processed/tokenized_text/phobert_base/test.jsonl",
       "recommendation": "git rm --cached data/processed/tokenized_text/phobert_base/test.jsonl",
-      "sha256": "11B6AB75B75F1FE17B4D803669267595E3AE5414F9136CDA0D9B67907A50E22F"
+      "sha256": "98849066B473B78D0EF48368554FF62AEBE885929D5CE19DB597996E8E14536B"
     },
     {
       "classification": "generated_or_fixture_cache",
       "path": "data/processed/tokenized_text/phobert_base/train.jsonl",
       "recommendation": "git rm --cached data/processed/tokenized_text/phobert_base/train.jsonl",
-      "sha256": "C6DB89A66F02D580915BC489098418CEE2F2E42FAB1F39BA0BBEFD782EE4EBC6"
+      "sha256": "03EF6A4EF62C1165DEF5EA1938E964FBAB19A60E25CB46C16649A93C27F45353"
     },
     {
       "classification": "frozen_manifest_or_project_data",
@@ -668,5 +686,5 @@
   ],
   "history_rewrite_performed": false,
   "index_cleanup_performed": false,
-  "tracked_file_count": 110
+  "tracked_file_count": 113
 }

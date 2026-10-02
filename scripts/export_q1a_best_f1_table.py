@@ -143,19 +143,23 @@ def source_for(group: str, seed: str) -> dict:
 
     if group == "cot_only_vistral" and seed == "20260522":
         checkpoint_paths = [
-            "q1a_cot_only_vistral_20260522/cot_only_vistral/checkpoints/boundary_0001_epoch_0001_65C1D0BAAF1D/model.pt",
-            "q1a_cot_only_vistral_20260522/cot_only_vistral/checkpoints/boundary_0002_epoch_0002_F34A33BDDADB/model.pt",
-            "q1a_cot_only_vistral_20260522/cot_only_vistral/checkpoints/boundary_0003_epoch_0003_1D0A43F67758/model.pt",
+            f"{CAMPAIGN}/{SHARD}/{run_id}/checkpoints/epoch_0001/model.pt",
+            f"{CAMPAIGN}/{SHARD}/{run_id}/checkpoints/epoch_0002/model.pt",
         ]
         return {
             "source_id": run_id,
-            "repo": "Thundergod2007/vipragsent-vistral7b-checkpoints",
+            "repo": "Thundergod2007/vipragsent-experiment-artifacts-overflow-006",
+            "checkpoint_repo": "Thundergod2007/vipragsent-vistral7b-checkpoints",
             "metric_path": None,
             "prediction_path": None,
-            "training_checkpoint_status": "COMPLETE_3_EPOCHS",
+            "dev_metric_path": f"{CAMPAIGN}/{SHARD}/{run_id}/epochs/epoch_1/metrics/dev_reasoning_metrics.json",
+            "dev_prediction_path": f"{CAMPAIGN}/{SHARD}/{run_id}/epochs/epoch_1/predictions/dev_predictions.jsonl",
+            "dev_row_count": 1999,
+            "dev_metric_status": "PASS_DEV_ONLY",
+            "training_checkpoint_status": "REMOTE_CHECKPOINTS_PRESENT_EPOCH_0001_0002",
             "test_score_status": "MISSING_TEST_SCORE_ARTIFACT",
             "checkpoint_paths": checkpoint_paths,
-            "note": "Canonical epoch 1-3 checkpoints exist, but no test predictions or test_reasoning_metrics.json was found for this seed.",
+            "note": "Exact run directory exists in overflow-006 and the checkpoint repository; current HF evidence is dev/checkpoint-only. No test predictions or test metrics were found, and the dev all-zero-fallback value is not used.",
         }
 
     if group in GENERATION_REPOS:
@@ -398,7 +402,7 @@ def main() -> None:
             "Notes:",
             "",
             "- The COT row is specifically q1a_cot_only_vistral_clean_rerun_003; it is not the old generic COT baseline.",
-            "- COT seed 20260522 has canonical epoch 1-3 checkpoints, but no test prediction or test_reasoning_metrics.json artifact was found. Its training status is therefore complete, while its test score remains unavailable and is not imputed.",
+            "- COT seed 20260522 exists on the current Hugging Face trees with development/checkpoint evidence, but no test prediction or test metric artifact was found. Its dev all-zero-fallback value is excluded, and its test score remains unavailable and is not imputed.",
             "- Full ViPragSent uses the complete persisted test gold/probability arrays plus the frozen per-seed thresholds. The reconstructed six-column predictions reproduce the persisted test metrics; the remote prediction JSONL contains partial record shards.",
             "- Azure F1 is computed from the valid 2,000-row prediction JSONL because the persisted metrics.json files have empty test objects.",
             "- Re-audit 2026-09-06: every complete Q1a source was rehashed and recomputed from its authoritative prediction/raw-metric source; no baseline score mismatch was found.",

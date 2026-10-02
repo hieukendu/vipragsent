@@ -3,60 +3,60 @@
   "FINAL_AGGREGATION_READY": false,
   "PHASE15_READY": true,
   "REAL_EXPERIMENT_READY": false,
-  "SETUP_CODE_READY": true,
-  "approved_run_count": 0,
-  "azure_request_made": true,
+  "SETUP_CODE_READY": false,
+  "approved_run_count": 18,
+  "azure_request_made": false,
   "blockers": [],
   "evidence": {
     "commands": [
       {
-        "command": "/root/vipragsent/.venv/bin/python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
+        "command": "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
-        "stdout_tail": "\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\",\n        \"fixture_validation_manifest\": \"/root/vipragsent/runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"4DDF815DB7C07E597756DE2A48D34B96779E6FCA26FD097CCED86A9998659A2C\",\n        \"fixture_validation_manifest\": \"/root/vipragsent/runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
+        "stdout_tail": "\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"qualitative_candidate_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"cost_latency\": {\n      \"node_id\": \"cost_latency\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"cost_latency\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"statistics\": {\n      \"node_id\": \"statistics\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"statistics\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"paper_artifact_schema_validation\": {\n      \"node_id\": \"paper_artifact_schema_validation\",\n      \"status\": \"PASS\",\n      \"artifacts\": [],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"paper_artifact_schema_validation\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"artifact_export\": {\n      \"node_id\": \"artifact_export\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"artifact_export\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    },\n    \"final_manifest\": {\n      \"node_id\": \"final_manifest\",\n      \"status\": \"PASS\",\n      \"artifacts\": [\n        {\n          \"path\": \"runs/fixture/FIXTURE_VALIDATION_MANIFEST.json\",\n          \"sha256\": \"BF4CBE5CA73E896F689573941412F81B66F6E40F639DC66900DC0098F27D71F1\"\n        }\n      ],\n      \"hashes\": {},\n      \"summary\": {\n        \"node_id\": \"final_manifest\",\n        \"mode\": \"fixture\",\n        \"synthetic_results\": true,\n        \"context_hash\": \"0D2F9C3B8515F881A6AE1D13C944AFCFCA0329FA52469A2365BAA4720B73657D\",\n        \"fixture_validation_manifest\": \"D:\\\\vipragsent\\\\runs\\\\fixture\\\\FIXTURE_VALIDATION_MANIFEST.json\"\n      },\n      \"error\": null,\n      \"retryable\": false\n    }\n  },\n  \"status\": \"PASS\",\n  \"protocol_conflict\": false,\n  \"exit_code\": 0\n}\n"
       },
       {
-        "command": "/root/vipragsent/.venv/bin/python -m compileall -q src scripts tests",
+        "command": "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -m compileall -q src scripts tests",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
         "stdout_tail": ""
       },
       {
-        "command": "/root/vipragsent/.venv/bin/ruff check .",
+        "command": "ruff check src scripts tests",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
         "stdout_tail": "All checks passed!\n"
       },
       {
-        "command": "/root/vipragsent/.venv/bin/python -m pytest -q -m not server and not gpu and not azure_live and not model_download",
-        "returncode": 0,
-        "status": "PASS",
+        "command": "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe -m pytest -q -m not server and not gpu and not azure_live and not model_download",
+        "returncode": 1,
+        "status": "FAIL",
         "stderr_tail": "",
-        "stdout_tail": "........................................................................ [ 33%]\n........................................................................ [ 67%]\n.....................................................................    [100%]\n"
+        "stdout_tail": "n\": \"tokenizer\"},\n            snapshot,\n            root=tmp_path,\n        )\n        assert record[\"local_path\"] == \"data/model_cache/phobert_base\"\n        write_family_status(tmp_path, \"phobert_base\", \"cache\", record)\n        stored = read_family_status(tmp_path, \"phobert_base\", \"cache\")\n        assert stored[\"local_path\"] == \"data/model_cache/phobert_base\"\n        assert resolve_local_snapshot(tmp_path, stored[\"local_path\"]) == snapshot\n>       assert resolve_local_snapshot(tmp_path, \"/old/checkout/data/model_cache/phobert_base\") == snapshot\nE       AssertionError: assert WindowsPath('C:/old/checkout/data/model_cache/phobert_base') == WindowsPath('C:/Users/ADM/AppData/Local/Temp/pytest-of-ADM/pytest-1264/test_cache_status_paths_are_po0/data/model_cache/phobert_base')\nE        +  where WindowsPath('C:/old/checkout/data/model_cache/phobert_base') = resolve_local_snapshot(WindowsPath('C:/Users/ADM/AppData/Local/Temp/pytest-of-ADM/pytest-1264/test_cache_status_paths_are_po0'), '/old/checkout/data/model_cache/phobert_base')\n\ntests\\test_runtime_repairs.py:158: AssertionError\n============================== warnings summary ===============================\ntests/test_luna_max_08_red_team.py::test_red_team_generation_final_test_requires_frozen_checkpoint_and_reloads_best\n  D:\\vipragsent\\tests\\test_luna_max_08_red_team.py:292: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.\n  Consider using tensor.detach() first. (Triggered internally at C:\\actions-runner\\_work\\pytorch\\pytorch\\torch\\csrc\\autograd\\generated\\python_variable_methods.cpp:839.)\n    monkeypatch.setattr(executor, \"generate_reasoning_split\", lambda split, _records: epochs_seen.append(float(model.weight)) or [{\"sample_id\": split, \"generation_status\": \"PASS\", \"generated_reasoning\": \"reason\", \"truncated\": False}])\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n=========================== short test summary info ===========================\nFAILED tests/test_generation_checkpoint_pointers.py::test_pointer_preserves_canonical_name_for_migrated_symlink\nFAILED tests/test_generation_wave2.py::test_training_epoch_generation_binds_to_persisted_checkpoint_without_live_hash\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_contradictory_report_azure_exclusion\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_binding_drift\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_q3_alias_drift\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_q3_budget_seed_and_cell_drift\nFAILED tests/test_naacl_balanced_profile.py::test_validator_fails_closed_when_xlmr_exclusion_is_removed\nFAILED tests/test_naacl_balanced_profile.py::test_validator_rejects_invented_azure_seed_axis\nFAILED tests/test_runtime_repairs.py::test_audits_use_the_active_python_interpreter\nFAILED tests/test_runtime_repairs.py::test_cache_status_paths_are_portable_and_resolvable\n"
       },
       {
-        "command": "/root/vipragsent/.venv/bin/python scripts/validate_schemas.py",
+        "command": "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts/validate_schemas.py",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
         "stdout_tail": "schema validation passed\n"
       },
       {
-        "command": "/root/vipragsent/.venv/bin/python scripts/generate_sequential_prompts.py",
+        "command": "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts/generate_sequential_prompts.py",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
         "stdout_tail": "{\n  \"experiment_count\": 162,\n  \"azure_job_count\": 11,\n  \"phase15_model_count\": 4,\n  \"aggregation_count\": 5,\n  \"prompt_count\": 183,\n  \"inventory_hash\": \"3F48AD895E8173ED6D9D38044EAFAF9C69FA94B0515FE2F5F0BA40F435DFB5C8\"\n}\n"
       },
       {
-        "command": "/root/vipragsent/.venv/bin/python scripts/validate_sequential_prompts.py",
+        "command": "C:\\Users\\ADM\\AppData\\Local\\Programs\\Python\\Python312\\python.exe scripts/validate_sequential_prompts.py",
         "returncode": 0,
         "status": "PASS",
         "stderr_tail": "",
-        "stdout_tail": "\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"freeze_selection\",\n          \"generate_test_reasoning\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"generation\",\n        \"executor_kind\": \"generation_trainable\",\n        \"evaluation_strategy\": \"reasoning_generation_shared_judge\",\n        \"research_question\": null\n      },\n      \"explanation_only_vistral_reuse\": {\n        \"plan_id\": \"explanation_only_vistral_reuse\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_full_vistral_source\",\n          \"validate_source_checkpoint\",\n          \"generate_dev_reasoning_from_rationale_decoder\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"generate_test_reasoning_from_rationale_decoder\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      }\n    },\n    \"registry_hash\": \"FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F\"\n  }\n}\n"
+        "stdout_tail": "l_reuse\": {\n        \"plan_id\": \"explanation_only_vistral_reuse\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_full_vistral_source\",\n          \"validate_source_checkpoint\",\n          \"generate_dev_reasoning_from_rationale_decoder\",\n          \"judge_dev_reasoning\",\n          \"compute_dev_reasoning_metrics\",\n          \"generate_test_reasoning_from_rationale_decoder\",\n          \"judge_test_reasoning\",\n          \"compute_test_reasoning_metrics\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"checkpoint_reuse\",\n        \"executor_kind\": \"rationale_checkpoint_reuse\",\n        \"evaluation_strategy\": \"rationale_only_shared_judge\",\n        \"research_question\": null\n      },\n      \"q1b_evaluation_only\": {\n        \"plan_id\": \"q1b_evaluation_only\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"evaluate_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"evaluation_only\",\n        \"executor_kind\": \"evaluation_only\",\n        \"evaluation_strategy\": \"q1b_external_retention\",\n        \"research_question\": \"Q1b\"\n      },\n      \"q4_source_extraction\": {\n        \"plan_id\": \"q4_source_extraction\",\n        \"stages\": [\n          \"preflight\",\n          \"resolve_approved_source\",\n          \"validate_source_predictions\",\n          \"extract_pragmatic_calibration\",\n          \"extract_learning_history\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"artifact_extraction\",\n        \"executor_kind\": \"artifact_extraction\",\n        \"evaluation_strategy\": null,\n        \"research_question\": \"Q4\"\n      },\n      \"trainable_classifier\": {\n        \"plan_id\": \"trainable_classifier\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_test\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": null,\n        \"research_question\": null\n      },\n      \"xlmr_q1b_train_and_external\": {\n        \"plan_id\": \"xlmr_q1b_train_and_external\",\n        \"stages\": [\n          \"preflight\",\n          \"train\",\n          \"evaluate_dev\",\n          \"freeze_selection\",\n          \"evaluate_xlmr_external_tests\",\n          \"export_artifacts\",\n          \"validate_artifacts\",\n          \"generate_review_summary\"\n        ],\n        \"execution_kind\": \"trainable\",\n        \"executor_kind\": \"single_model_trainable\",\n        \"evaluation_strategy\": \"xlmr_followup_q1b_train_and_external\",\n        \"research_question\": \"Q1b\"\n      }\n    },\n    \"registry_hash\": \"A34EF38CA3559B9D82FDDE314C18ADF6F02253A171DA807777CC56EED322692F\"\n  }\n}\n"
       }
     ],
     "hygiene": {
@@ -74,6 +74,7 @@
         "data/external/manual_drop/uit_vsmec/test_nor_811.xlsx",
         "data/input/.gitkeep",
         "data/manifests/approved_generated_rationales_train.json",
+        "data/manifests/tokenization_cache_manifest.json",
         "data/model_cache_manifest.json",
         "data/model_cache_status/phobert_base.json",
         "data/model_cache_status/sailor_7b.json",
@@ -87,6 +88,9 @@
         "data/processed/external/uit_vsfc/test.csv",
         "data/processed/external/uit_vsmec/test.csv",
         "data/processed/rationales/approved_generated_rationales_train.jsonl",
+        "data/processed/tokenized_text/phobert_base/dev.jsonl",
+        "data/processed/tokenized_text/phobert_base/test.jsonl",
+        "data/processed/tokenized_text/phobert_base/train.jsonl",
         "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/00_private_source_archive/01_annotator_1_RAW.xlsx",
         "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/00_private_source_archive/02_annotator_2_RAW.xlsx",
         "data/raw/vipragsent_package/ViPragSent_Experiment_Dataset_FINAL_V8/00_private_source_archive/03_gold_adjudicated_RAW.xlsx",
@@ -191,23 +195,23 @@
       "gradient_accumulation_steps": 8,
       "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
       "hashes": {
-        "batch_probe_hash": "B20AC2A75428AB658AAFD2BB4FFC15A6D502BECB551249EB2B144D4306408D7F",
-        "cache_manifest_hash": "B5FD8414BEA7F873C3FBA5E2EE7D83F802133BC3CE8D7E8821293AA2DFBB288E",
+        "batch_probe_hash": "5D5437A57B3879477004D0876262573A525D013E629C2530F232A1F27B6AF667",
+        "cache_manifest_hash": "40E475581B1F46DF24388182361D6BBEAC5BA1A554E536164781B864FA82D888",
         "smoke_verification_hash": "0604687A17BA0460D2B7A6E9B0AAFF559E7D883728B71544D23427B197D137DF"
       },
-      "local_snapshot": "data/model_cache/sailor_7b",
-      "model_family": "sailor_7b",
-      "model_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+      "local_snapshot": "data\\model_cache\\vistral_7b",
+      "model_family": "vistral_7b",
+      "model_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
       "physical_batch": 2,
-      "repo_id": "sail/Sailor-7B",
+      "repo_id": "Viet-Mistral/Vistral-7B-Chat",
       "status_artifacts": {
-        "batch_status": "data/batch_probe_status/sailor_7b.json",
+        "batch_status": "data/batch_probe_status/vistral_7b.json",
         "cache_manifest": "data/model_cache_manifest.json",
-        "cache_status": "data/model_cache_status/sailor_7b.json",
+        "cache_status": "data/model_cache_status/vistral_7b.json",
         "smoke_report": "data/model_smoke_report.json",
-        "smoke_status": "data/model_smoke_status/sailor_7b.json"
+        "smoke_status": "data/model_smoke_status/vistral_7b.json"
       },
-      "tokenizer_revision": "b8b49a0f02073e58db2e42e5811955dfe87ca970",
+      "tokenizer_revision": "d331b64e61b935cc43c2b3010ae9fb4fde599b45",
       "validation": {
         "cache": true,
         "physical_batch": true,
@@ -218,7 +222,7 @@
     "status": "PASS",
     "tests_passed": true
   },
-  "real_experiment_ran": false,
-  "status": "PASS",
+  "real_experiment_ran": true,
+  "status": "FAIL",
   "weights_downloaded": true
 }

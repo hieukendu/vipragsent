@@ -24,7 +24,9 @@ jobs:
       - name: Compile
         run: python -m compileall -q src scripts tests
       - name: Ruff
-        run: ruff check .
+        # The paper directory contains artifact-audit scripts with their own
+        # production workflow; the project Ruff scope is runtime code/tests.
+        run: ruff check src scripts tests
       - name: Generate synthetic fixture DAG
         run: python scripts/run_all_experiments.py --config configs/master_run.yaml --mode fixture
       - name: CPU tests

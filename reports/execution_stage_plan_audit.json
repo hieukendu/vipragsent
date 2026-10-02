@@ -1,6 +1,6 @@
 {
   "errors": [],
-  "plan_count": 8,
+  "plan_count": 9,
   "plans": {
     "azure": {
       "evaluation_strategy": null,
@@ -140,9 +140,26 @@
         "validate_artifacts",
         "generate_review_summary"
       ]
+    },
+    "xlmr_q1b_train_and_external": {
+      "evaluation_strategy": "xlmr_followup_q1b_train_and_external",
+      "execution_kind": "trainable",
+      "executor_kind": "single_model_trainable",
+      "plan_id": "xlmr_q1b_train_and_external",
+      "research_question": "Q1b",
+      "stages": [
+        "preflight",
+        "train",
+        "evaluate_dev",
+        "freeze_selection",
+        "evaluate_xlmr_external_tests",
+        "export_artifacts",
+        "validate_artifacts",
+        "generate_review_summary"
+      ]
     }
   },
-  "registry_hash": "FF5A0B6FECCA49EF05BC88FDEF0B589194416EB9A9F190F5EA11AC79E30F0C0F",
-  "registry_sha256": "93C97500AC34C14E109D9F48D3B6D21CC28FAD454B4C44C3529A14FB2AC3ED41",
+  "registry_hash": "A34EF38CA3559B9D82FDDE314C18ADF6F02253A171DA807777CC56EED322692F",
+  "registry_sha256": "D8B350C2D7938CE14A611BF1115671C5B8B240076AE5FE510DB19FCA16044AB8",
   "status": "PASS"
 }

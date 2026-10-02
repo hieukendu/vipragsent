@@ -1,0 +1,7 @@
+\section{Related Work}
+
+\subsection{Vietnamese and multilingual encoders}
+XLM-R scales masked-language pretraining across languages \citep{conneau-etal-2020-unsupervised}; PhoBERT provides a Vietnamese-specific counterpart \citep{nguyen-tuan-nguyen-2020-phobert}; and ViSoBERT targets Vietnamese social-media language \citep{nguyen-etal-2023-visobert}. Our primary system uses XLM-R-large, allowing the evaluation to focus on the pragmatic multi-task formulation.
+
+\subsection{Pragmatic and auxiliary supervision}
+Vietnamese polarity and emotion resources motivate the auxiliary label spaces \citep{vannguyen2018uitvsfc,ho2019emotion}. Multi-task learning shares a representation among related objectives \citep{caruana1997multitask}, and uncertainty weighting offers a way to balance their loss scales \citep{kendall2018multitask}. Rationale supervision has likewise been used as a separate training signal \citep{lei-etal-2016-rationalizing,hsieh-etal-2023-distilling}. Representative prior work studies individual pragmatic phenomena, such as conversational sarcasm analysis \citep{ghosh-etal-2018-sarcasm} or verbal irony \citep{burgers-etal-2011}. Our setting instead evaluates a joint multi-label formulation in which six pragmatic phenomena may co-occur in Vietnamese social-media text, while polarity and emotion remain auxiliary affective tasks. Expected calibration error is a standard neural-network calibration measure \citep{guo2017calibration}; Q4 applies it without temperature scaling.

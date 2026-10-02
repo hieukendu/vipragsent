@@ -1,1 +1,12 @@
-{}
+{
+  "tests/test_generation_checkpoint_pointers.py::test_pointer_preserves_canonical_name_for_migrated_symlink": true,
+  "tests/test_generation_wave2.py::test_training_epoch_generation_binds_to_persisted_checkpoint_without_live_hash": true,
+  "tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_contradictory_report_azure_exclusion": true,
+  "tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_binding_drift": true,
+  "tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_q3_alias_drift": true,
+  "tests/test_naacl_balanced_profile.py::test_validator_fails_closed_on_q3_budget_seed_and_cell_drift": true,
+  "tests/test_naacl_balanced_profile.py::test_validator_fails_closed_when_xlmr_exclusion_is_removed": true,
+  "tests/test_naacl_balanced_profile.py::test_validator_rejects_invented_azure_seed_axis": true,
+  "tests/test_runtime_repairs.py::test_audits_use_the_active_python_interpreter": true,
+  "tests/test_runtime_repairs.py::test_cache_status_paths_are_portable_and_resolvable": true
+}
