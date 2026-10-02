@@ -1,0 +1,69 @@
+{
+  "analysis_id": "priority3_positive_class_20261002",
+  "artifacts": {
+    "aggregate_metrics": "/root/vipragsent/reports/priority3_positive_class/aggregate_metrics.csv",
+    "paired_confidence_intervals": "/root/vipragsent/reports/priority3_positive_class/paired_confidence_intervals.csv",
+    "paired_confidence_intervals_json": "/root/vipragsent/reports/priority3_positive_class/paired_confidence_intervals.json",
+    "per_seed_metrics": "/root/vipragsent/reports/priority3_positive_class/per_seed_metrics.csv",
+    "seed_validation": "/root/vipragsent/reports/priority3_positive_class/seed_validation.json",
+    "summary": "/root/vipragsent/reports/priority3_positive_class/summary.md"
+  },
+  "bootstrap": {
+    "confidence_level": 0.95,
+    "method": "paired_hierarchical_bootstrap_sign_plus_one_v1",
+    "resamples": 10000,
+    "scale": "percentage_points_for_deltas_and_intervals",
+    "seed": 20260525
+  },
+  "code_commit": "ba8f36961e86fd140f5c2f9160948a984b391545",
+  "confusion_fields": [
+    "tp",
+    "fp",
+    "fn",
+    "tn"
+  ],
+  "labels": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking"
+  ],
+  "metrics": [
+    "positive_precision",
+    "positive_recall",
+    "positive_f1"
+  ],
+  "models": [
+    "proposed_multitask",
+    "baseline_pragmatic_only"
+  ],
+  "priority": 3,
+  "report_hashes": {
+    "aggregate_metrics": "05F22F7A44098E4CDEFABD167792B7D49E031CE7F2B94D289047F3AFAA8081F7",
+    "paired_confidence_intervals": "D7AA6600E7B4FFA304B3153E63A550AA537F96449BC6E656EBCD90169AFDBA91",
+    "paired_confidence_intervals_json": "6145758B7F7343CB3C74FC56441E5CD3B1DEF3977CEBF45482970490805B4646",
+    "per_seed_metrics": "9E8EF976A05B44CBFB36EDAD1B30F1DB2286FA66317235DEC56741A33A4A4B20",
+    "seed_validation": "4BA0DCE3722F073DC7485927E626EA175D822A4A4B249F5649BF7788F73506A4",
+    "summary": "1E4663B3BAA3A6C811AC03B10363D591691D34673EA1CA2956457BF1F4D14EE8"
+  },
+  "scientific_policy": {
+    "keep_all_scientifically_valid_seeds": true,
+    "retrained": false,
+    "seed_selection_by_expected_outcome": false,
+    "test_threshold_selection": false,
+    "thresholds_selected_on": "dev"
+  },
+  "scope": "positive-class performance analysis on frozen predictions",
+  "seeds": [
+    20260521,
+    20260522,
+    20260523
+  ],
+  "source_manifest": "/root/vipragsent/reports/priority3_positive_class/source_manifest.json",
+  "source_manifest_sha256": "050482CA114C4E1B96DA72B33C5CBF09CE05636496BCC146EC3F9F1BA042A2C5",
+  "split": "test",
+  "status": "PASS",
+  "test_count_per_seed": 2000
+}

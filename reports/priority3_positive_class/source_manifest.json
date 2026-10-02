@@ -1,0 +1,301 @@
+{
+  "models": {
+    "baseline_pragmatic_only": {
+      "description": "XLM-R-large pragmatic-only matched frozen predictions",
+      "runs": {
+        "20260521": {
+          "prediction_files": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260521/predictions_dev.jsonl",
+              "sha256": "1DE68A6011B312B7D975F412457A6387004FDCFD9046A4C81A915F65EDEE5E1B"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260521/predictions_test.jsonl",
+              "sha256": "EE236A660051E34A518158565D12B25DC78962CAEC07DACFC8C584D8C6E06FC9"
+            }
+          },
+          "run_root": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260521",
+          "threshold_path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260521/thresholds.json",
+          "threshold_sha256": "7BEB7FF4164BFF779B9D7FC358B4CB6E711E8296430CAC5373F9F5BC7BED8C85",
+          "threshold_source_split": "dev",
+          "thresholds": {
+            "code_switching": 0.88,
+            "idiom_figurative": 0.95,
+            "implicit_sentiment": 0.9,
+            "irony": 0.9,
+            "mocking": 0.94,
+            "sarcasm": 0.95
+          },
+          "validation": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260521/predictions_dev.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "0ABFD58E507C1284896A1D42B57E54D1B339D8B90E2E6F40A0F73AAD306E675D",
+              "sample_ids_unique": true,
+              "sha256": "1DE68A6011B312B7D975F412457A6387004FDCFD9046A4C81A915F65EDEE5E1B"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260521/predictions_test.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "864135359FEFF8028914A9E9EB8EF98B192CCCC637E45600BAD86A14B20DA5E8",
+              "sample_ids_unique": true,
+              "sha256": "EE236A660051E34A518158565D12B25DC78962CAEC07DACFC8C584D8C6E06FC9"
+            }
+          }
+        },
+        "20260522": {
+          "prediction_files": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260522/predictions_dev.jsonl",
+              "sha256": "51C228AC03ABA0475510409CED004E77521C55A8B0664D1D5717078A4C5E9A3F"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260522/predictions_test.jsonl",
+              "sha256": "C00AD6275F97D43DC858126CBE8FA144976F118E43A44D926E28A4F02D125214"
+            }
+          },
+          "run_root": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260522",
+          "threshold_path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260522/thresholds.json",
+          "threshold_sha256": "E85B7F9610D0D8E6221B971E3F9F309AD1256D230E25F2940C4241CC086F271A",
+          "threshold_source_split": "dev",
+          "thresholds": {
+            "code_switching": 0.95,
+            "idiom_figurative": 0.85,
+            "implicit_sentiment": 0.89,
+            "irony": 0.73,
+            "mocking": 0.89,
+            "sarcasm": 0.95
+          },
+          "validation": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260522/predictions_dev.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "0ABFD58E507C1284896A1D42B57E54D1B339D8B90E2E6F40A0F73AAD306E675D",
+              "sample_ids_unique": true,
+              "sha256": "51C228AC03ABA0475510409CED004E77521C55A8B0664D1D5717078A4C5E9A3F"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260522/predictions_test.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "864135359FEFF8028914A9E9EB8EF98B192CCCC637E45600BAD86A14B20DA5E8",
+              "sample_ids_unique": true,
+              "sha256": "C00AD6275F97D43DC858126CBE8FA144976F118E43A44D926E28A4F02D125214"
+            }
+          }
+        },
+        "20260523": {
+          "prediction_files": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260523/predictions_dev.jsonl",
+              "sha256": "D414F38BF91490458624F7D0FE9667B8086FC472DA106D636E5003D297CAADAA"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260523/predictions_test.jsonl",
+              "sha256": "C8E81FBA8CF4E2A3981802209B5DE6CEF76009343F59F3F93D3B26DB3EF5D508"
+            }
+          },
+          "run_root": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260523",
+          "threshold_path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260523/thresholds.json",
+          "threshold_sha256": "2075D2BC7B4BCA04E4FCB588C854F87DC5B2FB1FD6553D1A48CF54BDA01D37B5",
+          "threshold_source_split": "dev",
+          "thresholds": {
+            "code_switching": 0.9,
+            "idiom_figurative": 0.86,
+            "implicit_sentiment": 0.94,
+            "irony": 0.95,
+            "mocking": 0.78,
+            "sarcasm": 0.95
+          },
+          "validation": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260523/predictions_dev.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "0ABFD58E507C1284896A1D42B57E54D1B339D8B90E2E6F40A0F73AAD306E675D",
+              "sample_ids_unique": true,
+              "sha256": "D414F38BF91490458624F7D0FE9667B8086FC472DA106D636E5003D297CAADAA"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/seed_20260523/predictions_test.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "864135359FEFF8028914A9E9EB8EF98B192CCCC637E45600BAD86A14B20DA5E8",
+              "sample_ids_unique": true,
+              "sha256": "C8E81FBA8CF4E2A3981802209B5DE6CEF76009343F59F3F93D3B26DB3EF5D508"
+            }
+          }
+        }
+      }
+    },
+    "proposed_multitask": {
+      "description": "XLM-R-large multi-task Q1a frozen predictions",
+      "runs": {
+        "20260521": {
+          "prediction_files": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521/predictions/dev_predictions.jsonl",
+              "sha256": "01DB9078B27897E3AE9F8C780C65B256A09742486C14B476FD32D627C3B0A606"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521/predictions/test_predictions.jsonl",
+              "sha256": "8DEC2920F20E49415CE8004207E72AF993ACC27E828B607E6CF4D15B3FAE784E"
+            }
+          },
+          "run_root": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+          "threshold_path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521/selection/thresholds.json",
+          "threshold_sha256": "F873972AC9BB8C66695879229F6018031CFCA623B7FD2BD2AA84299A92A9666D",
+          "threshold_source_split": "dev",
+          "thresholds": {
+            "code_switching": 0.95,
+            "idiom_figurative": 0.88,
+            "implicit_sentiment": 0.85,
+            "irony": 0.93,
+            "mocking": 0.93,
+            "sarcasm": 0.94
+          },
+          "validation": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521/predictions/dev_predictions.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "0ABFD58E507C1284896A1D42B57E54D1B339D8B90E2E6F40A0F73AAD306E675D",
+              "sample_ids_unique": true,
+              "sha256": "01DB9078B27897E3AE9F8C780C65B256A09742486C14B476FD32D627C3B0A606"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521/predictions/test_predictions.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "864135359FEFF8028914A9E9EB8EF98B192CCCC637E45600BAD86A14B20DA5E8",
+              "sample_ids_unique": true,
+              "sha256": "8DEC2920F20E49415CE8004207E72AF993ACC27E828B607E6CF4D15B3FAE784E"
+            }
+          }
+        },
+        "20260522": {
+          "prediction_files": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522/predictions/dev_predictions.jsonl",
+              "sha256": "2C10ECF02AF728AE0142716A945FBA5A2E7E840B9024F30F73D73C63BE3CDAA8"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522/predictions/test_predictions.jsonl",
+              "sha256": "D379C33C07CFAC1ACCAD93724CEF7628EDA32DC2708602F0A9871B51BBD4FFE4"
+            }
+          },
+          "run_root": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522",
+          "threshold_path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522/selection/thresholds.json",
+          "threshold_sha256": "6FDC83E8D1F71F64C8AFDCBE035F3425EDCC5E327D64B3628CAB380DFAB65B9F",
+          "threshold_source_split": "dev",
+          "thresholds": {
+            "code_switching": 0.95,
+            "idiom_figurative": 0.95,
+            "implicit_sentiment": 0.87,
+            "irony": 0.94,
+            "mocking": 0.93,
+            "sarcasm": 0.94
+          },
+          "validation": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522/predictions/dev_predictions.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "0ABFD58E507C1284896A1D42B57E54D1B339D8B90E2E6F40A0F73AAD306E675D",
+              "sample_ids_unique": true,
+              "sha256": "2C10ECF02AF728AE0142716A945FBA5A2E7E840B9024F30F73D73C63BE3CDAA8"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522/predictions/test_predictions.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "864135359FEFF8028914A9E9EB8EF98B192CCCC637E45600BAD86A14B20DA5E8",
+              "sample_ids_unique": true,
+              "sha256": "D379C33C07CFAC1ACCAD93724CEF7628EDA32DC2708602F0A9871B51BBD4FFE4"
+            }
+          }
+        },
+        "20260523": {
+          "prediction_files": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523/predictions/dev_predictions.jsonl",
+              "sha256": "B4EB177EC1171CBEF031A571714891CFCDB1D076443B007EFD4E89B3E33AF10C"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523/predictions/test_predictions.jsonl",
+              "sha256": "58B26D7B2593CC7F1FBB820ABD2BF49784BE103B9C452092F1BE057A7B84C639"
+            }
+          },
+          "run_root": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523",
+          "threshold_path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523/selection/thresholds.json",
+          "threshold_sha256": "DDD6D0921692B63BC3E8F65A006CEE2667E8709BC15F0F0531B52B29A830AD64",
+          "threshold_source_split": "dev",
+          "thresholds": {
+            "code_switching": 0.95,
+            "idiom_figurative": 0.93,
+            "implicit_sentiment": 0.84,
+            "irony": 0.89,
+            "mocking": 0.82,
+            "sarcasm": 0.95
+          },
+          "validation": {
+            "dev": {
+              "count": 1999,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523/predictions/dev_predictions.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "0ABFD58E507C1284896A1D42B57E54D1B339D8B90E2E6F40A0F73AAD306E675D",
+              "sample_ids_unique": true,
+              "sha256": "B4EB177EC1171CBEF031A571714891CFCDB1D076443B007EFD4E89B3E33AF10C"
+            },
+            "test": {
+              "count": 2000,
+              "path": "/root/vipragsent/reports/q1a_matched_xlmr_ft/proposed_source/campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523/predictions/test_predictions.jsonl",
+              "predictions_match_frozen_thresholds": true,
+              "probabilities_finite_and_bounded": true,
+              "sample_id_sha256": "864135359FEFF8028914A9E9EB8EF98B192CCCC637E45600BAD86A14B20DA5E8",
+              "sample_ids_unique": true,
+              "sha256": "58B26D7B2593CC7F1FBB820ABD2BF49784BE103B9C452092F1BE057A7B84C639"
+            }
+          }
+        }
+      }
+    }
+  },
+  "pairing": {
+    "dev_count": 1999,
+    "same_test_ids_and_gold_across_models": true,
+    "same_test_ids_and_gold_across_seeds": true,
+    "test_count": 2000
+  },
+  "seeds": [
+    20260521,
+    20260522,
+    20260523
+  ]
+}
