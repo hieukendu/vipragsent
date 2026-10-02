@@ -189,7 +189,13 @@ def _allocate_artifact_repository(api: HfApi, run_state: dict[str, Any], run_id:
     assignment = assignments.get(run_id)
     # A prior uploader process may have recorded the Hub file-cap error before
     # this resumable state gained an explicit unusable-repository marker.
-    if assignment and any(_is_file_cap_error(item.get("error", "")) for item in run_state.get("errors", [])):
+    assignment_is_unusable = assignment and str(assignment) in {
+        str(item) for item in run_state.get("unusable_artifact_repositories", [])
+    }
+    if assignment and (
+        assignment_is_unusable
+        or any(_is_file_cap_error(item.get("error", "")) for item in run_state.get("errors", []))
+    ):
         unusable.add(str(assignment))
         run_state["unusable_artifact_repositories"] = sorted(unusable)
     if assignment and str(assignment) not in unusable:
@@ -426,11 +432,26 @@ def _process_run(api: HfApi, item: dict[str, Any], state: dict[str, Any], reposi
         return {"status": "WAITING", "run_id": run_id, "reason": "local run directory does not exist yet"}
     run_state = state.setdefault("runs", {}).setdefault(run_id, {"uploaded": {}, "observed": {}, "errors": []})
     cooldown_until = float(state.get("hub_cooldown_until", 0.0) or 0.0)
+    # A repository file-cap rejection is a capacity/routing problem, not a
+    # Hub rate-limit condition.  Reallocate this run immediately so a single
+    # full overflow repository cannot hold the whole campaign for an hour.
+    cooldown_error = str(run_state.get("hub_rate_limit", {}).get("error", ""))
+    file_cap_reallocation = bool(run_state.get("unusable_artifact_repositories")) and _is_file_cap_error(cooldown_error)
+    if file_cap_reallocation:
+        state.pop("hub_cooldown_until", None)
+        run_state.pop("hub_rate_limit", None)
+        cooldown_until = 0.0
     assignment = state.setdefault("artifact_repositories", {}).get(run_id)
-    if assignment and any(_is_file_cap_error(item.get("error", "")) for item in run_state.get("errors", [])):
+    if assignment and (
+        str(assignment) in {str(item) for item in run_state.get("unusable_artifact_repositories", [])}
+        or any(_is_file_cap_error(item.get("error", "")) for item in run_state.get("errors", []))
+    ):
         unusable = run_state.setdefault("unusable_artifact_repositories", [])
         if str(assignment) not in {str(item) for item in unusable}:
             unusable.append(str(assignment))
+        global_unusable = state.setdefault("unusable_artifact_repositories", [])
+        if str(assignment) not in {str(item) for item in global_unusable}:
+            global_unusable.append(str(assignment))
         # Reallocation is local state only; defer the Hub call until the
         # global cooldown expires so the uploader does not amplify 429s.
         state["artifact_repositories"].pop(run_id, None)
