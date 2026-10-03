@@ -1,0 +1,13 @@
+{
+  "best_epoch": 10,
+  "selection_metric": "dev_macro_pragmatic_f1",
+  "source_split": "dev",
+  "thresholds": {
+    "code_switching": 0.95,
+    "idiom_figurative": 0.93,
+    "implicit_sentiment": 0.9,
+    "irony": 0.83,
+    "mocking": 0.89,
+    "sarcasm": 0.95
+  }
+}

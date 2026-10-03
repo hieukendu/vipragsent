@@ -1,0 +1,164 @@
+source: configs/experiments/priority12_xlmr.yaml
+resolved:
+  experiment_name: priority12_xlmr_v37_component_ablation
+  experiment: priority1
+  run_id: priority12_v37_q1_no_polarity_auxiliary_20260523
+  seed: 20260523
+  variant_key: no_polarity_auxiliary
+  budget: null
+  model_family: xlmr_large
+  variant_id: no_polarity_auxiliary
+  model_repository: FacebookAI/xlm-roberta-large
+  model_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+  max_sequence_length: 128
+  preprocessing:
+    name: unicode_nfc
+    version: locked-v1
+    normalization: NFC
+  active_tasks:
+  - emotion
+  - pragmatic
+  rationale_decoder: true
+  uncertainty_weighting: true
+  training_config:
+    learning_rate: 2.0e-05
+    weight_decay: 0.01
+    max_epochs: 10
+    effective_batch_size: 32
+    physical_batch_size: 8
+    max_grad_norm: 1.0
+    patience: 10
+    min_delta: 0.0001
+    precision: bf16
+    gradient_accumulation_steps: 4
+    primary_metric: dev_macro_pragmatic_f1
+    scheduler: cosine
+    warmup_ratio: 0.2
+    use_uncertainty_weighting: true
+    rationale_beta: 0.3
+    rationale_target_max_length: 160
+    optimizer: AdamW
+    gradient_checkpointing: false
+    deterministic_algorithms: warn_only
+    qlora:
+      quantization:
+        type: none
+      lora: {}
+  loss_multipliers:
+    implicit_sentiment: 1.01
+    sarcasm: 1.01
+    irony: 1.05
+    idiom_figurative: 1.0
+    code_switching: 1.04
+    mocking: 1.0
+    polarity: 1.0
+    emotion: 1.0
+  gradient_strategy: sum
+  batch_order: fixed
+  dataset:
+    root: data/processed/vipragsent
+    fingerprint: B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9
+    split_sizes:
+      train: 7998
+      dev: 1999
+      test: 2000
+    sample_id_order: frozen CSV order
+  q3: null
+  q3_mask_hash: null
+  code_commit: ba8f36961e86fd140f5c2f9160948a984b391545
+  local_snapshot: data/model_cache/xlmr_large
+protocol:
+  schema_version: 1
+  experiment_name: priority12_xlmr_v37_component_ablation
+  scope:
+    priorities:
+    - 1
+    - 2
+    priority_3: skipped_by_user
+  model:
+    family: xlmr_large
+    repository: FacebookAI/xlm-roberta-large
+    revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+    tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+    max_sequence_length: 128
+    initialization: pinned_pretrained_base
+  data:
+    dataset_root: data/processed/vipragsent
+    q3_mask_root: data/processed/q3_low_resource_sarcasm_corrected
+    q3_mask_protocol: q3_corrected_rationale_active_v1
+    expected_split_counts:
+      train: 7998
+      dev: 1999
+      test: 2000
+    seeds:
+    - 20260521
+    - 20260522
+    - 20260523
+  priority_1:
+    primary_metric: dev_macro_pragmatic_f1
+    variants:
+      full: vipragsent_full_xlmr_large
+      no_emotion_auxiliary: no_emotion_auxiliary
+      no_polarity_auxiliary: no_polarity_auxiliary
+      no_rationale: no_rationale
+      no_uncertainty_weighting: no_uncertainty_weighting
+  priority_2:
+    primary_metric: dev_sarcasm_binary_macro_f1
+    budgets:
+    - 32
+    - 64
+    - 128
+    - 256
+    - 512
+    - full
+    out_of_budget_positive_policy:
+      sarcasm_target_mask: 0
+      rationale_loss_mask: 1
+      polarity_target_mask: 1
+      emotion_target_mask: 1
+      other_pragmatic_target_mask: 1
+  training:
+    optimizer: AdamW
+    learning_rate: 2.0e-05
+    weight_decay: 0.01
+    scheduler: cosine
+    warmup_ratio: 0.2
+    maximum_epochs: 10
+    patience: 10
+    minimum_delta: 0.0001
+    physical_batch_size: 8
+    effective_batch_size: 32
+    gradient_accumulation_steps: 4
+    precision: bf16
+    gradient_clipping: 1.0
+    gradient_strategy: sum
+    batch_order: fixed
+    rationale_beta: 0.3
+    rationale_target_max_length: 160
+    dev_only_threshold_selection: true
+    test_after_checkpoint_and_threshold_freeze: true
+  loss:
+    source_recipe: q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37
+    pragmatic_loss_multiplier: 1.0
+    pragmatic_head_multipliers:
+      implicit_sentiment: 1.01
+      sarcasm: 1.01
+      irony: 1.05
+      idiom_figurative: 1.0
+      code_switching: 1.04
+      mocking: 1.0
+    irony_loss_multiplier: 1.05
+    auxiliary_loss_multiplier: 1.0
+    sarcasm_budget_weight: fixed_negative_count_div_selected_positive_count
+    class_weights_source: full_train_only
+  hardware:
+    selected_device: 0
+    expected_family: xlmr_large
+    frozen_probe_reference: data/batch_probe_status/xlmr_large.json
+    note: current runtime reports an H100 MIG 3g.40gb while the frozen historical
+      probe is 2g.20gb; record, do not rewrite the frozen probe.
+  scientific_integrity:
+    keep_all_structurally_valid_seeds: true
+    do_not_select_seeds_by_test_outcome: true
+    expected_ranges_are_interpretation_targets_only: true

@@ -1,0 +1,766 @@
+{
+  "priority1": {
+    "groups": {
+      "full": {
+        "runs": [
+          "priority12_v37_q1_full_20260521",
+          "priority12_v37_q1_full_20260522",
+          "priority12_v37_q1_full_20260523"
+        ],
+        "summary": {
+          "code_switching_f1": {
+            "mean": 0.9483808787152407,
+            "n": 3,
+            "sd": 0.005639708888932971
+          },
+          "code_switching_positive_f1": {
+            "mean": 0.9122532753774752,
+            "n": 3,
+            "sd": 0.00949850075937418
+          },
+          "code_switching_positive_precision": {
+            "mean": 0.9186055143928665,
+            "n": 3,
+            "sd": 0.01768363222899139
+          },
+          "code_switching_positive_recall": {
+            "mean": 0.9061810154525386,
+            "n": 3,
+            "sd": 0.011628756901603466
+          },
+          "idiom_figurative_f1": {
+            "mean": 0.9334908734953515,
+            "n": 3,
+            "sd": 0.006617848649112766
+          },
+          "idiom_figurative_positive_f1": {
+            "mean": 0.876204723461694,
+            "n": 3,
+            "sd": 0.012136402707940091
+          },
+          "idiom_figurative_positive_precision": {
+            "mean": 0.8929012672526385,
+            "n": 3,
+            "sd": 0.02922518571138847
+          },
+          "idiom_figurative_positive_recall": {
+            "mean": 0.8605200945626478,
+            "n": 3,
+            "sd": 0.004094682760210118
+          },
+          "implicit_sentiment_f1": {
+            "mean": 0.9266933597745229,
+            "n": 3,
+            "sd": 0.002356902005323109
+          },
+          "implicit_sentiment_positive_f1": {
+            "mean": 0.8841939126486734,
+            "n": 3,
+            "sd": 0.004004188846021166
+          },
+          "implicit_sentiment_positive_precision": {
+            "mean": 0.8836007245114672,
+            "n": 3,
+            "sd": 0.006126576058024108
+          },
+          "implicit_sentiment_positive_recall": {
+            "mean": 0.8849206349206349,
+            "n": 3,
+            "sd": 0.01311326320782407
+          },
+          "irony_f1": {
+            "mean": 0.9843275320586825,
+            "n": 3,
+            "sd": 0.0019545822284192976
+          },
+          "irony_positive_f1": {
+            "mean": 0.9708021390374331,
+            "n": 3,
+            "sd": 0.0036410790439677146
+          },
+          "irony_positive_precision": {
+            "mean": 0.9852388323750553,
+            "n": 3,
+            "sd": 0.007270170924375606
+          },
+          "irony_positive_recall": {
+            "mean": 0.9568345323741007,
+            "n": 3,
+            "sd": 0.0071942446043165575
+          },
+          "macro_pragmatic_f1": {
+            "mean": 0.9366583803341149,
+            "n": 3,
+            "sd": 0.001871210373416054
+          },
+          "mocking_f1": {
+            "mean": 0.933451894659107,
+            "n": 3,
+            "sd": 0.007294225437715787
+          },
+          "mocking_positive_f1": {
+            "mean": 0.8822592116972136,
+            "n": 3,
+            "sd": 0.01269335355876048
+          },
+          "mocking_positive_precision": {
+            "mean": 0.8925681972194909,
+            "n": 3,
+            "sd": 0.02873859201800822
+          },
+          "mocking_positive_recall": {
+            "mean": 0.8726752503576538,
+            "n": 3,
+            "sd": 0.013111804563536009
+          },
+          "pragmatic_ece_macro": {
+            "mean": 0.038590604864717326,
+            "n": 3,
+            "sd": 0.006937681191018708
+          },
+          "sarcasm_binary_macro_f1": {
+            "mean": 0.8936057433017844,
+            "n": 3,
+            "sd": 0.00896975104347313
+          },
+          "sarcasm_f1": {
+            "mean": 0.8936057433017844,
+            "n": 3,
+            "sd": 0.00896975104347313
+          },
+          "sarcasm_positive_f1": {
+            "mean": 0.8023754808207104,
+            "n": 3,
+            "sd": 0.016609592248157876
+          },
+          "sarcasm_positive_precision": {
+            "mean": 0.767437641723356,
+            "n": 3,
+            "sd": 0.01854004641290833
+          },
+          "sarcasm_positive_recall": {
+            "mean": 0.8406862745098039,
+            "n": 3,
+            "sd": 0.015306367643133336
+          }
+        }
+      },
+      "no_emotion_auxiliary": {
+        "runs": [
+          "priority12_v37_q1_no_emotion_auxiliary_20260521",
+          "priority12_v37_q1_no_emotion_auxiliary_20260522",
+          "priority12_v37_q1_no_emotion_auxiliary_20260523"
+        ],
+        "summary": {
+          "code_switching_f1": {
+            "mean": 0.9443980843669099,
+            "n": 3,
+            "sd": 0.0014316696868376193
+          },
+          "code_switching_positive_f1": {
+            "mean": 0.9055795037343737,
+            "n": 3,
+            "sd": 0.0023907071223184316
+          },
+          "code_switching_positive_precision": {
+            "mean": 0.9063197111129192,
+            "n": 3,
+            "sd": 0.013281466554716768
+          },
+          "code_switching_positive_recall": {
+            "mean": 0.9050772626931568,
+            "n": 3,
+            "sd": 0.012536221513907889
+          },
+          "idiom_figurative_f1": {
+            "mean": 0.928642719580634,
+            "n": 3,
+            "sd": 0.002428361190976284
+          },
+          "idiom_figurative_positive_f1": {
+            "mean": 0.8671314902772703,
+            "n": 3,
+            "sd": 0.004576697196570068
+          },
+          "idiom_figurative_positive_precision": {
+            "mean": 0.886647560662242,
+            "n": 3,
+            "sd": 0.012370157630180961
+          },
+          "idiom_figurative_positive_recall": {
+            "mean": 0.8486997635933807,
+            "n": 3,
+            "sd": 0.014763588648695999
+          },
+          "implicit_sentiment_f1": {
+            "mean": 0.9225507631955727,
+            "n": 3,
+            "sd": 0.004729001867292774
+          },
+          "implicit_sentiment_positive_f1": {
+            "mean": 0.8770069293822434,
+            "n": 3,
+            "sd": 0.007595243979619993
+          },
+          "implicit_sentiment_positive_precision": {
+            "mean": 0.8944488498278229,
+            "n": 3,
+            "sd": 0.00885116470708555
+          },
+          "implicit_sentiment_positive_recall": {
+            "mean": 0.8603174603174603,
+            "n": 3,
+            "sd": 0.012218098665349742
+          },
+          "irony_f1": {
+            "mean": 0.9850043027204487,
+            "n": 3,
+            "sd": 0.002929652673532095
+          },
+          "irony_positive_f1": {
+            "mean": 0.9720664834486324,
+            "n": 3,
+            "sd": 0.0054491005487257525
+          },
+          "irony_positive_precision": {
+            "mean": 0.9853627627845781,
+            "n": 3,
+            "sd": 0.012426091162180353
+          },
+          "irony_positive_recall": {
+            "mean": 0.9592326139088728,
+            "n": 3,
+            "sd": 0.008307198117836354
+          },
+          "macro_pragmatic_f1": {
+            "mean": 0.9293102508453154,
+            "n": 3,
+            "sd": 0.005018902168472695
+          },
+          "mocking_f1": {
+            "mean": 0.9165794906382428,
+            "n": 3,
+            "sd": 0.01946914196075145
+          },
+          "mocking_positive_f1": {
+            "mean": 0.852048823016565,
+            "n": 3,
+            "sd": 0.03397581457316517
+          },
+          "mocking_positive_precision": {
+            "mean": 0.8829261317208695,
+            "n": 3,
+            "sd": 0.059171853453559825
+          },
+          "mocking_positive_recall": {
+            "mean": 0.8240343347639484,
+            "n": 3,
+            "sd": 0.011355155841478927
+          },
+          "pragmatic_ece_macro": {
+            "mean": 0.028590173714918315,
+            "n": 3,
+            "sd": 0.0015894199647178606
+          },
+          "sarcasm_binary_macro_f1": {
+            "mean": 0.8786861445700843,
+            "n": 3,
+            "sd": 0.005840116600190476
+          },
+          "sarcasm_f1": {
+            "mean": 0.8786861445700843,
+            "n": 3,
+            "sd": 0.005840116600190476
+          },
+          "sarcasm_positive_f1": {
+            "mean": 0.7745027799644785,
+            "n": 3,
+            "sd": 0.0107397680412957
+          },
+          "sarcasm_positive_precision": {
+            "mean": 0.7523238580149149,
+            "n": 3,
+            "sd": 0.05564190515557429
+          },
+          "sarcasm_positive_recall": {
+            "mean": 0.8039215686274511,
+            "n": 3,
+            "sd": 0.05943311594599087
+          }
+        }
+      },
+      "no_polarity_auxiliary": {
+        "runs": [
+          "priority12_v37_q1_no_polarity_auxiliary_20260521",
+          "priority12_v37_q1_no_polarity_auxiliary_20260522",
+          "priority12_v37_q1_no_polarity_auxiliary_20260523"
+        ],
+        "summary": {
+          "code_switching_f1": {
+            "mean": 0.9402855593254181,
+            "n": 3,
+            "sd": 0.00465748068822951
+          },
+          "code_switching_positive_f1": {
+            "mean": 0.8986379738198464,
+            "n": 3,
+            "sd": 0.007649702048247495
+          },
+          "code_switching_positive_precision": {
+            "mean": 0.8979833116692403,
+            "n": 3,
+            "sd": 0.020537271535780978
+          },
+          "code_switching_positive_recall": {
+            "mean": 0.8995584988962473,
+            "n": 3,
+            "sd": 0.006892933773066637
+          },
+          "idiom_figurative_f1": {
+            "mean": 0.9251271144961454,
+            "n": 3,
+            "sd": 0.005516447182555626
+          },
+          "idiom_figurative_positive_f1": {
+            "mean": 0.8605447718507636,
+            "n": 3,
+            "sd": 0.010364796712542578
+          },
+          "idiom_figurative_positive_precision": {
+            "mean": 0.8830725342442592,
+            "n": 3,
+            "sd": 0.0042168053048048364
+          },
+          "idiom_figurative_positive_recall": {
+            "mean": 0.839243498817967,
+            "n": 3,
+            "sd": 0.01784830835761409
+          },
+          "implicit_sentiment_f1": {
+            "mean": 0.9209090634134265,
+            "n": 3,
+            "sd": 0.0006864994448267328
+          },
+          "implicit_sentiment_positive_f1": {
+            "mean": 0.8751963613867028,
+            "n": 3,
+            "sd": 0.0009415584887641372
+          },
+          "implicit_sentiment_positive_precision": {
+            "mean": 0.8714812534952813,
+            "n": 3,
+            "sd": 0.016334754781840908
+          },
+          "implicit_sentiment_positive_recall": {
+            "mean": 0.8793650793650793,
+            "n": 3,
+            "sd": 0.01689190210618473
+          },
+          "irony_f1": {
+            "mean": 0.9823488220460792,
+            "n": 3,
+            "sd": 0.003931918624244656
+          },
+          "irony_positive_f1": {
+            "mean": 0.9671128871128872,
+            "n": 3,
+            "sd": 0.007327314992426292
+          },
+          "irony_positive_precision": {
+            "mean": 0.9826968100673105,
+            "n": 3,
+            "sd": 0.0085237156791764
+          },
+          "irony_positive_recall": {
+            "mean": 0.9520383693045563,
+            "n": 3,
+            "sd": 0.008307198117836354
+          },
+          "macro_pragmatic_f1": {
+            "mean": 0.9274938926368111,
+            "n": 3,
+            "sd": 0.0023663899779988503
+          },
+          "mocking_f1": {
+            "mean": 0.9202573705367593,
+            "n": 3,
+            "sd": 0.00626814971987421
+          },
+          "mocking_positive_f1": {
+            "mean": 0.8586634469984918,
+            "n": 3,
+            "sd": 0.010967791126770819
+          },
+          "mocking_positive_precision": {
+            "mean": 0.8801100437724662,
+            "n": 3,
+            "sd": 0.018876884439244443
+          },
+          "mocking_positive_recall": {
+            "mean": 0.8383404864091558,
+            "n": 3,
+            "sd": 0.006555902281768023
+          },
+          "pragmatic_ece_macro": {
+            "mean": 0.03292492696934257,
+            "n": 3,
+            "sd": 0.0030832031901391038
+          },
+          "sarcasm_binary_macro_f1": {
+            "mean": 0.8760354260030381,
+            "n": 3,
+            "sd": 0.01316938746529116
+          },
+          "sarcasm_f1": {
+            "mean": 0.8760354260030381,
+            "n": 3,
+            "sd": 0.01316938746529116
+          },
+          "sarcasm_positive_f1": {
+            "mean": 0.7701379739423219,
+            "n": 3,
+            "sd": 0.02396873279069478
+          },
+          "sarcasm_positive_precision": {
+            "mean": 0.7236897714634235,
+            "n": 3,
+            "sd": 0.037021949561632704
+          },
+          "sarcasm_positive_recall": {
+            "mean": 0.823529411764706,
+            "n": 3,
+            "sd": 0.007352941176470618
+          }
+        }
+      },
+      "no_rationale": {
+        "runs": [
+          "priority12_v37_q1_no_rationale_20260521",
+          "priority12_v37_q1_no_rationale_20260522",
+          "priority12_v37_q1_no_rationale_20260523"
+        ],
+        "summary": {
+          "code_switching_f1": {
+            "mean": 0.944742157030377,
+            "n": 3,
+            "sd": 0.001350748218704165
+          },
+          "code_switching_positive_f1": {
+            "mean": 0.9060511339346274,
+            "n": 3,
+            "sd": 0.0023767470581676524
+          },
+          "code_switching_positive_precision": {
+            "mean": 0.9126703843561024,
+            "n": 3,
+            "sd": 0.0024844404087810907
+          },
+          "code_switching_positive_recall": {
+            "mean": 0.8995584988962472,
+            "n": 3,
+            "sd": 0.006892933773066638
+          },
+          "idiom_figurative_f1": {
+            "mean": 0.9298024905053751,
+            "n": 3,
+            "sd": 0.004550617031850373
+          },
+          "idiom_figurative_positive_f1": {
+            "mean": 0.8694642314769663,
+            "n": 3,
+            "sd": 0.008270289696742969
+          },
+          "idiom_figurative_positive_precision": {
+            "mean": 0.874290642232875,
+            "n": 3,
+            "sd": 0.02704268091193429
+          },
+          "idiom_figurative_positive_recall": {
+            "mean": 0.8652482269503546,
+            "n": 3,
+            "sd": 0.012284048280630353
+          },
+          "implicit_sentiment_f1": {
+            "mean": 0.9243682268753952,
+            "n": 3,
+            "sd": 0.004581435994582232
+          },
+          "implicit_sentiment_positive_f1": {
+            "mean": 0.8800551478719844,
+            "n": 3,
+            "sd": 0.007727425136837817
+          },
+          "implicit_sentiment_positive_precision": {
+            "mean": 0.8924379602147635,
+            "n": 3,
+            "sd": 0.005454311170398093
+          },
+          "implicit_sentiment_positive_recall": {
+            "mean": 0.8682539682539683,
+            "n": 3,
+            "sd": 0.019967850199062095
+          },
+          "irony_f1": {
+            "mean": 0.9791519236147462,
+            "n": 3,
+            "sd": 0.002966071688840865
+          },
+          "irony_positive_f1": {
+            "mean": 0.9611671420367074,
+            "n": 3,
+            "sd": 0.005522231056014262
+          },
+          "irony_positive_precision": {
+            "mean": 0.9730189221347109,
+            "n": 3,
+            "sd": 0.00824211181503526
+          },
+          "irony_positive_recall": {
+            "mean": 0.9496402877697842,
+            "n": 3,
+            "sd": 0.0071942446043165575
+          },
+          "macro_pragmatic_f1": {
+            "mean": 0.929863776556533,
+            "n": 3,
+            "sd": 0.0025195389636453723
+          },
+          "mocking_f1": {
+            "mean": 0.9309235495008868,
+            "n": 3,
+            "sd": 0.0020063461754783836
+          },
+          "mocking_positive_f1": {
+            "mean": 0.8774409992603213,
+            "n": 3,
+            "sd": 0.0032667483412297162
+          },
+          "mocking_positive_precision": {
+            "mean": 0.9074302881238175,
+            "n": 3,
+            "sd": 0.02156632062342554
+          },
+          "mocking_positive_recall": {
+            "mean": 0.8497854077253219,
+            "n": 3,
+            "sd": 0.012875536480686678
+          },
+          "pragmatic_ece_macro": {
+            "mean": 0.03320045898990955,
+            "n": 3,
+            "sd": 0.001698585114161159
+          },
+          "sarcasm_binary_macro_f1": {
+            "mean": 0.8701943118124172,
+            "n": 3,
+            "sd": 0.0101314741047319
+          },
+          "sarcasm_f1": {
+            "mean": 0.8701943118124172,
+            "n": 3,
+            "sd": 0.0101314741047319
+          },
+          "sarcasm_positive_f1": {
+            "mean": 0.7587745467205461,
+            "n": 3,
+            "sd": 0.0184577152057779
+          },
+          "sarcasm_positive_precision": {
+            "mean": 0.7310511956387794,
+            "n": 3,
+            "sd": 0.03149735659229955
+          },
+          "sarcasm_positive_recall": {
+            "mean": 0.7892156862745098,
+            "n": 3,
+            "sd": 0.011231803173911393
+          }
+        }
+      },
+      "no_uncertainty_weighting": {
+        "runs": [
+          "priority12_v37_q1_no_uncertainty_weighting_20260521",
+          "priority12_v37_q1_no_uncertainty_weighting_20260522",
+          "priority12_v37_q1_no_uncertainty_weighting_20260523"
+        ],
+        "summary": {
+          "code_switching_f1": {
+            "mean": 0.9482098927196407,
+            "n": 3,
+            "sd": 0.003315917340676187
+          },
+          "code_switching_positive_f1": {
+            "mean": 0.9119002166799461,
+            "n": 3,
+            "sd": 0.005759806190697362
+          },
+          "code_switching_positive_precision": {
+            "mean": 0.9212402971594568,
+            "n": 3,
+            "sd": 0.006396949874197248
+          },
+          "code_switching_positive_recall": {
+            "mean": 0.902869757174393,
+            "n": 3,
+            "sd": 0.013785867546133338
+          },
+          "idiom_figurative_f1": {
+            "mean": 0.9299764682552979,
+            "n": 3,
+            "sd": 0.0027474871510695578
+          },
+          "idiom_figurative_positive_f1": {
+            "mean": 0.869620455212162,
+            "n": 3,
+            "sd": 0.0049533104425887
+          },
+          "idiom_figurative_positive_precision": {
+            "mean": 0.8894606718735011,
+            "n": 3,
+            "sd": 0.022052924530076467
+          },
+          "idiom_figurative_positive_recall": {
+            "mean": 0.851063829787234,
+            "n": 3,
+            "sd": 0.012284048280630353
+          },
+          "implicit_sentiment_f1": {
+            "mean": 0.9226873947227885,
+            "n": 3,
+            "sd": 0.002307168278943792
+          },
+          "implicit_sentiment_positive_f1": {
+            "mean": 0.8774474402182636,
+            "n": 3,
+            "sd": 0.00371355879292412
+          },
+          "implicit_sentiment_positive_precision": {
+            "mean": 0.8894603943013814,
+            "n": 3,
+            "sd": 0.025234184409932293
+          },
+          "implicit_sentiment_positive_recall": {
+            "mean": 0.8666666666666667,
+            "n": 3,
+            "sd": 0.02485787264026319
+          },
+          "irony_f1": {
+            "mean": 0.9843577874541425,
+            "n": 3,
+            "sd": 0.0050214335834252435
+          },
+          "irony_positive_f1": {
+            "mean": 0.9708629864979409,
+            "n": 3,
+            "sd": 0.009331021950239216
+          },
+          "irony_positive_precision": {
+            "mean": 0.985435143124955,
+            "n": 3,
+            "sd": 0.019131596193448498
+          },
+          "irony_positive_recall": {
+            "mean": 0.9568345323741007,
+            "n": 3,
+            "sd": 1.3597399555105182e-16
+          },
+          "macro_pragmatic_f1": {
+            "mean": 0.932642100303021,
+            "n": 3,
+            "sd": 0.0008151622520157551
+          },
+          "mocking_f1": {
+            "mean": 0.9271585398890158,
+            "n": 3,
+            "sd": 0.005731165650958818
+          },
+          "mocking_positive_f1": {
+            "mean": 0.8714048145238978,
+            "n": 3,
+            "sd": 0.009995434249016487
+          },
+          "mocking_positive_precision": {
+            "mean": 0.8660118288471722,
+            "n": 3,
+            "sd": 0.01687706680985642
+          },
+          "mocking_positive_recall": {
+            "mean": 0.876967095851216,
+            "n": 3,
+            "sd": 0.006555902281768023
+          },
+          "pragmatic_ece_macro": {
+            "mean": 0.03868855245808198,
+            "n": 3,
+            "sd": 0.006612863595729375
+          },
+          "sarcasm_binary_macro_f1": {
+            "mean": 0.883462518777241,
+            "n": 3,
+            "sd": 0.011700562874669102
+          },
+          "sarcasm_f1": {
+            "mean": 0.883462518777241,
+            "n": 3,
+            "sd": 0.011700562874669102
+          },
+          "sarcasm_positive_f1": {
+            "mean": 0.7836218803725976,
+            "n": 3,
+            "sd": 0.021228338684660432
+          },
+          "sarcasm_positive_precision": {
+            "mean": 0.748160639437769,
+            "n": 3,
+            "sd": 0.03964609419563854
+          },
+          "sarcasm_positive_recall": {
+            "mean": 0.823529411764706,
+            "n": 3,
+            "sd": 0.007352941176470618
+          }
+        }
+      }
+    },
+    "interpretation_targets_are_not_selection_filters": true,
+    "paired_bootstrap_full_minus_ablation": {
+      "full_vs_no_emotion_auxiliary": {
+        "bootstrap_seed": 20260525,
+        "ci_high": 0.01624554473478598,
+        "ci_low": -0.0006144350519639685,
+        "left_minus_right": 0.007348129488799482,
+        "metric": "macro_pragmatic_f1",
+        "resamples": 1000
+      },
+      "full_vs_no_polarity_auxiliary": {
+        "bootstrap_seed": 20260525,
+        "ci_high": 0.014463054008093137,
+        "ci_low": 0.004802553319264622,
+        "left_minus_right": 0.009164487697303788,
+        "metric": "macro_pragmatic_f1",
+        "resamples": 1000
+      },
+      "full_vs_no_rationale": {
+        "bootstrap_seed": 20260525,
+        "ci_high": 0.011628713970558079,
+        "ci_low": 0.002086014381943808,
+        "left_minus_right": 0.006794603777581935,
+        "metric": "macro_pragmatic_f1",
+        "resamples": 1000
+      },
+      "full_vs_no_uncertainty_weighting": {
+        "bootstrap_seed": 20260525,
+        "ci_high": 0.008699310599736393,
+        "ci_low": -0.0008106697108497068,
+        "left_minus_right": 0.004016280031093888,
+        "metric": "macro_pragmatic_f1",
+        "resamples": 1000
+      }
+    },
+    "protocol": "priority1_v37_clean_matched_xlmr_large_component_ablation_v1",
+    "seed_policy": "all three predeclared seeds retained when structurally valid; no test-outcome filtering",
+    "source_recipe": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37",
+    "status": "PASS"
+  },
+  "schema_version": 1
+}
