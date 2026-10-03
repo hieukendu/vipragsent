@@ -10,7 +10,6 @@ import time
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LOG = ROOT / "runtime/priority2_q3_corrected_monitor.log"
 DEFAULT_STOP = ROOT / "runtime/STOP_PRIORITY2_Q3_CORRECTED_MONITOR"
