@@ -30,7 +30,7 @@ try:
 except ModuleNotFoundError:
     from scripts.readiness_utils import load_review, merge_snapshot_into_report, read_json
 
-BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
+BASELINE_COMMIT = "318dbdd31d2be01a17b55ef969759dea503f1357"
 RUNTIME_BLOCKERS = [
     "Phase 15 has not been executed on the target server",
     "Model-family runtime assets are not prepared",

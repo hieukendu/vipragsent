@@ -16,7 +16,7 @@ from vipragsent.orchestration.stage_plans import validate_stage_plan_registry
 from vipragsent.orchestration.system_registry import validate_execution_registry
 from vipragsent.protocol import compare_frozen_hashes, validate_protocol_resolution
 
-BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
+BASELINE_COMMIT = "318dbdd31d2be01a17b55ef969759dea503f1357"
 ROUNDS_PER_SEQUENCE = 25
 SEQUENCES = 2
 REQUIRED_REPORTS = (

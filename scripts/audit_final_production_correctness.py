@@ -44,7 +44,10 @@ except ModuleNotFoundError:
 from vipragsent.training.class_weights import compute_train_only_class_weights
 from vipragsent.training.config_resolver import resolve_training_config
 
-BASELINE_COMMIT = "cb5cde04cd3e3c546d1b35711197a82b6d5bb254"
+# Reviewer-gap campaign baseline: ViSoBERT/XLM-R artifacts and their pinned
+# model metadata were approved together in this commit.  Keep the scientific
+# freeze effective for every change after that campaign snapshot.
+BASELINE_COMMIT = "318dbdd31d2be01a17b55ef969759dea503f1357"
 SCIENCE_EXCLUDED = {
     "configs/experiments/system_execution_registry.yaml",
     "configs/experiments/execution_stage_plans.yaml",
