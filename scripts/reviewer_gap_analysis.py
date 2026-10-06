@@ -12,20 +12,19 @@ from __future__ import annotations
 import argparse
 import fcntl
 import json
-import math
 import os
 import re
 import statistics
 import sys
 import time
 import unicodedata
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import torch
-import yaml
 from sklearn.metrics import precision_recall_curve
 
 # Older system images ship NumPy 1.x, while some archived torch checkpoints

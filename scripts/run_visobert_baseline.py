@@ -22,6 +22,20 @@ from typing import Any
 import yaml
 
 from _bootstrap import ROOT
+from run_priority12_xlmr import (
+    PROTOCOL_PATH,
+    RESULT_ROOT,
+    SEEDS,
+    _batches,
+    _copy_report_bundle,
+    _git_commit,
+    _loss_multipliers,
+    _metrics,
+    _resource_snapshot,
+    _training_config,
+    _validate_run,
+    _write_predictions,
+)
 from vipragsent.atomic import atomic_write_json, atomic_write_text
 from vipragsent.constants import EXPECTED_SPLIT_COUNTS
 from vipragsent.data.loaders import load_vipragsent
@@ -33,21 +47,6 @@ from vipragsent.runtime.model_assets import read_family_status, resolve_local_sn
 from vipragsent.training.class_weights import compute_train_only_class_weights
 from vipragsent.training.engine import TrainingEngine
 from vipragsent.training.seeding import seed_everything
-
-from run_priority12_xlmr import (
-    PROTOCOL_PATH,
-    RESULT_ROOT,
-    SEEDS,
-    _batches,
-    _copy_report_bundle,
-    _git_commit,
-    _loss_multipliers,
-    _metrics,
-    _resource_snapshot,
-    _validate_run,
-    _write_predictions,
-    _training_config,
-)
 
 FAMILY = "visobert"
 MODEL_REPOSITORY = "uitnlp/visobert"
