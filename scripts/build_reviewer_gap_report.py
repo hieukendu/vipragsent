@@ -107,8 +107,11 @@ def main() -> int:
         rationale = f"decoder={fmt(cfg.get('rationale_decoder'))}, beta={fmt(train.get('rationale_beta'), 2)}"
         if key == "xlmr_all_multipliers_1":
             rationale += "; all task multipliers=1"
+        uncertainty = cfg.get("uncertainty_log_variances")
+        if uncertainty is None:
+            uncertainty = "learned" if manifest.get("uncertainty_log_variances_learned") else "disabled"
         lines.append(
-            f"| {title} | `{repo}` @ `{revision[:12]}` | {fmt(train.get('physical_batch_size'))} → {fmt(train.get('effective_batch_size'))}; {fmt(train.get('gradient_accumulation_steps'))} | {fmt(train.get('optimizer'))} / {fmt(train.get('learning_rate'), 6)} / {fmt(train.get('scheduler'))}, warmup {fmt(train.get('warmup_ratio'), 2)} | {fmt(train.get('max_epochs'))} / {fmt(train.get('precision'))} | {rationale} | {fmt(cfg.get('uncertainty_log_variances'))} | {multiplier_text(cfg.get('loss_multipliers', {}))} | `{manifest.get('checkpoint_selection_rule', 'best_checkpoint_selected_on_development_macro_pragmatic_f1')}`; dev; test-after-freeze | train 7,998 / dev 1,999 / test 2,000; max len {fmt(cfg.get('max_sequence_length'))} |"
+            f"| {title} | `{repo}` @ `{revision[:12]}` | {fmt(train.get('physical_batch_size'))} → {fmt(train.get('effective_batch_size'))}; {fmt(train.get('gradient_accumulation_steps'))} | {fmt(train.get('optimizer'))} / {fmt(train.get('learning_rate'), 6)} / {fmt(train.get('scheduler'))}, warmup {fmt(train.get('warmup_ratio'), 2)} | {fmt(train.get('max_epochs'))} / {fmt(train.get('precision'))} | {rationale} | {fmt(uncertainty)} | {multiplier_text(cfg.get('loss_multipliers', {}))} | `{manifest.get('checkpoint_selection_rule', 'best_checkpoint_selected_on_development_macro_pragmatic_f1')}`; dev; test-after-freeze | train 7,998 / dev 1,999 / test 2,000; max len {fmt(cfg.get('max_sequence_length'))} |"
         )
 
     lines += [
