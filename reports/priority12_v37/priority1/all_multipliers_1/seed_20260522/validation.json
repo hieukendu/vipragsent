@@ -1,0 +1,32 @@
+{
+  "checkpoint_sha256": true,
+  "metrics_files": {
+    "dev": "results/runs/priority12_v37_q1_all_multipliers_1_20260522/metrics/dev_metrics.json",
+    "test": "results/runs/priority12_v37_q1_all_multipliers_1_20260522/metrics/test_metrics.json",
+    "train": "results/runs/priority12_v37_q1_all_multipliers_1_20260522/metrics/train_metrics.json"
+  },
+  "prediction_files": {
+    "dev": {
+      "count": 1999,
+      "path": "results/runs/priority12_v37_q1_all_multipliers_1_20260522/predictions/dev_predictions.jsonl",
+      "sample_id_order": "frozen",
+      "status": "PASS"
+    },
+    "test": {
+      "count": 2000,
+      "path": "results/runs/priority12_v37_q1_all_multipliers_1_20260522/predictions/test_predictions.jsonl",
+      "sample_id_order": "frozen",
+      "status": "PASS"
+    },
+    "train": {
+      "count": 7998,
+      "path": "results/runs/priority12_v37_q1_all_multipliers_1_20260522/predictions/train_predictions.jsonl",
+      "sample_id_order": "frozen",
+      "status": "PASS"
+    }
+  },
+  "status": "PASS",
+  "test_evaluated_after_dev_freeze": true,
+  "test_evaluated_during_training": true,
+  "threshold_source": true
+}

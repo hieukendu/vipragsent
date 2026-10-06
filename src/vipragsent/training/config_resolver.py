@@ -57,7 +57,7 @@ def _load_training_values(root: Path) -> dict[str, Any]:
 
 
 def _family_values(payload: dict[str, Any], model_family: str) -> dict[str, Any]:
-    if model_family in {"phobert_base", "xlmr_large"}:
+    if model_family in {"phobert_base", "xlmr_large", "visobert"}:
         values = payload.get("encoder")
     elif model_family in {"sailor_7b", "vistral_7b"}:
         values = payload.get("qlora_7b")

@@ -26,6 +26,7 @@ encoder:
   physical_batch_probe:
     phobert_base: [32, 16, 8]
     xlmr_large: [8, 4, 2, 1]
+    visobert: [32, 16, 8, 4, 2, 1]
 qlora_7b:
   optimizer: paged_adamw_8bit
   learning_rate: 0.0001

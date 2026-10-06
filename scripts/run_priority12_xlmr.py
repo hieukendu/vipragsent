@@ -61,12 +61,16 @@ Q1_VARIANTS = {
     "no_polarity_auxiliary": "no_polarity_auxiliary",
     "no_rationale": "no_rationale",
     "no_uncertainty_weighting": "no_uncertainty_weighting",
+    "all_multipliers_1": "vipragsent_full_xlmr_large",
+    "beta_01": "vipragsent_full_xlmr_large",
+    "beta_05": "vipragsent_full_xlmr_large",
 }
+Q1_RUN_ALL_VARIANTS = ("full", "no_emotion_auxiliary", "no_polarity_auxiliary", "no_rationale", "no_uncertainty_weighting")
 Q3_BUDGETS = ("32", "64", "128", "256", "512", "full")
 RESULT_ROOT = ROOT / "results/runs"
 REPORT_ROOT = ROOT / "reports/priority12_v37"
-CAMPAIGN_ID = "vipragsent-priority12-v37-20261003"
-HF_QUEUE = ROOT / "runtime/priority12_v37_hf_upload_queue.jsonl"
+CAMPAIGN_ID = os.environ.get("VIPRAGSENT_HF_CAMPAIGN", "vipragsent-priority12-v37-20261003")
+HF_QUEUE = ROOT / os.environ.get("VIPRAGSENT_HF_QUEUE", "runtime/priority12_v37_hf_upload_queue.jsonl")
 
 
 def _git_commit() -> str:
@@ -116,7 +120,13 @@ def _load_rationales(path: Path) -> dict[str, Any]:
     return records
 
 
-def _training_config(protocol: dict[str, Any], *, primary_metric: str, use_uncertainty: bool) -> TrainingConfig:
+def _training_config(
+    protocol: dict[str, Any],
+    *,
+    primary_metric: str,
+    use_uncertainty: bool,
+    rationale_beta_override: float | None = None,
+) -> TrainingConfig:
     training = protocol["training"]
     return TrainingConfig(
         learning_rate=float(training["learning_rate"]),
@@ -133,7 +143,7 @@ def _training_config(protocol: dict[str, Any], *, primary_metric: str, use_uncer
         scheduler=str(training["scheduler"]),
         warmup_ratio=float(training["warmup_ratio"]),
         use_uncertainty_weighting=use_uncertainty,
-        rationale_beta=float(training["rationale_beta"]),
+        rationale_beta=float(training["rationale_beta"] if rationale_beta_override is None else rationale_beta_override),
         rationale_target_max_length=int(training["rationale_target_max_length"]),
         optimizer=str(training["optimizer"]),
         gradient_checkpointing=False,
@@ -142,7 +152,9 @@ def _training_config(protocol: dict[str, Any], *, primary_metric: str, use_uncer
     )
 
 
-def _loss_multipliers(protocol: dict[str, Any]) -> dict[str, float]:
+def _loss_multipliers(protocol: dict[str, Any], *, all_multipliers_one: bool = False) -> dict[str, float]:
+    if all_multipliers_one:
+        return {label: 1.0 for label in (*PRAGMATIC_LABELS, "polarity", "emotion")}
     loss = protocol["loss"]
     head_multipliers = loss.get("pragmatic_head_multipliers")
     if head_multipliers is not None:
@@ -482,7 +494,17 @@ def _copy_report_bundle(run_root: Path, report_root: Path) -> None:
             shutil.copy2(source, target)
 
 
-def run_one(*, experiment: str, variant: str | None, budget: str | None, seed: int, device: int, force: bool) -> dict[str, Any]:
+def run_one(
+    *,
+    experiment: str,
+    variant: str | None,
+    budget: str | None,
+    seed: int,
+    device: int,
+    force: bool,
+    all_multipliers_one: bool = False,
+    rationale_beta_override: float | None = None,
+) -> dict[str, Any]:
     protocol = _protocol()
     if seed not in SEEDS:
         raise ValueError(f"unsupported seed: {seed}")
@@ -494,6 +516,13 @@ def run_one(*, experiment: str, variant: str | None, budget: str | None, seed: i
             raise ValueError(f"unsupported Priority 2 budget: {budget}")
     else:
         raise ValueError(f"unsupported experiment: {experiment}")
+
+    if experiment == "priority1" and variant == "all_multipliers_1":
+        all_multipliers_one = True
+    if experiment == "priority1" and variant == "beta_01":
+        rationale_beta_override = 0.1
+    if experiment == "priority1" and variant == "beta_05":
+        rationale_beta_override = 0.5
 
     run_id, run_root, report_root = _roots(experiment, variant, budget, seed)
     if run_root.exists() or report_root.exists():
@@ -529,7 +558,12 @@ def run_one(*, experiment: str, variant: str | None, budget: str | None, seed: i
     rationale_records = _load_rationales(rationale_path) if rationale_enabled else None
     primary_metric = "dev_macro_pragmatic_f1" if experiment == "priority1" else "dev_sarcasm_binary_macro_f1"
     use_uncertainty = model_variant != "no_uncertainty_weighting"
-    config = _training_config(protocol, primary_metric=primary_metric, use_uncertainty=use_uncertainty)
+    config = _training_config(
+        protocol,
+        primary_metric=primary_metric,
+        use_uncertainty=use_uncertainty,
+        rationale_beta_override=rationale_beta_override,
+    )
     snapshot = _snapshot()
     tokenizer = create_tokenizer(FAMILY, revision=MODEL_REVISION, local_path=snapshot, execution_mode="production")
     preprocessor = TextPreprocessor(
@@ -575,7 +609,7 @@ def run_one(*, experiment: str, variant: str | None, budget: str | None, seed: i
         execution_mode="production",
         selected_device=device,
     )
-    loss_multipliers = _loss_multipliers(protocol)
+    loss_multipliers = _loss_multipliers(protocol, all_multipliers_one=all_multipliers_one)
     resolved = {
         "experiment_name": protocol["experiment_name"],
         "experiment": experiment,
@@ -595,6 +629,12 @@ def run_one(*, experiment: str, variant: str | None, budget: str | None, seed: i
         "uncertainty_weighting": bool(getattr(model.config, "has_uncertainty_weighting", False)),
         "training_config": asdict(config),
         "loss_multipliers": loss_multipliers,
+        "checkpoint_selection_rule": "best_checkpoint_selected_on_development_macro_pragmatic_f1",
+        "uncertainty_log_variances": "learned" if use_uncertainty else "disabled",
+        "sensitivity": {
+            "all_task_multipliers_one": bool(all_multipliers_one),
+            "rationale_beta_override": rationale_beta_override,
+        },
         "gradient_strategy": protocol["training"]["gradient_strategy"],
         "batch_order": protocol["training"]["batch_order"],
         "dataset": {"root": protocol["data"]["dataset_root"], "fingerprint": bundle.fingerprint, "split_sizes": split_sizes, "sample_id_order": "frozen CSV order"},
@@ -645,6 +685,12 @@ def run_one(*, experiment: str, variant: str | None, budget: str | None, seed: i
         "trainable_parameter_count": int(engine.optimizer_summary.get("trainable", 0)),
         "class_weights": weights.as_dict(),
         "loss_multipliers": loss_multipliers,
+        "checkpoint_selection_rule": "best_checkpoint_selected_on_development_macro_pragmatic_f1",
+        "uncertainty_log_variances_learned": bool(use_uncertainty),
+        "sensitivity": {
+            "all_task_multipliers_one": bool(all_multipliers_one),
+            "rationale_beta_override": rationale_beta_override,
+        },
         "selection_metric": primary_metric,
         "selection_split": "dev",
         "threshold_source_split": "dev",
@@ -770,7 +816,7 @@ def _tasks(args: argparse.Namespace) -> list[dict[str, Any]]:
             raise ValueError("--seed is required unless --run-all is used")
         return [{"experiment": args.experiment, "variant": args.variant, "budget": args.budget, "seed": args.seed}]
     tasks: list[dict[str, Any]] = []
-    for variant in Q1_VARIANTS:
+    for variant in Q1_RUN_ALL_VARIANTS:
         for seed in SEEDS:
             tasks.append({"experiment": "priority1", "variant": variant, "budget": None, "seed": seed})
     for budget in Q3_BUDGETS:
@@ -788,10 +834,20 @@ def main() -> int:
     parser.add_argument("--device", type=int, default=0)
     parser.add_argument("--run-all", action="store_true")
     parser.add_argument("--force", action="store_true")
+    parser.add_argument("--all-multipliers-one", action="store_true", help="Set all eight task loss multipliers to 1.0")
+    parser.add_argument("--rationale-beta", type=float, default=None, help="Override rationale beta for a sensitivity run")
     args = parser.parse_args()
     results: list[dict[str, Any]] = []
     for task in _tasks(args):
-        results.append(run_one(device=args.device, force=args.force, **task))
+        results.append(
+            run_one(
+                device=args.device,
+                force=args.force,
+                all_multipliers_one=args.all_multipliers_one,
+                rationale_beta_override=args.rationale_beta,
+                **task,
+            )
+        )
         print(json.dumps(results[-1], indent=2, ensure_ascii=False), flush=True)
     return 0
 

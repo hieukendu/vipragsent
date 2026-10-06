@@ -42,6 +42,7 @@ def main() -> int:
         variant = {
             "phobert_base": "phobert_pragmatic_finetune",
             "xlmr_large": "xlmr_pragmatic_finetune",
+            "visobert": "no_rationale",
             "sailor_7b": "sailor_pragmatic_sft",
             "vistral_7b": "vistral_pragmatic_sft",
         }[args.model_family]
@@ -57,8 +58,16 @@ def main() -> int:
         sum(value.float().mean() for value in tensors).backward()
         return True
 
-    order = [32, 16, 8] if args.model_family == "phobert_base" else [8, 4, 2, 1] if args.model_family == "xlmr_large" else [2, 1]
-    effective = 32 if args.model_family in {"phobert_base", "xlmr_large"} else 16
+    order = (
+        [32, 16, 8]
+        if args.model_family == "phobert_base"
+        else [8, 4, 2, 1]
+        if args.model_family == "xlmr_large"
+        else [32, 16, 8, 4, 2, 1]
+        if args.model_family == "visobert"
+        else [2, 1]
+    )
+    effective = 32 if args.model_family in {"phobert_base", "xlmr_large", "visobert"} else 16
     result = probe_physical_batch(ROOT, args.model_family, probe=probe, candidate_order=order, effective_batch_size=effective, hardware_identity=hardware_identity(hardware))
     result["hardware"] = hardware
     result["repo_id"] = spec["repo_id"]

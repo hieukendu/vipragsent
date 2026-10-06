@@ -3,11 +3,12 @@ from __future__ import annotations
 import json
 import re
 from collections.abc import Mapping
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from ..atomic import atomic_write_json
+from ..compat import UTC
 from ..hashing import sha256_file
 from ..training.generation_checkpoint import (
     GenerationCheckpointError,

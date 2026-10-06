@@ -9,6 +9,7 @@ from .preprocessing import DummyTokenizer
 BACKBONE_REPOSITORIES = {
     "phobert_base": "vinai/phobert-base",
     "xlmr_large": "FacebookAI/xlm-roberta-large",
+    "visobert": "uitnlp/visobert",
     "sailor_7b": "sail/Sailor-7B",
     "vistral_7b": "Viet-Mistral/Vistral-7B-Chat",
 }

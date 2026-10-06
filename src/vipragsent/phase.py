@@ -3,9 +3,11 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable
 from dataclasses import asdict, dataclass, field
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+from .compat import UTC
 
 PHASE15_SMOKE_TESTS = (
     "offline tokenizer load",

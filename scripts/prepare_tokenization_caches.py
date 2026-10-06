@@ -18,7 +18,7 @@ from vipragsent.models.factory import load_model_registry
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Prepare deterministic tokenizer caches")
-    parser.add_argument("--backbone", choices=["phobert_base", "xlmr_large", "sailor_7b", "vistral_7b"], default="phobert_base")
+    parser.add_argument("--backbone", choices=["phobert_base", "xlmr_large", "visobert", "sailor_7b", "vistral_7b"], default="phobert_base")
     parser.add_argument("--fixture", action="store_true")
     args = parser.parse_args()
     bundle = load_vipragsent(ROOT / "data/processed/vipragsent")

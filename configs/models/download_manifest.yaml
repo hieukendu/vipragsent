@@ -9,6 +9,11 @@ models:
   revision: c23d21b0620b635a76227c604d44e43a9f0ee389
   tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
   quantization: none
+- name: visobert
+  repo_id: uitnlp/visobert
+  revision: 196a62afad9cbe4f52a54aabad828b13f0eec59a
+  tokenizer_revision: 196a62afad9cbe4f52a54aabad828b13f0eec59a
+  quantization: none
 - name: sailor_7b
   repo_id: sail/Sailor-7B
   revision: b8b49a0f02073e58db2e42e5811955dfe87ca970

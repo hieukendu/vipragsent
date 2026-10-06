@@ -1,0 +1,30 @@
+{
+  "candidate_order": [
+    32,
+    16,
+    8,
+    4,
+    2,
+    1
+  ],
+  "category": "batch",
+  "effective_batch_size": 32,
+  "failed_candidates": [],
+  "fixture_probe": false,
+  "frozen": true,
+  "gradient_accumulation_steps": 1,
+  "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
+  "model_family": "visobert",
+  "oom_evidence": [],
+  "probe_hash": "CF7856B9C15394E23938018927F9134E2772D9ACCA166D2F1BEC5A05C3F333C6",
+  "status": "PASS",
+  "successful_batch": 32,
+  "successful_candidates": [
+    32,
+    16,
+    8,
+    4,
+    2,
+    1
+  ]
+}

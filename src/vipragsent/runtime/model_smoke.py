@@ -45,7 +45,11 @@ def run_fake_smoke(model_family: str, *, tokenizer_loader: Callable[[], Any], mo
         model = model_loader()
         checks["model_load"] = isinstance(model, torch.nn.Module)
         model.train()
-        input_ids = torch.ones((2, 4), dtype=torch.long)
+        try:
+            model_device = next(model.parameters()).device
+        except StopIteration:
+            model_device = torch.device("cpu")
+        input_ids = torch.ones((2, 4), dtype=torch.long, device=model_device)
         attention_mask = torch.ones_like(input_ids)
         try:
             output = model(input_ids=input_ids, attention_mask=attention_mask)
@@ -143,6 +147,7 @@ def verify_model_family(
                     variant = {
                         "phobert_base": "phobert_pragmatic_finetune",
                         "xlmr_large": "xlmr_pragmatic_finetune",
+                        "visobert": "no_rationale",
                         "sailor_7b": "sailor_pragmatic_sft",
                         "vistral_7b": "vistral_pragmatic_sft",
                     }[model_family]

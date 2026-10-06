@@ -1,0 +1,3200 @@
+{
+  "backbone_architecture": "XLM-R-large encoder",
+  "base_model_repository": "FacebookAI/xlm-roberta-large",
+  "base_model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "batch_probe_reference": {
+    "candidate_order": [
+      8,
+      4,
+      2,
+      1
+    ],
+    "category": "batch",
+    "effective_batch_size": 32,
+    "failed_candidates": [],
+    "fixture_probe": false,
+    "frozen": true,
+    "gradient_accumulation_steps": 4,
+    "hardware_identity": "NVIDIA H100 80GB HBM3 MIG 2g.20gb|cc=[9, 0]|memory_gb=19.625",
+    "model_family": "xlmr_large",
+    "oom_evidence": [],
+    "probe_hash": "D019D87E95612F7B1408B4DBCED92BA4C9ACB66F7A8FDF8343B0A4584280D4B1",
+    "status": "PASS",
+    "successful_batch": 8,
+    "successful_candidates": [
+      8,
+      4,
+      2,
+      1
+    ]
+  },
+  "best_dev_metric": 0.9225121801608887,
+  "best_epoch": 10,
+  "budget": null,
+  "checkpoint_path": "checkpoints/best/model.pt",
+  "checkpoint_selection_rule": "best_checkpoint_selected_on_development_macro_pragmatic_f1",
+  "checkpoint_sha256": "935BD3DBFD0868814264651A426E7565833AD1E3B831AD9C6AF62336D84DC560",
+  "class_weights": {
+    "code_commit": "9b40cc13cdfda6b037c6178b7dcadc5f341b8214",
+    "content_hash": "A54934DE81B89CEDACB99BCC31F10F983086B0BA691F809020FD1B14F064F1A7",
+    "counts": {
+      "emotion": {
+        "anger": 251,
+        "disgust": 708,
+        "enjoyment": 2037,
+        "fear": 227,
+        "other": 3687,
+        "sadness": 709,
+        "surprise": 379
+      },
+      "polarity": {
+        "negative": 1301,
+        "neutral": 4934,
+        "positive": 1763
+      },
+      "pragmatic": {
+        "code_switching": {
+          "negative": 6792,
+          "positive": 1206
+        },
+        "idiom_figurative": {
+          "negative": 7435,
+          "positive": 563
+        },
+        "implicit_sentiment": {
+          "negative": 6320,
+          "positive": 1678
+        },
+        "irony": {
+          "negative": 7444,
+          "positive": 554
+        },
+        "mocking": {
+          "negative": 7066,
+          "positive": 932
+        },
+        "sarcasm": {
+          "negative": 7453,
+          "positive": 545
+        }
+      }
+    },
+    "dataset_hash": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+    "emotion_weight": {
+      "anger": 4.552077404667046,
+      "disgust": 1.6138014527845037,
+      "enjoyment": 0.5609088996423311,
+      "fear": 5.033354310887351,
+      "other": 0.3098918981750552,
+      "sadness": 1.611525287124723,
+      "surprise": 3.0147003392385976
+    },
+    "polarity_weight": {
+      "negative": 2.0491929285165256,
+      "neutral": 0.5403323875152006,
+      "positive": 1.5121951219512195
+    },
+    "pragmatic_pos_weight": {
+      "code_switching": 5.6318407960199,
+      "idiom_figurative": 13.206039076376554,
+      "implicit_sentiment": 3.766388557806913,
+      "irony": 13.436823104693142,
+      "mocking": 7.581545064377682,
+      "sarcasm": 13.675229357798164
+    },
+    "source_split": "train"
+  },
+  "code_commit": "9b40cc13cdfda6b037c6178b7dcadc5f341b8214",
+  "completed_at_unix": 1791232266.2373006,
+  "dataset_fingerprint": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+  "dataset_split_sizes": {
+    "dev": 1999,
+    "test": 2000,
+    "train": 7998
+  },
+  "experiment": "priority1",
+  "final_dev": {
+    "loss": 1.7461135241389274,
+    "macro_pragmatic_f1": 0.9225121801608887,
+    "per_label_f1": {
+      "code_switching": 0.9506037353535852,
+      "idiom_figurative": 0.9086452869178191,
+      "implicit_sentiment": 0.93829702795661,
+      "irony": 0.9766488330257226,
+      "mocking": 0.9298553743810796,
+      "sarcasm": 0.8310228233305157
+    },
+    "positive_class_metrics": {
+      "code_switching": {
+        "f1": 0.916256157635468,
+        "fn": 22,
+        "fp": 29,
+        "precision": 0.9058441558441559,
+        "recall": 0.9269102990033222,
+        "tn": 1669,
+        "tp": 279
+      },
+      "idiom_figurative": {
+        "f1": 0.8296296296296297,
+        "fn": 28,
+        "fp": 18,
+        "precision": 0.8615384615384616,
+        "recall": 0.8,
+        "tn": 1841,
+        "tp": 112
+      },
+      "implicit_sentiment": {
+        "f1": 0.903448275862069,
+        "fn": 26,
+        "fp": 58,
+        "precision": 0.8713968957871396,
+        "recall": 0.9379474940334129,
+        "tn": 1522,
+        "tp": 393
+      },
+      "irony": {
+        "f1": 0.9565217391304348,
+        "fn": 6,
+        "fp": 6,
+        "precision": 0.9565217391304348,
+        "recall": 0.9565217391304348,
+        "tn": 1855,
+        "tp": 132
+      },
+      "mocking": {
+        "f1": 0.8758169934640523,
+        "fn": 32,
+        "fp": 25,
+        "precision": 0.8893805309734514,
+        "recall": 0.8626609442060086,
+        "tn": 1741,
+        "tp": 201
+      },
+      "sarcasm": {
+        "f1": 0.6857142857142857,
+        "fn": 40,
+        "fp": 48,
+        "precision": 0.6666666666666666,
+        "recall": 0.7058823529411765,
+        "tn": 1815,
+        "tp": 96
+      }
+    },
+    "pragmatic_ece": {
+      "bins": {
+        "code_switching": [
+          {
+            "absolute_gap": 0.004719877531844247,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1571,
+            "empirical_positive_rate": 0.006365372374283896,
+            "mean_confidence": 0.011085249906128143
+          },
+          {
+            "absolute_gap": 0.14036943632013657,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 34,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.14036943632013657
+          },
+          {
+            "absolute_gap": 0.21486851005327134,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 21,
+            "empirical_positive_rate": 0.047619047619047616,
+            "mean_confidence": 0.26248755767231896
+          },
+          {
+            "absolute_gap": 0.17389109979073206,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 12,
+            "empirical_positive_rate": 0.16666666666666666,
+            "mean_confidence": 0.3405577664573987
+          },
+          {
+            "absolute_gap": 0.34648245275020595,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 10,
+            "empirical_positive_rate": 0.1,
+            "mean_confidence": 0.446482452750206
+          },
+          {
+            "absolute_gap": 0.11675523008619043,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 7,
+            "empirical_positive_rate": 0.42857142857142855,
+            "mean_confidence": 0.545326658657619
+          },
+          {
+            "absolute_gap": 0.2961364171721719,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 11,
+            "empirical_positive_rate": 0.36363636363636365,
+            "mean_confidence": 0.6597727808085355
+          },
+          {
+            "absolute_gap": 0.7441766038537025,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 8,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.7441766038537025
+          },
+          {
+            "absolute_gap": 0.7829690078894297,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 12,
+            "empirical_positive_rate": 0.08333333333333333,
+            "mean_confidence": 0.8663023412227631
+          },
+          {
+            "absolute_gap": 0.1025182736186554,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 313,
+            "empirical_positive_rate": 0.8913738019169329,
+            "mean_confidence": 0.9938920755355883
+          }
+        ],
+        "idiom_figurative": [
+          {
+            "absolute_gap": 0.002180699998747152,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1757,
+            "empirical_positive_rate": 0.007398975526465566,
+            "mean_confidence": 0.009579675525212718
+          },
+          {
+            "absolute_gap": 0.09190363047475165,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 44,
+            "empirical_positive_rate": 0.045454545454545456,
+            "mean_confidence": 0.1373581759292971
+          },
+          {
+            "absolute_gap": 0.013640537858009338,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 17,
+            "empirical_positive_rate": 0.23529411764705882,
+            "mean_confidence": 0.24893465550506816
+          },
+          {
+            "absolute_gap": 0.27219861516585714,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 13,
+            "empirical_positive_rate": 0.07692307692307693,
+            "mean_confidence": 0.34912169208893407
+          },
+          {
+            "absolute_gap": 0.43867403268814087,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 4,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.43867403268814087
+          },
+          {
+            "absolute_gap": 0.5397018790245056,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 3,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.5397018790245056
+          },
+          {
+            "absolute_gap": 0.44485331773757936,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 5,
+            "empirical_positive_rate": 0.2,
+            "mean_confidence": 0.6448533177375794
+          },
+          {
+            "absolute_gap": 0.4288260142008464,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 6,
+            "empirical_positive_rate": 0.3333333333333333,
+            "mean_confidence": 0.7621593475341797
+          },
+          {
+            "absolute_gap": 0.5123770038286846,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 9,
+            "empirical_positive_rate": 0.3333333333333333,
+            "mean_confidence": 0.8457103371620178
+          },
+          {
+            "absolute_gap": 0.17974049148830118,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 141,
+            "empirical_positive_rate": 0.8085106382978723,
+            "mean_confidence": 0.9882511297861735
+          }
+        ],
+        "implicit_sentiment": [
+          {
+            "absolute_gap": 0.004862163165853417,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1344,
+            "empirical_positive_rate": 0.008928571428571428,
+            "mean_confidence": 0.013790734594424845
+          },
+          {
+            "absolute_gap": 0.12418872913396037,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 74,
+            "empirical_positive_rate": 0.013513513513513514,
+            "mean_confidence": 0.13770224264747388
+          },
+          {
+            "absolute_gap": 0.19686262160539625,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 40,
+            "empirical_positive_rate": 0.05,
+            "mean_confidence": 0.24686262160539627
+          },
+          {
+            "absolute_gap": 0.34285620517200893,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 18,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.34285620517200893
+          },
+          {
+            "absolute_gap": 0.4058853253722191,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 20,
+            "empirical_positive_rate": 0.05,
+            "mean_confidence": 0.4558853253722191
+          },
+          {
+            "absolute_gap": 0.5543581210076809,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 16,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.5543581210076809
+          },
+          {
+            "absolute_gap": 0.42787808510992265,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 18,
+            "empirical_positive_rate": 0.2222222222222222,
+            "mean_confidence": 0.6501003073321449
+          },
+          {
+            "absolute_gap": 0.4298942817582025,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 18,
+            "empirical_positive_rate": 0.3333333333333333,
+            "mean_confidence": 0.7632276150915358
+          },
+          {
+            "absolute_gap": 0.2732056054201992,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 33,
+            "empirical_positive_rate": 0.5757575757575758,
+            "mean_confidence": 0.848963181177775
+          },
+          {
+            "absolute_gap": 0.08958055699270873,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 418,
+            "empirical_positive_rate": 0.8947368421052632,
+            "mean_confidence": 0.9843173990979719
+          }
+        ],
+        "irony": [
+          {
+            "absolute_gap": 0.00488544925494013,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1801,
+            "empirical_positive_rate": 0.001110494169905608,
+            "mean_confidence": 0.005995943424845738
+          },
+          {
+            "absolute_gap": 0.019215402089887174,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 18,
+            "empirical_positive_rate": 0.16666666666666666,
+            "mean_confidence": 0.14745126457677948
+          },
+          {
+            "absolute_gap": 0.17013413884810039,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 14,
+            "empirical_positive_rate": 0.07142857142857142,
+            "mean_confidence": 0.2415627102766718
+          },
+          {
+            "absolute_gap": 0.32732247975137496,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 9,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.32732247975137496
+          },
+          {
+            "absolute_gap": 0.4467746764421463,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 6,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.4467746764421463
+          },
+          {
+            "absolute_gap": 0.554708997408549,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 3,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.554708997408549
+          },
+          {
+            "absolute_gap": 0.6508860190709432,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 6,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.6508860190709432
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.8379626472791036,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 3,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.8379626472791036
+          },
+          {
+            "absolute_gap": 0.04762082906078091,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 139,
+            "empirical_positive_rate": 0.9496402877697842,
+            "mean_confidence": 0.9972611168305651
+          }
+        ],
+        "mocking": [
+          {
+            "absolute_gap": 0.004751031078785061,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1561,
+            "empirical_positive_rate": 0.005765534913516977,
+            "mean_confidence": 0.010516565992302038
+          },
+          {
+            "absolute_gap": 0.0900966906094853,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 79,
+            "empirical_positive_rate": 0.05063291139240506,
+            "mean_confidence": 0.14072960200189036
+          },
+          {
+            "absolute_gap": 0.18882323475554585,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 32,
+            "empirical_positive_rate": 0.0625,
+            "mean_confidence": 0.25132323475554585
+          },
+          {
+            "absolute_gap": 0.27635661721229554,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 25,
+            "empirical_positive_rate": 0.08,
+            "mean_confidence": 0.35635661721229556
+          },
+          {
+            "absolute_gap": 0.3134063283602397,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 21,
+            "empirical_positive_rate": 0.14285714285714285,
+            "mean_confidence": 0.45626347121738253
+          },
+          {
+            "absolute_gap": 0.30186599741379416,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 24,
+            "empirical_positive_rate": 0.25,
+            "mean_confidence": 0.5518659974137942
+          },
+          {
+            "absolute_gap": 0.40198633074760437,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 8,
+            "empirical_positive_rate": 0.25,
+            "mean_confidence": 0.6519863307476044
+          },
+          {
+            "absolute_gap": 0.5936054256227282,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 18,
+            "empirical_positive_rate": 0.16666666666666666,
+            "mean_confidence": 0.7602720922893949
+          },
+          {
+            "absolute_gap": 0.42903539165854454,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 16,
+            "empirical_positive_rate": 0.4375,
+            "mean_confidence": 0.8665353916585445
+          },
+          {
+            "absolute_gap": 0.08257627431736436,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 215,
+            "empirical_positive_rate": 0.9069767441860465,
+            "mean_confidence": 0.9895530185034108
+          }
+        ],
+        "sarcasm": [
+          {
+            "absolute_gap": 0.0014865577742769467,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1660,
+            "empirical_positive_rate": 0.006024096385542169,
+            "mean_confidence": 0.007510654159819116
+          },
+          {
+            "absolute_gap": 0.050210446822193416,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 53,
+            "empirical_positive_rate": 0.09433962264150944,
+            "mean_confidence": 0.14455006946370286
+          },
+          {
+            "absolute_gap": 0.25048644304275514,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 25,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.25048644304275514
+          },
+          {
+            "absolute_gap": 0.21280795548643383,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 14,
+            "empirical_positive_rate": 0.14285714285714285,
+            "mean_confidence": 0.3556650983435767
+          },
+          {
+            "absolute_gap": 0.2829987292106335,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 13,
+            "empirical_positive_rate": 0.15384615384615385,
+            "mean_confidence": 0.43684488305678737
+          },
+          {
+            "absolute_gap": 0.427778884768486,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 8,
+            "empirical_positive_rate": 0.125,
+            "mean_confidence": 0.552778884768486
+          },
+          {
+            "absolute_gap": 0.4260190817025991,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 13,
+            "empirical_positive_rate": 0.23076923076923078,
+            "mean_confidence": 0.6567883124718299
+          },
+          {
+            "absolute_gap": 0.29218562082810834,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 11,
+            "empirical_positive_rate": 0.45454545454545453,
+            "mean_confidence": 0.7467310753735629
+          },
+          {
+            "absolute_gap": 0.7282910057992646,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 33,
+            "empirical_positive_rate": 0.12121212121212122,
+            "mean_confidence": 0.8495031270113859
+          },
+          {
+            "absolute_gap": 0.36524421717288225,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 169,
+            "empirical_positive_rate": 0.6153846153846154,
+            "mean_confidence": 0.9806288325574977
+          }
+        ]
+      },
+      "macro": 0.03834112160999704,
+      "per_label": {
+        "code_switching": 0.0369000963687647,
+        "idiom_figurative": 0.02489822288917349,
+        "implicit_sentiment": 0.05435639152433437,
+        "irony": 0.015935780867429198,
+        "mocking": 0.039935381390732244,
+        "sarcasm": 0.058020856619548214
+      }
+    },
+    "prediction_count": 1999,
+    "sarcasm_binary_macro_f1": 0.8310228233305157,
+    "selection_metric": 0.9225121801608887,
+    "thresholds": {
+      "code_switching": 0.93,
+      "idiom_figurative": 0.94,
+      "implicit_sentiment": 0.8,
+      "irony": 0.94,
+      "mocking": 0.85,
+      "sarcasm": 0.95
+    }
+  },
+  "final_test": {
+    "loss": 1.5966104638949037,
+    "macro_pragmatic_f1": 0.9281551595742603,
+    "per_label_f1": {
+      "code_switching": 0.9461523135658476,
+      "idiom_figurative": 0.931665649786455,
+      "implicit_sentiment": 0.9271717676155145,
+      "irony": 0.9862403940751137,
+      "mocking": 0.9265855681909949,
+      "sarcasm": 0.8511152642116357
+    },
+    "positive_class_metrics": {
+      "code_switching": {
+        "f1": 0.908485856905158,
+        "fn": 29,
+        "fp": 26,
+        "precision": 0.9130434782608695,
+        "recall": 0.9039735099337748,
+        "tn": 1672,
+        "tp": 273
+      },
+      "idiom_figurative": {
+        "f1": 0.8727272727272728,
+        "fn": 21,
+        "fp": 14,
+        "precision": 0.8955223880597015,
+        "recall": 0.851063829787234,
+        "tn": 1845,
+        "tp": 120
+      },
+      "implicit_sentiment": {
+        "f1": 0.8855140186915889,
+        "fn": 41,
+        "fp": 57,
+        "precision": 0.8692660550458715,
+        "recall": 0.9023809523809524,
+        "tn": 1523,
+        "tp": 379
+      },
+      "irony": {
+        "f1": 0.9743589743589743,
+        "fn": 6,
+        "fp": 1,
+        "precision": 0.9925373134328358,
+        "recall": 0.9568345323741008,
+        "tn": 1860,
+        "tp": 133
+      },
+      "mocking": {
+        "f1": 0.8701298701298701,
+        "fn": 32,
+        "fp": 28,
+        "precision": 0.8777292576419214,
+        "recall": 0.8626609442060086,
+        "tn": 1739,
+        "tp": 201
+      },
+      "sarcasm": {
+        "f1": 0.7226277372262774,
+        "fn": 37,
+        "fp": 39,
+        "precision": 0.717391304347826,
+        "recall": 0.7279411764705882,
+        "tn": 1825,
+        "tp": 99
+      }
+    },
+    "pragmatic_ece": {
+      "bins": {
+        "code_switching": [
+          {
+            "absolute_gap": 0.0026977041933586004,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1586,
+            "empirical_positive_rate": 0.008827238335435058,
+            "mean_confidence": 0.011524942528793658
+          },
+          {
+            "absolute_gap": 0.08024477064609528,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 35,
+            "empirical_positive_rate": 0.05714285714285714,
+            "mean_confidence": 0.13738762778895242
+          },
+          {
+            "absolute_gap": 0.24344159066677093,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 15,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.24344159066677093
+          },
+          {
+            "absolute_gap": 0.33528239076787775,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 11,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.33528239076787775
+          },
+          {
+            "absolute_gap": 0.3261439237329695,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 9,
+            "empirical_positive_rate": 0.1111111111111111,
+            "mean_confidence": 0.4372550348440806
+          },
+          {
+            "absolute_gap": 0.4387946367263794,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 10,
+            "empirical_positive_rate": 0.1,
+            "mean_confidence": 0.5387946367263794
+          },
+          {
+            "absolute_gap": 0.3046254614988963,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 6,
+            "empirical_positive_rate": 0.3333333333333333,
+            "mean_confidence": 0.6379587948322296
+          },
+          {
+            "absolute_gap": 0.4682988098689488,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 7,
+            "empirical_positive_rate": 0.2857142857142857,
+            "mean_confidence": 0.7540130955832345
+          },
+          {
+            "absolute_gap": 0.623711333825038,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 13,
+            "empirical_positive_rate": 0.23076923076923078,
+            "mean_confidence": 0.8544805645942688
+          },
+          {
+            "absolute_gap": 0.09343206824420336,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 308,
+            "empirical_positive_rate": 0.8993506493506493,
+            "mean_confidence": 0.9927827175948527
+          }
+        ],
+        "idiom_figurative": [
+          {
+            "absolute_gap": 0.0034918795105712995,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1766,
+            "empirical_positive_rate": 0.0056625141562853904,
+            "mean_confidence": 0.00915439366685669
+          },
+          {
+            "absolute_gap": 0.10728651075026929,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 39,
+            "empirical_positive_rate": 0.02564102564102564,
+            "mean_confidence": 0.13292753639129493
+          },
+          {
+            "absolute_gap": 0.14402901734176435,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 19,
+            "empirical_positive_rate": 0.10526315789473684,
+            "mean_confidence": 0.24929217523650118
+          },
+          {
+            "absolute_gap": 0.2613025101331564,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 13,
+            "empirical_positive_rate": 0.07692307692307693,
+            "mean_confidence": 0.33822558705623335
+          },
+          {
+            "absolute_gap": 0.25030378699302674,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 5,
+            "empirical_positive_rate": 0.2,
+            "mean_confidence": 0.45030378699302676
+          },
+          {
+            "absolute_gap": 0.35657925605773927,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 5,
+            "empirical_positive_rate": 0.2,
+            "mean_confidence": 0.5565792560577393
+          },
+          {
+            "absolute_gap": 0.23401604890823358,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 5,
+            "empirical_positive_rate": 0.4,
+            "mean_confidence": 0.6340160489082336
+          },
+          {
+            "absolute_gap": 0.6230992334229606,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 7,
+            "empirical_positive_rate": 0.14285714285714285,
+            "mean_confidence": 0.7659563762801034
+          },
+          {
+            "absolute_gap": 0.6455626487731934,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 5,
+            "empirical_positive_rate": 0.2,
+            "mean_confidence": 0.8455626487731933
+          },
+          {
+            "absolute_gap": 0.10473858302130423,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 136,
+            "empirical_positive_rate": 0.8897058823529411,
+            "mean_confidence": 0.9944444653742454
+          }
+        ],
+        "implicit_sentiment": [
+          {
+            "absolute_gap": 0.004063047603098396,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1334,
+            "empirical_positive_rate": 0.009745127436281859,
+            "mean_confidence": 0.013808175039380255
+          },
+          {
+            "absolute_gap": 0.08067233032650417,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 90,
+            "empirical_positive_rate": 0.05555555555555555,
+            "mean_confidence": 0.13622788588205972
+          },
+          {
+            "absolute_gap": 0.18521112849315008,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 30,
+            "empirical_positive_rate": 0.06666666666666667,
+            "mean_confidence": 0.25187779515981673
+          },
+          {
+            "absolute_gap": 0.2104281612804958,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 28,
+            "empirical_positive_rate": 0.14285714285714285,
+            "mean_confidence": 0.35328530413763864
+          },
+          {
+            "absolute_gap": 0.3706685965475829,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 23,
+            "empirical_positive_rate": 0.08695652173913043,
+            "mean_confidence": 0.4576251182867133
+          },
+          {
+            "absolute_gap": 0.36821042746305466,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 16,
+            "empirical_positive_rate": 0.1875,
+            "mean_confidence": 0.5557104274630547
+          },
+          {
+            "absolute_gap": 0.49721765915552774,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 15,
+            "empirical_positive_rate": 0.13333333333333333,
+            "mean_confidence": 0.630550992488861
+          },
+          {
+            "absolute_gap": 0.39022611507347654,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 28,
+            "empirical_positive_rate": 0.35714285714285715,
+            "mean_confidence": 0.7473689722163337
+          },
+          {
+            "absolute_gap": 0.24392802392443025,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 48,
+            "empirical_positive_rate": 0.6041666666666666,
+            "mean_confidence": 0.8480946905910969
+          },
+          {
+            "absolute_gap": 0.08213827213675706,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 388,
+            "empirical_positive_rate": 0.9020618556701031,
+            "mean_confidence": 0.9842001278068602
+          }
+        ],
+        "irony": [
+          {
+            "absolute_gap": 0.005089963975049706,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1797,
+            "empirical_positive_rate": 0.001669449081803005,
+            "mean_confidence": 0.0067594130568527115
+          },
+          {
+            "absolute_gap": 0.14543171191499346,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 21,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.14543171191499346
+          },
+          {
+            "absolute_gap": 0.23299016430974007,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 12,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.23299016430974007
+          },
+          {
+            "absolute_gap": 0.34358586235479877,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 11,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.34358586235479877
+          },
+          {
+            "absolute_gap": 0.19353093579411507,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 8,
+            "empirical_positive_rate": 0.25,
+            "mean_confidence": 0.44353093579411507
+          },
+          {
+            "absolute_gap": 0.563607374827067,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 6,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.563607374827067
+          },
+          {
+            "absolute_gap": 0.43649164438247684,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 5,
+            "empirical_positive_rate": 0.2,
+            "mean_confidence": 0.6364916443824769
+          },
+          {
+            "absolute_gap": 0.7487227320671082,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 3,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.7487227320671082
+          },
+          {
+            "absolute_gap": 0.8826493620872498,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 1,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.8826493620872498
+          },
+          {
+            "absolute_gap": 0.018986130461973283,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 136,
+            "empirical_positive_rate": 0.9779411764705882,
+            "mean_confidence": 0.9969273069325615
+          }
+        ],
+        "mocking": [
+          {
+            "absolute_gap": 0.005028026897156935,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1573,
+            "empirical_positive_rate": 0.00572155117609663,
+            "mean_confidence": 0.010749578073253566
+          },
+          {
+            "absolute_gap": 0.08718252333178036,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 69,
+            "empirical_positive_rate": 0.057971014492753624,
+            "mean_confidence": 0.145153537824534
+          },
+          {
+            "absolute_gap": 0.17227378266829033,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 27,
+            "empirical_positive_rate": 0.07407407407407407,
+            "mean_confidence": 0.2463478567423644
+          },
+          {
+            "absolute_gap": 0.31435998777548474,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 30,
+            "empirical_positive_rate": 0.03333333333333333,
+            "mean_confidence": 0.34769332110881807
+          },
+          {
+            "absolute_gap": 0.3920215228024651,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 17,
+            "empirical_positive_rate": 0.058823529411764705,
+            "mean_confidence": 0.4508450522142298
+          },
+          {
+            "absolute_gap": 0.2933737710118294,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 16,
+            "empirical_positive_rate": 0.25,
+            "mean_confidence": 0.5433737710118294
+          },
+          {
+            "absolute_gap": 0.47854344985064334,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 17,
+            "empirical_positive_rate": 0.17647058823529413,
+            "mean_confidence": 0.6550140380859375
+          },
+          {
+            "absolute_gap": 0.40797123809655506,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 12,
+            "empirical_positive_rate": 0.3333333333333333,
+            "mean_confidence": 0.7413045714298884
+          },
+          {
+            "absolute_gap": 0.4105928462484609,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 23,
+            "empirical_positive_rate": 0.43478260869565216,
+            "mean_confidence": 0.845375454944113
+          },
+          {
+            "absolute_gap": 0.08566745149868504,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 216,
+            "empirical_positive_rate": 0.9027777777777778,
+            "mean_confidence": 0.9884452292764628
+          }
+        ],
+        "sarcasm": [
+          {
+            "absolute_gap": 0.004101786616659659,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 1665,
+            "empirical_positive_rate": 0.0036036036036036037,
+            "mean_confidence": 0.007705390220263263
+          },
+          {
+            "absolute_gap": 0.10446192387302045,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 59,
+            "empirical_positive_rate": 0.03389830508474576,
+            "mean_confidence": 0.1383602289577662
+          },
+          {
+            "absolute_gap": 0.1909577786922455,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 20,
+            "empirical_positive_rate": 0.05,
+            "mean_confidence": 0.2409577786922455
+          },
+          {
+            "absolute_gap": 0.3440764408845168,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 13,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.3440764408845168
+          },
+          {
+            "absolute_gap": 0.44768820454676944,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 12,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.44768820454676944
+          },
+          {
+            "absolute_gap": 0.5411562853389316,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 9,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.5411562853389316
+          },
+          {
+            "absolute_gap": 0.5627162555853525,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 12,
+            "empirical_positive_rate": 0.08333333333333333,
+            "mean_confidence": 0.6460495889186859
+          },
+          {
+            "absolute_gap": 0.44056075352888835,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 13,
+            "empirical_positive_rate": 0.3076923076923077,
+            "mean_confidence": 0.7482530612211961
+          },
+          {
+            "absolute_gap": 0.47436413519522724,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 34,
+            "empirical_positive_rate": 0.38235294117647056,
+            "mean_confidence": 0.8567170763716978
+          },
+          {
+            "absolute_gap": 0.31412729346679025,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 163,
+            "empirical_positive_rate": 0.6687116564417178,
+            "mean_confidence": 0.9828389499085081
+          }
+        ]
+      },
+      "macro": 0.03583785998926275,
+      "per_label": {
+        "code_switching": 0.03187063322980248,
+        "idiom_figurative": 0.02126138386233652,
+        "implicit_sentiment": 0.05025423650469748,
+        "irony": 0.015799669464671748,
+        "mocking": 0.04017195845015522,
+        "sarcasm": 0.05566927842391305
+      }
+    },
+    "prediction_count": 2000,
+    "sarcasm_binary_macro_f1": 0.8511152642116357,
+    "selection_metric": 0.9281551595742603,
+    "thresholds": {
+      "code_switching": 0.93,
+      "idiom_figurative": 0.94,
+      "implicit_sentiment": 0.8,
+      "irony": 0.94,
+      "mocking": 0.85,
+      "sarcasm": 0.95
+    }
+  },
+  "final_train": {
+    "loss": 0.3507039626170881,
+    "macro_pragmatic_f1": 0.9873558519497744,
+    "per_label_f1": {
+      "code_switching": 0.9896699524022444,
+      "idiom_figurative": 0.9918728621702195,
+      "implicit_sentiment": 0.9772453134845437,
+      "irony": 0.9970909142051263,
+      "mocking": 0.9871178682801527,
+      "sarcasm": 0.9811382011563602
+    },
+    "positive_class_metrics": {
+      "code_switching": {
+        "f1": 0.9824267782426778,
+        "fn": 32,
+        "fp": 10,
+        "precision": 0.9915540540540541,
+        "recall": 0.9734660033167496,
+        "tn": 6782,
+        "tp": 1174
+      },
+      "idiom_figurative": {
+        "f1": 0.984888888888889,
+        "fn": 9,
+        "fp": 8,
+        "precision": 0.9857651245551602,
+        "recall": 0.9840142095914742,
+        "tn": 7427,
+        "tp": 554
+      },
+      "implicit_sentiment": {
+        "f1": 0.9641808573106283,
+        "fn": 36,
+        "fp": 86,
+        "precision": 0.9502314814814815,
+        "recall": 0.9785458879618594,
+        "tn": 6234,
+        "tp": 1642
+      },
+      "irony": {
+        "f1": 0.9945848375451264,
+        "fn": 3,
+        "fp": 3,
+        "precision": 0.9945848375451264,
+        "recall": 0.9945848375451264,
+        "tn": 7441,
+        "tp": 551
+      },
+      "mocking": {
+        "f1": 0.977284733227681,
+        "fn": 7,
+        "fp": 36,
+        "precision": 0.9625390218522373,
+        "recall": 0.9924892703862661,
+        "tn": 7030,
+        "tp": 925
+      },
+      "sarcasm": {
+        "f1": 0.9648964896489649,
+        "fn": 9,
+        "fp": 30,
+        "precision": 0.9469964664310954,
+        "recall": 0.9834862385321101,
+        "tn": 7423,
+        "tp": 536
+      }
+    },
+    "pragmatic_ece": {
+      "bins": {
+        "code_switching": [
+          {
+            "absolute_gap": 0.009835875528076554,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 6600,
+            "empirical_positive_rate": 0.0006060606060606061,
+            "mean_confidence": 0.01044193613413716
+          },
+          {
+            "absolute_gap": 0.10936650655512671,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 103,
+            "empirical_positive_rate": 0.02912621359223301,
+            "mean_confidence": 0.13849272014735972
+          },
+          {
+            "absolute_gap": 0.20175123159532193,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 27,
+            "empirical_positive_rate": 0.037037037037037035,
+            "mean_confidence": 0.23878826863235897
+          },
+          {
+            "absolute_gap": 0.28325796127319336,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 15,
+            "empirical_positive_rate": 0.06666666666666667,
+            "mean_confidence": 0.34992462793986
+          },
+          {
+            "absolute_gap": 0.35413649678230286,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 12,
+            "empirical_positive_rate": 0.08333333333333333,
+            "mean_confidence": 0.43746983011563617
+          },
+          {
+            "absolute_gap": 0.5417472124099731,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 11,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.5417472124099731
+          },
+          {
+            "absolute_gap": 0.6506416350603104,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 8,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.6506416350603104
+          },
+          {
+            "absolute_gap": 0.50326207280159,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 12,
+            "empirical_positive_rate": 0.25,
+            "mean_confidence": 0.75326207280159
+          },
+          {
+            "absolute_gap": 0.20997800897149477,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 17,
+            "empirical_positive_rate": 0.6470588235294118,
+            "mean_confidence": 0.8570368325009066
+          },
+          {
+            "absolute_gap": 0.0038488858503548107,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 1193,
+            "empirical_positive_rate": 0.9907795473595976,
+            "mean_confidence": 0.9946284332099524
+          }
+        ],
+        "idiom_figurative": [
+          {
+            "absolute_gap": 0.008904181816556101,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 7145,
+            "empirical_positive_rate": 0.00013995801259622114,
+            "mean_confidence": 0.009044139829152323
+          },
+          {
+            "absolute_gap": 0.13984026811964861,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 143,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.13984026811964861
+          },
+          {
+            "absolute_gap": 0.2261755773654351,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 65,
+            "empirical_positive_rate": 0.015384615384615385,
+            "mean_confidence": 0.24156019275005047
+          },
+          {
+            "absolute_gap": 0.35263310074806214,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 25,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.35263310074806214
+          },
+          {
+            "absolute_gap": 0.44265710512797035,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 15,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.44265710512797035
+          },
+          {
+            "absolute_gap": 0.5409117102622986,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 10,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.5409117102622986
+          },
+          {
+            "absolute_gap": 0.645023375749588,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 8,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.645023375749588
+          },
+          {
+            "absolute_gap": 0.664079886674881,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 10,
+            "empirical_positive_rate": 0.1,
+            "mean_confidence": 0.764079886674881
+          },
+          {
+            "absolute_gap": 0.7152819335460663,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 8,
+            "empirical_positive_rate": 0.125,
+            "mean_confidence": 0.8402819335460663
+          },
+          {
+            "absolute_gap": 0.012720360487751825,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 569,
+            "empirical_positive_rate": 0.9824253075571178,
+            "mean_confidence": 0.9951456680448696
+          }
+        ],
+        "implicit_sentiment": [
+          {
+            "absolute_gap": 0.0111306921144759,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 5765,
+            "empirical_positive_rate": 0.0006938421509106678,
+            "mean_confidence": 0.011824534265386568
+          },
+          {
+            "absolute_gap": 0.13897050176348003,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 175,
+            "empirical_positive_rate": 0.005714285714285714,
+            "mean_confidence": 0.14468478747776575
+          },
+          {
+            "absolute_gap": 0.22496041191948785,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 90,
+            "empirical_positive_rate": 0.022222222222222223,
+            "mean_confidence": 0.24718263414171007
+          },
+          {
+            "absolute_gap": 0.3335625775482344,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 69,
+            "empirical_positive_rate": 0.014492753623188406,
+            "mean_confidence": 0.3480553311714228
+          },
+          {
+            "absolute_gap": 0.3492111730575561,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 50,
+            "empirical_positive_rate": 0.1,
+            "mean_confidence": 0.44921117305755615
+          },
+          {
+            "absolute_gap": 0.43828427659140695,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 45,
+            "empirical_positive_rate": 0.1111111111111111,
+            "mean_confidence": 0.5493953877025181
+          },
+          {
+            "absolute_gap": 0.4430996758597237,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 35,
+            "empirical_positive_rate": 0.2,
+            "mean_confidence": 0.6430996758597237
+          },
+          {
+            "absolute_gap": 0.4833875283962342,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 41,
+            "empirical_positive_rate": 0.2682926829268293,
+            "mean_confidence": 0.7516802113230635
+          },
+          {
+            "absolute_gap": 0.2769484194212182,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 86,
+            "empirical_positive_rate": 0.5697674418604651,
+            "mean_confidence": 0.8467158612816833
+          },
+          {
+            "absolute_gap": 0.016590536076316886,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 1642,
+            "empirical_positive_rate": 0.9701583434835567,
+            "mean_confidence": 0.9867488795598736
+          }
+        ],
+        "irony": [
+          {
+            "absolute_gap": 0.0066690313877985855,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 7228,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0066690313877985855
+          },
+          {
+            "absolute_gap": 0.14437555693089962,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 100,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.14437555693089962
+          },
+          {
+            "absolute_gap": 0.24705285409634764,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 44,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.24705285409634764
+          },
+          {
+            "absolute_gap": 0.34660264657389733,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 31,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.34660264657389733
+          },
+          {
+            "absolute_gap": 0.44992626706759137,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 21,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.44992626706759137
+          },
+          {
+            "absolute_gap": 0.5448444038629532,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 4,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.5448444038629532
+          },
+          {
+            "absolute_gap": 0.6165224313735962,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 4,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.6165224313735962
+          },
+          {
+            "absolute_gap": 0.5326022148132323,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 5,
+            "empirical_positive_rate": 0.2,
+            "mean_confidence": 0.7326022148132324
+          },
+          {
+            "absolute_gap": 0.6092165559530258,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 4,
+            "empirical_positive_rate": 0.25,
+            "mean_confidence": 0.8592165559530258
+          },
+          {
+            "absolute_gap": 0.006438066330161529,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 557,
+            "empirical_positive_rate": 0.9910233393177738,
+            "mean_confidence": 0.9974614056479353
+          }
+        ],
+        "mocking": [
+          {
+            "absolute_gap": 0.009419782184568896,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 6527,
+            "empirical_positive_rate": 0.00015320974413972729,
+            "mean_confidence": 0.009572991928708623
+          },
+          {
+            "absolute_gap": 0.13785991233845168,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 208,
+            "empirical_positive_rate": 0.004807692307692308,
+            "mean_confidence": 0.142667604646144
+          },
+          {
+            "absolute_gap": 0.23441921736373275,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 122,
+            "empirical_positive_rate": 0.00819672131147541,
+            "mean_confidence": 0.24261593867520817
+          },
+          {
+            "absolute_gap": 0.34533240716412383,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 53,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.34533240716412383
+          },
+          {
+            "absolute_gap": 0.41827209469150095,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 34,
+            "empirical_positive_rate": 0.029411764705882353,
+            "mean_confidence": 0.4476838593973833
+          },
+          {
+            "absolute_gap": 0.542511349215227,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 34,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.542511349215227
+          },
+          {
+            "absolute_gap": 0.6390506710324969,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 28,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.6390506710324969
+          },
+          {
+            "absolute_gap": 0.6456388360575626,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 19,
+            "empirical_positive_rate": 0.10526315789473684,
+            "mean_confidence": 0.7509019939522994
+          },
+          {
+            "absolute_gap": 0.6154763102531433,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 21,
+            "empirical_positive_rate": 0.23809523809523808,
+            "mean_confidence": 0.8535715483483814
+          },
+          {
+            "absolute_gap": 0.02699693160898542,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 952,
+            "empirical_positive_rate": 0.967436974789916,
+            "mean_confidence": 0.9944339063989014
+          }
+        ],
+        "sarcasm": [
+          {
+            "absolute_gap": 0.007622864829570153,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 6952,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.007622864829570153
+          },
+          {
+            "absolute_gap": 0.14149018595675508,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 167,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.14149018595675508
+          },
+          {
+            "absolute_gap": 0.2462157831515795,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 81,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.2462157831515795
+          },
+          {
+            "absolute_gap": 0.35311044292016464,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 55,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.35311044292016464
+          },
+          {
+            "absolute_gap": 0.44439074938947504,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 33,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.44439074938947504
+          },
+          {
+            "absolute_gap": 0.549542301687701,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 29,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.549542301687701
+          },
+          {
+            "absolute_gap": 0.6517704438280176,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 27,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.6517704438280176
+          },
+          {
+            "absolute_gap": 0.7019005368153255,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 24,
+            "empirical_positive_rate": 0.041666666666666664,
+            "mean_confidence": 0.7435672034819921
+          },
+          {
+            "absolute_gap": 0.828745135002666,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 36,
+            "empirical_positive_rate": 0.027777777777777776,
+            "mean_confidence": 0.8565229127804438
+          },
+          {
+            "absolute_gap": 0.07747926495291968,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 594,
+            "empirical_positive_rate": 0.9141414141414141,
+            "mean_confidence": 0.9916206790943338
+          }
+        ]
+      },
+      "macro": 0.02328074894001024,
+      "per_label": {
+        "code_switching": 0.014440130477199612,
+        "idiom_figurative": 0.017997609103031418,
+        "implicit_sentiment": 0.03192304144767552,
+        "irony": 0.013382860887880982,
+        "mocking": 0.0298215575590217,
+        "sarcasm": 0.03211929416525223
+      }
+    },
+    "prediction_count": 7998,
+    "sarcasm_binary_macro_f1": 0.9811382011563602,
+    "selection_metric": 0.9873558519497744,
+    "thresholds": {
+      "code_switching": 0.93,
+      "idiom_figurative": 0.94,
+      "implicit_sentiment": 0.8,
+      "irony": 0.94,
+      "mocking": 0.85,
+      "sarcasm": 0.95
+    }
+  },
+  "hardware_after": {
+    "captured_at_unix": 1791232266.1565998,
+    "cpu_count": 128,
+    "device_index": 0,
+    "nvidia_smi": "0, NVIDIA H100 80GB HBM3, [Insufficient Permissions], [N/A]",
+    "nvidia_smi_status": 0,
+    "pid": 116566,
+    "ps_status": 0,
+    "top_cpu_processes": [
+      {
+        "args": ".venv310/bin/python -u scripts/run_priority12_xlmr.py --experiment priority1 --variant beta_01 --seed 20260521 --device 0 --rationale-beta 0.1",
+        "command": "pt_main_thread",
+        "cpu_percent": 135.0,
+        "mem_percent": 0.1,
+        "pid": 116566
+      },
+      {
+        "args": "/root/.vscode-server/extensions/openai.chatgpt-26.930.51102-linux-x64/bin/linux-x86_64/codex -c features.code_mode_host=true app-server --analytics-default-enabled",
+        "command": "codex",
+        "cpu_percent": 0.8,
+        "mem_percent": 0.0,
+        "pid": 100687
+      },
+      {
+        "args": ".venv310/bin/python -u scripts/hf_artifact_uploader.py --queue-file runtime/priority2_q3_corrected_hf_upload_queue.jsonl --status-file runtime/priority2_q3_corrected_hf_uploader_status.json --stop-file runtime/STOP_PRIORITY2_Q3_CORRECTED_UPLOADER --campaign-id priority2-q3-corrected-v2-20261002 --poll-seconds 15",
+        "command": "python",
+        "cpu_percent": 0.7,
+        "mem_percent": 0.0,
+        "pid": 32673
+      },
+      {
+        "args": "/root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/node --dns-result-order=ipv4first /root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/out/bootstrap-fork --type=extensionHost --transformURIs --useHostProxy=false",
+        "command": "node",
+        "cpu_percent": 0.6,
+        "mem_percent": 0.0,
+        "pid": 100366
+      },
+      {
+        "args": ".venv310/bin/python scripts/hf_artifact_uploader.py --queue-file runtime/reviewer_gaps_hf_upload_queue.jsonl --status-file runtime/reviewer_gaps_hf_uploader_status.json --stop-file runtime/STOP_REVIEWER_GAPS_UPLOADER --campaign-id reviewer-gaps-20261005 --poll-seconds 15",
+        "command": "python",
+        "cpu_percent": 0.5,
+        "mem_percent": 0.0,
+        "pid": 104288
+      },
+      {
+        "args": "/root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/node /root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/out/server-main.js --connection-token=remotessh --accept-server-license-terms --start-server --enable-remote-auto-shutdown --socket-path=/tmp/code-dabd6f72-5ba6-401d-8236-bfe514c44d66",
+        "command": "node",
+        "cpu_percent": 0.1,
+        "mem_percent": 0.0,
+        "pid": 99267
+      },
+      {
+        "args": "/root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/node /root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/out/bootstrap-fork --type=ptyHost --logsPath /root/.vscode-server/data/logs/20261005T130031",
+        "command": "node",
+        "cpu_percent": 0.1,
+        "mem_percent": 0.0,
+        "pid": 99622
+      },
+      {
+        "args": "/root/.vscode-server/code-072586267e68ece9a47aa43f8c108e0dcbf44622 command-shell --cli-data-dir /root/.vscode-server/cli --parent-process-id 104968 --on-host=127.0.0.1 --on-port",
+        "command": "code-072586267e",
+        "cpu_percent": 0.1,
+        "mem_percent": 0.0,
+        "pid": 105001
+      },
+      {
+        "args": "sleep infinity",
+        "command": "sleep",
+        "cpu_percent": 0.0,
+        "mem_percent": 0.0,
+        "pid": 1
+      },
+      {
+        "args": "sshd: /usr/sbin/sshd [listener] 0 of 10-100 startups",
+        "command": "sshd",
+        "cpu_percent": 0.0,
+        "mem_percent": 0.0,
+        "pid": 41
+      },
+      {
+        "args": "/root/.vscode-server/code-072586267e68ece9a47aa43f8c108e0dcbf44622 command-shell --cli-data-dir /root/.vscode-server/cli --parent-process-id 5839 --on-host=127.0.0.1 --on-port",
+        "command": "code-072586267e",
+        "cpu_percent": 0.0,
+        "mem_percent": 0.0,
+        "pid": 5900
+      },
+      {
+        "args": "/bin/bash",
+        "command": "bash",
+        "cpu_percent": 0.0,
+        "mem_percent": 0.0,
+        "pid": 6314
+      }
+    ],
+    "torch_cuda": {
+      "allocated_gb": 6.67492151260376,
+      "compute_capability": [
+        9,
+        0
+      ],
+      "device_count": 1,
+      "device_name": "NVIDIA H100 80GB HBM3 MIG 2g.20gb",
+      "free_memory_gb": 0.86962890625,
+      "properties_total_memory_gb": 19.625,
+      "reserved_gb": 18.48828125,
+      "total_memory_gb": 19.625
+    }
+  },
+  "hardware_before": {
+    "captured_at_unix": 1791226332.56272,
+    "cpu_count": 128,
+    "device_index": 0,
+    "nvidia_smi": "0, NVIDIA H100 80GB HBM3, [Insufficient Permissions], [N/A]",
+    "nvidia_smi_status": 0,
+    "pid": 116566,
+    "ps_status": 0,
+    "top_cpu_processes": [
+      {
+        "args": ".venv310/bin/python -u scripts/run_priority12_xlmr.py --experiment priority1 --variant beta_01 --seed 20260521 --device 0 --rationale-beta 0.1",
+        "command": "pt_main_thread",
+        "cpu_percent": 352.0,
+        "mem_percent": 0.0,
+        "pid": 116566
+      },
+      {
+        "args": "/root/.vscode-server/extensions/openai.chatgpt-26.930.51102-linux-x64/bin/linux-x86_64/codex -c features.code_mode_host=true app-server --analytics-default-enabled",
+        "command": "codex",
+        "cpu_percent": 0.8,
+        "mem_percent": 0.0,
+        "pid": 100687
+      },
+      {
+        "args": ".venv310/bin/python -u scripts/hf_artifact_uploader.py --queue-file runtime/priority2_q3_corrected_hf_upload_queue.jsonl --status-file runtime/priority2_q3_corrected_hf_uploader_status.json --stop-file runtime/STOP_PRIORITY2_Q3_CORRECTED_UPLOADER --campaign-id priority2-q3-corrected-v2-20261002 --poll-seconds 15",
+        "command": "python",
+        "cpu_percent": 0.7,
+        "mem_percent": 0.0,
+        "pid": 32673
+      },
+      {
+        "args": "/root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/node --dns-result-order=ipv4first /root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/out/bootstrap-fork --type=extensionHost --transformURIs --useHostProxy=false",
+        "command": "node",
+        "cpu_percent": 0.7,
+        "mem_percent": 0.0,
+        "pid": 100366
+      },
+      {
+        "args": ".venv310/bin/python scripts/hf_artifact_uploader.py --queue-file runtime/reviewer_gaps_hf_upload_queue.jsonl --status-file runtime/reviewer_gaps_hf_uploader_status.json --stop-file runtime/STOP_REVIEWER_GAPS_UPLOADER --campaign-id reviewer-gaps-20261005 --poll-seconds 15",
+        "command": "python",
+        "cpu_percent": 0.7,
+        "mem_percent": 0.0,
+        "pid": 104288
+      },
+      {
+        "args": "/root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/node /root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/out/server-main.js --connection-token=remotessh --accept-server-license-terms --start-server --enable-remote-auto-shutdown --socket-path=/tmp/code-dabd6f72-5ba6-401d-8236-bfe514c44d66",
+        "command": "node",
+        "cpu_percent": 0.1,
+        "mem_percent": 0.0,
+        "pid": 99267
+      },
+      {
+        "args": "/root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/node /root/.vscode-server/cli/servers/Stable-072586267e68ece9a47aa43f8c108e0dcbf44622/server/out/bootstrap-fork --type=ptyHost --logsPath /root/.vscode-server/data/logs/20261005T130031",
+        "command": "node",
+        "cpu_percent": 0.1,
+        "mem_percent": 0.0,
+        "pid": 99622
+      },
+      {
+        "args": "/root/.vscode-server/code-072586267e68ece9a47aa43f8c108e0dcbf44622 command-shell --cli-data-dir /root/.vscode-server/cli --parent-process-id 104968 --on-host=127.0.0.1 --on-port",
+        "command": "code-072586267e",
+        "cpu_percent": 0.1,
+        "mem_percent": 0.0,
+        "pid": 105001
+      },
+      {
+        "args": "sleep infinity",
+        "command": "sleep",
+        "cpu_percent": 0.0,
+        "mem_percent": 0.0,
+        "pid": 1
+      },
+      {
+        "args": "sshd: /usr/sbin/sshd [listener] 0 of 10-100 startups",
+        "command": "sshd",
+        "cpu_percent": 0.0,
+        "mem_percent": 0.0,
+        "pid": 41
+      },
+      {
+        "args": "/root/.vscode-server/code-072586267e68ece9a47aa43f8c108e0dcbf44622 command-shell --cli-data-dir /root/.vscode-server/cli --parent-process-id 5839 --on-host=127.0.0.1 --on-port",
+        "command": "code-072586267e",
+        "cpu_percent": 0.0,
+        "mem_percent": 0.0,
+        "pid": 5900
+      },
+      {
+        "args": "/bin/bash",
+        "command": "bash",
+        "cpu_percent": 0.0,
+        "mem_percent": 0.0,
+        "pid": 6314
+      }
+    ],
+    "torch_cuda": {
+      "allocated_gb": 2.234841823577881,
+      "compute_capability": [
+        9,
+        0
+      ],
+      "device_count": 1,
+      "device_name": "NVIDIA H100 80GB HBM3 MIG 2g.20gb",
+      "free_memory_gb": 16.44580078125,
+      "properties_total_memory_gb": 19.625,
+      "reserved_gb": 2.947265625,
+      "total_memory_gb": 19.625
+    }
+  },
+  "history": [
+    {
+      "dev_loss": 4.619230469703674,
+      "dev_macro_pragmatic_f1": 0.6600046213320662,
+      "dev_metric": 0.6600046213320662,
+      "epoch": 1.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 547.9178373711184,
+      "train_loss": 11.618206260204316
+    },
+    {
+      "dev_loss": 3.9780960059165955,
+      "dev_macro_pragmatic_f1": 0.7779702951402349,
+      "dev_metric": 0.7779702951402349,
+      "epoch": 2.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 548.3902936503291,
+      "train_loss": 8.182932684898377
+    },
+    {
+      "dev_loss": 2.5066490066051483,
+      "dev_macro_pragmatic_f1": 0.8547238204145563,
+      "dev_metric": 0.8547238204145563,
+      "epoch": 3.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 547.3849094528705,
+      "train_loss": 6.493961910247803
+    },
+    {
+      "dev_loss": 2.10668382191658,
+      "dev_macro_pragmatic_f1": 0.8971500533871563,
+      "dev_metric": 0.8971500533871563,
+      "epoch": 4.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 549.69726793468,
+      "train_loss": 5.311641839027405
+    },
+    {
+      "dev_loss": 1.873101827442646,
+      "dev_macro_pragmatic_f1": 0.9155308741348462,
+      "dev_metric": 0.9155308741348462,
+      "epoch": 5.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 547.9023528741673,
+      "train_loss": 4.5728179869651795
+    },
+    {
+      "dev_loss": 1.7680738260746003,
+      "dev_macro_pragmatic_f1": 0.9149530006356402,
+      "dev_metric": 0.9149530006356402,
+      "epoch": 6.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 549.8952308269218,
+      "train_loss": 4.1039070322513584
+    },
+    {
+      "dev_loss": 1.77155596858263,
+      "dev_macro_pragmatic_f1": 0.9202907632828877,
+      "dev_metric": 0.9202907632828877,
+      "epoch": 7.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 546.4826357616112,
+      "train_loss": 3.733072455406189
+    },
+    {
+      "dev_loss": 1.8047274325191975,
+      "dev_macro_pragmatic_f1": 0.9224326051864553,
+      "dev_metric": 0.9224326051864553,
+      "epoch": 8.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 548.9634244460613,
+      "train_loss": 3.4755134654045103
+    },
+    {
+      "dev_loss": 1.729954696148634,
+      "dev_macro_pragmatic_f1": 0.9211921249871463,
+      "dev_metric": 0.9211921249871463,
+      "epoch": 9.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 547.6939669465646,
+      "train_loss": 3.3457599313259125
+    },
+    {
+      "dev_loss": 1.7461135241389274,
+      "dev_macro_pragmatic_f1": 0.9225121801608887,
+      "dev_metric": 0.9225121801608887,
+      "epoch": 10.0,
+      "peak_memory_gb": 13.518875122070312,
+      "seconds": 547.9610086558387,
+      "train_loss": 3.2817001016139984
+    }
+  ],
+  "initial_dev": {
+    "loss": 5.672145737648011,
+    "macro_pragmatic_f1": 0.48533416366735144,
+    "per_label_f1": {
+      "code_switching": 0.4633983329635504,
+      "idiom_figurative": 0.4977312700453746,
+      "implicit_sentiment": 0.47750526361329027,
+      "irony": 0.4821243523316062,
+      "mocking": 0.469791623837775,
+      "sarcasm": 0.5214541392125123
+    },
+    "positive_class_metrics": {
+      "code_switching": {
+        "f1": 0.18503118503118504,
+        "fn": 212,
+        "fp": 572,
+        "precision": 0.1346444780635401,
+        "recall": 0.2956810631229236,
+        "tn": 1126,
+        "tp": 89
+      },
+      "idiom_figurative": {
+        "f1": 0.10526315789473684,
+        "fn": 117,
+        "fp": 274,
+        "precision": 0.07744107744107744,
+        "recall": 0.16428571428571428,
+        "tn": 1585,
+        "tp": 23
+      },
+      "implicit_sentiment": {
+        "f1": 0.2639593908629442,
+        "fn": 263,
+        "fp": 607,
+        "precision": 0.20445609436435125,
+        "recall": 0.3723150357995227,
+        "tn": 973,
+        "tp": 156
+      },
+      "irony": {
+        "f1": 0.0,
+        "fn": 138,
+        "fp": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "tn": 1861,
+        "tp": 0
+      },
+      "mocking": {
+        "f1": 0.029498525073746312,
+        "fn": 228,
+        "fp": 101,
+        "precision": 0.04716981132075472,
+        "recall": 0.02145922746781116,
+        "tn": 1665,
+        "tp": 5
+      },
+      "sarcasm": {
+        "f1": 0.08695652173913045,
+        "fn": 128,
+        "fp": 40,
+        "precision": 0.16666666666666666,
+        "recall": 0.058823529411764705,
+        "tn": 1823,
+        "tp": 8
+      }
+    },
+    "pragmatic_ece": {
+      "bins": {
+        "code_switching": [
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.2271850815078279,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 1998,
+            "empirical_positive_rate": 0.15065065065065064,
+            "mean_confidence": 0.37783573215847854
+          },
+          {
+            "absolute_gap": 0.4068402945995331,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 1,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.4068402945995331
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          }
+        ],
+        "idiom_figurative": [
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.2948734561602275,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 3,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.2948734561602275
+          },
+          {
+            "absolute_gap": 0.24579199158655618,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 1996,
+            "empirical_positive_rate": 0.07014028056112225,
+            "mean_confidence": 0.31593227214767844
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          }
+        ],
+        "implicit_sentiment": [
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.39136213064193726,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 1,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.39136213064193726
+          },
+          {
+            "absolute_gap": 0.23783072862061894,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 1998,
+            "empirical_positive_rate": 0.2097097097097097,
+            "mean_confidence": 0.44754043833032864
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          }
+        ],
+        "irony": [
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.4209224662997506,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 22,
+            "empirical_positive_rate": 0.2727272727272727,
+            "mean_confidence": 0.6936497390270233
+          },
+          {
+            "absolute_gap": 0.6495769685063629,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 1977,
+            "empirical_positive_rate": 0.06676783004552352,
+            "mean_confidence": 0.7163447985518865
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          }
+        ],
+        "mocking": [
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.23622196739825563,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 1999,
+            "empirical_positive_rate": 0.11655827913956979,
+            "mean_confidence": 0.3527802465378254
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          }
+        ],
+        "sarcasm": [
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 0,
+            "bin_lower": 0.0,
+            "bin_upper": 0.1,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 1,
+            "bin_lower": 0.1,
+            "bin_upper": 0.2,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 2,
+            "bin_lower": 0.2,
+            "bin_upper": 0.30000000000000004,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.2813163610951432,
+            "bin_index": 3,
+            "bin_lower": 0.30000000000000004,
+            "bin_upper": 0.4,
+            "count": 1999,
+            "empirical_positive_rate": 0.06803401700850426,
+            "mean_confidence": 0.34935037810364744
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 4,
+            "bin_lower": 0.4,
+            "bin_upper": 0.5,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 5,
+            "bin_lower": 0.5,
+            "bin_upper": 0.6000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 6,
+            "bin_lower": 0.6000000000000001,
+            "bin_upper": 0.7000000000000001,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 7,
+            "bin_lower": 0.7000000000000001,
+            "bin_upper": 0.8,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 8,
+            "bin_lower": 0.8,
+            "bin_upper": 0.9,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          },
+          {
+            "absolute_gap": 0.0,
+            "bin_index": 9,
+            "bin_lower": 0.9,
+            "bin_upper": 1.0,
+            "count": 0,
+            "empirical_positive_rate": 0.0,
+            "mean_confidence": 0.0
+          }
+        ]
+      },
+      "macro": 0.3126078294389781,
+      "per_label": {
+        "code_switching": 0.22727495405064518,
+        "idiom_figurative": 0.24586565061292986,
+        "implicit_sentiment": 0.23790753272368112,
+        "irony": 0.6470605107532137,
+        "mocking": 0.23622196739825563,
+        "sarcasm": 0.2813163610951432
+      }
+    },
+    "prediction_count": 1999,
+    "sarcasm_binary_macro_f1": 0.5214541392125123,
+    "selection_metric": 0.48533416366735144,
+    "thresholds": {
+      "code_switching": 0.38,
+      "idiom_figurative": 0.32,
+      "implicit_sentiment": 0.45,
+      "irony": 0.73,
+      "mocking": 0.36,
+      "sarcasm": 0.36
+    }
+  },
+  "internal_training_copies_removed_after_validation": [
+    "_engine_checkpoints",
+    "_engine_output"
+  ],
+  "local_snapshot": "data/model_cache/xlmr_large",
+  "loss_multipliers": {
+    "code_switching": 1.04,
+    "emotion": 1.0,
+    "idiom_figurative": 1.0,
+    "implicit_sentiment": 1.01,
+    "irony": 1.05,
+    "mocking": 1.0,
+    "polarity": 1.0,
+    "sarcasm": 1.01
+  },
+  "model_family": "xlmr_large",
+  "model_parameter_count": 591517840,
+  "peak_vram_gb": 13.518875122070312,
+  "preprocessing_name": "unicode_nfc",
+  "preprocessing_version": "locked-v1",
+  "rationale_artifact": "data/processed/rationales/approved_generated_rationales_train.jsonl",
+  "rationale_artifact_sha256": "B583AC45F4BC2FDFA41DA44376AB99585075CA3EBB1FC47BC3936D84B89B21D1",
+  "rationale_record_count": 7998,
+  "resolved_training_config": {
+    "active_tasks": [
+      "emotion",
+      "polarity",
+      "pragmatic"
+    ],
+    "batch_order": "fixed",
+    "budget": null,
+    "checkpoint_selection_rule": "best_checkpoint_selected_on_development_macro_pragmatic_f1",
+    "code_commit": "9b40cc13cdfda6b037c6178b7dcadc5f341b8214",
+    "dataset": {
+      "fingerprint": "B906C090400BAE115C9C5E3C35E32FA410AC519AE09209EBA741F198087C24F9",
+      "root": "data/processed/vipragsent",
+      "sample_id_order": "frozen CSV order",
+      "split_sizes": {
+        "dev": 1999,
+        "test": 2000,
+        "train": 7998
+      }
+    },
+    "experiment": "priority1",
+    "experiment_name": "priority12_xlmr_v37_component_ablation",
+    "gradient_strategy": "sum",
+    "local_snapshot": "data/model_cache/xlmr_large",
+    "loss_multipliers": {
+      "code_switching": 1.04,
+      "emotion": 1.0,
+      "idiom_figurative": 1.0,
+      "implicit_sentiment": 1.01,
+      "irony": 1.05,
+      "mocking": 1.0,
+      "polarity": 1.0,
+      "sarcasm": 1.01
+    },
+    "max_sequence_length": 128,
+    "model_family": "xlmr_large",
+    "model_repository": "FacebookAI/xlm-roberta-large",
+    "model_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "preprocessing": {
+      "name": "unicode_nfc",
+      "normalization": "NFC",
+      "version": "locked-v1"
+    },
+    "q3": null,
+    "q3_mask_hash": null,
+    "rationale_decoder": true,
+    "run_id": "priority12_v37_q1_beta_01_20260521",
+    "seed": 20260521,
+    "sensitivity": {
+      "all_task_multipliers_one": false,
+      "rationale_beta_override": 0.1
+    },
+    "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+    "training_config": {
+      "deterministic_algorithms": "warn_only",
+      "effective_batch_size": 32,
+      "gradient_accumulation_steps": 4,
+      "gradient_checkpointing": false,
+      "learning_rate": 2e-05,
+      "max_epochs": 10,
+      "max_grad_norm": 1.0,
+      "min_delta": 0.0001,
+      "optimizer": "AdamW",
+      "patience": 10,
+      "physical_batch_size": 8,
+      "precision": "bf16",
+      "primary_metric": "dev_macro_pragmatic_f1",
+      "qlora": {
+        "lora": {},
+        "quantization": {
+          "type": "none"
+        }
+      },
+      "rationale_beta": 0.1,
+      "rationale_target_max_length": 160,
+      "scheduler": "cosine",
+      "use_uncertainty_weighting": true,
+      "warmup_ratio": 0.2,
+      "weight_decay": 0.01
+    },
+    "uncertainty_log_variances": "learned",
+    "uncertainty_weighting": true,
+    "variant_id": "vipragsent_full_xlmr_large",
+    "variant_key": "beta_01"
+  },
+  "run_id": "priority12_v37_q1_beta_01_20260521",
+  "schema_version": 1,
+  "scientific_integrity": {
+    "do_not_select_seeds_by_test_outcome": true,
+    "expected_ranges_are_interpretation_targets_only": true,
+    "keep_all_structurally_valid_seeds": true
+  },
+  "seed": 20260521,
+  "selected_thresholds": {
+    "code_switching": 0.93,
+    "idiom_figurative": 0.94,
+    "implicit_sentiment": 0.8,
+    "irony": 0.94,
+    "mocking": 0.85,
+    "sarcasm": 0.95
+  },
+  "selection_metric": "dev_macro_pragmatic_f1",
+  "selection_split": "dev",
+  "sensitivity": {
+    "all_task_multipliers_one": false,
+    "rationale_beta_override": 0.1
+  },
+  "status": "PASS",
+  "test_evaluated_after_checkpoint_and_threshold_freeze": true,
+  "test_evaluated_during_training": false,
+  "threshold_source_split": "dev",
+  "thresholds_frozen_before_test": true,
+  "tokenizer_revision": "c23d21b0620b635a76227c604d44e43a9f0ee389",
+  "trainable_parameter_count": 591517848,
+  "training_config": {
+    "deterministic_algorithms": "warn_only",
+    "effective_batch_size": 32,
+    "gradient_accumulation_steps": 4,
+    "gradient_checkpointing": false,
+    "learning_rate": 2e-05,
+    "max_epochs": 10,
+    "max_grad_norm": 1.0,
+    "min_delta": 0.0001,
+    "optimizer": "AdamW",
+    "patience": 10,
+    "physical_batch_size": 8,
+    "precision": "bf16",
+    "primary_metric": "dev_macro_pragmatic_f1",
+    "qlora": {
+      "lora": {},
+      "quantization": {
+        "type": "none"
+      }
+    },
+    "rationale_beta": 0.1,
+    "rationale_target_max_length": 160,
+    "scheduler": "cosine",
+    "use_uncertainty_weighting": true,
+    "warmup_ratio": 0.2,
+    "weight_decay": 0.01
+  },
+  "uncertainty_log_variances_learned": true,
+  "validation": {
+    "checkpoint_sha256": true,
+    "metrics_files": {
+      "dev": "results/runs/priority12_v37_q1_beta_01_20260521/metrics/dev_metrics.json",
+      "test": "results/runs/priority12_v37_q1_beta_01_20260521/metrics/test_metrics.json",
+      "train": "results/runs/priority12_v37_q1_beta_01_20260521/metrics/train_metrics.json"
+    },
+    "prediction_files": {
+      "dev": {
+        "count": 1999,
+        "path": "results/runs/priority12_v37_q1_beta_01_20260521/predictions/dev_predictions.jsonl",
+        "sample_id_order": "frozen",
+        "status": "PASS"
+      },
+      "test": {
+        "count": 2000,
+        "path": "results/runs/priority12_v37_q1_beta_01_20260521/predictions/test_predictions.jsonl",
+        "sample_id_order": "frozen",
+        "status": "PASS"
+      },
+      "train": {
+        "count": 7998,
+        "path": "results/runs/priority12_v37_q1_beta_01_20260521/predictions/train_predictions.jsonl",
+        "sample_id_order": "frozen",
+        "status": "PASS"
+      }
+    },
+    "status": "PASS",
+    "test_evaluated_after_dev_freeze": true,
+    "test_evaluated_during_training": true,
+    "threshold_source": true
+  },
+  "variant_id": "vipragsent_full_xlmr_large",
+  "variant_key": "beta_01",
+  "wall_seconds": 5933.4808177948
+}

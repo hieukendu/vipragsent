@@ -5,11 +5,12 @@ import json
 import os
 import subprocess
 from collections.abc import Mapping
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from ..atomic import atomic_write_json, atomic_write_text, exclusive_lock
+from ..compat import UTC
 from ..hashing import sha256_file
 from .contracts import (
     TERMINAL_STAGE_STATUSES,

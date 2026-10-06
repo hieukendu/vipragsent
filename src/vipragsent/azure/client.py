@@ -9,11 +9,12 @@ import time
 import uuid
 from collections.abc import Callable, Mapping
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from ..atomic import atomic_write_json, exclusive_lock
+from ..compat import UTC
 from ..hashing import sha256_json
 from ..profiling import azure_successful_usage_cost
 from .schemas import validate_rationale_output, validate_structured_output
