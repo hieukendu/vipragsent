@@ -1,0 +1,82 @@
+\section{Annotation scheme and representative examples}
+Representative gold examples documenting the operational annotation scheme. Annotation followed the operational definitions summarized here; no separate standalone annotation manual was maintained. Examples are shown without sample identifiers.
+
+One multi-label gold example is “Haha trend mới mà”, annotated positive for implicit sentiment, irony, and code-switching.\newline \emph{English: ``Haha, it is a new trend.''}
+
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{1pt}
+\begin{tabularx}{\columnwidth}{>{\raggedright\arraybackslash}p{0.80in} >{\raggedright\arraybackslash}X}
+\hline
+Label & Definition, Vietnamese example, and English gloss \\
+\hline
+Implicit sentiment & \textbf{Definition:} Evaluative stance without an overt sentiment expression.\newline\textbf{Vietnamese:} Đào nhà t nở đc có 4-5 bông, cháu t vặt cả nụ lẫn hoa :))\newline\emph{The peach tree at my house only managed to bloom 4--5 flowers; my niece/nephew picked both the buds and the flowers :)).} \\
+Sarcasm & \textbf{Definition:} Target-directed, derisive or taunting realization of incongruity.\newline\textbf{Vietnamese:} Ơ lần đầu à? Lần đầu thì xác định đi nhé, nó không thơm ngon như mọi người kể đâu =))) chỉ có sau quen thì mới như vậy được thôi.\newline\emph{Oh, is it your first time? If it is, be prepared--it is not as fragrant or tasty as people say =))) It only becomes that way after you get used to it.} \\
+Irony & \textbf{Definition:} Incongruity between literal and intended evaluation.\newline\textbf{Vietnamese:} kênh hay mà ra video chậm nhỉ quá là buồn\newline\emph{The channel is good, but the videos come out slowly; that is really sad.} \\
+Idiom/\\figurative & \textbf{Definition:} Conventional idiom or other nonliteral/figurative expression.\newline\textbf{Vietnamese:} CT này chán như con zán\newline\emph{This program is as boring as a cockroach.} \\
+Code-switching & \textbf{Definition:} Alternation between Vietnamese and material from another language.\newline\textbf{Vietnamese:} Haha trend mới mà\newline\emph{Haha, it is a new trend.} \\
+Mocking & \textbf{Definition:} Derisive expression directed at a target.\newline\textbf{Vietnamese:} Flash thua theo chiến thuật làm anh tưởng đánh yếu lo vãi\newline\emph{Flash lost strategically, making me think he was weak; that was freaking scary.} \\
+\hline
+\end{tabularx}
+\caption{Representative gold examples documenting the operational annotation scheme.}
+\label{tab:annotation-examples}
+\end{table}
+
+
+\FloatBarrier
+
+\section{Additional bootstrap results}
+\footnotesize
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{>{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
+\hline
+Metric & Delta (pp) & 95\% CI \\
+\hline
+Implicit sentiment & +0.41 & [-0.65,+1.44] \\
+Sarcasm & +0.96 & [-1.08,+3.00] \\
+Irony & +0.25 & [-0.30,+0.87] \\
+Idiom/figurative & +0.76 & [-0.47,+2.03] \\
+Code-switching & +0.50 & [-0.54,+1.63] \\
+Mocking & +0.89 & [-0.55,+2.33] \\
+Macro-pragmatic & +0.63 & [+0.07,+1.20] \\
+\hline
+\end{tabularx}
+\caption{Paired hierarchical-bootstrap F1 differences between the proposed model and XLM-R-large pragmatic-only baseline. Positive values favor the proposed model.}
+\label{tab:bootstrap}
+\end{table}
+
+
+\section{Additional error analysis}
+Table 8 reports pooled confusion counts for the proposed model and the XLM-R-large pragmatic-only baseline.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabularx}{\columnwidth}{>{\raggedright\arraybackslash}p{0.62in} >{\raggedright\arraybackslash}p{0.85in}  >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X >{\centering\arraybackslash}X}
+\hline
+Label & System & TP & TN & FP & FN \\
+\hline
+Sarcasm & Proposed & 343 & 5488 & 104 & 65 \\
+Sarcasm & Prag.-only & 333 & 5484 & 108 & 75 \\
+Mocking & Proposed & 610 & 5227 & 74 & 89 \\
+Mocking & Prag.-only & 589 & 5229 & 72 & 110 \\
+\hline
+\end{tabularx}
+\caption{Pooled three-run confusion counts for the proposed model and XLM-R-large pragmatic-only baseline. Prag.-only denotes the XLM-R-large pragmatic-only baseline.}
+\label{tab:confusion}
+\end{table}
+
+For paired directional counts, the proposed system is correct while the baseline is wrong on 65 sarcasm examples and 73 mocking examples; the reverse pattern occurs on 51 and 54 examples, respectively. Across all six heads, the proposed system corrects at least two baseline errors on 42 examples, whereas reverse regressions on at least two labels occur on 27 examples.
+
+
+\section{AIVIVN reannotation}
+AIVIVN is an external sentiment dataset used for evaluation. The full 16,087-example corpus was reannotated from scratch after discarding the original labels, using the three-way label set negative, neutral, and positive. The same three Vietnamese annotators used for ViPragSent produced two independent first-pass labels followed by adjudication by the third annotator. The split sizes are 12,869 train, 1,609 development, and 1,609 test examples. Only the 1,609-example test split is used for Q1b; no AIVIVN example is used for proposed-model training, development, or hyperparameter selection.
+
+
+\section{Compute details}
+The three proposed Q1a runs used a single visible NVIDIA H100 80GB device with a 2g.20gb MIG slice and required 4.78 GPU-hours in total, with approximately 13.50 GB peak allocated memory. The XLM-R-large pragmatic-only baseline required 1.12 GPU-hours across three runs, with approximately 10.50 GB peak allocated memory.

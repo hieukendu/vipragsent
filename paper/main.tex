@@ -1,0 +1,57 @@
+% ViPragSent NAACL paper production entry point.
+% Production-owned file: do not place manuscript prose here.
+% The author-owned section files are included from paper/sections/.
+\documentclass[11pt]{article}
+
+% Official ACL style: paper/template/acl.sty. Review mode is the safe default
+% until the author supplies the venue/submission mode and author metadata.
+\usepackage[review]{template/acl}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{placeins}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
+\graphicspath{{figures/}}
+\setcounter{dbltopnumber}{2}
+\renewcommand{\dbltopfraction}{.95}
+\renewcommand{\textfraction}{.05}
+
+\title{ViPragSent: A Vietnamese Dataset and XLM-R-large Multi-task Model for Pragmatic Sentiment Analysis}
+\author{}
+
+% Include a canonical author-owned section when it exists. This keeps the
+% production layer from creating or rewriting prose files.
+\newcommand{\inputsection}[1]{%
+  \IfFileExists{sections/#1.tex}{\input{sections/#1.tex}}{\typeout{INFO: missing author section sections/#1.tex}}%
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\IfFileExists{sections/abstract.tex}{\input{sections/abstract.tex}}{\relax}
+\end{abstract}
+
+\inputsection{introduction}
+\inputsection{related_work}
+\inputsection{method}
+\inputsection{experiments}
+\inputsection{results}
+\inputsection{discussion}
+\inputsection{conclusion}
+\inputsection{limitations}
+\inputsection{ethics}
+
+\IfFileExists{references.bib}{%
+  \bibliography{references}%
+}{\typeout{INFO: missing author bibliography references.bib}}
+
+% Supplementary appendices remain in the single canonical main.pdf and follow
+% the references so the main scientific layout ends cleanly at the conclusion.
+\IfFileExists{sections/appendix.tex}{\clearpage\appendix\inputsection{appendix}}{}
+
+\end{document}

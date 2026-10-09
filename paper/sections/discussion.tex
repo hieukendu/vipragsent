@@ -1,0 +1,9 @@
+\section{Discussion}
+
+Against the XLM-R-large pragmatic-only baseline, the two largest observed head-level gains are sarcasm (+0.96 pp) and mocking (+0.89 pp). A pooled three-run error analysis shows different descriptive error patterns. For sarcasm, the proposed system records 10 additional true positives and 10 fewer false negatives, together with four fewer false positives. For mocking, it records 21 additional true positives and 21 fewer false negatives, while false positives remain nearly unchanged (74 versus 72). Across all six heads, the proposed system corrects at least two pragmatic-label errors on 42 examples for which the baseline does not, compared with 27 examples showing the reverse pattern. These observations are descriptive and do not identify the contribution of any individual auxiliary component.
+
+Because the pragmatic-only baseline uses the same Q1a optimization and model-selection settings, the comparison controls for these training choices. However, the two systems still differ in several auxiliary-training components, so the comparison does not isolate the causal effect of any single component.
+
+Q2 exposes an F1, calibration, and cost trade-off: removing uncertainty weighting slightly raises F1, the full configuration has lower ECE, and removing the rationale auxiliary lowers cost. The no-sharing configuration is weaker and less calibrated; the rationale decoder is training-only, not an inference explanation interface.
+
+Q3 retains the full negative pool and other objectives; its non-monotonic curves support a positive-label scarcity observation under this protocol, not a general sample-efficiency law. The dataset-level co-occurrence rate supports overlapping pragmatic labels rather than a mutually exclusive taxonomy. Q1b examines external affective transfer and Q4 calibration; Vistral's lower ECE shows that discrimination and calibration need not rank alike.
