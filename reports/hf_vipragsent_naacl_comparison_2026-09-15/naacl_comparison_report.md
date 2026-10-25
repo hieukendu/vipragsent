@@ -1,7 +1,9 @@
 # ViPragSent NAACL comparison artefact package
 
-Generated: `2026-09-15T13:57:55.800726Z`  
-Analysis state: **ANALYZED** (HF artefact analysis; no training or inference rerun).
+Generated: `2026-09-17T11:34:20.708857Z`  
+Verification state: **VERIFIED_ARTIFACTS** (remote HF artefacts, hashes,
+completion manifests, and derived tables verified; no independent training or
+inference rerun was performed).
 
 ## Scope and evidence
 
@@ -12,15 +14,20 @@ not copied into these tables.
 
 - Source: authenticated Hugging Face API using the token from `.env`; no GitHub code was used.
 - Fresh HF recheck: see [`hf_remote_recheck_summary.json`](hf_remote_recheck_summary.json).
+- Live 2026-09-17 inventory retry: repository metadata remained unchanged for all 30 repositories, but tree pagination was rate-limited by HF HTTP 429; it is recorded in [`metadata_reconciliation.json`](metadata_reconciliation.json) and does not replace the complete 2026-09-15 snapshot.
 - Account inventory: 30 repositories, 480,738 tree entries, and complete pagination for all 30 repositories.
-- Selected structured sources fetched or cached in this package: 192.
-- Primary target: **ViPragSent with XLM-R-large**, seeds 21/22/23.
+- Selected structured sources fetched or cached in this package: 195.
+- Primary target: **ViPragSent with XLM-R-large**, logical seed labels 21/22/23. The remote optimization manifests retain date-coded seed values 20260521/20260522/20260523; the reconciliation is recorded in [`artifact_verification_records.jsonl`](artifact_verification_records.jsonl) and [`q1a_target_artifact_manifest.json`](q1a_target_artifact_manifest.json).
+- Artifact-level completion: all three primary target `optimization_manifest.json` files report `PASS`; their paths and hashes are recorded in [`artifact_verification_records.jsonl`](artifact_verification_records.jsonl).
+- Complete target tree inventory: [`q1a_target_artifact_manifest.json`](q1a_target_artifact_manifest.json) records required config, metric, prediction, checkpoint, training, and resource files for all three seeds.
 - Ordinary baselines remain in the comparison. ViPragSent variants using Vistral are recorded as discovered but excluded from the primary scope, following the original filtering instruction.
 - The PDF describes five seeds; this HF snapshot provides three requested seeds (21/22/23) for the primary Q1a/Q2/Q3/Q4 groups. No five-seed claim is made here.
 
 ## Q1a baseline table
 
 Primary ViPragSent XLM-R-large macro-pragmatic F1: **93.7 ± 0.2** (mean ± sample SD over available seeds).
+
+Leaderboard assertion: **PASS** — the target is highest on all six pragmatic heads and macro-pragmatic F1 against the five complete standard baselines (see [`q1a_leaderboard_verification.json`](q1a_leaderboard_verification.json)).
 
 | System | Backbone | n | Implicit | Sarcasm | Irony | Idiom/figurative | Code-switching | Mocking | Macro-prag |
 |---|---|---|---|---|---|---|---|---|---|
@@ -150,8 +157,9 @@ API cost values are not copied into this package. Machine-readable files are
 - [`baseline_status_records.jsonl`](baseline_status_records.jsonl) preserves the GPT baseline receipt status rather than treating an unfinished run as a metric.
 - [`resource_usage_records.csv`](resource_usage_records.csv) preserves the Q1a/Q2 resource records used for Table 4 cost normalization and Table 5.
 - [`review_checks.json`](review_checks.json) and [`artifact_hashes.sha256`](artifact_hashes.sha256) are the final local integrity checks.
+- [`metadata_reconciliation.json`](metadata_reconciliation.json) records stale local pre-experiment gates, HF status-attention rows, and the exact resolution used for this final package.
 
-The package is suitable as a paper-preparation basis, but claims should remain
-bounded by the three-seed HF coverage and the explicit missingness table until
-an independent rerun or equivalent reproducibility check promotes the result
-from **ANALYZED** to **VERIFIED**.
+This is an artifact-level verification package, not an independent
+reproducibility rerun. The three-seed scope, GPT missingness, and all excluded
+backbone variants remain explicit; no missing score is imputed and no claim of
+an independent training/inference rerun is made.

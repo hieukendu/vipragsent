@@ -1,0 +1,223 @@
+{
+  "authoritative_sources": [
+    "reports/hf_vipragsent_remote_audit_2026-09-15",
+    "reports/hf_vipragsent_remote_recheck_2026-09-15/remote_recheck_summary.json",
+    "authenticated HF tree and raw files recorded in source_manifest.jsonl"
+  ],
+  "final_package_status": "VERIFIED_ARTIFACTS",
+  "generated_at": "2026-09-17T11:34:17.890932Z",
+  "hf_status_attention_resolution": {
+    "reconciled_status": "ARTIFACT_COMPLETED_WITH_HISTORICAL_STATUS_ATTENTION",
+    "resolution": "Preserve the NOT_STARTED run_manifest value as historical receipt metadata; use the later APPROVED state plus PASS metrics/review/validation records for artifact status. No remote receipt was overwritten.",
+    "source_rows": [
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q2_no_multitask",
+        "question": "Q2",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 21
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q2_no_multitask",
+        "question": "Q2",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 22
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q2_no_multitask",
+        "question": "Q2",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 23
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q4_full",
+        "question": "Q4",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 21
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q4_full",
+        "question": "Q4",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 22
+      },
+      {
+        "approval_status_values": "APPROVED",
+        "experiment_group": "xlmr_followup_q4_full",
+        "question": "Q4",
+        "run_status_values": "NOT_STARTED,PASS",
+        "seed": 23
+      }
+    ]
+  },
+  "historical_local_metadata_preserved": [
+    {
+      "classification": "historical local code/pre-experiment protocol guard",
+      "path": "reports/final_review_metadata_protocol_guard.json",
+      "resolution": "Not rewritten; it is not authoritative for the separately published HF experiment artifacts."
+    },
+    {
+      "classification": "historical local export/approval gate",
+      "path": "reports/artifact_export_review_audit.json",
+      "resolution": "Not rewritten; the final HF package carries its own artifact verification records."
+    },
+    {
+      "classification": "historical local run-store aggregation gate",
+      "path": "reports/approved_aggregation_q1a.json",
+      "resolution": "Not used to reject or fabricate remote HF metrics; aggregate table uses authenticated HF files."
+    }
+  ],
+  "independent_rerun": "NOT_PERFORMED",
+  "interpretation": "VERIFIED_ARTIFACTS means remote files, hashes, completion manifests, and derived comparisons were checked. It does not mean an independent training or inference rerun was performed.",
+  "live_follow_up_2026_09_17": {
+    "repository_count": 30,
+    "repository_metadata_changed_count": 0,
+    "repository_metadata_status": "UNCHANGED",
+    "resolution": "Retain the complete 2026-09-15 tree/recheck as the authoritative full snapshot; the live retry confirms repository-level SHA/last-modified parity but does not claim a new full-tree pass.",
+    "tree_pagination_error": "HF HTTP 429 during the live inventory retry",
+    "tree_pagination_status": "INCOMPLETE_RATE_LIMITED"
+  },
+  "missingness_preserved": [
+    {
+      "resolution": "Keep out of numeric leaderboard; preserve receipt in baseline_status_records.jsonl.",
+      "status": "NOT_STARTED",
+      "system": "GPT-4.1-mini zero-shot"
+    },
+    {
+      "resolution": "Keep out of numeric leaderboard; preserve receipt in baseline_status_records.jsonl.",
+      "status": "NOT_STARTED",
+      "system": "GPT-4.1-mini 8-shot"
+    }
+  ],
+  "q1a_leaderboard_resolution": {
+    "comparison_scope": "Q1a standard complete-seed baselines only",
+    "complete_baseline_count": 5,
+    "excluded_from_numeric_comparison": [
+      "GPT-4.1-mini zero-shot",
+      "GPT-4.1-mini 8-shot",
+      "ViPragSent variants with Vistral backbone"
+    ],
+    "metrics": {
+      "code_switching": {
+        "closest_baseline": {
+          "mean": 0.9426512893430123,
+          "system": "XLM-R-large (baseline)"
+        },
+        "margin": 0.005729589372228228,
+        "target_is_highest": true,
+        "target_mean": 0.9483808787152406
+      },
+      "idiom_figurative": {
+        "closest_baseline": {
+          "mean": 0.9285011828556056,
+          "system": "XLM-R-large (baseline)"
+        },
+        "margin": 0.0049896906397459695,
+        "target_is_highest": true,
+        "target_mean": 0.9334908734953515
+      },
+      "implicit_sentiment": {
+        "closest_baseline": {
+          "mean": 0.9216367596235837,
+          "system": "XLM-R-large (baseline)"
+        },
+        "margin": 0.005056600150939228,
+        "target_is_highest": true,
+        "target_mean": 0.9266933597745229
+      },
+      "irony": {
+        "closest_baseline": {
+          "mean": 0.9792952151111276,
+          "system": "XLM-R-large (baseline)"
+        },
+        "margin": 0.005032316947555016,
+        "target_is_highest": true,
+        "target_mean": 0.9843275320586826
+      },
+      "macro_pragmatic_f1": {
+        "closest_baseline": {
+          "mean": 0.929342505569368,
+          "system": "XLM-R-large (baseline)"
+        },
+        "margin": 0.007315874764746821,
+        "target_is_highest": true,
+        "target_mean": 0.9366583803341149
+      },
+      "mocking": {
+        "closest_baseline": {
+          "mean": 0.9227402370780134,
+          "system": "XLM-R-large (baseline)"
+        },
+        "margin": 0.010711657581093492,
+        "target_is_highest": true,
+        "target_mean": 0.9334518946591069
+      },
+      "sarcasm": {
+        "closest_baseline": {
+          "mean": 0.8812303494048656,
+          "system": "XLM-R-large (baseline)"
+        },
+        "margin": 0.012375393896918885,
+        "target_is_highest": true,
+        "target_mean": 0.8936057433017844
+      }
+    },
+    "status": "PASS",
+    "target_seed_count": 3,
+    "target_system": "ViPragSent (XLM-R-large)"
+  },
+  "q1a_seed_reconciliation": [
+    {
+      "logical_seed_label": 21,
+      "remote_recorded_seed": 20260521,
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+      "status": "DATE_CODED_REMOTE_SEED"
+    },
+    {
+      "logical_seed_label": 22,
+      "remote_recorded_seed": 20260522,
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522",
+      "status": "DATE_CODED_REMOTE_SEED"
+    },
+    {
+      "logical_seed_label": 23,
+      "remote_recorded_seed": 20260523,
+      "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523",
+      "status": "DATE_CODED_REMOTE_SEED"
+    }
+  ],
+  "q1a_target_review_resolution": {
+    "resolution": "Use each run's optimization_manifest.json status PASS as artifact-level completion/provenance; do not synthesize review_summary.json.",
+    "review_summary_missing_count": 3,
+    "target_run_count": 3,
+    "verification_records": [
+      {
+        "metric_status": "METRIC_FOUND",
+        "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521",
+        "source_path": "campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260521/optimization_manifest.json",
+        "source_status": "PASS",
+        "source_type": "optimization_manifest_fallback"
+      },
+      {
+        "metric_status": "METRIC_FOUND",
+        "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522",
+        "source_path": "campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260522/optimization_manifest.json",
+        "source_status": "PASS",
+        "source_type": "optimization_manifest_fallback"
+      },
+      {
+        "metric_status": "METRIC_FOUND",
+        "run_id": "q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523",
+        "source_path": "campaigns/vipragsent-v8-local-mig2g20gb/q1a_vipragsent_full_XLM_R_large_optimization_pragmatic_warmup020_irony105_implicit101_sarcasm101_code104_v37_20260523/optimization_manifest.json",
+        "source_status": "PASS",
+        "source_type": "optimization_manifest_fallback"
+      }
+    ]
+  },
+  "scope": "HF remote ViPragSent artefact publication and paper-shaped comparison metadata",
+  "status": "PASS"
+}

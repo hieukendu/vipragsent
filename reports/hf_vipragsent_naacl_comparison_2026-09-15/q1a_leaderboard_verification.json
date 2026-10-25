@@ -1,0 +1,77 @@
+{
+  "comparison_scope": "Q1a standard complete-seed baselines only",
+  "complete_baseline_count": 5,
+  "excluded_from_numeric_comparison": [
+    "GPT-4.1-mini zero-shot",
+    "GPT-4.1-mini 8-shot",
+    "ViPragSent variants with Vistral backbone"
+  ],
+  "metrics": {
+    "code_switching": {
+      "closest_baseline": {
+        "mean": 0.9426512893430123,
+        "system": "XLM-R-large (baseline)"
+      },
+      "margin": 0.005729589372228228,
+      "target_is_highest": true,
+      "target_mean": 0.9483808787152406
+    },
+    "idiom_figurative": {
+      "closest_baseline": {
+        "mean": 0.9285011828556056,
+        "system": "XLM-R-large (baseline)"
+      },
+      "margin": 0.0049896906397459695,
+      "target_is_highest": true,
+      "target_mean": 0.9334908734953515
+    },
+    "implicit_sentiment": {
+      "closest_baseline": {
+        "mean": 0.9216367596235837,
+        "system": "XLM-R-large (baseline)"
+      },
+      "margin": 0.005056600150939228,
+      "target_is_highest": true,
+      "target_mean": 0.9266933597745229
+    },
+    "irony": {
+      "closest_baseline": {
+        "mean": 0.9792952151111276,
+        "system": "XLM-R-large (baseline)"
+      },
+      "margin": 0.005032316947555016,
+      "target_is_highest": true,
+      "target_mean": 0.9843275320586826
+    },
+    "macro_pragmatic_f1": {
+      "closest_baseline": {
+        "mean": 0.929342505569368,
+        "system": "XLM-R-large (baseline)"
+      },
+      "margin": 0.007315874764746821,
+      "target_is_highest": true,
+      "target_mean": 0.9366583803341149
+    },
+    "mocking": {
+      "closest_baseline": {
+        "mean": 0.9227402370780134,
+        "system": "XLM-R-large (baseline)"
+      },
+      "margin": 0.010711657581093492,
+      "target_is_highest": true,
+      "target_mean": 0.9334518946591069
+    },
+    "sarcasm": {
+      "closest_baseline": {
+        "mean": 0.8812303494048656,
+        "system": "XLM-R-large (baseline)"
+      },
+      "margin": 0.012375393896918885,
+      "target_is_highest": true,
+      "target_mean": 0.8936057433017844
+    }
+  },
+  "status": "PASS",
+  "target_seed_count": 3,
+  "target_system": "ViPragSent (XLM-R-large)"
+}
