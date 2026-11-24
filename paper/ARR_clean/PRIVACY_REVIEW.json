@@ -1,0 +1,21 @@
+{
+  "scope": "at_mentions_in_frozen_social_media_text",
+  "annotation_labels_or_text_modified": false,
+  "author_identity_leak_inferred": false,
+  "all_user_identifiers_removed": false,
+  "decision": "Retain frozen text and IDs for exact metric validation; this release is a research supplement, not a newly deidentified corpus. Review mentions for any broader redistribution.",
+  "identified_candidates": [
+    {
+      "sample_id": "fresh_visobert_08693",
+      "split": "dev",
+      "kind": "at_mention_potential_user_identifier",
+      "action": "frozen_text_retained"
+    },
+    {
+      "sample_id": "fresh_visobert_06126",
+      "split": "test",
+      "kind": "at_mention_potential_user_identifier",
+      "action": "frozen_text_retained"
+    }
+  ]
+}

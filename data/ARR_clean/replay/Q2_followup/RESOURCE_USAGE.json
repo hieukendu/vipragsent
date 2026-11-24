@@ -1,0 +1,104 @@
+{
+  "runs": [
+    {
+      "variant": "full",
+      "seed": 20260521,
+      "successful_gpu_hours": 2.6075306696493903
+    },
+    {
+      "variant": "full",
+      "seed": 20260522,
+      "successful_gpu_hours": 1.6384169207323187
+    },
+    {
+      "variant": "full",
+      "seed": 20260523,
+      "successful_gpu_hours": 1.605723082045507
+    },
+    {
+      "variant": "no_emotion_auxiliary",
+      "seed": 20260521,
+      "successful_gpu_hours": 1.1007504536624118
+    },
+    {
+      "variant": "no_emotion_auxiliary",
+      "seed": 20260522,
+      "successful_gpu_hours": 1.6175946265258567
+    },
+    {
+      "variant": "no_emotion_auxiliary",
+      "seed": 20260523,
+      "successful_gpu_hours": 1.1102764216688876
+    },
+    {
+      "variant": "no_multitask",
+      "seed": 20260521,
+      "successful_gpu_hours": 2.0622843877421433
+    },
+    {
+      "variant": "no_multitask",
+      "seed": 20260522,
+      "successful_gpu_hours": 2.170375049404619
+    },
+    {
+      "variant": "no_multitask",
+      "seed": 20260523,
+      "successful_gpu_hours": 2.22129884167445
+    },
+    {
+      "variant": "no_polarity_auxiliary",
+      "seed": 20260521,
+      "successful_gpu_hours": 1.5832517411972449
+    },
+    {
+      "variant": "no_polarity_auxiliary",
+      "seed": 20260522,
+      "successful_gpu_hours": 1.589680304688712
+    },
+    {
+      "variant": "no_polarity_auxiliary",
+      "seed": 20260523,
+      "successful_gpu_hours": 1.5938477152945578
+    },
+    {
+      "variant": "no_rationale",
+      "seed": 20260521,
+      "successful_gpu_hours": 0.2671392797680002
+    },
+    {
+      "variant": "no_rationale",
+      "seed": 20260522,
+      "successful_gpu_hours": 0.44156198510098166
+    },
+    {
+      "variant": "no_rationale",
+      "seed": 20260523,
+      "successful_gpu_hours": 0.4379029612739881
+    },
+    {
+      "variant": "no_uncertainty_weighting",
+      "seed": 20260521,
+      "successful_gpu_hours": 1.5909636288501012
+    },
+    {
+      "variant": "no_uncertainty_weighting",
+      "seed": 20260522,
+      "successful_gpu_hours": 1.603026965815548
+    },
+    {
+      "variant": "no_uncertainty_weighting",
+      "seed": 20260523,
+      "successful_gpu_hours": 1.6017018801505523
+    }
+  ],
+  "expected_relative_gpu_hours": {
+    "full": 1,
+    "no_emotion_auxiliary": 0.65,
+    "no_rationale": 0.2,
+    "no_multitask": 1.1,
+    "no_polarity_auxiliary": 0.81,
+    "no_uncertainty_weighting": 0.82
+  },
+  "measurement_kind": "retained_successful_gpu_hours_not_fresh_timing",
+  "paper_rounding_match": true
+}

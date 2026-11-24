@@ -1,0 +1,7175 @@
+{
+  "system": "vistral",
+  "budget": 32,
+  "seed": 20260521,
+  "comparison_rule": "probability_greater_equal_threshold",
+  "threshold_grid": {
+    "start": 0.05,
+    "stop": 0.95,
+    "step": 0.01,
+    "ties": "nearest_0.5_then_lower_threshold"
+  },
+  "same_checkpoint_bytes_verified": true,
+  "same_configuration_verified": true,
+  "independent_dev_threshold_reselection_verified": true,
+  "verified_selection_version": "original_selection",
+  "versions": [
+    {
+      "version": "original_selection",
+      "n": 1999,
+      "dev_file_matches_freeze_hash": true,
+      "gold_and_IDs_match_original_dev": true,
+      "selected_epoch": 2,
+      "heads": {
+        "implicit_sentiment": {
+          "frozen_threshold": 0.47,
+          "reselected_threshold": 0.47,
+          "matches_frozen_threshold": true,
+          "saved_dev_prediction_mismatch_at_frozen_threshold": 0,
+          "grid": [
+            {
+              "threshold": 0.05,
+              "confusion_matrix": [
+                [
+                  1016,
+                  564
+                ],
+                [
+                  7,
+                  412
+                ]
+              ]
+            },
+            {
+              "threshold": 0.06,
+              "confusion_matrix": [
+                [
+                  1070,
+                  510
+                ],
+                [
+                  9,
+                  410
+                ]
+              ]
+            },
+            {
+              "threshold": 0.07,
+              "confusion_matrix": [
+                [
+                  1116,
+                  464
+                ],
+                [
+                  9,
+                  410
+                ]
+              ]
+            },
+            {
+              "threshold": 0.08,
+              "confusion_matrix": [
+                [
+                  1157,
+                  423
+                ],
+                [
+                  10,
+                  409
+                ]
+              ]
+            },
+            {
+              "threshold": 0.09,
+              "confusion_matrix": [
+                [
+                  1191,
+                  389
+                ],
+                [
+                  10,
+                  409
+                ]
+              ]
+            },
+            {
+              "threshold": 0.1,
+              "confusion_matrix": [
+                [
+                  1218,
+                  362
+                ],
+                [
+                  13,
+                  406
+                ]
+              ]
+            },
+            {
+              "threshold": 0.11,
+              "confusion_matrix": [
+                [
+                  1248,
+                  332
+                ],
+                [
+                  13,
+                  406
+                ]
+              ]
+            },
+            {
+              "threshold": 0.12,
+              "confusion_matrix": [
+                [
+                  1262,
+                  318
+                ],
+                [
+                  13,
+                  406
+                ]
+              ]
+            },
+            {
+              "threshold": 0.13,
+              "confusion_matrix": [
+                [
+                  1276,
+                  304
+                ],
+                [
+                  13,
+                  406
+                ]
+              ]
+            },
+            {
+              "threshold": 0.14,
+              "confusion_matrix": [
+                [
+                  1286,
+                  294
+                ],
+                [
+                  15,
+                  404
+                ]
+              ]
+            },
+            {
+              "threshold": 0.15,
+              "confusion_matrix": [
+                [
+                  1298,
+                  282
+                ],
+                [
+                  16,
+                  403
+                ]
+              ]
+            },
+            {
+              "threshold": 0.16,
+              "confusion_matrix": [
+                [
+                  1320,
+                  260
+                ],
+                [
+                  17,
+                  402
+                ]
+              ]
+            },
+            {
+              "threshold": 0.17,
+              "confusion_matrix": [
+                [
+                  1329,
+                  251
+                ],
+                [
+                  17,
+                  402
+                ]
+              ]
+            },
+            {
+              "threshold": 0.18,
+              "confusion_matrix": [
+                [
+                  1333,
+                  247
+                ],
+                [
+                  17,
+                  402
+                ]
+              ]
+            },
+            {
+              "threshold": 0.19,
+              "confusion_matrix": [
+                [
+                  1347,
+                  233
+                ],
+                [
+                  17,
+                  402
+                ]
+              ]
+            },
+            {
+              "threshold": 0.2,
+              "confusion_matrix": [
+                [
+                  1356,
+                  224
+                ],
+                [
+                  17,
+                  402
+                ]
+              ]
+            },
+            {
+              "threshold": 0.21,
+              "confusion_matrix": [
+                [
+                  1365,
+                  215
+                ],
+                [
+                  17,
+                  402
+                ]
+              ]
+            },
+            {
+              "threshold": 0.22,
+              "confusion_matrix": [
+                [
+                  1368,
+                  212
+                ],
+                [
+                  18,
+                  401
+                ]
+              ]
+            },
+            {
+              "threshold": 0.23,
+              "confusion_matrix": [
+                [
+                  1373,
+                  207
+                ],
+                [
+                  18,
+                  401
+                ]
+              ]
+            },
+            {
+              "threshold": 0.24,
+              "confusion_matrix": [
+                [
+                  1381,
+                  199
+                ],
+                [
+                  19,
+                  400
+                ]
+              ]
+            },
+            {
+              "threshold": 0.25,
+              "confusion_matrix": [
+                [
+                  1390,
+                  190
+                ],
+                [
+                  19,
+                  400
+                ]
+              ]
+            },
+            {
+              "threshold": 0.26,
+              "confusion_matrix": [
+                [
+                  1395,
+                  185
+                ],
+                [
+                  19,
+                  400
+                ]
+              ]
+            },
+            {
+              "threshold": 0.27,
+              "confusion_matrix": [
+                [
+                  1400,
+                  180
+                ],
+                [
+                  19,
+                  400
+                ]
+              ]
+            },
+            {
+              "threshold": 0.28,
+              "confusion_matrix": [
+                [
+                  1405,
+                  175
+                ],
+                [
+                  19,
+                  400
+                ]
+              ]
+            },
+            {
+              "threshold": 0.29,
+              "confusion_matrix": [
+                [
+                  1411,
+                  169
+                ],
+                [
+                  21,
+                  398
+                ]
+              ]
+            },
+            {
+              "threshold": 0.3,
+              "confusion_matrix": [
+                [
+                  1422,
+                  158
+                ],
+                [
+                  23,
+                  396
+                ]
+              ]
+            },
+            {
+              "threshold": 0.31,
+              "confusion_matrix": [
+                [
+                  1425,
+                  155
+                ],
+                [
+                  23,
+                  396
+                ]
+              ]
+            },
+            {
+              "threshold": 0.32,
+              "confusion_matrix": [
+                [
+                  1426,
+                  154
+                ],
+                [
+                  23,
+                  396
+                ]
+              ]
+            },
+            {
+              "threshold": 0.33,
+              "confusion_matrix": [
+                [
+                  1429,
+                  151
+                ],
+                [
+                  23,
+                  396
+                ]
+              ]
+            },
+            {
+              "threshold": 0.34,
+              "confusion_matrix": [
+                [
+                  1435,
+                  145
+                ],
+                [
+                  24,
+                  395
+                ]
+              ]
+            },
+            {
+              "threshold": 0.35,
+              "confusion_matrix": [
+                [
+                  1438,
+                  142
+                ],
+                [
+                  26,
+                  393
+                ]
+              ]
+            },
+            {
+              "threshold": 0.36,
+              "confusion_matrix": [
+                [
+                  1443,
+                  137
+                ],
+                [
+                  26,
+                  393
+                ]
+              ]
+            },
+            {
+              "threshold": 0.37,
+              "confusion_matrix": [
+                [
+                  1445,
+                  135
+                ],
+                [
+                  26,
+                  393
+                ]
+              ]
+            },
+            {
+              "threshold": 0.38,
+              "confusion_matrix": [
+                [
+                  1446,
+                  134
+                ],
+                [
+                  26,
+                  393
+                ]
+              ]
+            },
+            {
+              "threshold": 0.39,
+              "confusion_matrix": [
+                [
+                  1449,
+                  131
+                ],
+                [
+                  27,
+                  392
+                ]
+              ]
+            },
+            {
+              "threshold": 0.4,
+              "confusion_matrix": [
+                [
+                  1452,
+                  128
+                ],
+                [
+                  28,
+                  391
+                ]
+              ]
+            },
+            {
+              "threshold": 0.41,
+              "confusion_matrix": [
+                [
+                  1455,
+                  125
+                ],
+                [
+                  28,
+                  391
+                ]
+              ]
+            },
+            {
+              "threshold": 0.42,
+              "confusion_matrix": [
+                [
+                  1458,
+                  122
+                ],
+                [
+                  28,
+                  391
+                ]
+              ]
+            },
+            {
+              "threshold": 0.43,
+              "confusion_matrix": [
+                [
+                  1462,
+                  118
+                ],
+                [
+                  30,
+                  389
+                ]
+              ]
+            },
+            {
+              "threshold": 0.44,
+              "confusion_matrix": [
+                [
+                  1463,
+                  117
+                ],
+                [
+                  31,
+                  388
+                ]
+              ]
+            },
+            {
+              "threshold": 0.45,
+              "confusion_matrix": [
+                [
+                  1466,
+                  114
+                ],
+                [
+                  32,
+                  387
+                ]
+              ]
+            },
+            {
+              "threshold": 0.46,
+              "confusion_matrix": [
+                [
+                  1469,
+                  111
+                ],
+                [
+                  33,
+                  386
+                ]
+              ]
+            },
+            {
+              "threshold": 0.47,
+              "confusion_matrix": [
+                [
+                  1471,
+                  109
+                ],
+                [
+                  34,
+                  385
+                ]
+              ]
+            },
+            {
+              "threshold": 0.48,
+              "confusion_matrix": [
+                [
+                  1473,
+                  107
+                ],
+                [
+                  38,
+                  381
+                ]
+              ]
+            },
+            {
+              "threshold": 0.49,
+              "confusion_matrix": [
+                [
+                  1474,
+                  106
+                ],
+                [
+                  40,
+                  379
+                ]
+              ]
+            },
+            {
+              "threshold": 0.5,
+              "confusion_matrix": [
+                [
+                  1478,
+                  102
+                ],
+                [
+                  41,
+                  378
+                ]
+              ]
+            },
+            {
+              "threshold": 0.51,
+              "confusion_matrix": [
+                [
+                  1478,
+                  102
+                ],
+                [
+                  42,
+                  377
+                ]
+              ]
+            },
+            {
+              "threshold": 0.52,
+              "confusion_matrix": [
+                [
+                  1479,
+                  101
+                ],
+                [
+                  43,
+                  376
+                ]
+              ]
+            },
+            {
+              "threshold": 0.53,
+              "confusion_matrix": [
+                [
+                  1481,
+                  99
+                ],
+                [
+                  44,
+                  375
+                ]
+              ]
+            },
+            {
+              "threshold": 0.54,
+              "confusion_matrix": [
+                [
+                  1483,
+                  97
+                ],
+                [
+                  47,
+                  372
+                ]
+              ]
+            },
+            {
+              "threshold": 0.55,
+              "confusion_matrix": [
+                [
+                  1485,
+                  95
+                ],
+                [
+                  48,
+                  371
+                ]
+              ]
+            },
+            {
+              "threshold": 0.56,
+              "confusion_matrix": [
+                [
+                  1486,
+                  94
+                ],
+                [
+                  50,
+                  369
+                ]
+              ]
+            },
+            {
+              "threshold": 0.57,
+              "confusion_matrix": [
+                [
+                  1487,
+                  93
+                ],
+                [
+                  50,
+                  369
+                ]
+              ]
+            },
+            {
+              "threshold": 0.58,
+              "confusion_matrix": [
+                [
+                  1488,
+                  92
+                ],
+                [
+                  52,
+                  367
+                ]
+              ]
+            },
+            {
+              "threshold": 0.59,
+              "confusion_matrix": [
+                [
+                  1489,
+                  91
+                ],
+                [
+                  54,
+                  365
+                ]
+              ]
+            },
+            {
+              "threshold": 0.6,
+              "confusion_matrix": [
+                [
+                  1492,
+                  88
+                ],
+                [
+                  55,
+                  364
+                ]
+              ]
+            },
+            {
+              "threshold": 0.61,
+              "confusion_matrix": [
+                [
+                  1495,
+                  85
+                ],
+                [
+                  56,
+                  363
+                ]
+              ]
+            },
+            {
+              "threshold": 0.62,
+              "confusion_matrix": [
+                [
+                  1497,
+                  83
+                ],
+                [
+                  59,
+                  360
+                ]
+              ]
+            },
+            {
+              "threshold": 0.63,
+              "confusion_matrix": [
+                [
+                  1500,
+                  80
+                ],
+                [
+                  62,
+                  357
+                ]
+              ]
+            },
+            {
+              "threshold": 0.64,
+              "confusion_matrix": [
+                [
+                  1501,
+                  79
+                ],
+                [
+                  63,
+                  356
+                ]
+              ]
+            },
+            {
+              "threshold": 0.65,
+              "confusion_matrix": [
+                [
+                  1502,
+                  78
+                ],
+                [
+                  66,
+                  353
+                ]
+              ]
+            },
+            {
+              "threshold": 0.66,
+              "confusion_matrix": [
+                [
+                  1506,
+                  74
+                ],
+                [
+                  68,
+                  351
+                ]
+              ]
+            },
+            {
+              "threshold": 0.67,
+              "confusion_matrix": [
+                [
+                  1508,
+                  72
+                ],
+                [
+                  68,
+                  351
+                ]
+              ]
+            },
+            {
+              "threshold": 0.68,
+              "confusion_matrix": [
+                [
+                  1511,
+                  69
+                ],
+                [
+                  69,
+                  350
+                ]
+              ]
+            },
+            {
+              "threshold": 0.69,
+              "confusion_matrix": [
+                [
+                  1511,
+                  69
+                ],
+                [
+                  71,
+                  348
+                ]
+              ]
+            },
+            {
+              "threshold": 0.7,
+              "confusion_matrix": [
+                [
+                  1511,
+                  69
+                ],
+                [
+                  74,
+                  345
+                ]
+              ]
+            },
+            {
+              "threshold": 0.71,
+              "confusion_matrix": [
+                [
+                  1512,
+                  68
+                ],
+                [
+                  77,
+                  342
+                ]
+              ]
+            },
+            {
+              "threshold": 0.72,
+              "confusion_matrix": [
+                [
+                  1513,
+                  67
+                ],
+                [
+                  77,
+                  342
+                ]
+              ]
+            },
+            {
+              "threshold": 0.73,
+              "confusion_matrix": [
+                [
+                  1514,
+                  66
+                ],
+                [
+                  78,
+                  341
+                ]
+              ]
+            },
+            {
+              "threshold": 0.74,
+              "confusion_matrix": [
+                [
+                  1515,
+                  65
+                ],
+                [
+                  78,
+                  341
+                ]
+              ]
+            },
+            {
+              "threshold": 0.75,
+              "confusion_matrix": [
+                [
+                  1517,
+                  63
+                ],
+                [
+                  79,
+                  340
+                ]
+              ]
+            },
+            {
+              "threshold": 0.76,
+              "confusion_matrix": [
+                [
+                  1521,
+                  59
+                ],
+                [
+                  80,
+                  339
+                ]
+              ]
+            },
+            {
+              "threshold": 0.77,
+              "confusion_matrix": [
+                [
+                  1521,
+                  59
+                ],
+                [
+                  83,
+                  336
+                ]
+              ]
+            },
+            {
+              "threshold": 0.78,
+              "confusion_matrix": [
+                [
+                  1521,
+                  59
+                ],
+                [
+                  86,
+                  333
+                ]
+              ]
+            },
+            {
+              "threshold": 0.79,
+              "confusion_matrix": [
+                [
+                  1524,
+                  56
+                ],
+                [
+                  88,
+                  331
+                ]
+              ]
+            },
+            {
+              "threshold": 0.8,
+              "confusion_matrix": [
+                [
+                  1526,
+                  54
+                ],
+                [
+                  88,
+                  331
+                ]
+              ]
+            },
+            {
+              "threshold": 0.81,
+              "confusion_matrix": [
+                [
+                  1527,
+                  53
+                ],
+                [
+                  90,
+                  329
+                ]
+              ]
+            },
+            {
+              "threshold": 0.82,
+              "confusion_matrix": [
+                [
+                  1527,
+                  53
+                ],
+                [
+                  91,
+                  328
+                ]
+              ]
+            },
+            {
+              "threshold": 0.83,
+              "confusion_matrix": [
+                [
+                  1529,
+                  51
+                ],
+                [
+                  94,
+                  325
+                ]
+              ]
+            },
+            {
+              "threshold": 0.84,
+              "confusion_matrix": [
+                [
+                  1534,
+                  46
+                ],
+                [
+                  97,
+                  322
+                ]
+              ]
+            },
+            {
+              "threshold": 0.85,
+              "confusion_matrix": [
+                [
+                  1536,
+                  44
+                ],
+                [
+                  102,
+                  317
+                ]
+              ]
+            },
+            {
+              "threshold": 0.86,
+              "confusion_matrix": [
+                [
+                  1536,
+                  44
+                ],
+                [
+                  105,
+                  314
+                ]
+              ]
+            },
+            {
+              "threshold": 0.87,
+              "confusion_matrix": [
+                [
+                  1538,
+                  42
+                ],
+                [
+                  107,
+                  312
+                ]
+              ]
+            },
+            {
+              "threshold": 0.88,
+              "confusion_matrix": [
+                [
+                  1539,
+                  41
+                ],
+                [
+                  111,
+                  308
+                ]
+              ]
+            },
+            {
+              "threshold": 0.89,
+              "confusion_matrix": [
+                [
+                  1539,
+                  41
+                ],
+                [
+                  114,
+                  305
+                ]
+              ]
+            },
+            {
+              "threshold": 0.9,
+              "confusion_matrix": [
+                [
+                  1541,
+                  39
+                ],
+                [
+                  117,
+                  302
+                ]
+              ]
+            },
+            {
+              "threshold": 0.91,
+              "confusion_matrix": [
+                [
+                  1543,
+                  37
+                ],
+                [
+                  124,
+                  295
+                ]
+              ]
+            },
+            {
+              "threshold": 0.92,
+              "confusion_matrix": [
+                [
+                  1546,
+                  34
+                ],
+                [
+                  129,
+                  290
+                ]
+              ]
+            },
+            {
+              "threshold": 0.93,
+              "confusion_matrix": [
+                [
+                  1547,
+                  33
+                ],
+                [
+                  135,
+                  284
+                ]
+              ]
+            },
+            {
+              "threshold": 0.94,
+              "confusion_matrix": [
+                [
+                  1552,
+                  28
+                ],
+                [
+                  143,
+                  276
+                ]
+              ]
+            },
+            {
+              "threshold": 0.95,
+              "confusion_matrix": [
+                [
+                  1555,
+                  25
+                ],
+                [
+                  153,
+                  266
+                ]
+              ]
+            }
+          ]
+        },
+        "sarcasm": {
+          "frozen_threshold": 0.2,
+          "reselected_threshold": 0.2,
+          "matches_frozen_threshold": true,
+          "saved_dev_prediction_mismatch_at_frozen_threshold": 0,
+          "grid": [
+            {
+              "threshold": 0.05,
+              "confusion_matrix": [
+                [
+                  1593,
+                  270
+                ],
+                [
+                  20,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.06,
+              "confusion_matrix": [
+                [
+                  1614,
+                  249
+                ],
+                [
+                  22,
+                  114
+                ]
+              ]
+            },
+            {
+              "threshold": 0.07,
+              "confusion_matrix": [
+                [
+                  1629,
+                  234
+                ],
+                [
+                  24,
+                  112
+                ]
+              ]
+            },
+            {
+              "threshold": 0.08,
+              "confusion_matrix": [
+                [
+                  1643,
+                  220
+                ],
+                [
+                  25,
+                  111
+                ]
+              ]
+            },
+            {
+              "threshold": 0.09,
+              "confusion_matrix": [
+                [
+                  1663,
+                  200
+                ],
+                [
+                  26,
+                  110
+                ]
+              ]
+            },
+            {
+              "threshold": 0.1,
+              "confusion_matrix": [
+                [
+                  1675,
+                  188
+                ],
+                [
+                  29,
+                  107
+                ]
+              ]
+            },
+            {
+              "threshold": 0.11,
+              "confusion_matrix": [
+                [
+                  1690,
+                  173
+                ],
+                [
+                  31,
+                  105
+                ]
+              ]
+            },
+            {
+              "threshold": 0.12,
+              "confusion_matrix": [
+                [
+                  1695,
+                  168
+                ],
+                [
+                  34,
+                  102
+                ]
+              ]
+            },
+            {
+              "threshold": 0.13,
+              "confusion_matrix": [
+                [
+                  1705,
+                  158
+                ],
+                [
+                  37,
+                  99
+                ]
+              ]
+            },
+            {
+              "threshold": 0.14,
+              "confusion_matrix": [
+                [
+                  1712,
+                  151
+                ],
+                [
+                  37,
+                  99
+                ]
+              ]
+            },
+            {
+              "threshold": 0.15,
+              "confusion_matrix": [
+                [
+                  1716,
+                  147
+                ],
+                [
+                  39,
+                  97
+                ]
+              ]
+            },
+            {
+              "threshold": 0.16,
+              "confusion_matrix": [
+                [
+                  1718,
+                  145
+                ],
+                [
+                  41,
+                  95
+                ]
+              ]
+            },
+            {
+              "threshold": 0.17,
+              "confusion_matrix": [
+                [
+                  1723,
+                  140
+                ],
+                [
+                  42,
+                  94
+                ]
+              ]
+            },
+            {
+              "threshold": 0.18,
+              "confusion_matrix": [
+                [
+                  1727,
+                  136
+                ],
+                [
+                  44,
+                  92
+                ]
+              ]
+            },
+            {
+              "threshold": 0.19,
+              "confusion_matrix": [
+                [
+                  1732,
+                  131
+                ],
+                [
+                  45,
+                  91
+                ]
+              ]
+            },
+            {
+              "threshold": 0.2,
+              "confusion_matrix": [
+                [
+                  1736,
+                  127
+                ],
+                [
+                  46,
+                  90
+                ]
+              ]
+            },
+            {
+              "threshold": 0.21,
+              "confusion_matrix": [
+                [
+                  1736,
+                  127
+                ],
+                [
+                  47,
+                  89
+                ]
+              ]
+            },
+            {
+              "threshold": 0.22,
+              "confusion_matrix": [
+                [
+                  1742,
+                  121
+                ],
+                [
+                  49,
+                  87
+                ]
+              ]
+            },
+            {
+              "threshold": 0.23,
+              "confusion_matrix": [
+                [
+                  1743,
+                  120
+                ],
+                [
+                  49,
+                  87
+                ]
+              ]
+            },
+            {
+              "threshold": 0.24,
+              "confusion_matrix": [
+                [
+                  1746,
+                  117
+                ],
+                [
+                  50,
+                  86
+                ]
+              ]
+            },
+            {
+              "threshold": 0.25,
+              "confusion_matrix": [
+                [
+                  1750,
+                  113
+                ],
+                [
+                  52,
+                  84
+                ]
+              ]
+            },
+            {
+              "threshold": 0.26,
+              "confusion_matrix": [
+                [
+                  1754,
+                  109
+                ],
+                [
+                  55,
+                  81
+                ]
+              ]
+            },
+            {
+              "threshold": 0.27,
+              "confusion_matrix": [
+                [
+                  1754,
+                  109
+                ],
+                [
+                  58,
+                  78
+                ]
+              ]
+            },
+            {
+              "threshold": 0.28,
+              "confusion_matrix": [
+                [
+                  1758,
+                  105
+                ],
+                [
+                  60,
+                  76
+                ]
+              ]
+            },
+            {
+              "threshold": 0.29,
+              "confusion_matrix": [
+                [
+                  1759,
+                  104
+                ],
+                [
+                  60,
+                  76
+                ]
+              ]
+            },
+            {
+              "threshold": 0.3,
+              "confusion_matrix": [
+                [
+                  1764,
+                  99
+                ],
+                [
+                  61,
+                  75
+                ]
+              ]
+            },
+            {
+              "threshold": 0.31,
+              "confusion_matrix": [
+                [
+                  1769,
+                  94
+                ],
+                [
+                  62,
+                  74
+                ]
+              ]
+            },
+            {
+              "threshold": 0.32,
+              "confusion_matrix": [
+                [
+                  1772,
+                  91
+                ],
+                [
+                  62,
+                  74
+                ]
+              ]
+            },
+            {
+              "threshold": 0.33,
+              "confusion_matrix": [
+                [
+                  1777,
+                  86
+                ],
+                [
+                  62,
+                  74
+                ]
+              ]
+            },
+            {
+              "threshold": 0.34,
+              "confusion_matrix": [
+                [
+                  1780,
+                  83
+                ],
+                [
+                  63,
+                  73
+                ]
+              ]
+            },
+            {
+              "threshold": 0.35,
+              "confusion_matrix": [
+                [
+                  1782,
+                  81
+                ],
+                [
+                  66,
+                  70
+                ]
+              ]
+            },
+            {
+              "threshold": 0.36,
+              "confusion_matrix": [
+                [
+                  1783,
+                  80
+                ],
+                [
+                  67,
+                  69
+                ]
+              ]
+            },
+            {
+              "threshold": 0.37,
+              "confusion_matrix": [
+                [
+                  1786,
+                  77
+                ],
+                [
+                  68,
+                  68
+                ]
+              ]
+            },
+            {
+              "threshold": 0.38,
+              "confusion_matrix": [
+                [
+                  1786,
+                  77
+                ],
+                [
+                  68,
+                  68
+                ]
+              ]
+            },
+            {
+              "threshold": 0.39,
+              "confusion_matrix": [
+                [
+                  1786,
+                  77
+                ],
+                [
+                  69,
+                  67
+                ]
+              ]
+            },
+            {
+              "threshold": 0.4,
+              "confusion_matrix": [
+                [
+                  1788,
+                  75
+                ],
+                [
+                  69,
+                  67
+                ]
+              ]
+            },
+            {
+              "threshold": 0.41,
+              "confusion_matrix": [
+                [
+                  1788,
+                  75
+                ],
+                [
+                  70,
+                  66
+                ]
+              ]
+            },
+            {
+              "threshold": 0.42,
+              "confusion_matrix": [
+                [
+                  1790,
+                  73
+                ],
+                [
+                  72,
+                  64
+                ]
+              ]
+            },
+            {
+              "threshold": 0.43,
+              "confusion_matrix": [
+                [
+                  1790,
+                  73
+                ],
+                [
+                  72,
+                  64
+                ]
+              ]
+            },
+            {
+              "threshold": 0.44,
+              "confusion_matrix": [
+                [
+                  1792,
+                  71
+                ],
+                [
+                  73,
+                  63
+                ]
+              ]
+            },
+            {
+              "threshold": 0.45,
+              "confusion_matrix": [
+                [
+                  1795,
+                  68
+                ],
+                [
+                  74,
+                  62
+                ]
+              ]
+            },
+            {
+              "threshold": 0.46,
+              "confusion_matrix": [
+                [
+                  1798,
+                  65
+                ],
+                [
+                  74,
+                  62
+                ]
+              ]
+            },
+            {
+              "threshold": 0.47,
+              "confusion_matrix": [
+                [
+                  1800,
+                  63
+                ],
+                [
+                  74,
+                  62
+                ]
+              ]
+            },
+            {
+              "threshold": 0.48,
+              "confusion_matrix": [
+                [
+                  1802,
+                  61
+                ],
+                [
+                  75,
+                  61
+                ]
+              ]
+            },
+            {
+              "threshold": 0.49,
+              "confusion_matrix": [
+                [
+                  1802,
+                  61
+                ],
+                [
+                  76,
+                  60
+                ]
+              ]
+            },
+            {
+              "threshold": 0.5,
+              "confusion_matrix": [
+                [
+                  1802,
+                  61
+                ],
+                [
+                  76,
+                  60
+                ]
+              ]
+            },
+            {
+              "threshold": 0.51,
+              "confusion_matrix": [
+                [
+                  1803,
+                  60
+                ],
+                [
+                  77,
+                  59
+                ]
+              ]
+            },
+            {
+              "threshold": 0.52,
+              "confusion_matrix": [
+                [
+                  1805,
+                  58
+                ],
+                [
+                  77,
+                  59
+                ]
+              ]
+            },
+            {
+              "threshold": 0.53,
+              "confusion_matrix": [
+                [
+                  1807,
+                  56
+                ],
+                [
+                  77,
+                  59
+                ]
+              ]
+            },
+            {
+              "threshold": 0.54,
+              "confusion_matrix": [
+                [
+                  1809,
+                  54
+                ],
+                [
+                  77,
+                  59
+                ]
+              ]
+            },
+            {
+              "threshold": 0.55,
+              "confusion_matrix": [
+                [
+                  1809,
+                  54
+                ],
+                [
+                  78,
+                  58
+                ]
+              ]
+            },
+            {
+              "threshold": 0.56,
+              "confusion_matrix": [
+                [
+                  1810,
+                  53
+                ],
+                [
+                  78,
+                  58
+                ]
+              ]
+            },
+            {
+              "threshold": 0.57,
+              "confusion_matrix": [
+                [
+                  1810,
+                  53
+                ],
+                [
+                  79,
+                  57
+                ]
+              ]
+            },
+            {
+              "threshold": 0.58,
+              "confusion_matrix": [
+                [
+                  1815,
+                  48
+                ],
+                [
+                  80,
+                  56
+                ]
+              ]
+            },
+            {
+              "threshold": 0.59,
+              "confusion_matrix": [
+                [
+                  1817,
+                  46
+                ],
+                [
+                  81,
+                  55
+                ]
+              ]
+            },
+            {
+              "threshold": 0.6,
+              "confusion_matrix": [
+                [
+                  1821,
+                  42
+                ],
+                [
+                  84,
+                  52
+                ]
+              ]
+            },
+            {
+              "threshold": 0.61,
+              "confusion_matrix": [
+                [
+                  1823,
+                  40
+                ],
+                [
+                  86,
+                  50
+                ]
+              ]
+            },
+            {
+              "threshold": 0.62,
+              "confusion_matrix": [
+                [
+                  1826,
+                  37
+                ],
+                [
+                  87,
+                  49
+                ]
+              ]
+            },
+            {
+              "threshold": 0.63,
+              "confusion_matrix": [
+                [
+                  1830,
+                  33
+                ],
+                [
+                  87,
+                  49
+                ]
+              ]
+            },
+            {
+              "threshold": 0.64,
+              "confusion_matrix": [
+                [
+                  1831,
+                  32
+                ],
+                [
+                  88,
+                  48
+                ]
+              ]
+            },
+            {
+              "threshold": 0.65,
+              "confusion_matrix": [
+                [
+                  1832,
+                  31
+                ],
+                [
+                  89,
+                  47
+                ]
+              ]
+            },
+            {
+              "threshold": 0.66,
+              "confusion_matrix": [
+                [
+                  1833,
+                  30
+                ],
+                [
+                  90,
+                  46
+                ]
+              ]
+            },
+            {
+              "threshold": 0.67,
+              "confusion_matrix": [
+                [
+                  1833,
+                  30
+                ],
+                [
+                  90,
+                  46
+                ]
+              ]
+            },
+            {
+              "threshold": 0.68,
+              "confusion_matrix": [
+                [
+                  1833,
+                  30
+                ],
+                [
+                  90,
+                  46
+                ]
+              ]
+            },
+            {
+              "threshold": 0.69,
+              "confusion_matrix": [
+                [
+                  1834,
+                  29
+                ],
+                [
+                  91,
+                  45
+                ]
+              ]
+            },
+            {
+              "threshold": 0.7,
+              "confusion_matrix": [
+                [
+                  1835,
+                  28
+                ],
+                [
+                  91,
+                  45
+                ]
+              ]
+            },
+            {
+              "threshold": 0.71,
+              "confusion_matrix": [
+                [
+                  1836,
+                  27
+                ],
+                [
+                  92,
+                  44
+                ]
+              ]
+            },
+            {
+              "threshold": 0.72,
+              "confusion_matrix": [
+                [
+                  1838,
+                  25
+                ],
+                [
+                  92,
+                  44
+                ]
+              ]
+            },
+            {
+              "threshold": 0.73,
+              "confusion_matrix": [
+                [
+                  1838,
+                  25
+                ],
+                [
+                  93,
+                  43
+                ]
+              ]
+            },
+            {
+              "threshold": 0.74,
+              "confusion_matrix": [
+                [
+                  1838,
+                  25
+                ],
+                [
+                  94,
+                  42
+                ]
+              ]
+            },
+            {
+              "threshold": 0.75,
+              "confusion_matrix": [
+                [
+                  1840,
+                  23
+                ],
+                [
+                  94,
+                  42
+                ]
+              ]
+            },
+            {
+              "threshold": 0.76,
+              "confusion_matrix": [
+                [
+                  1842,
+                  21
+                ],
+                [
+                  94,
+                  42
+                ]
+              ]
+            },
+            {
+              "threshold": 0.77,
+              "confusion_matrix": [
+                [
+                  1844,
+                  19
+                ],
+                [
+                  96,
+                  40
+                ]
+              ]
+            },
+            {
+              "threshold": 0.78,
+              "confusion_matrix": [
+                [
+                  1847,
+                  16
+                ],
+                [
+                  97,
+                  39
+                ]
+              ]
+            },
+            {
+              "threshold": 0.79,
+              "confusion_matrix": [
+                [
+                  1847,
+                  16
+                ],
+                [
+                  99,
+                  37
+                ]
+              ]
+            },
+            {
+              "threshold": 0.8,
+              "confusion_matrix": [
+                [
+                  1850,
+                  13
+                ],
+                [
+                  100,
+                  36
+                ]
+              ]
+            },
+            {
+              "threshold": 0.81,
+              "confusion_matrix": [
+                [
+                  1850,
+                  13
+                ],
+                [
+                  100,
+                  36
+                ]
+              ]
+            },
+            {
+              "threshold": 0.82,
+              "confusion_matrix": [
+                [
+                  1850,
+                  13
+                ],
+                [
+                  101,
+                  35
+                ]
+              ]
+            },
+            {
+              "threshold": 0.83,
+              "confusion_matrix": [
+                [
+                  1850,
+                  13
+                ],
+                [
+                  104,
+                  32
+                ]
+              ]
+            },
+            {
+              "threshold": 0.84,
+              "confusion_matrix": [
+                [
+                  1852,
+                  11
+                ],
+                [
+                  106,
+                  30
+                ]
+              ]
+            },
+            {
+              "threshold": 0.85,
+              "confusion_matrix": [
+                [
+                  1852,
+                  11
+                ],
+                [
+                  107,
+                  29
+                ]
+              ]
+            },
+            {
+              "threshold": 0.86,
+              "confusion_matrix": [
+                [
+                  1852,
+                  11
+                ],
+                [
+                  111,
+                  25
+                ]
+              ]
+            },
+            {
+              "threshold": 0.87,
+              "confusion_matrix": [
+                [
+                  1853,
+                  10
+                ],
+                [
+                  111,
+                  25
+                ]
+              ]
+            },
+            {
+              "threshold": 0.88,
+              "confusion_matrix": [
+                [
+                  1854,
+                  9
+                ],
+                [
+                  112,
+                  24
+                ]
+              ]
+            },
+            {
+              "threshold": 0.89,
+              "confusion_matrix": [
+                [
+                  1854,
+                  9
+                ],
+                [
+                  116,
+                  20
+                ]
+              ]
+            },
+            {
+              "threshold": 0.9,
+              "confusion_matrix": [
+                [
+                  1854,
+                  9
+                ],
+                [
+                  117,
+                  19
+                ]
+              ]
+            },
+            {
+              "threshold": 0.91,
+              "confusion_matrix": [
+                [
+                  1854,
+                  9
+                ],
+                [
+                  118,
+                  18
+                ]
+              ]
+            },
+            {
+              "threshold": 0.92,
+              "confusion_matrix": [
+                [
+                  1855,
+                  8
+                ],
+                [
+                  118,
+                  18
+                ]
+              ]
+            },
+            {
+              "threshold": 0.93,
+              "confusion_matrix": [
+                [
+                  1857,
+                  6
+                ],
+                [
+                  120,
+                  16
+                ]
+              ]
+            },
+            {
+              "threshold": 0.94,
+              "confusion_matrix": [
+                [
+                  1857,
+                  6
+                ],
+                [
+                  122,
+                  14
+                ]
+              ]
+            },
+            {
+              "threshold": 0.95,
+              "confusion_matrix": [
+                [
+                  1858,
+                  5
+                ],
+                [
+                  123,
+                  13
+                ]
+              ]
+            }
+          ]
+        },
+        "irony": {
+          "frozen_threshold": 0.79,
+          "reselected_threshold": 0.79,
+          "matches_frozen_threshold": true,
+          "saved_dev_prediction_mismatch_at_frozen_threshold": 0,
+          "grid": [
+            {
+              "threshold": 0.05,
+              "confusion_matrix": [
+                [
+                  1701,
+                  160
+                ],
+                [
+                  4,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.06,
+              "confusion_matrix": [
+                [
+                  1720,
+                  141
+                ],
+                [
+                  4,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.07,
+              "confusion_matrix": [
+                [
+                  1736,
+                  125
+                ],
+                [
+                  4,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.08,
+              "confusion_matrix": [
+                [
+                  1754,
+                  107
+                ],
+                [
+                  4,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.09,
+              "confusion_matrix": [
+                [
+                  1765,
+                  96
+                ],
+                [
+                  4,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.1,
+              "confusion_matrix": [
+                [
+                  1767,
+                  94
+                ],
+                [
+                  4,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.11,
+              "confusion_matrix": [
+                [
+                  1770,
+                  91
+                ],
+                [
+                  4,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.12,
+              "confusion_matrix": [
+                [
+                  1777,
+                  84
+                ],
+                [
+                  4,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.13,
+              "confusion_matrix": [
+                [
+                  1783,
+                  78
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.14,
+              "confusion_matrix": [
+                [
+                  1787,
+                  74
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.15,
+              "confusion_matrix": [
+                [
+                  1788,
+                  73
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.16,
+              "confusion_matrix": [
+                [
+                  1793,
+                  68
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.17,
+              "confusion_matrix": [
+                [
+                  1797,
+                  64
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.18,
+              "confusion_matrix": [
+                [
+                  1802,
+                  59
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.19,
+              "confusion_matrix": [
+                [
+                  1805,
+                  56
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.2,
+              "confusion_matrix": [
+                [
+                  1806,
+                  55
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.21,
+              "confusion_matrix": [
+                [
+                  1810,
+                  51
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.22,
+              "confusion_matrix": [
+                [
+                  1812,
+                  49
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.23,
+              "confusion_matrix": [
+                [
+                  1813,
+                  48
+                ],
+                [
+                  5,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.24,
+              "confusion_matrix": [
+                [
+                  1815,
+                  46
+                ],
+                [
+                  6,
+                  132
+                ]
+              ]
+            },
+            {
+              "threshold": 0.25,
+              "confusion_matrix": [
+                [
+                  1815,
+                  46
+                ],
+                [
+                  6,
+                  132
+                ]
+              ]
+            },
+            {
+              "threshold": 0.26,
+              "confusion_matrix": [
+                [
+                  1815,
+                  46
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.27,
+              "confusion_matrix": [
+                [
+                  1815,
+                  46
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.28,
+              "confusion_matrix": [
+                [
+                  1817,
+                  44
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.29,
+              "confusion_matrix": [
+                [
+                  1822,
+                  39
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.3,
+              "confusion_matrix": [
+                [
+                  1822,
+                  39
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.31,
+              "confusion_matrix": [
+                [
+                  1824,
+                  37
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.32,
+              "confusion_matrix": [
+                [
+                  1826,
+                  35
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.33,
+              "confusion_matrix": [
+                [
+                  1827,
+                  34
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.34,
+              "confusion_matrix": [
+                [
+                  1828,
+                  33
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.35,
+              "confusion_matrix": [
+                [
+                  1829,
+                  32
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.36,
+              "confusion_matrix": [
+                [
+                  1831,
+                  30
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.37,
+              "confusion_matrix": [
+                [
+                  1831,
+                  30
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.38,
+              "confusion_matrix": [
+                [
+                  1833,
+                  28
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.39,
+              "confusion_matrix": [
+                [
+                  1835,
+                  26
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.4,
+              "confusion_matrix": [
+                [
+                  1837,
+                  24
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.41,
+              "confusion_matrix": [
+                [
+                  1838,
+                  23
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.42,
+              "confusion_matrix": [
+                [
+                  1838,
+                  23
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.43,
+              "confusion_matrix": [
+                [
+                  1839,
+                  22
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.44,
+              "confusion_matrix": [
+                [
+                  1839,
+                  22
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.45,
+              "confusion_matrix": [
+                [
+                  1840,
+                  21
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.46,
+              "confusion_matrix": [
+                [
+                  1840,
+                  21
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.47,
+              "confusion_matrix": [
+                [
+                  1840,
+                  21
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.48,
+              "confusion_matrix": [
+                [
+                  1840,
+                  21
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.49,
+              "confusion_matrix": [
+                [
+                  1841,
+                  20
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.5,
+              "confusion_matrix": [
+                [
+                  1841,
+                  20
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.51,
+              "confusion_matrix": [
+                [
+                  1843,
+                  18
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.52,
+              "confusion_matrix": [
+                [
+                  1843,
+                  18
+                ],
+                [
+                  7,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.53,
+              "confusion_matrix": [
+                [
+                  1843,
+                  18
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.54,
+              "confusion_matrix": [
+                [
+                  1843,
+                  18
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.55,
+              "confusion_matrix": [
+                [
+                  1843,
+                  18
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.56,
+              "confusion_matrix": [
+                [
+                  1844,
+                  17
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.57,
+              "confusion_matrix": [
+                [
+                  1844,
+                  17
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.58,
+              "confusion_matrix": [
+                [
+                  1844,
+                  17
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.59,
+              "confusion_matrix": [
+                [
+                  1844,
+                  17
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.6,
+              "confusion_matrix": [
+                [
+                  1844,
+                  17
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.61,
+              "confusion_matrix": [
+                [
+                  1846,
+                  15
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.62,
+              "confusion_matrix": [
+                [
+                  1847,
+                  14
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.63,
+              "confusion_matrix": [
+                [
+                  1847,
+                  14
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.64,
+              "confusion_matrix": [
+                [
+                  1848,
+                  13
+                ],
+                [
+                  8,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.65,
+              "confusion_matrix": [
+                [
+                  1848,
+                  13
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.66,
+              "confusion_matrix": [
+                [
+                  1848,
+                  13
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.67,
+              "confusion_matrix": [
+                [
+                  1848,
+                  13
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.68,
+              "confusion_matrix": [
+                [
+                  1849,
+                  12
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.69,
+              "confusion_matrix": [
+                [
+                  1850,
+                  11
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.7,
+              "confusion_matrix": [
+                [
+                  1851,
+                  10
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.71,
+              "confusion_matrix": [
+                [
+                  1851,
+                  10
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.72,
+              "confusion_matrix": [
+                [
+                  1851,
+                  10
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.73,
+              "confusion_matrix": [
+                [
+                  1851,
+                  10
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.74,
+              "confusion_matrix": [
+                [
+                  1851,
+                  10
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.75,
+              "confusion_matrix": [
+                [
+                  1851,
+                  10
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.76,
+              "confusion_matrix": [
+                [
+                  1852,
+                  9
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.77,
+              "confusion_matrix": [
+                [
+                  1854,
+                  7
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.78,
+              "confusion_matrix": [
+                [
+                  1854,
+                  7
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.79,
+              "confusion_matrix": [
+                [
+                  1855,
+                  6
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.8,
+              "confusion_matrix": [
+                [
+                  1855,
+                  6
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.81,
+              "confusion_matrix": [
+                [
+                  1855,
+                  6
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.82,
+              "confusion_matrix": [
+                [
+                  1855,
+                  6
+                ],
+                [
+                  9,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.83,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  10,
+                  128
+                ]
+              ]
+            },
+            {
+              "threshold": 0.84,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  10,
+                  128
+                ]
+              ]
+            },
+            {
+              "threshold": 0.85,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  10,
+                  128
+                ]
+              ]
+            },
+            {
+              "threshold": 0.86,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  11,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.87,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  11,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.88,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  11,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.89,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  11,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.9,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  11,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.91,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  12,
+                  126
+                ]
+              ]
+            },
+            {
+              "threshold": 0.92,
+              "confusion_matrix": [
+                [
+                  1856,
+                  5
+                ],
+                [
+                  12,
+                  126
+                ]
+              ]
+            },
+            {
+              "threshold": 0.93,
+              "confusion_matrix": [
+                [
+                  1858,
+                  3
+                ],
+                [
+                  12,
+                  126
+                ]
+              ]
+            },
+            {
+              "threshold": 0.94,
+              "confusion_matrix": [
+                [
+                  1858,
+                  3
+                ],
+                [
+                  12,
+                  126
+                ]
+              ]
+            },
+            {
+              "threshold": 0.95,
+              "confusion_matrix": [
+                [
+                  1858,
+                  3
+                ],
+                [
+                  13,
+                  125
+                ]
+              ]
+            }
+          ]
+        },
+        "idiom_figurative": {
+          "frozen_threshold": 0.83,
+          "reselected_threshold": 0.83,
+          "matches_frozen_threshold": true,
+          "saved_dev_prediction_mismatch_at_frozen_threshold": 0,
+          "grid": [
+            {
+              "threshold": 0.05,
+              "confusion_matrix": [
+                [
+                  1462,
+                  397
+                ],
+                [
+                  4,
+                  136
+                ]
+              ]
+            },
+            {
+              "threshold": 0.06,
+              "confusion_matrix": [
+                [
+                  1506,
+                  353
+                ],
+                [
+                  4,
+                  136
+                ]
+              ]
+            },
+            {
+              "threshold": 0.07,
+              "confusion_matrix": [
+                [
+                  1555,
+                  304
+                ],
+                [
+                  4,
+                  136
+                ]
+              ]
+            },
+            {
+              "threshold": 0.08,
+              "confusion_matrix": [
+                [
+                  1582,
+                  277
+                ],
+                [
+                  6,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.09,
+              "confusion_matrix": [
+                [
+                  1602,
+                  257
+                ],
+                [
+                  6,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.1,
+              "confusion_matrix": [
+                [
+                  1614,
+                  245
+                ],
+                [
+                  6,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.11,
+              "confusion_matrix": [
+                [
+                  1629,
+                  230
+                ],
+                [
+                  6,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.12,
+              "confusion_matrix": [
+                [
+                  1643,
+                  216
+                ],
+                [
+                  6,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.13,
+              "confusion_matrix": [
+                [
+                  1655,
+                  204
+                ],
+                [
+                  6,
+                  134
+                ]
+              ]
+            },
+            {
+              "threshold": 0.14,
+              "confusion_matrix": [
+                [
+                  1664,
+                  195
+                ],
+                [
+                  7,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.15,
+              "confusion_matrix": [
+                [
+                  1678,
+                  181
+                ],
+                [
+                  7,
+                  133
+                ]
+              ]
+            },
+            {
+              "threshold": 0.16,
+              "confusion_matrix": [
+                [
+                  1689,
+                  170
+                ],
+                [
+                  9,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.17,
+              "confusion_matrix": [
+                [
+                  1694,
+                  165
+                ],
+                [
+                  9,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.18,
+              "confusion_matrix": [
+                [
+                  1702,
+                  157
+                ],
+                [
+                  9,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.19,
+              "confusion_matrix": [
+                [
+                  1708,
+                  151
+                ],
+                [
+                  9,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.2,
+              "confusion_matrix": [
+                [
+                  1714,
+                  145
+                ],
+                [
+                  9,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.21,
+              "confusion_matrix": [
+                [
+                  1720,
+                  139
+                ],
+                [
+                  9,
+                  131
+                ]
+              ]
+            },
+            {
+              "threshold": 0.22,
+              "confusion_matrix": [
+                [
+                  1724,
+                  135
+                ],
+                [
+                  10,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.23,
+              "confusion_matrix": [
+                [
+                  1730,
+                  129
+                ],
+                [
+                  10,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.24,
+              "confusion_matrix": [
+                [
+                  1733,
+                  126
+                ],
+                [
+                  11,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.25,
+              "confusion_matrix": [
+                [
+                  1735,
+                  124
+                ],
+                [
+                  11,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.26,
+              "confusion_matrix": [
+                [
+                  1741,
+                  118
+                ],
+                [
+                  11,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.27,
+              "confusion_matrix": [
+                [
+                  1746,
+                  113
+                ],
+                [
+                  11,
+                  129
+                ]
+              ]
+            },
+            {
+              "threshold": 0.28,
+              "confusion_matrix": [
+                [
+                  1750,
+                  109
+                ],
+                [
+                  12,
+                  128
+                ]
+              ]
+            },
+            {
+              "threshold": 0.29,
+              "confusion_matrix": [
+                [
+                  1754,
+                  105
+                ],
+                [
+                  12,
+                  128
+                ]
+              ]
+            },
+            {
+              "threshold": 0.3,
+              "confusion_matrix": [
+                [
+                  1757,
+                  102
+                ],
+                [
+                  12,
+                  128
+                ]
+              ]
+            },
+            {
+              "threshold": 0.31,
+              "confusion_matrix": [
+                [
+                  1760,
+                  99
+                ],
+                [
+                  12,
+                  128
+                ]
+              ]
+            },
+            {
+              "threshold": 0.32,
+              "confusion_matrix": [
+                [
+                  1763,
+                  96
+                ],
+                [
+                  12,
+                  128
+                ]
+              ]
+            },
+            {
+              "threshold": 0.33,
+              "confusion_matrix": [
+                [
+                  1763,
+                  96
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.34,
+              "confusion_matrix": [
+                [
+                  1764,
+                  95
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.35,
+              "confusion_matrix": [
+                [
+                  1767,
+                  92
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.36,
+              "confusion_matrix": [
+                [
+                  1767,
+                  92
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.37,
+              "confusion_matrix": [
+                [
+                  1771,
+                  88
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.38,
+              "confusion_matrix": [
+                [
+                  1772,
+                  87
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.39,
+              "confusion_matrix": [
+                [
+                  1774,
+                  85
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.4,
+              "confusion_matrix": [
+                [
+                  1775,
+                  84
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.41,
+              "confusion_matrix": [
+                [
+                  1779,
+                  80
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.42,
+              "confusion_matrix": [
+                [
+                  1782,
+                  77
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.43,
+              "confusion_matrix": [
+                [
+                  1784,
+                  75
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.44,
+              "confusion_matrix": [
+                [
+                  1786,
+                  73
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.45,
+              "confusion_matrix": [
+                [
+                  1788,
+                  71
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.46,
+              "confusion_matrix": [
+                [
+                  1792,
+                  67
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.47,
+              "confusion_matrix": [
+                [
+                  1792,
+                  67
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.48,
+              "confusion_matrix": [
+                [
+                  1793,
+                  66
+                ],
+                [
+                  13,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.49,
+              "confusion_matrix": [
+                [
+                  1794,
+                  65
+                ],
+                [
+                  14,
+                  126
+                ]
+              ]
+            },
+            {
+              "threshold": 0.5,
+              "confusion_matrix": [
+                [
+                  1796,
+                  63
+                ],
+                [
+                  14,
+                  126
+                ]
+              ]
+            },
+            {
+              "threshold": 0.51,
+              "confusion_matrix": [
+                [
+                  1799,
+                  60
+                ],
+                [
+                  16,
+                  124
+                ]
+              ]
+            },
+            {
+              "threshold": 0.52,
+              "confusion_matrix": [
+                [
+                  1799,
+                  60
+                ],
+                [
+                  16,
+                  124
+                ]
+              ]
+            },
+            {
+              "threshold": 0.53,
+              "confusion_matrix": [
+                [
+                  1802,
+                  57
+                ],
+                [
+                  17,
+                  123
+                ]
+              ]
+            },
+            {
+              "threshold": 0.54,
+              "confusion_matrix": [
+                [
+                  1803,
+                  56
+                ],
+                [
+                  17,
+                  123
+                ]
+              ]
+            },
+            {
+              "threshold": 0.55,
+              "confusion_matrix": [
+                [
+                  1803,
+                  56
+                ],
+                [
+                  18,
+                  122
+                ]
+              ]
+            },
+            {
+              "threshold": 0.56,
+              "confusion_matrix": [
+                [
+                  1804,
+                  55
+                ],
+                [
+                  18,
+                  122
+                ]
+              ]
+            },
+            {
+              "threshold": 0.57,
+              "confusion_matrix": [
+                [
+                  1804,
+                  55
+                ],
+                [
+                  18,
+                  122
+                ]
+              ]
+            },
+            {
+              "threshold": 0.58,
+              "confusion_matrix": [
+                [
+                  1804,
+                  55
+                ],
+                [
+                  18,
+                  122
+                ]
+              ]
+            },
+            {
+              "threshold": 0.59,
+              "confusion_matrix": [
+                [
+                  1806,
+                  53
+                ],
+                [
+                  18,
+                  122
+                ]
+              ]
+            },
+            {
+              "threshold": 0.6,
+              "confusion_matrix": [
+                [
+                  1807,
+                  52
+                ],
+                [
+                  19,
+                  121
+                ]
+              ]
+            },
+            {
+              "threshold": 0.61,
+              "confusion_matrix": [
+                [
+                  1808,
+                  51
+                ],
+                [
+                  19,
+                  121
+                ]
+              ]
+            },
+            {
+              "threshold": 0.62,
+              "confusion_matrix": [
+                [
+                  1810,
+                  49
+                ],
+                [
+                  19,
+                  121
+                ]
+              ]
+            },
+            {
+              "threshold": 0.63,
+              "confusion_matrix": [
+                [
+                  1810,
+                  49
+                ],
+                [
+                  21,
+                  119
+                ]
+              ]
+            },
+            {
+              "threshold": 0.64,
+              "confusion_matrix": [
+                [
+                  1812,
+                  47
+                ],
+                [
+                  21,
+                  119
+                ]
+              ]
+            },
+            {
+              "threshold": 0.65,
+              "confusion_matrix": [
+                [
+                  1814,
+                  45
+                ],
+                [
+                  21,
+                  119
+                ]
+              ]
+            },
+            {
+              "threshold": 0.66,
+              "confusion_matrix": [
+                [
+                  1815,
+                  44
+                ],
+                [
+                  21,
+                  119
+                ]
+              ]
+            },
+            {
+              "threshold": 0.67,
+              "confusion_matrix": [
+                [
+                  1817,
+                  42
+                ],
+                [
+                  21,
+                  119
+                ]
+              ]
+            },
+            {
+              "threshold": 0.68,
+              "confusion_matrix": [
+                [
+                  1818,
+                  41
+                ],
+                [
+                  21,
+                  119
+                ]
+              ]
+            },
+            {
+              "threshold": 0.69,
+              "confusion_matrix": [
+                [
+                  1820,
+                  39
+                ],
+                [
+                  21,
+                  119
+                ]
+              ]
+            },
+            {
+              "threshold": 0.7,
+              "confusion_matrix": [
+                [
+                  1820,
+                  39
+                ],
+                [
+                  21,
+                  119
+                ]
+              ]
+            },
+            {
+              "threshold": 0.71,
+              "confusion_matrix": [
+                [
+                  1820,
+                  39
+                ],
+                [
+                  22,
+                  118
+                ]
+              ]
+            },
+            {
+              "threshold": 0.72,
+              "confusion_matrix": [
+                [
+                  1821,
+                  38
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.73,
+              "confusion_matrix": [
+                [
+                  1822,
+                  37
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.74,
+              "confusion_matrix": [
+                [
+                  1824,
+                  35
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.75,
+              "confusion_matrix": [
+                [
+                  1824,
+                  35
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.76,
+              "confusion_matrix": [
+                [
+                  1825,
+                  34
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.77,
+              "confusion_matrix": [
+                [
+                  1825,
+                  34
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.78,
+              "confusion_matrix": [
+                [
+                  1825,
+                  34
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.79,
+              "confusion_matrix": [
+                [
+                  1829,
+                  30
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.8,
+              "confusion_matrix": [
+                [
+                  1830,
+                  29
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.81,
+              "confusion_matrix": [
+                [
+                  1832,
+                  27
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.82,
+              "confusion_matrix": [
+                [
+                  1832,
+                  27
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.83,
+              "confusion_matrix": [
+                [
+                  1833,
+                  26
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.84,
+              "confusion_matrix": [
+                [
+                  1833,
+                  26
+                ],
+                [
+                  24,
+                  116
+                ]
+              ]
+            },
+            {
+              "threshold": 0.85,
+              "confusion_matrix": [
+                [
+                  1834,
+                  25
+                ],
+                [
+                  26,
+                  114
+                ]
+              ]
+            },
+            {
+              "threshold": 0.86,
+              "confusion_matrix": [
+                [
+                  1834,
+                  25
+                ],
+                [
+                  27,
+                  113
+                ]
+              ]
+            },
+            {
+              "threshold": 0.87,
+              "confusion_matrix": [
+                [
+                  1834,
+                  25
+                ],
+                [
+                  29,
+                  111
+                ]
+              ]
+            },
+            {
+              "threshold": 0.88,
+              "confusion_matrix": [
+                [
+                  1836,
+                  23
+                ],
+                [
+                  32,
+                  108
+                ]
+              ]
+            },
+            {
+              "threshold": 0.89,
+              "confusion_matrix": [
+                [
+                  1837,
+                  22
+                ],
+                [
+                  33,
+                  107
+                ]
+              ]
+            },
+            {
+              "threshold": 0.9,
+              "confusion_matrix": [
+                [
+                  1838,
+                  21
+                ],
+                [
+                  33,
+                  107
+                ]
+              ]
+            },
+            {
+              "threshold": 0.91,
+              "confusion_matrix": [
+                [
+                  1840,
+                  19
+                ],
+                [
+                  33,
+                  107
+                ]
+              ]
+            },
+            {
+              "threshold": 0.92,
+              "confusion_matrix": [
+                [
+                  1840,
+                  19
+                ],
+                [
+                  35,
+                  105
+                ]
+              ]
+            },
+            {
+              "threshold": 0.93,
+              "confusion_matrix": [
+                [
+                  1840,
+                  19
+                ],
+                [
+                  35,
+                  105
+                ]
+              ]
+            },
+            {
+              "threshold": 0.94,
+              "confusion_matrix": [
+                [
+                  1842,
+                  17
+                ],
+                [
+                  36,
+                  104
+                ]
+              ]
+            },
+            {
+              "threshold": 0.95,
+              "confusion_matrix": [
+                [
+                  1842,
+                  17
+                ],
+                [
+                  38,
+                  102
+                ]
+              ]
+            }
+          ]
+        },
+        "code_switching": {
+          "frozen_threshold": 0.93,
+          "reselected_threshold": 0.93,
+          "matches_frozen_threshold": true,
+          "saved_dev_prediction_mismatch_at_frozen_threshold": 0,
+          "grid": [
+            {
+              "threshold": 0.05,
+              "confusion_matrix": [
+                [
+                  1068,
+                  630
+                ],
+                [
+                  1,
+                  300
+                ]
+              ]
+            },
+            {
+              "threshold": 0.06,
+              "confusion_matrix": [
+                [
+                  1128,
+                  570
+                ],
+                [
+                  1,
+                  300
+                ]
+              ]
+            },
+            {
+              "threshold": 0.07,
+              "confusion_matrix": [
+                [
+                  1183,
+                  515
+                ],
+                [
+                  1,
+                  300
+                ]
+              ]
+            },
+            {
+              "threshold": 0.08,
+              "confusion_matrix": [
+                [
+                  1227,
+                  471
+                ],
+                [
+                  2,
+                  299
+                ]
+              ]
+            },
+            {
+              "threshold": 0.09,
+              "confusion_matrix": [
+                [
+                  1256,
+                  442
+                ],
+                [
+                  2,
+                  299
+                ]
+              ]
+            },
+            {
+              "threshold": 0.1,
+              "confusion_matrix": [
+                [
+                  1286,
+                  412
+                ],
+                [
+                  2,
+                  299
+                ]
+              ]
+            },
+            {
+              "threshold": 0.11,
+              "confusion_matrix": [
+                [
+                  1314,
+                  384
+                ],
+                [
+                  2,
+                  299
+                ]
+              ]
+            },
+            {
+              "threshold": 0.12,
+              "confusion_matrix": [
+                [
+                  1341,
+                  357
+                ],
+                [
+                  2,
+                  299
+                ]
+              ]
+            },
+            {
+              "threshold": 0.13,
+              "confusion_matrix": [
+                [
+                  1361,
+                  337
+                ],
+                [
+                  2,
+                  299
+                ]
+              ]
+            },
+            {
+              "threshold": 0.14,
+              "confusion_matrix": [
+                [
+                  1377,
+                  321
+                ],
+                [
+                  2,
+                  299
+                ]
+              ]
+            },
+            {
+              "threshold": 0.15,
+              "confusion_matrix": [
+                [
+                  1391,
+                  307
+                ],
+                [
+                  2,
+                  299
+                ]
+              ]
+            },
+            {
+              "threshold": 0.16,
+              "confusion_matrix": [
+                [
+                  1403,
+                  295
+                ],
+                [
+                  3,
+                  298
+                ]
+              ]
+            },
+            {
+              "threshold": 0.17,
+              "confusion_matrix": [
+                [
+                  1412,
+                  286
+                ],
+                [
+                  3,
+                  298
+                ]
+              ]
+            },
+            {
+              "threshold": 0.18,
+              "confusion_matrix": [
+                [
+                  1421,
+                  277
+                ],
+                [
+                  3,
+                  298
+                ]
+              ]
+            },
+            {
+              "threshold": 0.19,
+              "confusion_matrix": [
+                [
+                  1429,
+                  269
+                ],
+                [
+                  3,
+                  298
+                ]
+              ]
+            },
+            {
+              "threshold": 0.2,
+              "confusion_matrix": [
+                [
+                  1442,
+                  256
+                ],
+                [
+                  3,
+                  298
+                ]
+              ]
+            },
+            {
+              "threshold": 0.21,
+              "confusion_matrix": [
+                [
+                  1447,
+                  251
+                ],
+                [
+                  3,
+                  298
+                ]
+              ]
+            },
+            {
+              "threshold": 0.22,
+              "confusion_matrix": [
+                [
+                  1458,
+                  240
+                ],
+                [
+                  3,
+                  298
+                ]
+              ]
+            },
+            {
+              "threshold": 0.23,
+              "confusion_matrix": [
+                [
+                  1463,
+                  235
+                ],
+                [
+                  4,
+                  297
+                ]
+              ]
+            },
+            {
+              "threshold": 0.24,
+              "confusion_matrix": [
+                [
+                  1471,
+                  227
+                ],
+                [
+                  4,
+                  297
+                ]
+              ]
+            },
+            {
+              "threshold": 0.25,
+              "confusion_matrix": [
+                [
+                  1477,
+                  221
+                ],
+                [
+                  4,
+                  297
+                ]
+              ]
+            },
+            {
+              "threshold": 0.26,
+              "confusion_matrix": [
+                [
+                  1485,
+                  213
+                ],
+                [
+                  4,
+                  297
+                ]
+              ]
+            },
+            {
+              "threshold": 0.27,
+              "confusion_matrix": [
+                [
+                  1492,
+                  206
+                ],
+                [
+                  4,
+                  297
+                ]
+              ]
+            },
+            {
+              "threshold": 0.28,
+              "confusion_matrix": [
+                [
+                  1498,
+                  200
+                ],
+                [
+                  4,
+                  297
+                ]
+              ]
+            },
+            {
+              "threshold": 0.29,
+              "confusion_matrix": [
+                [
+                  1507,
+                  191
+                ],
+                [
+                  4,
+                  297
+                ]
+              ]
+            },
+            {
+              "threshold": 0.3,
+              "confusion_matrix": [
+                [
+                  1514,
+                  184
+                ],
+                [
+                  4,
+                  297
+                ]
+              ]
+            },
+            {
+              "threshold": 0.31,
+              "confusion_matrix": [
+                [
+                  1518,
+                  180
+                ],
+                [
+                  4,
+                  297
+                ]
+              ]
+            },
+            {
+              "threshold": 0.32,
+              "confusion_matrix": [
+                [
+                  1523,
+                  175
+                ],
+                [
+                  5,
+                  296
+                ]
+              ]
+            },
+            {
+              "threshold": 0.33,
+              "confusion_matrix": [
+                [
+                  1529,
+                  169
+                ],
+                [
+                  5,
+                  296
+                ]
+              ]
+            },
+            {
+              "threshold": 0.34,
+              "confusion_matrix": [
+                [
+                  1534,
+                  164
+                ],
+                [
+                  6,
+                  295
+                ]
+              ]
+            },
+            {
+              "threshold": 0.35,
+              "confusion_matrix": [
+                [
+                  1539,
+                  159
+                ],
+                [
+                  6,
+                  295
+                ]
+              ]
+            },
+            {
+              "threshold": 0.36,
+              "confusion_matrix": [
+                [
+                  1542,
+                  156
+                ],
+                [
+                  7,
+                  294
+                ]
+              ]
+            },
+            {
+              "threshold": 0.37,
+              "confusion_matrix": [
+                [
+                  1543,
+                  155
+                ],
+                [
+                  7,
+                  294
+                ]
+              ]
+            },
+            {
+              "threshold": 0.38,
+              "confusion_matrix": [
+                [
+                  1548,
+                  150
+                ],
+                [
+                  7,
+                  294
+                ]
+              ]
+            },
+            {
+              "threshold": 0.39,
+              "confusion_matrix": [
+                [
+                  1550,
+                  148
+                ],
+                [
+                  7,
+                  294
+                ]
+              ]
+            },
+            {
+              "threshold": 0.4,
+              "confusion_matrix": [
+                [
+                  1553,
+                  145
+                ],
+                [
+                  9,
+                  292
+                ]
+              ]
+            },
+            {
+              "threshold": 0.41,
+              "confusion_matrix": [
+                [
+                  1557,
+                  141
+                ],
+                [
+                  9,
+                  292
+                ]
+              ]
+            },
+            {
+              "threshold": 0.42,
+              "confusion_matrix": [
+                [
+                  1561,
+                  137
+                ],
+                [
+                  9,
+                  292
+                ]
+              ]
+            },
+            {
+              "threshold": 0.43,
+              "confusion_matrix": [
+                [
+                  1562,
+                  136
+                ],
+                [
+                  9,
+                  292
+                ]
+              ]
+            },
+            {
+              "threshold": 0.44,
+              "confusion_matrix": [
+                [
+                  1566,
+                  132
+                ],
+                [
+                  9,
+                  292
+                ]
+              ]
+            },
+            {
+              "threshold": 0.45,
+              "confusion_matrix": [
+                [
+                  1568,
+                  130
+                ],
+                [
+                  10,
+                  291
+                ]
+              ]
+            },
+            {
+              "threshold": 0.46,
+              "confusion_matrix": [
+                [
+                  1570,
+                  128
+                ],
+                [
+                  11,
+                  290
+                ]
+              ]
+            },
+            {
+              "threshold": 0.47,
+              "confusion_matrix": [
+                [
+                  1571,
+                  127
+                ],
+                [
+                  12,
+                  289
+                ]
+              ]
+            },
+            {
+              "threshold": 0.48,
+              "confusion_matrix": [
+                [
+                  1574,
+                  124
+                ],
+                [
+                  12,
+                  289
+                ]
+              ]
+            },
+            {
+              "threshold": 0.49,
+              "confusion_matrix": [
+                [
+                  1583,
+                  115
+                ],
+                [
+                  12,
+                  289
+                ]
+              ]
+            },
+            {
+              "threshold": 0.5,
+              "confusion_matrix": [
+                [
+                  1586,
+                  112
+                ],
+                [
+                  13,
+                  288
+                ]
+              ]
+            },
+            {
+              "threshold": 0.51,
+              "confusion_matrix": [
+                [
+                  1593,
+                  105
+                ],
+                [
+                  13,
+                  288
+                ]
+              ]
+            },
+            {
+              "threshold": 0.52,
+              "confusion_matrix": [
+                [
+                  1595,
+                  103
+                ],
+                [
+                  13,
+                  288
+                ]
+              ]
+            },
+            {
+              "threshold": 0.53,
+              "confusion_matrix": [
+                [
+                  1595,
+                  103
+                ],
+                [
+                  13,
+                  288
+                ]
+              ]
+            },
+            {
+              "threshold": 0.54,
+              "confusion_matrix": [
+                [
+                  1596,
+                  102
+                ],
+                [
+                  13,
+                  288
+                ]
+              ]
+            },
+            {
+              "threshold": 0.55,
+              "confusion_matrix": [
+                [
+                  1601,
+                  97
+                ],
+                [
+                  13,
+                  288
+                ]
+              ]
+            },
+            {
+              "threshold": 0.56,
+              "confusion_matrix": [
+                [
+                  1604,
+                  94
+                ],
+                [
+                  13,
+                  288
+                ]
+              ]
+            },
+            {
+              "threshold": 0.57,
+              "confusion_matrix": [
+                [
+                  1605,
+                  93
+                ],
+                [
+                  14,
+                  287
+                ]
+              ]
+            },
+            {
+              "threshold": 0.58,
+              "confusion_matrix": [
+                [
+                  1607,
+                  91
+                ],
+                [
+                  15,
+                  286
+                ]
+              ]
+            },
+            {
+              "threshold": 0.59,
+              "confusion_matrix": [
+                [
+                  1610,
+                  88
+                ],
+                [
+                  16,
+                  285
+                ]
+              ]
+            },
+            {
+              "threshold": 0.6,
+              "confusion_matrix": [
+                [
+                  1611,
+                  87
+                ],
+                [
+                  16,
+                  285
+                ]
+              ]
+            },
+            {
+              "threshold": 0.61,
+              "confusion_matrix": [
+                [
+                  1613,
+                  85
+                ],
+                [
+                  16,
+                  285
+                ]
+              ]
+            },
+            {
+              "threshold": 0.62,
+              "confusion_matrix": [
+                [
+                  1613,
+                  85
+                ],
+                [
+                  16,
+                  285
+                ]
+              ]
+            },
+            {
+              "threshold": 0.63,
+              "confusion_matrix": [
+                [
+                  1614,
+                  84
+                ],
+                [
+                  19,
+                  282
+                ]
+              ]
+            },
+            {
+              "threshold": 0.64,
+              "confusion_matrix": [
+                [
+                  1617,
+                  81
+                ],
+                [
+                  20,
+                  281
+                ]
+              ]
+            },
+            {
+              "threshold": 0.65,
+              "confusion_matrix": [
+                [
+                  1618,
+                  80
+                ],
+                [
+                  20,
+                  281
+                ]
+              ]
+            },
+            {
+              "threshold": 0.66,
+              "confusion_matrix": [
+                [
+                  1623,
+                  75
+                ],
+                [
+                  20,
+                  281
+                ]
+              ]
+            },
+            {
+              "threshold": 0.67,
+              "confusion_matrix": [
+                [
+                  1625,
+                  73
+                ],
+                [
+                  20,
+                  281
+                ]
+              ]
+            },
+            {
+              "threshold": 0.68,
+              "confusion_matrix": [
+                [
+                  1626,
+                  72
+                ],
+                [
+                  21,
+                  280
+                ]
+              ]
+            },
+            {
+              "threshold": 0.69,
+              "confusion_matrix": [
+                [
+                  1628,
+                  70
+                ],
+                [
+                  21,
+                  280
+                ]
+              ]
+            },
+            {
+              "threshold": 0.7,
+              "confusion_matrix": [
+                [
+                  1630,
+                  68
+                ],
+                [
+                  21,
+                  280
+                ]
+              ]
+            },
+            {
+              "threshold": 0.71,
+              "confusion_matrix": [
+                [
+                  1633,
+                  65
+                ],
+                [
+                  22,
+                  279
+                ]
+              ]
+            },
+            {
+              "threshold": 0.72,
+              "confusion_matrix": [
+                [
+                  1635,
+                  63
+                ],
+                [
+                  22,
+                  279
+                ]
+              ]
+            },
+            {
+              "threshold": 0.73,
+              "confusion_matrix": [
+                [
+                  1638,
+                  60
+                ],
+                [
+                  22,
+                  279
+                ]
+              ]
+            },
+            {
+              "threshold": 0.74,
+              "confusion_matrix": [
+                [
+                  1640,
+                  58
+                ],
+                [
+                  23,
+                  278
+                ]
+              ]
+            },
+            {
+              "threshold": 0.75,
+              "confusion_matrix": [
+                [
+                  1641,
+                  57
+                ],
+                [
+                  23,
+                  278
+                ]
+              ]
+            },
+            {
+              "threshold": 0.76,
+              "confusion_matrix": [
+                [
+                  1643,
+                  55
+                ],
+                [
+                  23,
+                  278
+                ]
+              ]
+            },
+            {
+              "threshold": 0.77,
+              "confusion_matrix": [
+                [
+                  1646,
+                  52
+                ],
+                [
+                  24,
+                  277
+                ]
+              ]
+            },
+            {
+              "threshold": 0.78,
+              "confusion_matrix": [
+                [
+                  1646,
+                  52
+                ],
+                [
+                  25,
+                  276
+                ]
+              ]
+            },
+            {
+              "threshold": 0.79,
+              "confusion_matrix": [
+                [
+                  1647,
+                  51
+                ],
+                [
+                  26,
+                  275
+                ]
+              ]
+            },
+            {
+              "threshold": 0.8,
+              "confusion_matrix": [
+                [
+                  1649,
+                  49
+                ],
+                [
+                  26,
+                  275
+                ]
+              ]
+            },
+            {
+              "threshold": 0.81,
+              "confusion_matrix": [
+                [
+                  1650,
+                  48
+                ],
+                [
+                  27,
+                  274
+                ]
+              ]
+            },
+            {
+              "threshold": 0.82,
+              "confusion_matrix": [
+                [
+                  1651,
+                  47
+                ],
+                [
+                  30,
+                  271
+                ]
+              ]
+            },
+            {
+              "threshold": 0.83,
+              "confusion_matrix": [
+                [
+                  1652,
+                  46
+                ],
+                [
+                  31,
+                  270
+                ]
+              ]
+            },
+            {
+              "threshold": 0.84,
+              "confusion_matrix": [
+                [
+                  1653,
+                  45
+                ],
+                [
+                  34,
+                  267
+                ]
+              ]
+            },
+            {
+              "threshold": 0.85,
+              "confusion_matrix": [
+                [
+                  1657,
+                  41
+                ],
+                [
+                  35,
+                  266
+                ]
+              ]
+            },
+            {
+              "threshold": 0.86,
+              "confusion_matrix": [
+                [
+                  1658,
+                  40
+                ],
+                [
+                  37,
+                  264
+                ]
+              ]
+            },
+            {
+              "threshold": 0.87,
+              "confusion_matrix": [
+                [
+                  1660,
+                  38
+                ],
+                [
+                  39,
+                  262
+                ]
+              ]
+            },
+            {
+              "threshold": 0.88,
+              "confusion_matrix": [
+                [
+                  1661,
+                  37
+                ],
+                [
+                  39,
+                  262
+                ]
+              ]
+            },
+            {
+              "threshold": 0.89,
+              "confusion_matrix": [
+                [
+                  1662,
+                  36
+                ],
+                [
+                  39,
+                  262
+                ]
+              ]
+            },
+            {
+              "threshold": 0.9,
+              "confusion_matrix": [
+                [
+                  1666,
+                  32
+                ],
+                [
+                  41,
+                  260
+                ]
+              ]
+            },
+            {
+              "threshold": 0.91,
+              "confusion_matrix": [
+                [
+                  1669,
+                  29
+                ],
+                [
+                  42,
+                  259
+                ]
+              ]
+            },
+            {
+              "threshold": 0.92,
+              "confusion_matrix": [
+                [
+                  1671,
+                  27
+                ],
+                [
+                  43,
+                  258
+                ]
+              ]
+            },
+            {
+              "threshold": 0.93,
+              "confusion_matrix": [
+                [
+                  1675,
+                  23
+                ],
+                [
+                  46,
+                  255
+                ]
+              ]
+            },
+            {
+              "threshold": 0.94,
+              "confusion_matrix": [
+                [
+                  1676,
+                  22
+                ],
+                [
+                  48,
+                  253
+                ]
+              ]
+            },
+            {
+              "threshold": 0.95,
+              "confusion_matrix": [
+                [
+                  1676,
+                  22
+                ],
+                [
+                  48,
+                  253
+                ]
+              ]
+            }
+          ]
+        },
+        "mocking": {
+          "frozen_threshold": 0.84,
+          "reselected_threshold": 0.84,
+          "matches_frozen_threshold": true,
+          "saved_dev_prediction_mismatch_at_frozen_threshold": 0,
+          "grid": [
+            {
+              "threshold": 0.05,
+              "confusion_matrix": [
+                [
+                  1272,
+                  494
+                ],
+                [
+                  6,
+                  227
+                ]
+              ]
+            },
+            {
+              "threshold": 0.06,
+              "confusion_matrix": [
+                [
+                  1309,
+                  457
+                ],
+                [
+                  8,
+                  225
+                ]
+              ]
+            },
+            {
+              "threshold": 0.07,
+              "confusion_matrix": [
+                [
+                  1340,
+                  426
+                ],
+                [
+                  11,
+                  222
+                ]
+              ]
+            },
+            {
+              "threshold": 0.08,
+              "confusion_matrix": [
+                [
+                  1363,
+                  403
+                ],
+                [
+                  12,
+                  221
+                ]
+              ]
+            },
+            {
+              "threshold": 0.09,
+              "confusion_matrix": [
+                [
+                  1377,
+                  389
+                ],
+                [
+                  12,
+                  221
+                ]
+              ]
+            },
+            {
+              "threshold": 0.1,
+              "confusion_matrix": [
+                [
+                  1395,
+                  371
+                ],
+                [
+                  16,
+                  217
+                ]
+              ]
+            },
+            {
+              "threshold": 0.11,
+              "confusion_matrix": [
+                [
+                  1410,
+                  356
+                ],
+                [
+                  17,
+                  216
+                ]
+              ]
+            },
+            {
+              "threshold": 0.12,
+              "confusion_matrix": [
+                [
+                  1422,
+                  344
+                ],
+                [
+                  19,
+                  214
+                ]
+              ]
+            },
+            {
+              "threshold": 0.13,
+              "confusion_matrix": [
+                [
+                  1430,
+                  336
+                ],
+                [
+                  21,
+                  212
+                ]
+              ]
+            },
+            {
+              "threshold": 0.14,
+              "confusion_matrix": [
+                [
+                  1442,
+                  324
+                ],
+                [
+                  21,
+                  212
+                ]
+              ]
+            },
+            {
+              "threshold": 0.15,
+              "confusion_matrix": [
+                [
+                  1453,
+                  313
+                ],
+                [
+                  21,
+                  212
+                ]
+              ]
+            },
+            {
+              "threshold": 0.16,
+              "confusion_matrix": [
+                [
+                  1463,
+                  303
+                ],
+                [
+                  22,
+                  211
+                ]
+              ]
+            },
+            {
+              "threshold": 0.17,
+              "confusion_matrix": [
+                [
+                  1471,
+                  295
+                ],
+                [
+                  22,
+                  211
+                ]
+              ]
+            },
+            {
+              "threshold": 0.18,
+              "confusion_matrix": [
+                [
+                  1478,
+                  288
+                ],
+                [
+                  22,
+                  211
+                ]
+              ]
+            },
+            {
+              "threshold": 0.19,
+              "confusion_matrix": [
+                [
+                  1487,
+                  279
+                ],
+                [
+                  24,
+                  209
+                ]
+              ]
+            },
+            {
+              "threshold": 0.2,
+              "confusion_matrix": [
+                [
+                  1493,
+                  273
+                ],
+                [
+                  25,
+                  208
+                ]
+              ]
+            },
+            {
+              "threshold": 0.21,
+              "confusion_matrix": [
+                [
+                  1501,
+                  265
+                ],
+                [
+                  26,
+                  207
+                ]
+              ]
+            },
+            {
+              "threshold": 0.22,
+              "confusion_matrix": [
+                [
+                  1507,
+                  259
+                ],
+                [
+                  26,
+                  207
+                ]
+              ]
+            },
+            {
+              "threshold": 0.23,
+              "confusion_matrix": [
+                [
+                  1512,
+                  254
+                ],
+                [
+                  29,
+                  204
+                ]
+              ]
+            },
+            {
+              "threshold": 0.24,
+              "confusion_matrix": [
+                [
+                  1517,
+                  249
+                ],
+                [
+                  30,
+                  203
+                ]
+              ]
+            },
+            {
+              "threshold": 0.25,
+              "confusion_matrix": [
+                [
+                  1521,
+                  245
+                ],
+                [
+                  31,
+                  202
+                ]
+              ]
+            },
+            {
+              "threshold": 0.26,
+              "confusion_matrix": [
+                [
+                  1527,
+                  239
+                ],
+                [
+                  31,
+                  202
+                ]
+              ]
+            },
+            {
+              "threshold": 0.27,
+              "confusion_matrix": [
+                [
+                  1531,
+                  235
+                ],
+                [
+                  32,
+                  201
+                ]
+              ]
+            },
+            {
+              "threshold": 0.28,
+              "confusion_matrix": [
+                [
+                  1532,
+                  234
+                ],
+                [
+                  32,
+                  201
+                ]
+              ]
+            },
+            {
+              "threshold": 0.29,
+              "confusion_matrix": [
+                [
+                  1536,
+                  230
+                ],
+                [
+                  34,
+                  199
+                ]
+              ]
+            },
+            {
+              "threshold": 0.3,
+              "confusion_matrix": [
+                [
+                  1537,
+                  229
+                ],
+                [
+                  34,
+                  199
+                ]
+              ]
+            },
+            {
+              "threshold": 0.31,
+              "confusion_matrix": [
+                [
+                  1541,
+                  225
+                ],
+                [
+                  36,
+                  197
+                ]
+              ]
+            },
+            {
+              "threshold": 0.32,
+              "confusion_matrix": [
+                [
+                  1547,
+                  219
+                ],
+                [
+                  36,
+                  197
+                ]
+              ]
+            },
+            {
+              "threshold": 0.33,
+              "confusion_matrix": [
+                [
+                  1551,
+                  215
+                ],
+                [
+                  37,
+                  196
+                ]
+              ]
+            },
+            {
+              "threshold": 0.34,
+              "confusion_matrix": [
+                [
+                  1555,
+                  211
+                ],
+                [
+                  38,
+                  195
+                ]
+              ]
+            },
+            {
+              "threshold": 0.35,
+              "confusion_matrix": [
+                [
+                  1559,
+                  207
+                ],
+                [
+                  38,
+                  195
+                ]
+              ]
+            },
+            {
+              "threshold": 0.36,
+              "confusion_matrix": [
+                [
+                  1562,
+                  204
+                ],
+                [
+                  38,
+                  195
+                ]
+              ]
+            },
+            {
+              "threshold": 0.37,
+              "confusion_matrix": [
+                [
+                  1565,
+                  201
+                ],
+                [
+                  38,
+                  195
+                ]
+              ]
+            },
+            {
+              "threshold": 0.38,
+              "confusion_matrix": [
+                [
+                  1570,
+                  196
+                ],
+                [
+                  39,
+                  194
+                ]
+              ]
+            },
+            {
+              "threshold": 0.39,
+              "confusion_matrix": [
+                [
+                  1574,
+                  192
+                ],
+                [
+                  39,
+                  194
+                ]
+              ]
+            },
+            {
+              "threshold": 0.4,
+              "confusion_matrix": [
+                [
+                  1579,
+                  187
+                ],
+                [
+                  40,
+                  193
+                ]
+              ]
+            },
+            {
+              "threshold": 0.41,
+              "confusion_matrix": [
+                [
+                  1583,
+                  183
+                ],
+                [
+                  42,
+                  191
+                ]
+              ]
+            },
+            {
+              "threshold": 0.42,
+              "confusion_matrix": [
+                [
+                  1587,
+                  179
+                ],
+                [
+                  43,
+                  190
+                ]
+              ]
+            },
+            {
+              "threshold": 0.43,
+              "confusion_matrix": [
+                [
+                  1589,
+                  177
+                ],
+                [
+                  43,
+                  190
+                ]
+              ]
+            },
+            {
+              "threshold": 0.44,
+              "confusion_matrix": [
+                [
+                  1594,
+                  172
+                ],
+                [
+                  44,
+                  189
+                ]
+              ]
+            },
+            {
+              "threshold": 0.45,
+              "confusion_matrix": [
+                [
+                  1596,
+                  170
+                ],
+                [
+                  45,
+                  188
+                ]
+              ]
+            },
+            {
+              "threshold": 0.46,
+              "confusion_matrix": [
+                [
+                  1600,
+                  166
+                ],
+                [
+                  46,
+                  187
+                ]
+              ]
+            },
+            {
+              "threshold": 0.47,
+              "confusion_matrix": [
+                [
+                  1604,
+                  162
+                ],
+                [
+                  47,
+                  186
+                ]
+              ]
+            },
+            {
+              "threshold": 0.48,
+              "confusion_matrix": [
+                [
+                  1606,
+                  160
+                ],
+                [
+                  47,
+                  186
+                ]
+              ]
+            },
+            {
+              "threshold": 0.49,
+              "confusion_matrix": [
+                [
+                  1608,
+                  158
+                ],
+                [
+                  47,
+                  186
+                ]
+              ]
+            },
+            {
+              "threshold": 0.5,
+              "confusion_matrix": [
+                [
+                  1611,
+                  155
+                ],
+                [
+                  50,
+                  183
+                ]
+              ]
+            },
+            {
+              "threshold": 0.51,
+              "confusion_matrix": [
+                [
+                  1618,
+                  148
+                ],
+                [
+                  51,
+                  182
+                ]
+              ]
+            },
+            {
+              "threshold": 0.52,
+              "confusion_matrix": [
+                [
+                  1619,
+                  147
+                ],
+                [
+                  51,
+                  182
+                ]
+              ]
+            },
+            {
+              "threshold": 0.53,
+              "confusion_matrix": [
+                [
+                  1621,
+                  145
+                ],
+                [
+                  56,
+                  177
+                ]
+              ]
+            },
+            {
+              "threshold": 0.54,
+              "confusion_matrix": [
+                [
+                  1624,
+                  142
+                ],
+                [
+                  56,
+                  177
+                ]
+              ]
+            },
+            {
+              "threshold": 0.55,
+              "confusion_matrix": [
+                [
+                  1626,
+                  140
+                ],
+                [
+                  56,
+                  177
+                ]
+              ]
+            },
+            {
+              "threshold": 0.56,
+              "confusion_matrix": [
+                [
+                  1630,
+                  136
+                ],
+                [
+                  58,
+                  175
+                ]
+              ]
+            },
+            {
+              "threshold": 0.57,
+              "confusion_matrix": [
+                [
+                  1633,
+                  133
+                ],
+                [
+                  58,
+                  175
+                ]
+              ]
+            },
+            {
+              "threshold": 0.58,
+              "confusion_matrix": [
+                [
+                  1635,
+                  131
+                ],
+                [
+                  58,
+                  175
+                ]
+              ]
+            },
+            {
+              "threshold": 0.59,
+              "confusion_matrix": [
+                [
+                  1639,
+                  127
+                ],
+                [
+                  59,
+                  174
+                ]
+              ]
+            },
+            {
+              "threshold": 0.6,
+              "confusion_matrix": [
+                [
+                  1642,
+                  124
+                ],
+                [
+                  59,
+                  174
+                ]
+              ]
+            },
+            {
+              "threshold": 0.61,
+              "confusion_matrix": [
+                [
+                  1644,
+                  122
+                ],
+                [
+                  59,
+                  174
+                ]
+              ]
+            },
+            {
+              "threshold": 0.62,
+              "confusion_matrix": [
+                [
+                  1645,
+                  121
+                ],
+                [
+                  61,
+                  172
+                ]
+              ]
+            },
+            {
+              "threshold": 0.63,
+              "confusion_matrix": [
+                [
+                  1649,
+                  117
+                ],
+                [
+                  61,
+                  172
+                ]
+              ]
+            },
+            {
+              "threshold": 0.64,
+              "confusion_matrix": [
+                [
+                  1651,
+                  115
+                ],
+                [
+                  63,
+                  170
+                ]
+              ]
+            },
+            {
+              "threshold": 0.65,
+              "confusion_matrix": [
+                [
+                  1654,
+                  112
+                ],
+                [
+                  64,
+                  169
+                ]
+              ]
+            },
+            {
+              "threshold": 0.66,
+              "confusion_matrix": [
+                [
+                  1656,
+                  110
+                ],
+                [
+                  65,
+                  168
+                ]
+              ]
+            },
+            {
+              "threshold": 0.67,
+              "confusion_matrix": [
+                [
+                  1658,
+                  108
+                ],
+                [
+                  67,
+                  166
+                ]
+              ]
+            },
+            {
+              "threshold": 0.68,
+              "confusion_matrix": [
+                [
+                  1658,
+                  108
+                ],
+                [
+                  68,
+                  165
+                ]
+              ]
+            },
+            {
+              "threshold": 0.69,
+              "confusion_matrix": [
+                [
+                  1663,
+                  103
+                ],
+                [
+                  68,
+                  165
+                ]
+              ]
+            },
+            {
+              "threshold": 0.7,
+              "confusion_matrix": [
+                [
+                  1664,
+                  102
+                ],
+                [
+                  68,
+                  165
+                ]
+              ]
+            },
+            {
+              "threshold": 0.71,
+              "confusion_matrix": [
+                [
+                  1667,
+                  99
+                ],
+                [
+                  68,
+                  165
+                ]
+              ]
+            },
+            {
+              "threshold": 0.72,
+              "confusion_matrix": [
+                [
+                  1668,
+                  98
+                ],
+                [
+                  71,
+                  162
+                ]
+              ]
+            },
+            {
+              "threshold": 0.73,
+              "confusion_matrix": [
+                [
+                  1673,
+                  93
+                ],
+                [
+                  71,
+                  162
+                ]
+              ]
+            },
+            {
+              "threshold": 0.74,
+              "confusion_matrix": [
+                [
+                  1675,
+                  91
+                ],
+                [
+                  72,
+                  161
+                ]
+              ]
+            },
+            {
+              "threshold": 0.75,
+              "confusion_matrix": [
+                [
+                  1678,
+                  88
+                ],
+                [
+                  75,
+                  158
+                ]
+              ]
+            },
+            {
+              "threshold": 0.76,
+              "confusion_matrix": [
+                [
+                  1684,
+                  82
+                ],
+                [
+                  75,
+                  158
+                ]
+              ]
+            },
+            {
+              "threshold": 0.77,
+              "confusion_matrix": [
+                [
+                  1686,
+                  80
+                ],
+                [
+                  76,
+                  157
+                ]
+              ]
+            },
+            {
+              "threshold": 0.78,
+              "confusion_matrix": [
+                [
+                  1689,
+                  77
+                ],
+                [
+                  77,
+                  156
+                ]
+              ]
+            },
+            {
+              "threshold": 0.79,
+              "confusion_matrix": [
+                [
+                  1690,
+                  76
+                ],
+                [
+                  77,
+                  156
+                ]
+              ]
+            },
+            {
+              "threshold": 0.8,
+              "confusion_matrix": [
+                [
+                  1693,
+                  73
+                ],
+                [
+                  79,
+                  154
+                ]
+              ]
+            },
+            {
+              "threshold": 0.81,
+              "confusion_matrix": [
+                [
+                  1695,
+                  71
+                ],
+                [
+                  81,
+                  152
+                ]
+              ]
+            },
+            {
+              "threshold": 0.82,
+              "confusion_matrix": [
+                [
+                  1699,
+                  67
+                ],
+                [
+                  81,
+                  152
+                ]
+              ]
+            },
+            {
+              "threshold": 0.83,
+              "confusion_matrix": [
+                [
+                  1700,
+                  66
+                ],
+                [
+                  82,
+                  151
+                ]
+              ]
+            },
+            {
+              "threshold": 0.84,
+              "confusion_matrix": [
+                [
+                  1705,
+                  61
+                ],
+                [
+                  83,
+                  150
+                ]
+              ]
+            },
+            {
+              "threshold": 0.85,
+              "confusion_matrix": [
+                [
+                  1707,
+                  59
+                ],
+                [
+                  85,
+                  148
+                ]
+              ]
+            },
+            {
+              "threshold": 0.86,
+              "confusion_matrix": [
+                [
+                  1710,
+                  56
+                ],
+                [
+                  86,
+                  147
+                ]
+              ]
+            },
+            {
+              "threshold": 0.87,
+              "confusion_matrix": [
+                [
+                  1714,
+                  52
+                ],
+                [
+                  89,
+                  144
+                ]
+              ]
+            },
+            {
+              "threshold": 0.88,
+              "confusion_matrix": [
+                [
+                  1716,
+                  50
+                ],
+                [
+                  92,
+                  141
+                ]
+              ]
+            },
+            {
+              "threshold": 0.89,
+              "confusion_matrix": [
+                [
+                  1721,
+                  45
+                ],
+                [
+                  94,
+                  139
+                ]
+              ]
+            },
+            {
+              "threshold": 0.9,
+              "confusion_matrix": [
+                [
+                  1723,
+                  43
+                ],
+                [
+                  96,
+                  137
+                ]
+              ]
+            },
+            {
+              "threshold": 0.91,
+              "confusion_matrix": [
+                [
+                  1725,
+                  41
+                ],
+                [
+                  96,
+                  137
+                ]
+              ]
+            },
+            {
+              "threshold": 0.92,
+              "confusion_matrix": [
+                [
+                  1729,
+                  37
+                ],
+                [
+                  103,
+                  130
+                ]
+              ]
+            },
+            {
+              "threshold": 0.93,
+              "confusion_matrix": [
+                [
+                  1734,
+                  32
+                ],
+                [
+                  106,
+                  127
+                ]
+              ]
+            },
+            {
+              "threshold": 0.94,
+              "confusion_matrix": [
+                [
+                  1737,
+                  29
+                ],
+                [
+                  111,
+                  122
+                ]
+              ]
+            },
+            {
+              "threshold": 0.95,
+              "confusion_matrix": [
+                [
+                  1742,
+                  24
+                ],
+                [
+                  114,
+                  119
+                ]
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "individual_predictions_included": false,
+  "author_identifiers_included": false
+}

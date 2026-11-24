@@ -1,0 +1,53 @@
+{
+  "checkpoint_weights_included": false,
+  "model": "baseline_pragmatic_only",
+  "model_context": {
+    "active_heads": [
+      "implicit_sentiment",
+      "sarcasm",
+      "irony",
+      "idiom_figurative",
+      "code_switching",
+      "mocking"
+    ],
+    "architecture": "encoder",
+    "auxiliary_heads": false,
+    "dropout": 0.1,
+    "loss": {
+      "active_task": "pragmatic",
+      "aggregation": "equal_weight",
+      "name": "binary_cross_entropy_with_logits",
+      "positive_weight_policy": "train_only_negative_over_positive"
+    },
+    "max_sequence_length": 128,
+    "pooling": "first_attended_token",
+    "preprocessing": {
+      "name": "unicode_nfc",
+      "normalization": "NFC",
+      "version": "locked-v1"
+    },
+    "rationale_decoder": false
+  },
+  "recipe": {
+    "deterministic_algorithms": "warn_only",
+    "effective_batch_size": 32,
+    "gradient_accumulation_steps": 4,
+    "gradient_checkpointing": false,
+    "learning_rate": 2e-05,
+    "max_epochs": 10,
+    "max_grad_norm": 1.0,
+    "min_delta": 0.0001,
+    "optimizer": "AdamW",
+    "patience": 10,
+    "physical_batch_size": 8,
+    "precision": "bf16",
+    "rationale_beta": 0.3,
+    "rationale_target_max_length": 160,
+    "scheduler": "cosine",
+    "use_uncertainty_weighting": false,
+    "warmup_ratio": 0.2,
+    "weight_decay": 0.01
+  },
+  "seed": 20260521,
+  "training_rerun": false
+}

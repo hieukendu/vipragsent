@@ -1,0 +1,82 @@
+schema_version: 1
+source: explicit_q1b_execution_producer_registry
+paper_inventory_policy: reported_baselines_with_explicit_training_producers
+producers:
+- producer_id: q1b_train_phobert_pol_single
+  system_id: phobert_pol_single
+  producer_kind: trainable_checkpoint
+  executor_kind: single_model_trainable
+  training_applicability: APPLICABLE
+  model_family: phobert_base
+  variant_id: phobert_pol_single
+  checkpoint_role: phobert_pol_single
+  reusable_checkpoint_key_pattern: phobert_pol_single:{seed}
+  dependencies:
+  - preflight_validation
+  - vipragsent_train
+  paper_facing: false
+- producer_id: q1b_train_phobert_emo_single
+  system_id: phobert_emo_single
+  producer_kind: trainable_checkpoint
+  executor_kind: single_model_trainable
+  training_applicability: APPLICABLE
+  model_family: phobert_base
+  variant_id: phobert_emo_single
+  checkpoint_role: phobert_emo_single
+  reusable_checkpoint_key_pattern: phobert_emo_single:{seed}
+  dependencies:
+  - preflight_validation
+  - vipragsent_train
+  paper_facing: false
+- producer_id: q1b_train_phobert_multitask_8head
+  system_id: phobert_multitask_8head
+  producer_kind: trainable_checkpoint
+  executor_kind: single_model_trainable
+  training_applicability: APPLICABLE
+  model_family: phobert_base
+  variant_id: phobert_multitask_8head
+  checkpoint_role: phobert_multitask_8head
+  reusable_checkpoint_key_pattern: phobert_multitask_8head:{seed}
+  dependencies:
+  - preflight_validation
+  - vipragsent_train
+  paper_facing: false
+- producer_id: q1b_train_xlmr_multitask_8head
+  system_id: xlmr_multitask_8head
+  producer_kind: trainable_checkpoint
+  executor_kind: single_model_trainable
+  training_applicability: APPLICABLE
+  model_family: xlmr_large
+  variant_id: xlmr_multitask_8head
+  checkpoint_role: xlmr_multitask_8head
+  reusable_checkpoint_key_pattern: xlmr_multitask_8head:{seed}
+  dependencies:
+  - preflight_validation
+  - vipragsent_train
+  paper_facing: false
+- producer_id: q1b_train_sailor_multitask_8head
+  system_id: sailor_multitask_8head
+  producer_kind: trainable_checkpoint
+  executor_kind: single_model_trainable
+  training_applicability: APPLICABLE
+  model_family: sailor_7b
+  variant_id: sailor_multitask_8head
+  checkpoint_role: sailor_multitask_8head
+  reusable_checkpoint_key_pattern: sailor_multitask_8head:{seed}
+  dependencies:
+  - preflight_validation
+  - vipragsent_train
+  paper_facing: false
+- producer_id: q1b_train_vistral_multitask_8head
+  system_id: vistral_multitask_8head
+  producer_kind: trainable_checkpoint
+  executor_kind: single_model_trainable
+  training_applicability: APPLICABLE
+  model_family: vistral_7b
+  variant_id: vistral_multitask_8head
+  checkpoint_role: vistral_multitask_8head
+  reusable_checkpoint_key_pattern: vistral_multitask_8head:{seed}
+  dependencies:
+  - preflight_validation
+  - vipragsent_train
+  paper_facing: false

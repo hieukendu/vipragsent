@@ -1,0 +1,16 @@
+schema_version: 1
+lane_id: xlmr_q1b_q3_q4_paper_v1
+backbone: xlmr_large
+model_repository: FacebookAI/xlm-roberta-large
+model_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+tokenizer_revision: c23d21b0620b635a76227c604d44e43a9f0ee389
+seeds: [20260521, 20260522, 20260523]
+q1b:
+  execution: train_full_xlmr_then_external_retention
+  external_finetuning: false
+q3:
+  execution: train_full_xlmr_with_locked_nested_masks
+  budgets: [32, 64, 128, 256, 512, full]
+q4:
+  execution: extract_from_existing_v37_full_xlmr_checkpoint
+  source_run_prefix: priority12_v37_q1_full_

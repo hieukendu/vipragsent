@@ -1,0 +1,91 @@
+{
+  "system": "vistral",
+  "budget": 32,
+  "seed": 20260521,
+  "versions": [
+    {
+      "version": "original_selection",
+      "thresholds": {
+        "code_switching": 0.93,
+        "idiom_figurative": 0.83,
+        "implicit_sentiment": 0.47,
+        "irony": 0.79,
+        "mocking": 0.84,
+        "sarcasm": 0.2
+      },
+      "training_history": [
+        {
+          "dev_loss": 4.220801900938153,
+          "dev_macro_pragmatic_f1": 0.8416388624042627,
+          "dev_metric": 0.6994203825285377,
+          "epoch": 1,
+          "peak_memory_gb": 4.4591064453125,
+          "seconds": 1147.6840236387216,
+          "train_loss": 7.028819988898134
+        },
+        {
+          "dev_loss": 3.2261367481425403,
+          "dev_macro_pragmatic_f1": 0.87546219501914,
+          "dev_metric": 0.7312263685361996,
+          "epoch": 2,
+          "peak_memory_gb": 4.4591064453125,
+          "seconds": 1173.0530471960083,
+          "train_loss": 3.26513218067021
+        },
+        {
+          "dev_loss": 6.353887703171814,
+          "dev_macro_pragmatic_f1": 0.8647546129762986,
+          "dev_metric": 0.6887039076158805,
+          "epoch": 3,
+          "peak_memory_gb": 4.4591064453125,
+          "seconds": 1209.4920980101451,
+          "train_loss": 1.3205845645767091
+        }
+      ],
+      "review_summary": {
+        "best_epoch": 2,
+        "best_dev_metric": 0.7312263685361996,
+        "sarcasm_dev_f1": 0.7312263685361996,
+        "per_label_dev_metrics": {
+          "code_switching": 0.9303238379855334,
+          "idiom_figurative": 0.904619853575491,
+          "implicit_sentiment": 0.8985100857237703,
+          "irony": 0.9705140497086806,
+          "mocking": 0.8175789745851647,
+          "sarcasm": 0.7312263685361996
+        },
+        "per_label_test_metrics": {
+          "code_switching": 0.9251737687545882,
+          "idiom_figurative": 0.9049716320928253,
+          "implicit_sentiment": 0.8590528350515464,
+          "irony": 0.9623970495537618,
+          "mocking": 0.791432982584654,
+          "sarcasm": 0.7307240704500979
+        }
+      },
+      "freeze_manifest": {
+        "frozen": true,
+        "thresholds": {
+          "code_switching": 0.93,
+          "idiom_figurative": 0.83,
+          "implicit_sentiment": 0.47,
+          "irony": 0.79,
+          "mocking": 0.84,
+          "sarcasm": 0.2
+        }
+      },
+      "selection_metric": {
+        "best_epoch": 2,
+        "value": 0.7312263685361996
+      }
+    }
+  ],
+  "selection_epoch_from_training_history": 2,
+  "selection_epoch_confirmed_in_saved_best_checkpoint": 2,
+  "selected_epoch_dev_sarcasm_f1": 0.7312263685361996,
+  "independent_dev_threshold_reselection_verified": true,
+  "verified_selection_version": "original_selection",
+  "reason": "Original dev file matches its freeze hash and released dev gold. Independent grid search reproduces all six frozen thresholds and epoch-2 dev F1.",
+  "individual_predictions_included": false,
+  "author_identifiers_included": false
+}

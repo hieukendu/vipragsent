@@ -1,0 +1,2514 @@
+{
+  "full_paper_reproduction": false,
+  "cohorts_outside_this_pair_replay": [
+    "other Q1a systems",
+    "Q1b",
+    "Q2",
+    "Q3"
+  ],
+  "additional_results_validator": "validate_saved_results.py",
+  "paired_bootstrap": [
+    {
+      "bootstrap_seed": 20260525,
+      "ci_high_pp": 1.4430919989407691,
+      "ci_low_pp": -0.6454239818888864,
+      "crosses_zero": true,
+      "metric": "implicit_sentiment",
+      "observed_delta_pp": 0.4146944386414127,
+      "p_value": 0.42075792420757924,
+      "resamples": 10000
+    },
+    {
+      "bootstrap_seed": 20260525,
+      "ci_high_pp": 2.9951646813112123,
+      "ci_low_pp": -1.0825173088611448,
+      "crosses_zero": true,
+      "metric": "sarcasm",
+      "observed_delta_pp": 0.9639499604784644,
+      "p_value": 0.32096790320967905,
+      "resamples": 10000
+    },
+    {
+      "bootstrap_seed": 20260525,
+      "ci_high_pp": 0.8707849063729601,
+      "ci_low_pp": -0.30111211187980635,
+      "crosses_zero": true,
+      "metric": "irony",
+      "observed_delta_pp": 0.2480744423409916,
+      "p_value": 0.406959304069593,
+      "resamples": 10000
+    },
+    {
+      "bootstrap_seed": 20260525,
+      "ci_high_pp": 2.0267401795491287,
+      "ci_low_pp": -0.4680523323439877,
+      "crosses_zero": true,
+      "metric": "idiom_figurative",
+      "observed_delta_pp": 0.7636019373282361,
+      "p_value": 0.21337866213378662,
+      "resamples": 10000
+    },
+    {
+      "bootstrap_seed": 20260525,
+      "ci_high_pp": 1.6329322562020319,
+      "ci_low_pp": -0.542316609626635,
+      "crosses_zero": true,
+      "metric": "code_switching",
+      "observed_delta_pp": 0.49846656649244664,
+      "p_value": 0.34136586341365865,
+      "resamples": 10000
+    },
+    {
+      "bootstrap_seed": 20260525,
+      "ci_high_pp": 2.325024701115484,
+      "ci_low_pp": -0.5549827293390949,
+      "crosses_zero": true,
+      "metric": "mocking",
+      "observed_delta_pp": 0.8939974692386906,
+      "p_value": 0.22557744225577442,
+      "resamples": 10000
+    },
+    {
+      "bootstrap_seed": 20260525,
+      "ci_high_pp": 1.1958829180414217,
+      "ci_low_pp": 0.06830805175181695,
+      "crosses_zero": false,
+      "metric": "macro_pragmatic",
+      "observed_delta_pp": 0.6304641357533736,
+      "p_value": 0.028997100289971003,
+      "resamples": 10000
+    }
+  ],
+  "paired_bootstrap_matches_saved_reference": true,
+  "per_seed": [
+    {
+      "calibration": {
+        "bins": 10,
+        "head_ece": {
+          "code_switching": 0.03300042391701572,
+          "idiom_figurative": 0.020813400569517398,
+          "implicit_sentiment": 0.053212908542729545,
+          "irony": 0.01273632215672842,
+          "mocking": 0.03883283019016381,
+          "sarcasm": 0.050230122842098344
+        },
+        "macro_ece": 0.03480433470304221,
+        "probability_source": "raw_positive_probability",
+        "reliability": {
+          "code_switching": [
+            {
+              "bin": 0,
+              "count": 1587,
+              "empirical_positive_rate": 0.010712035286704474,
+              "mean_probability": 0.010164094466279805
+            },
+            {
+              "bin": 1,
+              "count": 23,
+              "empirical_positive_rate": 0.043478260869565216,
+              "mean_probability": 0.1431171949142995
+            },
+            {
+              "bin": 2,
+              "count": 21,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.24287778635819754
+            },
+            {
+              "bin": 3,
+              "count": 13,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3431076384507693
+            },
+            {
+              "bin": 4,
+              "count": 8,
+              "empirical_positive_rate": 0.125,
+              "mean_probability": 0.46636349335312843
+            },
+            {
+              "bin": 5,
+              "count": 11,
+              "empirical_positive_rate": 0.09090909090909091,
+              "mean_probability": 0.5396944392811168
+            },
+            {
+              "bin": 6,
+              "count": 7,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.6530525514057705
+            },
+            {
+              "bin": 7,
+              "count": 12,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.7583950559298197
+            },
+            {
+              "bin": 8,
+              "count": 17,
+              "empirical_positive_rate": 0.35294117647058826,
+              "mean_probability": 0.849615686080035
+            },
+            {
+              "bin": 9,
+              "count": 301,
+              "empirical_positive_rate": 0.9036544850498339,
+              "mean_probability": 0.9950020447917951
+            }
+          ],
+          "idiom_figurative": [
+            {
+              "bin": 0,
+              "count": 1749,
+              "empirical_positive_rate": 0.005717552887364208,
+              "mean_probability": 0.008857709997467508
+            },
+            {
+              "bin": 1,
+              "count": 55,
+              "empirical_positive_rate": 0.07272727272727272,
+              "mean_probability": 0.13845413543961266
+            },
+            {
+              "bin": 2,
+              "count": 21,
+              "empirical_positive_rate": 0.047619047619047616,
+              "mean_probability": 0.23753599751563298
+            },
+            {
+              "bin": 3,
+              "count": 14,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3416632605450494
+            },
+            {
+              "bin": 4,
+              "count": 10,
+              "empirical_positive_rate": 0.1,
+              "mean_probability": 0.4353730916976929
+            },
+            {
+              "bin": 5,
+              "count": 2,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5391978323459625
+            },
+            {
+              "bin": 6,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.6646173993746439
+            },
+            {
+              "bin": 7,
+              "count": 10,
+              "empirical_positive_rate": 0.3,
+              "mean_probability": 0.7534202516078949
+            },
+            {
+              "bin": 8,
+              "count": 6,
+              "empirical_positive_rate": 0.16666666666666666,
+              "mean_probability": 0.8667876819769541
+            },
+            {
+              "bin": 9,
+              "count": 130,
+              "empirical_positive_rate": 0.9307692307692308,
+              "mean_probability": 0.996824922469946
+            }
+          ],
+          "implicit_sentiment": [
+            {
+              "bin": 0,
+              "count": 1349,
+              "empirical_positive_rate": 0.011860637509266123,
+              "mean_probability": 0.013654509208582272
+            },
+            {
+              "bin": 1,
+              "count": 72,
+              "empirical_positive_rate": 0.05555555555555555,
+              "mean_probability": 0.1487958680631386
+            },
+            {
+              "bin": 2,
+              "count": 38,
+              "empirical_positive_rate": 0.10526315789473684,
+              "mean_probability": 0.25017524902757843
+            },
+            {
+              "bin": 3,
+              "count": 22,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3440136421810497
+            },
+            {
+              "bin": 4,
+              "count": 12,
+              "empirical_positive_rate": 0.16666666666666666,
+              "mean_probability": 0.4452834352850914
+            },
+            {
+              "bin": 5,
+              "count": 13,
+              "empirical_positive_rate": 0.23076923076923078,
+              "mean_probability": 0.5454789445950434
+            },
+            {
+              "bin": 6,
+              "count": 27,
+              "empirical_positive_rate": 0.14814814814814814,
+              "mean_probability": 0.6504513201890169
+            },
+            {
+              "bin": 7,
+              "count": 22,
+              "empirical_positive_rate": 0.2727272727272727,
+              "mean_probability": 0.7607166279445995
+            },
+            {
+              "bin": 8,
+              "count": 37,
+              "empirical_positive_rate": 0.43243243243243246,
+              "mean_probability": 0.8610616374660183
+            },
+            {
+              "bin": 9,
+              "count": 408,
+              "empirical_positive_rate": 0.8946078431372549,
+              "mean_probability": 0.9843768689270113
+            }
+          ],
+          "irony": [
+            {
+              "bin": 0,
+              "count": 1808,
+              "empirical_positive_rate": 0.0022123893805309734,
+              "mean_probability": 0.005732869473509725
+            },
+            {
+              "bin": 1,
+              "count": 24,
+              "empirical_positive_rate": 0.041666666666666664,
+              "mean_probability": 0.14186524910231432
+            },
+            {
+              "bin": 2,
+              "count": 4,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.25370636209845543
+            },
+            {
+              "bin": 3,
+              "count": 7,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3404749461582729
+            },
+            {
+              "bin": 4,
+              "count": 9,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.4437914821836684
+            },
+            {
+              "bin": 5,
+              "count": 7,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5645015239715576
+            },
+            {
+              "bin": 6,
+              "count": 0,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.0
+            },
+            {
+              "bin": 7,
+              "count": 4,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.7201796472072601
+            },
+            {
+              "bin": 8,
+              "count": 1,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.8253028988838196
+            },
+            {
+              "bin": 9,
+              "count": 136,
+              "empirical_positive_rate": 0.9779411764705882,
+              "mean_probability": 0.9974488585310823
+            }
+          ],
+          "mocking": [
+            {
+              "bin": 0,
+              "count": 1593,
+              "empirical_positive_rate": 0.006905210295040804,
+              "mean_probability": 0.010813493423632475
+            },
+            {
+              "bin": 1,
+              "count": 63,
+              "empirical_positive_rate": 0.031746031746031744,
+              "mean_probability": 0.14548962634234203
+            },
+            {
+              "bin": 2,
+              "count": 28,
+              "empirical_positive_rate": 0.07142857142857142,
+              "mean_probability": 0.2517888162817274
+            },
+            {
+              "bin": 3,
+              "count": 21,
+              "empirical_positive_rate": 0.09523809523809523,
+              "mean_probability": 0.35436294901938664
+            },
+            {
+              "bin": 4,
+              "count": 9,
+              "empirical_positive_rate": 0.2222222222222222,
+              "mean_probability": 0.43929122553931343
+            },
+            {
+              "bin": 5,
+              "count": 18,
+              "empirical_positive_rate": 0.1111111111111111,
+              "mean_probability": 0.5509097112549676
+            },
+            {
+              "bin": 6,
+              "count": 14,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.6503404251166752
+            },
+            {
+              "bin": 7,
+              "count": 14,
+              "empirical_positive_rate": 0.21428571428571427,
+              "mean_probability": 0.7568796362195697
+            },
+            {
+              "bin": 8,
+              "count": 13,
+              "empirical_positive_rate": 0.23076923076923078,
+              "mean_probability": 0.8570789419687711
+            },
+            {
+              "bin": 9,
+              "count": 227,
+              "empirical_positive_rate": 0.8986784140969163,
+              "mean_probability": 0.9914938642064905
+            }
+          ],
+          "sarcasm": [
+            {
+              "bin": 0,
+              "count": 1706,
+              "empirical_positive_rate": 0.0035169988276670576,
+              "mean_probability": 0.007559590928434205
+            },
+            {
+              "bin": 1,
+              "count": 30,
+              "empirical_positive_rate": 0.03333333333333333,
+              "mean_probability": 0.13494038606683414
+            },
+            {
+              "bin": 2,
+              "count": 18,
+              "empirical_positive_rate": 0.1111111111111111,
+              "mean_probability": 0.25266237888071275
+            },
+            {
+              "bin": 3,
+              "count": 13,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.36110308307867783
+            },
+            {
+              "bin": 4,
+              "count": 9,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.46204621262020534
+            },
+            {
+              "bin": 5,
+              "count": 10,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5432377696037293
+            },
+            {
+              "bin": 6,
+              "count": 11,
+              "empirical_positive_rate": 0.45454545454545453,
+              "mean_probability": 0.6420423334295099
+            },
+            {
+              "bin": 7,
+              "count": 13,
+              "empirical_positive_rate": 0.3076923076923077,
+              "mean_probability": 0.7520808852635897
+            },
+            {
+              "bin": 8,
+              "count": 21,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.842829201902662
+            },
+            {
+              "bin": 9,
+              "count": 169,
+              "empirical_positive_rate": 0.6804733727810651,
+              "mean_probability": 0.9830969529744435
+            }
+          ]
+        },
+        "temperature_scaling": false
+      },
+      "head_f1": {
+        "code_switching": 0.9484519730998604,
+        "idiom_figurative": 0.937311690194373,
+        "implicit_sentiment": 0.929099160048944,
+        "irony": 0.9824283099450885,
+        "mocking": 0.9417225933445962,
+        "sarcasm": 0.8832615957010141
+      },
+      "macro_f1": 0.9370458870556461,
+      "model": "proposed_multitask",
+      "seed": 20260521
+    },
+    {
+      "calibration": {
+        "bins": 10,
+        "head_ece": {
+          "code_switching": 0.03760365696674853,
+          "idiom_figurative": 0.02201146564353258,
+          "implicit_sentiment": 0.05538025425927482,
+          "irony": 0.013472127030363485,
+          "mocking": 0.03198732607281271,
+          "sarcasm": 0.04576432462153752
+        },
+        "macro_ece": 0.03436985909904494,
+        "probability_source": "raw_positive_probability",
+        "reliability": {
+          "code_switching": [
+            {
+              "bin": 0,
+              "count": 1565,
+              "empirical_positive_rate": 0.0076677316293929714,
+              "mean_probability": 0.011031624404084943
+            },
+            {
+              "bin": 1,
+              "count": 37,
+              "empirical_positive_rate": 0.02702702702702703,
+              "mean_probability": 0.141501154448535
+            },
+            {
+              "bin": 2,
+              "count": 20,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.24909217953681945
+            },
+            {
+              "bin": 3,
+              "count": 16,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3509992007166147
+            },
+            {
+              "bin": 4,
+              "count": 11,
+              "empirical_positive_rate": 0.18181818181818182,
+              "mean_probability": 0.4415603144602342
+            },
+            {
+              "bin": 5,
+              "count": 6,
+              "empirical_positive_rate": 0.5,
+              "mean_probability": 0.5615541338920593
+            },
+            {
+              "bin": 6,
+              "count": 8,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.6633694991469383
+            },
+            {
+              "bin": 7,
+              "count": 7,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.735028224331992
+            },
+            {
+              "bin": 8,
+              "count": 16,
+              "empirical_positive_rate": 0.125,
+              "mean_probability": 0.8495880775153637
+            },
+            {
+              "bin": 9,
+              "count": 314,
+              "empirical_positive_rate": 0.89171974522293,
+              "mean_probability": 0.9931127298030125
+            }
+          ],
+          "idiom_figurative": [
+            {
+              "bin": 0,
+              "count": 1762,
+              "empirical_positive_rate": 0.006242905788876277,
+              "mean_probability": 0.009210277903744703
+            },
+            {
+              "bin": 1,
+              "count": 42,
+              "empirical_positive_rate": 0.023809523809523808,
+              "mean_probability": 0.1410484297999314
+            },
+            {
+              "bin": 2,
+              "count": 19,
+              "empirical_positive_rate": 0.05263157894736842,
+              "mean_probability": 0.24658792818847455
+            },
+            {
+              "bin": 3,
+              "count": 12,
+              "empirical_positive_rate": 0.08333333333333333,
+              "mean_probability": 0.3422037437558174
+            },
+            {
+              "bin": 4,
+              "count": 4,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.45630861818790436
+            },
+            {
+              "bin": 5,
+              "count": 9,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.538040386305915
+            },
+            {
+              "bin": 6,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.6558891415596009
+            },
+            {
+              "bin": 7,
+              "count": 7,
+              "empirical_positive_rate": 0.42857142857142855,
+              "mean_probability": 0.7669174841472081
+            },
+            {
+              "bin": 8,
+              "count": 4,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.8776219636201859
+            },
+            {
+              "bin": 9,
+              "count": 136,
+              "empirical_positive_rate": 0.9044117647058824,
+              "mean_probability": 0.9945060154970955
+            }
+          ],
+          "implicit_sentiment": [
+            {
+              "bin": 0,
+              "count": 1344,
+              "empirical_positive_rate": 0.01636904761904762,
+              "mean_probability": 0.014525657045808094
+            },
+            {
+              "bin": 1,
+              "count": 74,
+              "empirical_positive_rate": 0.013513513513513514,
+              "mean_probability": 0.14396075703002312
+            },
+            {
+              "bin": 2,
+              "count": 38,
+              "empirical_positive_rate": 0.05263157894736842,
+              "mean_probability": 0.24450331377355675
+            },
+            {
+              "bin": 3,
+              "count": 28,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.34871321065085276
+            },
+            {
+              "bin": 4,
+              "count": 16,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.44499083049595356
+            },
+            {
+              "bin": 5,
+              "count": 10,
+              "empirical_positive_rate": 0.2,
+              "mean_probability": 0.5497599244117737
+            },
+            {
+              "bin": 6,
+              "count": 22,
+              "empirical_positive_rate": 0.18181818181818182,
+              "mean_probability": 0.6475270823998884
+            },
+            {
+              "bin": 7,
+              "count": 25,
+              "empirical_positive_rate": 0.32,
+              "mean_probability": 0.761020028591156
+            },
+            {
+              "bin": 8,
+              "count": 44,
+              "empirical_positive_rate": 0.4772727272727273,
+              "mean_probability": 0.8527745563875545
+            },
+            {
+              "bin": 9,
+              "count": 399,
+              "empirical_positive_rate": 0.8922305764411027,
+              "mean_probability": 0.9853738601643938
+            }
+          ],
+          "irony": [
+            {
+              "bin": 0,
+              "count": 1811,
+              "empirical_positive_rate": 0.0022087244616234127,
+              "mean_probability": 0.007220890118682581
+            },
+            {
+              "bin": 1,
+              "count": 24,
+              "empirical_positive_rate": 0.041666666666666664,
+              "mean_probability": 0.14237311109900475
+            },
+            {
+              "bin": 2,
+              "count": 7,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.25127795551504406
+            },
+            {
+              "bin": 3,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.36483914256095884
+            },
+            {
+              "bin": 4,
+              "count": 4,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.45183733105659485
+            },
+            {
+              "bin": 5,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5587006568908691
+            },
+            {
+              "bin": 6,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.6434306104977926
+            },
+            {
+              "bin": 7,
+              "count": 3,
+              "empirical_positive_rate": 0.3333333333333333,
+              "mean_probability": 0.759481946627299
+            },
+            {
+              "bin": 8,
+              "count": 4,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.8534022569656372
+            },
+            {
+              "bin": 9,
+              "count": 134,
+              "empirical_positive_rate": 0.9850746268656716,
+              "mean_probability": 0.9973427364185675
+            }
+          ],
+          "mocking": [
+            {
+              "bin": 0,
+              "count": 1622,
+              "empirical_positive_rate": 0.008014796547472256,
+              "mean_probability": 0.010728153015771331
+            },
+            {
+              "bin": 1,
+              "count": 50,
+              "empirical_positive_rate": 0.06,
+              "mean_probability": 0.14583465456962585
+            },
+            {
+              "bin": 2,
+              "count": 28,
+              "empirical_positive_rate": 0.03571428571428571,
+              "mean_probability": 0.23358501493930817
+            },
+            {
+              "bin": 3,
+              "count": 13,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3456149330505958
+            },
+            {
+              "bin": 4,
+              "count": 20,
+              "empirical_positive_rate": 0.15,
+              "mean_probability": 0.4481006294488907
+            },
+            {
+              "bin": 5,
+              "count": 15,
+              "empirical_positive_rate": 0.13333333333333333,
+              "mean_probability": 0.5549938201904296
+            },
+            {
+              "bin": 6,
+              "count": 7,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.6741321342332023
+            },
+            {
+              "bin": 7,
+              "count": 7,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.7384622011865888
+            },
+            {
+              "bin": 8,
+              "count": 13,
+              "empirical_positive_rate": 0.5384615384615384,
+              "mean_probability": 0.8582567710142869
+            },
+            {
+              "bin": 9,
+              "count": 225,
+              "empirical_positive_rate": 0.8977777777777778,
+              "mean_probability": 0.9907380551762051
+            }
+          ],
+          "sarcasm": [
+            {
+              "bin": 0,
+              "count": 1706,
+              "empirical_positive_rate": 0.0029308323563892145,
+              "mean_probability": 0.006427001157032879
+            },
+            {
+              "bin": 1,
+              "count": 33,
+              "empirical_positive_rate": 0.06060606060606061,
+              "mean_probability": 0.14111788774078543
+            },
+            {
+              "bin": 2,
+              "count": 30,
+              "empirical_positive_rate": 0.03333333333333333,
+              "mean_probability": 0.2484084203839302
+            },
+            {
+              "bin": 3,
+              "count": 9,
+              "empirical_positive_rate": 0.1111111111111111,
+              "mean_probability": 0.35143522752655876
+            },
+            {
+              "bin": 4,
+              "count": 7,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.448417923280171
+            },
+            {
+              "bin": 5,
+              "count": 13,
+              "empirical_positive_rate": 0.07692307692307693,
+              "mean_probability": 0.5520923412763156
+            },
+            {
+              "bin": 6,
+              "count": 10,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.652017080783844
+            },
+            {
+              "bin": 7,
+              "count": 7,
+              "empirical_positive_rate": 0.42857142857142855,
+              "mean_probability": 0.7663798928260803
+            },
+            {
+              "bin": 8,
+              "count": 24,
+              "empirical_positive_rate": 0.20833333333333334,
+              "mean_probability": 0.8583687742551168
+            },
+            {
+              "bin": 9,
+              "count": 161,
+              "empirical_positive_rate": 0.7329192546583851,
+              "mean_probability": 0.9844119178582422
+            }
+          ]
+        },
+        "temperature_scaling": false
+      },
+      "head_f1": {
+        "code_switching": 0.9539847043199061,
+        "idiom_figurative": 0.937311690194373,
+        "implicit_sentiment": 0.9243886062703017,
+        "irony": 0.9842211562736682,
+        "mocking": 0.9306958140271673,
+        "sarcasm": 0.8992310185937784
+      },
+      "macro_f1": 0.9383054982798659,
+      "model": "proposed_multitask",
+      "seed": 20260522
+    },
+    {
+      "calibration": {
+        "bins": 10,
+        "head_ece": {
+          "code_switching": 0.07084863702196892,
+          "idiom_figurative": 0.05666631376981969,
+          "implicit_sentiment": 0.04297400061076043,
+          "irony": 0.018234834346185377,
+          "mocking": 0.03761095733286493,
+          "sarcasm": 0.053250981670789774
+        },
+        "macro_ece": 0.046597620792064844,
+        "probability_source": "raw_positive_probability",
+        "reliability": {
+          "code_switching": [
+            {
+              "bin": 0,
+              "count": 1424,
+              "empirical_positive_rate": 0.008426966292134831,
+              "mean_probability": 0.018182046957202585
+            },
+            {
+              "bin": 1,
+              "count": 93,
+              "empirical_positive_rate": 0.021505376344086023,
+              "mean_probability": 0.1421788620852655
+            },
+            {
+              "bin": 2,
+              "count": 40,
+              "empirical_positive_rate": 0.025,
+              "mean_probability": 0.24740432612597943
+            },
+            {
+              "bin": 3,
+              "count": 24,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3541330111523469
+            },
+            {
+              "bin": 4,
+              "count": 17,
+              "empirical_positive_rate": 0.058823529411764705,
+              "mean_probability": 0.4424044156775755
+            },
+            {
+              "bin": 5,
+              "count": 17,
+              "empirical_positive_rate": 0.058823529411764705,
+              "mean_probability": 0.5364055914037368
+            },
+            {
+              "bin": 6,
+              "count": 15,
+              "empirical_positive_rate": 0.06666666666666667,
+              "mean_probability": 0.6440268158912659
+            },
+            {
+              "bin": 7,
+              "count": 14,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.753443739243916
+            },
+            {
+              "bin": 8,
+              "count": 26,
+              "empirical_positive_rate": 0.19230769230769232,
+              "mean_probability": 0.8583698799976935
+            },
+            {
+              "bin": 9,
+              "count": 330,
+              "empirical_positive_rate": 0.8393939393939394,
+              "mean_probability": 0.9909758730368181
+            }
+          ],
+          "idiom_figurative": [
+            {
+              "bin": 0,
+              "count": 1602,
+              "empirical_positive_rate": 0.006242197253433208,
+              "mean_probability": 0.014785374086376363
+            },
+            {
+              "bin": 1,
+              "count": 106,
+              "empirical_positive_rate": 0.009433962264150943,
+              "mean_probability": 0.14338349185462268
+            },
+            {
+              "bin": 2,
+              "count": 34,
+              "empirical_positive_rate": 0.058823529411764705,
+              "mean_probability": 0.2464954353430692
+            },
+            {
+              "bin": 3,
+              "count": 33,
+              "empirical_positive_rate": 0.030303030303030304,
+              "mean_probability": 0.34410115173368744
+            },
+            {
+              "bin": 4,
+              "count": 14,
+              "empirical_positive_rate": 0.07142857142857142,
+              "mean_probability": 0.451182559132576
+            },
+            {
+              "bin": 5,
+              "count": 20,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5436174690723419
+            },
+            {
+              "bin": 6,
+              "count": 18,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.6464441120624542
+            },
+            {
+              "bin": 7,
+              "count": 14,
+              "empirical_positive_rate": 0.07142857142857142,
+              "mean_probability": 0.7450090008122581
+            },
+            {
+              "bin": 8,
+              "count": 9,
+              "empirical_positive_rate": 0.2222222222222222,
+              "mean_probability": 0.8653709491093954
+            },
+            {
+              "bin": 9,
+              "count": 150,
+              "empirical_positive_rate": 0.82,
+              "mean_probability": 0.991121743520101
+            }
+          ],
+          "implicit_sentiment": [
+            {
+              "bin": 0,
+              "count": 1381,
+              "empirical_positive_rate": 0.011585807385952208,
+              "mean_probability": 0.013291477963327013
+            },
+            {
+              "bin": 1,
+              "count": 52,
+              "empirical_positive_rate": 0.057692307692307696,
+              "mean_probability": 0.14405608005248582
+            },
+            {
+              "bin": 2,
+              "count": 40,
+              "empirical_positive_rate": 0.075,
+              "mean_probability": 0.24696552567183971
+            },
+            {
+              "bin": 3,
+              "count": 22,
+              "empirical_positive_rate": 0.22727272727272727,
+              "mean_probability": 0.35357735509222205
+            },
+            {
+              "bin": 4,
+              "count": 20,
+              "empirical_positive_rate": 0.2,
+              "mean_probability": 0.46593851745128634
+            },
+            {
+              "bin": 5,
+              "count": 11,
+              "empirical_positive_rate": 0.2727272727272727,
+              "mean_probability": 0.5451915264129639
+            },
+            {
+              "bin": 6,
+              "count": 11,
+              "empirical_positive_rate": 0.09090909090909091,
+              "mean_probability": 0.6556392962282355
+            },
+            {
+              "bin": 7,
+              "count": 30,
+              "empirical_positive_rate": 0.23333333333333334,
+              "mean_probability": 0.749953830242157
+            },
+            {
+              "bin": 8,
+              "count": 42,
+              "empirical_positive_rate": 0.5476190476190477,
+              "mean_probability": 0.8534238877750578
+            },
+            {
+              "bin": 9,
+              "count": 391,
+              "empirical_positive_rate": 0.907928388746803,
+              "mean_probability": 0.9758923364722211
+            }
+          ],
+          "irony": [
+            {
+              "bin": 0,
+              "count": 1788,
+              "empirical_positive_rate": 0.0022371364653243847,
+              "mean_probability": 0.006200286752703666
+            },
+            {
+              "bin": 1,
+              "count": 27,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.14478206358574056
+            },
+            {
+              "bin": 2,
+              "count": 8,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.2345541324466467
+            },
+            {
+              "bin": 3,
+              "count": 8,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3628644049167633
+            },
+            {
+              "bin": 4,
+              "count": 12,
+              "empirical_positive_rate": 0.08333333333333333,
+              "mean_probability": 0.4528895517190297
+            },
+            {
+              "bin": 5,
+              "count": 7,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5681250521114894
+            },
+            {
+              "bin": 6,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.6233550906181335
+            },
+            {
+              "bin": 7,
+              "count": 2,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.7786752879619598
+            },
+            {
+              "bin": 8,
+              "count": 7,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.8487958312034607
+            },
+            {
+              "bin": 9,
+              "count": 136,
+              "empirical_positive_rate": 0.9852941176470589,
+              "mean_probability": 0.9975576847791672
+            }
+          ],
+          "mocking": [
+            {
+              "bin": 0,
+              "count": 1596,
+              "empirical_positive_rate": 0.005639097744360902,
+              "mean_probability": 0.009584361328984471
+            },
+            {
+              "bin": 1,
+              "count": 53,
+              "empirical_positive_rate": 0.07547169811320754,
+              "mean_probability": 0.14296451970091406
+            },
+            {
+              "bin": 2,
+              "count": 30,
+              "empirical_positive_rate": 0.13333333333333333,
+              "mean_probability": 0.2527214244008064
+            },
+            {
+              "bin": 3,
+              "count": 23,
+              "empirical_positive_rate": 0.043478260869565216,
+              "mean_probability": 0.3536208829154139
+            },
+            {
+              "bin": 4,
+              "count": 18,
+              "empirical_positive_rate": 0.1111111111111111,
+              "mean_probability": 0.45301999979548985
+            },
+            {
+              "bin": 5,
+              "count": 10,
+              "empirical_positive_rate": 0.1,
+              "mean_probability": 0.5528033614158631
+            },
+            {
+              "bin": 6,
+              "count": 13,
+              "empirical_positive_rate": 0.15384615384615385,
+              "mean_probability": 0.6482793138577387
+            },
+            {
+              "bin": 7,
+              "count": 16,
+              "empirical_positive_rate": 0.1875,
+              "mean_probability": 0.7532704398036003
+            },
+            {
+              "bin": 8,
+              "count": 23,
+              "empirical_positive_rate": 0.43478260869565216,
+              "mean_probability": 0.8616924519124238
+            },
+            {
+              "bin": 9,
+              "count": 218,
+              "empirical_positive_rate": 0.9036697247706422,
+              "mean_probability": 0.9892291434861105
+            }
+          ],
+          "sarcasm": [
+            {
+              "bin": 0,
+              "count": 1674,
+              "empirical_positive_rate": 0.0017921146953405018,
+              "mean_probability": 0.0062999379795355935
+            },
+            {
+              "bin": 1,
+              "count": 41,
+              "empirical_positive_rate": 0.04878048780487805,
+              "mean_probability": 0.13768981015536844
+            },
+            {
+              "bin": 2,
+              "count": 29,
+              "empirical_positive_rate": 0.10344827586206896,
+              "mean_probability": 0.23842131423539129
+            },
+            {
+              "bin": 3,
+              "count": 19,
+              "empirical_positive_rate": 0.05263157894736842,
+              "mean_probability": 0.34035254152197586
+            },
+            {
+              "bin": 4,
+              "count": 9,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.45206571949852836
+            },
+            {
+              "bin": 5,
+              "count": 10,
+              "empirical_positive_rate": 0.1,
+              "mean_probability": 0.545976746082306
+            },
+            {
+              "bin": 6,
+              "count": 15,
+              "empirical_positive_rate": 0.06666666666666667,
+              "mean_probability": 0.6513150850931804
+            },
+            {
+              "bin": 7,
+              "count": 17,
+              "empirical_positive_rate": 0.058823529411764705,
+              "mean_probability": 0.7450027290512534
+            },
+            {
+              "bin": 8,
+              "count": 17,
+              "empirical_positive_rate": 0.23529411764705882,
+              "mean_probability": 0.8588542657739976
+            },
+            {
+              "bin": 9,
+              "count": 169,
+              "empirical_positive_rate": 0.7100591715976331,
+              "mean_probability": 0.9844142865147111
+            }
+          ]
+        },
+        "temperature_scaling": false
+      },
+      "head_f1": {
+        "code_switching": 0.9427059587259553,
+        "idiom_figurative": 0.9258492400973086,
+        "implicit_sentiment": 0.9265923130043232,
+        "irony": 0.986333129957291,
+        "mocking": 0.9279372766055575,
+        "sarcasm": 0.8983246156105607
+      },
+      "macro_f1": 0.9346237556668328,
+      "model": "proposed_multitask",
+      "seed": 20260523
+    },
+    {
+      "calibration": {
+        "bins": 10,
+        "head_ece": {
+          "code_switching": 0.025634165056190795,
+          "idiom_figurative": 0.01802906928912853,
+          "implicit_sentiment": 0.0602311064598398,
+          "irony": 0.013446874025823494,
+          "mocking": 0.03261273975465882,
+          "sarcasm": 0.05964593995361793
+        },
+        "macro_ece": 0.03493331575654323,
+        "probability_source": "raw_positive_probability",
+        "reliability": {
+          "code_switching": [
+            {
+              "bin": 0,
+              "count": 1605,
+              "empirical_positive_rate": 0.00809968847352025,
+              "mean_probability": 0.007334590180836354
+            },
+            {
+              "bin": 1,
+              "count": 33,
+              "empirical_positive_rate": 0.030303030303030304,
+              "mean_probability": 0.14777305767391669
+            },
+            {
+              "bin": 2,
+              "count": 8,
+              "empirical_positive_rate": 0.125,
+              "mean_probability": 0.2588355280458927
+            },
+            {
+              "bin": 3,
+              "count": 14,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.34951559347765787
+            },
+            {
+              "bin": 4,
+              "count": 8,
+              "empirical_positive_rate": 0.125,
+              "mean_probability": 0.47154679521918297
+            },
+            {
+              "bin": 5,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5531899690628052
+            },
+            {
+              "bin": 6,
+              "count": 4,
+              "empirical_positive_rate": 0.5,
+              "mean_probability": 0.6600753217935562
+            },
+            {
+              "bin": 7,
+              "count": 11,
+              "empirical_positive_rate": 0.2727272727272727,
+              "mean_probability": 0.7527026859196749
+            },
+            {
+              "bin": 8,
+              "count": 6,
+              "empirical_positive_rate": 0.5,
+              "mean_probability": 0.8619981706142426
+            },
+            {
+              "bin": 9,
+              "count": 306,
+              "empirical_positive_rate": 0.9019607843137255,
+              "mean_probability": 0.9953254570368848
+            }
+          ],
+          "idiom_figurative": [
+            {
+              "bin": 0,
+              "count": 1793,
+              "empirical_positive_rate": 0.007250418293363078,
+              "mean_probability": 0.007223373899651599
+            },
+            {
+              "bin": 1,
+              "count": 21,
+              "empirical_positive_rate": 0.047619047619047616,
+              "mean_probability": 0.138362807177362
+            },
+            {
+              "bin": 2,
+              "count": 19,
+              "empirical_positive_rate": 0.15789473684210525,
+              "mean_probability": 0.2431749387791282
+            },
+            {
+              "bin": 3,
+              "count": 2,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.35249491035938263
+            },
+            {
+              "bin": 4,
+              "count": 8,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.4485713616013527
+            },
+            {
+              "bin": 5,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5384104450543722
+            },
+            {
+              "bin": 6,
+              "count": 2,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.657172441482544
+            },
+            {
+              "bin": 7,
+              "count": 7,
+              "empirical_positive_rate": 0.42857142857142855,
+              "mean_probability": 0.7532933013779777
+            },
+            {
+              "bin": 8,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.8563439846038818
+            },
+            {
+              "bin": 9,
+              "count": 142,
+              "empirical_positive_rate": 0.852112676056338,
+              "mean_probability": 0.9959048112513313
+            }
+          ],
+          "implicit_sentiment": [
+            {
+              "bin": 0,
+              "count": 1367,
+              "empirical_positive_rate": 0.012435991221653255,
+              "mean_probability": 0.007341098517617473
+            },
+            {
+              "bin": 1,
+              "count": 58,
+              "empirical_positive_rate": 0.034482758620689655,
+              "mean_probability": 0.142084169490584
+            },
+            {
+              "bin": 2,
+              "count": 25,
+              "empirical_positive_rate": 0.08,
+              "mean_probability": 0.23655953228473664
+            },
+            {
+              "bin": 3,
+              "count": 18,
+              "empirical_positive_rate": 0.05555555555555555,
+              "mean_probability": 0.35113804704613155
+            },
+            {
+              "bin": 4,
+              "count": 19,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.4517159932538083
+            },
+            {
+              "bin": 5,
+              "count": 17,
+              "empirical_positive_rate": 0.29411764705882354,
+              "mean_probability": 0.554202651276308
+            },
+            {
+              "bin": 6,
+              "count": 14,
+              "empirical_positive_rate": 0.2857142857142857,
+              "mean_probability": 0.6393741922719138
+            },
+            {
+              "bin": 7,
+              "count": 18,
+              "empirical_positive_rate": 0.1111111111111111,
+              "mean_probability": 0.7490910622808669
+            },
+            {
+              "bin": 8,
+              "count": 22,
+              "empirical_positive_rate": 0.4090909090909091,
+              "mean_probability": 0.8736080391840502
+            },
+            {
+              "bin": 9,
+              "count": 442,
+              "empirical_positive_rate": 0.8552036199095022,
+              "mean_probability": 0.9872484977159025
+            }
+          ],
+          "irony": [
+            {
+              "bin": 0,
+              "count": 1801,
+              "empirical_positive_rate": 0.001665741254858412,
+              "mean_probability": 0.004295486027669554
+            },
+            {
+              "bin": 1,
+              "count": 27,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.13700729194614622
+            },
+            {
+              "bin": 2,
+              "count": 12,
+              "empirical_positive_rate": 0.08333333333333333,
+              "mean_probability": 0.24369110291202864
+            },
+            {
+              "bin": 3,
+              "count": 3,
+              "empirical_positive_rate": 0.3333333333333333,
+              "mean_probability": 0.3452843328317006
+            },
+            {
+              "bin": 4,
+              "count": 4,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.43120864778757095
+            },
+            {
+              "bin": 5,
+              "count": 4,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5209839344024658
+            },
+            {
+              "bin": 6,
+              "count": 1,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.6206322908401489
+            },
+            {
+              "bin": 7,
+              "count": 4,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.7646615654230118
+            },
+            {
+              "bin": 8,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.853964340686798
+            },
+            {
+              "bin": 9,
+              "count": 139,
+              "empirical_positive_rate": 0.9640287769784173,
+              "mean_probability": 0.998132115216564
+            }
+          ],
+          "mocking": [
+            {
+              "bin": 0,
+              "count": 1639,
+              "empirical_positive_rate": 0.009151921903599756,
+              "mean_probability": 0.00792773195937916
+            },
+            {
+              "bin": 1,
+              "count": 34,
+              "empirical_positive_rate": 0.058823529411764705,
+              "mean_probability": 0.1391655020415783
+            },
+            {
+              "bin": 2,
+              "count": 19,
+              "empirical_positive_rate": 0.10526315789473684,
+              "mean_probability": 0.2566608127794768
+            },
+            {
+              "bin": 3,
+              "count": 17,
+              "empirical_positive_rate": 0.23529411764705882,
+              "mean_probability": 0.3466281838276807
+            },
+            {
+              "bin": 4,
+              "count": 14,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.4545301560844694
+            },
+            {
+              "bin": 5,
+              "count": 16,
+              "empirical_positive_rate": 0.125,
+              "mean_probability": 0.545803003013134
+            },
+            {
+              "bin": 6,
+              "count": 10,
+              "empirical_positive_rate": 0.1,
+              "mean_probability": 0.653083336353302
+            },
+            {
+              "bin": 7,
+              "count": 15,
+              "empirical_positive_rate": 0.2,
+              "mean_probability": 0.745773986975352
+            },
+            {
+              "bin": 8,
+              "count": 11,
+              "empirical_positive_rate": 0.2727272727272727,
+              "mean_probability": 0.8661104278130964
+            },
+            {
+              "bin": 9,
+              "count": 225,
+              "empirical_positive_rate": 0.8844444444444445,
+              "mean_probability": 0.9927877442042032
+            }
+          ],
+          "sarcasm": [
+            {
+              "bin": 0,
+              "count": 1666,
+              "empirical_positive_rate": 0.004201680672268907,
+              "mean_probability": 0.004717912305795126
+            },
+            {
+              "bin": 1,
+              "count": 33,
+              "empirical_positive_rate": 0.06060606060606061,
+              "mean_probability": 0.1433853484464414
+            },
+            {
+              "bin": 2,
+              "count": 25,
+              "empirical_positive_rate": 0.08,
+              "mean_probability": 0.24785570800304413
+            },
+            {
+              "bin": 3,
+              "count": 19,
+              "empirical_positive_rate": 0.05263157894736842,
+              "mean_probability": 0.3385133068812521
+            },
+            {
+              "bin": 4,
+              "count": 13,
+              "empirical_positive_rate": 0.07692307692307693,
+              "mean_probability": 0.4317832703773792
+            },
+            {
+              "bin": 5,
+              "count": 14,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5393588032041278
+            },
+            {
+              "bin": 6,
+              "count": 9,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.6342231498824226
+            },
+            {
+              "bin": 7,
+              "count": 16,
+              "empirical_positive_rate": 0.0625,
+              "mean_probability": 0.7524103187024593
+            },
+            {
+              "bin": 8,
+              "count": 17,
+              "empirical_positive_rate": 0.17647058823529413,
+              "mean_probability": 0.8628727653447319
+            },
+            {
+              "bin": 9,
+              "count": 188,
+              "empirical_positive_rate": 0.6329787234042553,
+              "mean_probability": 0.9813423391352308
+            }
+          ]
+        },
+        "temperature_scaling": false
+      },
+      "head_f1": {
+        "code_switching": 0.9439044441220561,
+        "idiom_figurative": 0.9270353302611367,
+        "implicit_sentiment": 0.9216253425194347,
+        "irony": 0.9806710247062962,
+        "mocking": 0.9259909219712255,
+        "sarcasm": 0.8847183146915529
+      },
+      "macro_f1": 0.9306575630452837,
+      "model": "baseline_pragmatic_only",
+      "seed": 20260521
+    },
+    {
+      "calibration": {
+        "bins": 10,
+        "head_ece": {
+          "code_switching": 0.030896412201991554,
+          "idiom_figurative": 0.01516385858896684,
+          "implicit_sentiment": 0.0504054580895172,
+          "irony": 0.007621755402013151,
+          "mocking": 0.02187258393699813,
+          "sarcasm": 0.03858584780269666
+        },
+        "macro_ece": 0.027424319337030587,
+        "probability_source": "raw_positive_probability",
+        "reliability": {
+          "code_switching": [
+            {
+              "bin": 0,
+              "count": 1606,
+              "empirical_positive_rate": 0.008717310087173101,
+              "mean_probability": 0.0059952732411930375
+            },
+            {
+              "bin": 1,
+              "count": 21,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.13595273345708847
+            },
+            {
+              "bin": 2,
+              "count": 10,
+              "empirical_positive_rate": 0.1,
+              "mean_probability": 0.2582438886165619
+            },
+            {
+              "bin": 3,
+              "count": 11,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3534964241764762
+            },
+            {
+              "bin": 4,
+              "count": 10,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.44306125938892366
+            },
+            {
+              "bin": 5,
+              "count": 5,
+              "empirical_positive_rate": 0.2,
+              "mean_probability": 0.547302508354187
+            },
+            {
+              "bin": 6,
+              "count": 10,
+              "empirical_positive_rate": 0.4,
+              "mean_probability": 0.6592202663421631
+            },
+            {
+              "bin": 7,
+              "count": 6,
+              "empirical_positive_rate": 0.3333333333333333,
+              "mean_probability": 0.7496251364549001
+            },
+            {
+              "bin": 8,
+              "count": 11,
+              "empirical_positive_rate": 0.45454545454545453,
+              "mean_probability": 0.8506772680716082
+            },
+            {
+              "bin": 9,
+              "count": 310,
+              "empirical_positive_rate": 0.8870967741935484,
+              "mean_probability": 0.9950993474452726
+            }
+          ],
+          "idiom_figurative": [
+            {
+              "bin": 0,
+              "count": 1819,
+              "empirical_positive_rate": 0.008796041781198461,
+              "mean_probability": 0.004910823877100779
+            },
+            {
+              "bin": 1,
+              "count": 17,
+              "empirical_positive_rate": 0.058823529411764705,
+              "mean_probability": 0.1402911166934406
+            },
+            {
+              "bin": 2,
+              "count": 11,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.22766894914887167
+            },
+            {
+              "bin": 3,
+              "count": 5,
+              "empirical_positive_rate": 0.2,
+              "mean_probability": 0.324172180891037
+            },
+            {
+              "bin": 4,
+              "count": 4,
+              "empirical_positive_rate": 0.5,
+              "mean_probability": 0.47250959277153015
+            },
+            {
+              "bin": 5,
+              "count": 4,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.5493612140417099
+            },
+            {
+              "bin": 6,
+              "count": 3,
+              "empirical_positive_rate": 0.6666666666666666,
+              "mean_probability": 0.649744967619578
+            },
+            {
+              "bin": 7,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.7624209125836691
+            },
+            {
+              "bin": 8,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.8227917750676473
+            },
+            {
+              "bin": 9,
+              "count": 131,
+              "empirical_positive_rate": 0.9007633587786259,
+              "mean_probability": 0.9972254033307083
+            }
+          ],
+          "implicit_sentiment": [
+            {
+              "bin": 0,
+              "count": 1437,
+              "empirical_positive_rate": 0.016701461377870562,
+              "mean_probability": 0.005586219822416612
+            },
+            {
+              "bin": 1,
+              "count": 42,
+              "empirical_positive_rate": 0.11904761904761904,
+              "mean_probability": 0.14789536329252378
+            },
+            {
+              "bin": 2,
+              "count": 17,
+              "empirical_positive_rate": 0.11764705882352941,
+              "mean_probability": 0.2663479657734142
+            },
+            {
+              "bin": 3,
+              "count": 15,
+              "empirical_positive_rate": 0.2,
+              "mean_probability": 0.33717747529347736
+            },
+            {
+              "bin": 4,
+              "count": 12,
+              "empirical_positive_rate": 0.08333333333333333,
+              "mean_probability": 0.43601325651009876
+            },
+            {
+              "bin": 5,
+              "count": 8,
+              "empirical_positive_rate": 0.125,
+              "mean_probability": 0.5636583417654037
+            },
+            {
+              "bin": 6,
+              "count": 9,
+              "empirical_positive_rate": 0.2222222222222222,
+              "mean_probability": 0.64021897315979
+            },
+            {
+              "bin": 7,
+              "count": 8,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.7426318749785423
+            },
+            {
+              "bin": 8,
+              "count": 21,
+              "empirical_positive_rate": 0.3333333333333333,
+              "mean_probability": 0.8477022534325009
+            },
+            {
+              "bin": 9,
+              "count": 431,
+              "empirical_positive_rate": 0.8654292343387471,
+              "mean_probability": 0.9879232769499245
+            }
+          ],
+          "irony": [
+            {
+              "bin": 0,
+              "count": 1826,
+              "empirical_positive_rate": 0.002190580503833516,
+              "mean_probability": 0.0037779100070347957
+            },
+            {
+              "bin": 1,
+              "count": 16,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.14138531778007746
+            },
+            {
+              "bin": 2,
+              "count": 10,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.2406037300825119
+            },
+            {
+              "bin": 3,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3347853422164917
+            },
+            {
+              "bin": 4,
+              "count": 4,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.4337792620062828
+            },
+            {
+              "bin": 5,
+              "count": 2,
+              "empirical_positive_rate": 1.0,
+              "mean_probability": 0.5273800194263458
+            },
+            {
+              "bin": 6,
+              "count": 0,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.0
+            },
+            {
+              "bin": 7,
+              "count": 2,
+              "empirical_positive_rate": 0.5,
+              "mean_probability": 0.7701006531715393
+            },
+            {
+              "bin": 8,
+              "count": 1,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.8763130903244019
+            },
+            {
+              "bin": 9,
+              "count": 134,
+              "empirical_positive_rate": 0.9850746268656716,
+              "mean_probability": 0.9992988554399405
+            }
+          ],
+          "mocking": [
+            {
+              "bin": 0,
+              "count": 1674,
+              "empirical_positive_rate": 0.009557945041816009,
+              "mean_probability": 0.0058939227412573075
+            },
+            {
+              "bin": 1,
+              "count": 41,
+              "empirical_positive_rate": 0.12195121951219512,
+              "mean_probability": 0.1425881687460876
+            },
+            {
+              "bin": 2,
+              "count": 21,
+              "empirical_positive_rate": 0.19047619047619047,
+              "mean_probability": 0.24217310405912854
+            },
+            {
+              "bin": 3,
+              "count": 8,
+              "empirical_positive_rate": 0.375,
+              "mean_probability": 0.35906654223799706
+            },
+            {
+              "bin": 4,
+              "count": 7,
+              "empirical_positive_rate": 0.42857142857142855,
+              "mean_probability": 0.4583066829613277
+            },
+            {
+              "bin": 5,
+              "count": 10,
+              "empirical_positive_rate": 0.4,
+              "mean_probability": 0.5494024515151977
+            },
+            {
+              "bin": 6,
+              "count": 9,
+              "empirical_positive_rate": 0.1111111111111111,
+              "mean_probability": 0.6656914022233751
+            },
+            {
+              "bin": 7,
+              "count": 3,
+              "empirical_positive_rate": 0.3333333333333333,
+              "mean_probability": 0.7716208299001058
+            },
+            {
+              "bin": 8,
+              "count": 12,
+              "empirical_positive_rate": 0.3333333333333333,
+              "mean_probability": 0.8612606972455978
+            },
+            {
+              "bin": 9,
+              "count": 215,
+              "empirical_positive_rate": 0.8930232558139535,
+              "mean_probability": 0.9916697302529979
+            }
+          ],
+          "sarcasm": [
+            {
+              "bin": 0,
+              "count": 1745,
+              "empirical_positive_rate": 0.0057306590257879654,
+              "mean_probability": 0.004403156511492081
+            },
+            {
+              "bin": 1,
+              "count": 22,
+              "empirical_positive_rate": 0.13636363636363635,
+              "mean_probability": 0.1466615924781019
+            },
+            {
+              "bin": 2,
+              "count": 12,
+              "empirical_positive_rate": 0.08333333333333333,
+              "mean_probability": 0.2411548209687074
+            },
+            {
+              "bin": 3,
+              "count": 9,
+              "empirical_positive_rate": 0.1111111111111111,
+              "mean_probability": 0.37060732973946464
+            },
+            {
+              "bin": 4,
+              "count": 14,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.4470370944057192
+            },
+            {
+              "bin": 5,
+              "count": 7,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5627837181091309
+            },
+            {
+              "bin": 6,
+              "count": 11,
+              "empirical_positive_rate": 0.09090909090909091,
+              "mean_probability": 0.6479973142797296
+            },
+            {
+              "bin": 7,
+              "count": 9,
+              "empirical_positive_rate": 0.1111111111111111,
+              "mean_probability": 0.7565364506509569
+            },
+            {
+              "bin": 8,
+              "count": 16,
+              "empirical_positive_rate": 0.0625,
+              "mean_probability": 0.8601338192820549
+            },
+            {
+              "bin": 9,
+              "count": 155,
+              "empirical_positive_rate": 0.7483870967741936,
+              "mean_probability": 0.9903379348016554
+            }
+          ]
+        },
+        "temperature_scaling": false
+      },
+      "head_f1": {
+        "code_switching": 0.9413373901787059,
+        "idiom_figurative": 0.9289952032315072,
+        "implicit_sentiment": 0.9224487117537925,
+        "irony": 0.9805414156509286,
+        "mocking": 0.9187804065852846,
+        "sarcasm": 0.8870855537448842
+      },
+      "macro_f1": 0.9298647801908504,
+      "model": "baseline_pragmatic_only",
+      "seed": 20260522
+    },
+    {
+      "calibration": {
+        "bins": 10,
+        "head_ece": {
+          "code_switching": 0.02903538867672068,
+          "idiom_figurative": 0.019032241909444567,
+          "implicit_sentiment": 0.053533739433827596,
+          "irony": 0.009677333795720182,
+          "mocking": 0.02521879936376535,
+          "sarcasm": 0.05004043519453989
+        },
+        "macro_ece": 0.031089656395669713,
+        "probability_source": "raw_positive_probability",
+        "reliability": {
+          "code_switching": [
+            {
+              "bin": 0,
+              "count": 1600,
+              "empirical_positive_rate": 0.01,
+              "mean_probability": 0.0071565723532216905
+            },
+            {
+              "bin": 1,
+              "count": 33,
+              "empirical_positive_rate": 0.09090909090909091,
+              "mean_probability": 0.1384548982887557
+            },
+            {
+              "bin": 2,
+              "count": 8,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.24989386647939682
+            },
+            {
+              "bin": 3,
+              "count": 14,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.35550064061369213
+            },
+            {
+              "bin": 4,
+              "count": 9,
+              "empirical_positive_rate": 0.2222222222222222,
+              "mean_probability": 0.45383862323231167
+            },
+            {
+              "bin": 5,
+              "count": 7,
+              "empirical_positive_rate": 0.2857142857142857,
+              "mean_probability": 0.5731019462857928
+            },
+            {
+              "bin": 6,
+              "count": 11,
+              "empirical_positive_rate": 0.2727272727272727,
+              "mean_probability": 0.6472984823313627
+            },
+            {
+              "bin": 7,
+              "count": 10,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.7491494357585907
+            },
+            {
+              "bin": 8,
+              "count": 12,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.8611749162276586
+            },
+            {
+              "bin": 9,
+              "count": 296,
+              "empirical_positive_rate": 0.9155405405405406,
+              "mean_probability": 0.9963985935256288
+            }
+          ],
+          "idiom_figurative": [
+            {
+              "bin": 0,
+              "count": 1818,
+              "empirical_positive_rate": 0.00935093509350935,
+              "mean_probability": 0.0054871682767621555
+            },
+            {
+              "bin": 1,
+              "count": 18,
+              "empirical_positive_rate": 0.16666666666666666,
+              "mean_probability": 0.12452738442354733
+            },
+            {
+              "bin": 2,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.23067076007525125
+            },
+            {
+              "bin": 3,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.34160228371620177
+            },
+            {
+              "bin": 4,
+              "count": 4,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.4422881081700325
+            },
+            {
+              "bin": 5,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5487191478411356
+            },
+            {
+              "bin": 6,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.625376025835673
+            },
+            {
+              "bin": 7,
+              "count": 4,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.7455032020807266
+            },
+            {
+              "bin": 8,
+              "count": 2,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.8220552802085876
+            },
+            {
+              "bin": 9,
+              "count": 140,
+              "empirical_positive_rate": 0.8571428571428571,
+              "mean_probability": 0.9926004546029227
+            }
+          ],
+          "implicit_sentiment": [
+            {
+              "bin": 0,
+              "count": 1393,
+              "empirical_positive_rate": 0.013639626704953339,
+              "mean_probability": 0.007741425497658291
+            },
+            {
+              "bin": 1,
+              "count": 48,
+              "empirical_positive_rate": 0.020833333333333332,
+              "mean_probability": 0.14937644343202314
+            },
+            {
+              "bin": 2,
+              "count": 28,
+              "empirical_positive_rate": 0.14285714285714285,
+              "mean_probability": 0.2495050063090665
+            },
+            {
+              "bin": 3,
+              "count": 20,
+              "empirical_positive_rate": 0.15,
+              "mean_probability": 0.35717391669750215
+            },
+            {
+              "bin": 4,
+              "count": 18,
+              "empirical_positive_rate": 0.16666666666666666,
+              "mean_probability": 0.44707200427850086
+            },
+            {
+              "bin": 5,
+              "count": 11,
+              "empirical_positive_rate": 0.09090909090909091,
+              "mean_probability": 0.5384393009272489
+            },
+            {
+              "bin": 6,
+              "count": 15,
+              "empirical_positive_rate": 0.2,
+              "mean_probability": 0.6485782583554586
+            },
+            {
+              "bin": 7,
+              "count": 13,
+              "empirical_positive_rate": 0.3076923076923077,
+              "mean_probability": 0.7356992501478928
+            },
+            {
+              "bin": 8,
+              "count": 21,
+              "empirical_positive_rate": 0.2857142857142857,
+              "mean_probability": 0.850742294674828
+            },
+            {
+              "bin": 9,
+              "count": 433,
+              "empirical_positive_rate": 0.8683602771362586,
+              "mean_probability": 0.9871203604801698
+            }
+          ],
+          "irony": [
+            {
+              "bin": 0,
+              "count": 1819,
+              "empirical_positive_rate": 0.002748763056624519,
+              "mean_probability": 0.004461060704891171
+            },
+            {
+              "bin": 1,
+              "count": 21,
+              "empirical_positive_rate": 0.047619047619047616,
+              "mean_probability": 0.14678432224761873
+            },
+            {
+              "bin": 2,
+              "count": 9,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.2505154394441181
+            },
+            {
+              "bin": 3,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3315208494663239
+            },
+            {
+              "bin": 4,
+              "count": 0,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.0
+            },
+            {
+              "bin": 5,
+              "count": 1,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5118353366851807
+            },
+            {
+              "bin": 6,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.6316699385643005
+            },
+            {
+              "bin": 7,
+              "count": 2,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.766467958688736
+            },
+            {
+              "bin": 8,
+              "count": 3,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.8591956694920858
+            },
+            {
+              "bin": 9,
+              "count": 137,
+              "empirical_positive_rate": 0.9708029197080292,
+              "mean_probability": 0.9980139862881959
+            }
+          ],
+          "mocking": [
+            {
+              "bin": 0,
+              "count": 1663,
+              "empirical_positive_rate": 0.010222489476849068,
+              "mean_probability": 0.007919512272522385
+            },
+            {
+              "bin": 1,
+              "count": 39,
+              "empirical_positive_rate": 0.05128205128205128,
+              "mean_probability": 0.13861948614701247
+            },
+            {
+              "bin": 2,
+              "count": 16,
+              "empirical_positive_rate": 0.1875,
+              "mean_probability": 0.26356904208660126
+            },
+            {
+              "bin": 3,
+              "count": 12,
+              "empirical_positive_rate": 0.16666666666666666,
+              "mean_probability": 0.3529314075907071
+            },
+            {
+              "bin": 4,
+              "count": 14,
+              "empirical_positive_rate": 0.07142857142857142,
+              "mean_probability": 0.4563908896275929
+            },
+            {
+              "bin": 5,
+              "count": 8,
+              "empirical_positive_rate": 0.375,
+              "mean_probability": 0.5444691404700279
+            },
+            {
+              "bin": 6,
+              "count": 12,
+              "empirical_positive_rate": 0.25,
+              "mean_probability": 0.6682581851879755
+            },
+            {
+              "bin": 7,
+              "count": 11,
+              "empirical_positive_rate": 0.09090909090909091,
+              "mean_probability": 0.7452586130662398
+            },
+            {
+              "bin": 8,
+              "count": 12,
+              "empirical_positive_rate": 0.5833333333333334,
+              "mean_probability": 0.8521817276875178
+            },
+            {
+              "bin": 9,
+              "count": 213,
+              "empirical_positive_rate": 0.9107981220657277,
+              "mean_probability": 0.9932439288063228
+            }
+          ],
+          "sarcasm": [
+            {
+              "bin": 0,
+              "count": 1723,
+              "empirical_positive_rate": 0.00812536273940801,
+              "mean_probability": 0.0051349381803914235
+            },
+            {
+              "bin": 1,
+              "count": 29,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.15177195005375763
+            },
+            {
+              "bin": 2,
+              "count": 11,
+              "empirical_positive_rate": 0.09090909090909091,
+              "mean_probability": 0.2533156641504981
+            },
+            {
+              "bin": 3,
+              "count": 10,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.3551268458366394
+            },
+            {
+              "bin": 4,
+              "count": 5,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.4484714448451996
+            },
+            {
+              "bin": 5,
+              "count": 12,
+              "empirical_positive_rate": 0.0,
+              "mean_probability": 0.5439173777898153
+            },
+            {
+              "bin": 6,
+              "count": 11,
+              "empirical_positive_rate": 0.09090909090909091,
+              "mean_probability": 0.6324980529871854
+            },
+            {
+              "bin": 7,
+              "count": 10,
+              "empirical_positive_rate": 0.1,
+              "mean_probability": 0.751984030008316
+            },
+            {
+              "bin": 8,
+              "count": 20,
+              "empirical_positive_rate": 0.1,
+              "mean_probability": 0.8529952079057693
+            },
+            {
+              "bin": 9,
+              "count": 169,
+              "empirical_positive_rate": 0.6923076923076923,
+              "mean_probability": 0.9815541583405444
+            }
+          ]
+        },
+        "temperature_scaling": false
+      },
+      "head_f1": {
+        "code_switching": 0.9449468048501865,
+        "idiom_figurative": 0.9215340288735636,
+        "implicit_sentiment": 0.9235651918910993,
+        "irony": 0.9843279225485932,
+        "mocking": 0.9287644313436502,
+        "sarcasm": 0.8800948626545622
+      },
+      "macro_f1": 0.930538873693609,
+      "model": "baseline_pragmatic_only",
+      "seed": 20260523
+    }
+  ],
+  "scope": "historical_saved_pair_validation_results_not_an_executable_bootstrap_replay",
+  "status": "SAVED_RESULTS_VALIDATED_BEFORE_PREDICTION_REMOVAL",
+  "summary": [
+    {
+      "macro_f1_percent_mean": 93.66583803341149,
+      "macro_f1_percent_sample_sd": 0.18712103734160407,
+      "model": "proposed_multitask",
+      "raw_positive_ece_mean": 0.038590604864717326,
+      "raw_positive_ece_sample_sd": 0.006937681191018708
+    },
+    {
+      "macro_f1_percent_mean": 93.03537389765809,
+      "macro_f1_percent_sample_sd": 0.042758895116406535,
+      "model": "baseline_pragmatic_only",
+      "raw_positive_ece_mean": 0.031149097163081174,
+      "raw_positive_ece_sample_sd": 0.003754851090347828
+    }
+  ],
+  "training_or_API_rerun": false,
+  "individual_predictions_included": false,
+  "bootstrap_reexecuted_after_prediction_removal": false,
+  "prediction_files_validated_before_removal": 12,
+  "frozen_dev_thresholds_recomputed_before_removal": true
+}

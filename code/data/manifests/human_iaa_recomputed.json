@@ -1,0 +1,71 @@
+{
+  "computed_before_adjudication": true,
+  "fields": [
+    {
+      "cohen_kappa": 0.9181617043822845,
+      "disagreement_count": 316,
+      "field": "implicit_sentiment",
+      "krippendorff_alpha_nominal": 0.9180897326033587,
+      "n": 11997,
+      "raw_agreement": 0.9736600816870884
+    },
+    {
+      "cohen_kappa": 0.8957972282485063,
+      "disagreement_count": 163,
+      "field": "sarcasm",
+      "krippendorff_alpha_nominal": 0.8957330956818907,
+      "n": 11997,
+      "raw_agreement": 0.9864132699841627
+    },
+    {
+      "cohen_kappa": 0.9922768464401203,
+      "disagreement_count": 12,
+      "field": "irony",
+      "krippendorff_alpha_nominal": 0.9922771550609585,
+      "n": 11997,
+      "raw_agreement": 0.9989997499374844
+    },
+    {
+      "cohen_kappa": 0.5778181221521567,
+      "disagreement_count": 498,
+      "field": "idiom_figurative",
+      "krippendorff_alpha_nominal": 0.5745715990691393,
+      "n": 11997,
+      "raw_agreement": 0.9584896224056014
+    },
+    {
+      "cohen_kappa": 0.7638784211641164,
+      "disagreement_count": 648,
+      "field": "code_switching",
+      "krippendorff_alpha_nominal": 0.7629519193567195,
+      "n": 11997,
+      "raw_agreement": 0.945986496624156
+    },
+    {
+      "cohen_kappa": 0.7615357899602425,
+      "disagreement_count": 715,
+      "field": "mocking",
+      "krippendorff_alpha_nominal": 0.7598678624760677,
+      "n": 11997,
+      "raw_agreement": 0.9404017671084438
+    },
+    {
+      "cohen_kappa": 0.8544805789278183,
+      "disagreement_count": 909,
+      "field": "polarity",
+      "krippendorff_alpha_nominal": 0.8539117840634743,
+      "n": 11997,
+      "raw_agreement": 0.9242310577644411
+    },
+    {
+      "cohen_kappa": 0.7592729686087039,
+      "disagreement_count": 2061,
+      "field": "emotion",
+      "krippendorff_alpha_nominal": 0.7569886658043596,
+      "n": 11997,
+      "raw_agreement": 0.8282070517629407
+    }
+  ],
+  "macro_pragmatic_alpha": 0.8172485607080224,
+  "verification_scope": "released_first_pass_annotations_not_annotation_process_replay"
+}

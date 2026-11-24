@@ -1,0 +1,201 @@
+{
+  "scope": "public_result_metadata_and_small_result_summaries",
+  "checked_on": "2026-10-09",
+  "repository_count": 31,
+  "live_file_names_inspected": 190751,
+  "small_result_summaries_read": 113,
+  "individual_prediction_records_downloaded": 0,
+  "credentials_read": false,
+  "repository_owner_names_or_links_retained": false,
+  "repositories": [
+    {
+      "id": "R01",
+      "kind": "model",
+      "file_names_inspected": 2881,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R02",
+      "kind": "model",
+      "file_names_inspected": 182,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R03",
+      "kind": "model",
+      "file_names_inspected": 629,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R04",
+      "kind": "model",
+      "file_names_inspected": 1112,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R05",
+      "kind": "model",
+      "file_names_inspected": 8844,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R06",
+      "kind": "model",
+      "file_names_inspected": 5329,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R07",
+      "kind": "model",
+      "file_names_inspected": 8790,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R08",
+      "kind": "model",
+      "file_names_inspected": 6283,
+      "result_summaries_read": 8
+    },
+    {
+      "id": "R09",
+      "kind": "model",
+      "file_names_inspected": 1281,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R10",
+      "kind": "model",
+      "file_names_inspected": 1280,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R11",
+      "kind": "model",
+      "file_names_inspected": 5863,
+      "result_summaries_read": 8
+    },
+    {
+      "id": "R12",
+      "kind": "model",
+      "file_names_inspected": 8790,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R13",
+      "kind": "model",
+      "file_names_inspected": 7722,
+      "result_summaries_read": 8
+    },
+    {
+      "id": "R14",
+      "kind": "model",
+      "file_names_inspected": 7378,
+      "result_summaries_read": 16
+    },
+    {
+      "id": "R15",
+      "kind": "model",
+      "file_names_inspected": 9702,
+      "result_summaries_read": 22
+    },
+    {
+      "id": "R16",
+      "kind": "model",
+      "file_names_inspected": 9591,
+      "result_summaries_read": 33
+    },
+    {
+      "id": "R17",
+      "kind": "model",
+      "file_names_inspected": 9781,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R18",
+      "kind": "model",
+      "file_names_inspected": 8883,
+      "result_summaries_read": 8
+    },
+    {
+      "id": "R19",
+      "kind": "model",
+      "file_names_inspected": 6058,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R20",
+      "kind": "model",
+      "file_names_inspected": 8796,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R21",
+      "kind": "model",
+      "file_names_inspected": 9657,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R22",
+      "kind": "model",
+      "file_names_inspected": 1457,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R23",
+      "kind": "model",
+      "file_names_inspected": 6986,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R24",
+      "kind": "model",
+      "file_names_inspected": 9806,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R25",
+      "kind": "model",
+      "file_names_inspected": 20000,
+      "result_summaries_read": 10
+    },
+    {
+      "id": "R26",
+      "kind": "model",
+      "file_names_inspected": 724,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R27",
+      "kind": "model",
+      "file_names_inspected": 8699,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R28",
+      "kind": "model",
+      "file_names_inspected": 2706,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R29",
+      "kind": "model",
+      "file_names_inspected": 3458,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R30",
+      "kind": "model",
+      "file_names_inspected": 8082,
+      "result_summaries_read": 0
+    },
+    {
+      "id": "R31",
+      "kind": "dataset",
+      "file_names_inspected": 1,
+      "result_summaries_read": 0
+    }
+  ],
+  "Q1b": "All six Sailor/Vistral run summaries rechecked and matched paper; no external confusion matrices recovered from checked summaries.",
+  "Q3": "Two Vistral32 seed20260521 exports with matching frozen thresholds and epoch history recovered; final dev scores disagree and no matching threshold-search grid recovered.",
+  "limits": "Directory/file inventories and selected result summaries were inspected, not every remote payload or all private/history branches."
+}

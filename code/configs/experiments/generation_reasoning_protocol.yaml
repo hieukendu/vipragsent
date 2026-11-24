@@ -1,0 +1,62 @@
+schema_version: 1
+protocol_version: reasoning_generation_shared_judge_v1
+generation_prompt_path: prompts/protocols/cot_only_reasoning_vi_v1.txt
+generation_prompt_hash: E3E586054B17377B641F33384E1E7487922D91C1FEB74320F660BFC42C2FADEC
+judge_protocol_id: reasoning_judge_gpt41mini_zeroshot_v1
+judge_prompt_path: prompts/protocols/reasoning_judge_gpt41mini_zeroshot_v1.txt
+judge_prompt_hash: 7A24FC5168BEEE0B6EA472C7F2D2CEDE95DF49C4631C8028EBBCB57238B17B19
+judge_schema_path: schemas/reasoning_judge_output.schema.json
+judge_schema_hash: FF7F4EE3DC82805942118D2E97A5AAE55C9AB1396C7A6412A296AA6880D376E3
+judge_deployment: gpt-4.1-mini
+judge_model: GPT-4.1-mini
+judge_model_version: "2025-04-14"
+judge_temperature: 0
+judge_max_output_tokens: 128
+judge_input: generated_reasoning_only
+original_sentence_visible: false
+semantic_repair: false
+decoding:
+  do_sample: false
+  num_beams: 1
+  max_new_tokens: 160
+  repetition_penalty: 1.0
+  num_return_sequences: 1
+  stop: eos_or_maximum_length
+  top_p: NOT_APPLICABLE
+  top_k: NOT_APPLICABLE
+  temperature: NOT_APPLICABLE
+cache:
+  key: sha256(judge_protocol_id+expected_model_version+temperature+judge_prompt_template_hash+judge_schema_hash+normalized_reasoning)
+  normalization: unicode_nfc_line_endings_lf_outer_whitespace_only
+  include_gold_labels: false
+  reuse_identical_normalized_reasoning: true
+retry:
+  maximum_total_attempts: 5
+  retryable_status_codes: [408, 429, 500, 502, 503, 504]
+  retryable_transport_errors: [network_timeout, connection_reset]
+  fallback_delays_seconds: [2, 4, 8, 16]
+  honor_retry_after: true
+  semantic_retry: false
+invalid_policy:
+  invalid_stages: [generation, judge_request, judge_response]
+  non_empty_truncated_reasoning_is_invalid: false
+  primary_invalid_effective_prediction: all_zero
+  preserve_raw_status: true
+metrics:
+  primary: full_split_macro_pragmatic_f1_all_zero_fallback
+  secondary: valid_only_macro_pragmatic_f1
+  significance_prediction_source: effective_full_split_all_zero_fallback
+  diagnostics: [requested_count, valid_count, invalid_count, coverage_rate, invalid_generation_rate, invalid_judge_output_rate, missing_prediction_rate, truncation_rate, judge_cache_hits, judge_cache_misses, judge_retry_count, judge_input_tokens, judge_output_tokens, judge_request_count]
+systems:
+  cot_only_vistral:
+    training: generation_only_causal_cross_entropy
+    checkpoint_semantics: own_generation_checkpoint
+    selection_metric: full_split_macro_pragmatic_f1_all_zero_fallback_dev
+    rationale_source: data/processed/rationales/approved_generated_rationales_train.jsonl
+  explanation_only_vistral:
+    training: no_additional_training
+    source_system_id: vipragsent_full_vistral
+    source_checkpoint_key_pattern: vipragsent_full_vistral:{seed}
+    checkpoint_semantics: reuse_approved_full_vistral_same_seed
+    selection_metric: inherited_from_source_checkpoint
+    inference_source: judge_of_rationale_decoder_output

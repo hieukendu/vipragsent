@@ -1,0 +1,64 @@
+{
+  "external_finetuning_performed": false,
+  "external_text_redistributed": false,
+  "files": [
+    {
+      "path": "replay/AGGREGATE_RESULTS.json",
+      "sha256": "c03a01dd1911f860323374b255ff8876a116a66251e50d07da94407a4dca31e5"
+    }
+  ],
+  "labels": {
+    "aivivn_human_derived_3way": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "uit_vsfc": [
+      "negative",
+      "neutral",
+      "positive"
+    ],
+    "uit_vsmec": [
+      "anger",
+      "disgust",
+      "enjoyment",
+      "fear",
+      "other",
+      "sadness",
+      "surprise"
+    ]
+  },
+  "mean_percent": [
+    37.88982264339853,
+    40.040467139476824,
+    47.936436999021964,
+    41.95557559396578
+  ],
+  "other_Q1b_rows_recovered": "all_six_rows_have_per_seed_saved_metrics; four_have_aggregate_confusion_counts",
+  "paper_match": true,
+  "per_seed": {
+    "20260521": {
+      "aivivn_human_derived_3way": 0.461296862612315,
+      "uit_vsfc": 0.3493444224228117,
+      "uit_vsmec": 0.39264948002432065
+    },
+    "20260522": {
+      "aivivn_human_derived_3way": 0.5032473275032734,
+      "uit_vsfc": 0.40463055942735165,
+      "uit_vsmec": 0.4020502788308385
+    },
+    "20260523": {
+      "aivivn_human_derived_3way": 0.4735489198550706,
+      "uit_vsfc": 0.3827196974517926,
+      "uit_vsmec": 0.40651425532914576
+    }
+  },
+  "sample_sd_percent": [
+    2.7840473537211,
+    0.7077359425559726,
+    2.15713924295046,
+    1.7812565662656696
+  ],
+  "scope": "retained_aggregate_results_and_run_settings_no_prediction_records",
+  "individual_predictions_included": false
+}

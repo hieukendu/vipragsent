@@ -1,0 +1,49 @@
+{
+  "expected_gpu_hours": {
+    "baseline_pragmatic_only": 1.12,
+    "proposed_multitask": 4.78
+  },
+  "expected_peak_gb": {
+    "baseline_pragmatic_only": 10.5,
+    "proposed_multitask": 13.5
+  },
+  "runs": [
+    {
+      "model": "proposed_multitask",
+      "peak_allocated_gb": 13.503221988677979,
+      "seed": 20260521,
+      "wall_seconds": 5745.2457087510265
+    },
+    {
+      "model": "baseline_pragmatic_only",
+      "peak_allocated_gb": 10.496898174285889,
+      "seed": 20260521,
+      "wall_seconds": 1373.0194506403059
+    },
+    {
+      "model": "proposed_multitask",
+      "peak_allocated_gb": 13.503221988677979,
+      "seed": 20260522,
+      "wall_seconds": 5695.086376845837
+    },
+    {
+      "model": "baseline_pragmatic_only",
+      "peak_allocated_gb": 10.496898174285889,
+      "seed": 20260522,
+      "wall_seconds": 1362.6964087169617
+    },
+    {
+      "model": "proposed_multitask",
+      "peak_allocated_gb": 13.503221988677979,
+      "seed": 20260523,
+      "wall_seconds": 5779.19307940593
+    },
+    {
+      "model": "baseline_pragmatic_only",
+      "peak_allocated_gb": 10.496898174285889,
+      "seed": 20260523,
+      "wall_seconds": 1288.5026826011017
+    }
+  ],
+  "scope": "saved_run_compute_measurements_not_new_benchmarks"
+}

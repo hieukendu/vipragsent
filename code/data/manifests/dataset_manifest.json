@@ -1,0 +1,58 @@
+{
+  "active_rationale_path": "data/processed/rationales/azure_rationale_input_train.jsonl",
+  "active_rationale_sha256": "FD35A3B5FC1242C79750B15C62DB29FCDA82E10D2F0CA6DFA7E7316A6C8DC915",
+  "approved_generated_rationale_sha256": "B583AC45F4BC2FDFA41DA44376AB99585075CA3EBB1FC47BC3936D84B89B21D1",
+  "hash_scope": "delivered_release_bytes_not_historical_provenance",
+  "label_keys": [
+    "implicit_sentiment",
+    "sarcasm",
+    "irony",
+    "idiom_figurative",
+    "code_switching",
+    "mocking",
+    "polarity",
+    "emotion"
+  ],
+  "label_version": "ViPragSent_Experiment_Dataset_FINAL_V8",
+  "package": "ViPragSent_Experiment_Dataset_FINAL_V8",
+  "processed_files": {
+    "dev.csv": "21645984B8DEB920CEFE8CC348BEB8FDD000AFB505A9E4C15547098A1E492C96",
+    "test.csv": "0DC4FD2743232FCD8FC2DF6D94AD06F5A880DBF43CA5EDD4D14AB5347EEE40DF",
+    "train.csv": "F3F1AEB3A9BD5642A0A5A87E4AA1C42C77C7DFB199BE94B0A6E9A8CF36F077E2",
+    "vipragsent_full.csv": "236F2AE529F3394C2C18911A05F3C45139EF6455736D90921CBA768B3DC87FFB"
+  },
+  "processed_fingerprint": "A8D433BA91F65BC386BD1D1DB6DE9E1A14D6439C12DCE1728DF05F1BA99AB385",
+  "q3": {
+    "budgets": [
+      "32",
+      "64",
+      "128",
+      "256",
+      "512",
+      "full"
+    ],
+    "expected_train_rows": 7998,
+    "fixed_negative_count": 7453,
+    "nested": true,
+    "positive_count_full": 545,
+    "rationale_policy": "paper_reported",
+    "selected_positive_counts": {
+      "128": 128,
+      "256": 256,
+      "32": 32,
+      "512": 512,
+      "64": 64,
+      "full": 545
+    }
+  },
+  "rationale_rows": 7998,
+  "raw_text_preserved": true,
+  "release": "ARR_METADATA_20261008",
+  "rows": 11997,
+  "split_sizes": {
+    "dev": 1999,
+    "test": 2000,
+    "train": 7998
+  },
+  "train_sarcasm_positives": 545
+}

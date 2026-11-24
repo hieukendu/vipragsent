@@ -1,0 +1,37 @@
+{
+  "author_links_or_contact_information_included": false,
+  "collection_timestamp_is_approximate_user_reported_not_publication_time": true,
+  "collection_timestamp_recorded": [
+    "2026-08-21T07:00:00+07:00"
+  ],
+  "delivered_file_sha256": {
+    "dev.csv": "21645984b8deb920cefe8cc348beb8fdd000afb505a9e4c15547098a1e492c96",
+    "test.csv": "0dc4fd2743232fcd8fc2df6d94ad06f5a880dbf43ca5edd4d14ab5347eee40df",
+    "train.csv": "f3f1aeb3a9bd5642a0a5a87e4aa1c42c77c7dfb199be94b0a6e9a8cf36f077e2",
+    "vipragsent_full.csv": "236f2ae529f3394c2c18911a05f3c45139ef6455736d90921cba768b3dc87ffb",
+    "q3_masks/budget_32_masks.csv": "b0ddca13d9495873a2fa35f031c992bfebcb9a0301885be029ed100275d3b595",
+    "q3_masks/budget_64_masks.csv": "1720e1e1c3feff761cb3162048298c6ef17142f3869797be8db444c5f135a4d0",
+    "q3_masks/budget_128_masks.csv": "e6dbd24db160eedcdc46ac2e73277c1cbe9e85fc461334e13abb47d3c36dbb62",
+    "q3_masks/budget_256_masks.csv": "fd9f2ffe500f11585d9ef3b271e04d19b04edeebd8b7eda032e566e366466fea",
+    "q3_masks/budget_512_masks.csv": "e95767961c8133a186fb36763b90e57ddf20918e884fc5511a2948bb9a1a6894",
+    "q3_masks/budget_full_masks.csv": "3d74ca9a231198abfd5058980e28d9a7804305a2fa363cc736266b1803bb4b1b"
+  },
+  "historical_extraction_receipt_available": false,
+  "original_platform_and_publication_timestamps_available": false,
+  "rows": 11997,
+  "scope": "current_delivered_dataset_bytes_and_retained_row_metadata_only",
+  "source_dataset_recorded_in_release": [
+    "SEACrowd/ViSoBERT"
+  ],
+  "source_id_range": [
+    0,
+    13568
+  ],
+  "source_rows_increasing_in_sample_id_order": true,
+  "status": "RECONSTRUCTED_CURRENT",
+  "unique_source_ids": 11997,
+  "upstream_revision_independently_verified": false,
+  "upstream_revision_recorded_in_release": "3f2ce8faabffe180916981653ba2c00c4410e695",
+  "upstream_sampling_or_filtering_process_independently_verified": false,
+  "q3_mask_hashes_verified_against_18_historical_run_manifests": true
+}

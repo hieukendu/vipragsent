@@ -1,0 +1,29 @@
+{
+  "rows": 11997,
+  "pragmatic_nominal_alpha": {
+    "implicit_sentiment": 0.9180897326033587,
+    "sarcasm": 0.8957330956818909,
+    "irony": 0.9922771550609585,
+    "idiom_figurative": 0.5745715990691395,
+    "code_switching": 0.7629519193567195,
+    "mocking": 0.7598678624760677
+  },
+  "mean_pragmatic_alpha": 0.8172485607080224,
+  "cohen_kappa": {"polarity": 0.8544805789278181, "emotion": 0.7592729686087039},
+  "first_pass_any_label_disagreements": 3847,
+  "label_positive_counts": {"implicit_sentiment": 2517, "sarcasm": 817, "irony": 831, "idiom_figurative": 844, "code_switching": 1809, "mocking": 1398},
+  "at_least_one_label_percent": 37.8177877802784,
+  "at_least_two_labels_percent": 17.379344836209054,
+  "implicit_and_mocking_count": 1178,
+  "pooled_test_confusion_matrices": {
+    "sarcasm": {"proposed_multitask": [[5488, 104], [65, 343]], "baseline_pragmatic_only": [[5484, 108], [75, 333]]},
+    "mocking": {"proposed_multitask": [[5227, 74], [89, 610]], "baseline_pragmatic_only": [[5229, 72], [110, 589]]}
+  },
+  "confusion_matrix_order": "rows=gold [0,1]; columns=prediction [0,1]",
+  "paired_directional_errors_validated_before_record_removal": {
+    "sarcasm": {"corrections": 65, "regressions": 51},
+    "mocking": {"corrections": 73, "regressions": 54},
+    "at_least_two_labels": {"corrections": 42, "regressions": 27}
+  },
+  "paired_directional_errors_recomputed_without_records": false
+}

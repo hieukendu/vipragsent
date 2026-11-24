@@ -1,0 +1,171 @@
+{
+  "status": "PASS_AGGREGATE_VALIDATION",
+  "verification_status": "ANALYZED",
+  "aggregate_run_splits": 235,
+  "paper_matched_groups": [
+    {
+      "group": "Q1a_phobert_pragmatic_single_task",
+      "macro_f1_percent_mean": 86.24271012304048,
+      "paper_match": true
+    },
+    {
+      "group": "Q1a_phobert_pragmatic_finetune",
+      "macro_f1_percent_mean": 85.45650658243373,
+      "paper_match": true
+    },
+    {
+      "group": "Q1a_sailor_pragmatic_sft",
+      "macro_f1_percent_mean": 85.54370057355398,
+      "paper_match": true
+    },
+    {
+      "group": "Q1a_vistral_pragmatic_sft",
+      "macro_f1_percent_mean": 87.16188257397464,
+      "paper_match": true
+    },
+    {
+      "group": "Q1a_azure_pragmatic_zero_shot",
+      "macro_f1_percent_mean": 54.1136809183207,
+      "paper_match": true
+    },
+    {
+      "group": "Q1a_azure_gpt41_mini_8shot",
+      "macro_f1_percent_mean": 54.09782739146386,
+      "paper_match": true
+    },
+    {
+      "group": "Q2_followup_full",
+      "macro_f1_percent_mean": 92.75892903752344,
+      "paper_match": true
+    },
+    {
+      "group": "Q2_followup_no_emotion_auxiliary",
+      "macro_f1_percent_mean": 91.73395498819127,
+      "paper_match": true
+    },
+    {
+      "group": "Q2_followup_no_rationale",
+      "macro_f1_percent_mean": 92.33160525651145,
+      "paper_match": true
+    },
+    {
+      "group": "Q2_followup_no_multitask",
+      "macro_f1_percent_mean": 74.7318081203324,
+      "paper_match": true
+    },
+    {
+      "group": "Q2_followup_no_polarity_auxiliary",
+      "macro_f1_percent_mean": 92.80595828708623,
+      "paper_match": true
+    },
+    {
+      "group": "Q2_followup_no_uncertainty_weighting",
+      "macro_f1_percent_mean": 92.89686364942652,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_xlmr_32",
+      "macro_f1_percent_mean": 91.12376215985655,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_xlmr_64",
+      "macro_f1_percent_mean": 91.20993680267524,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_xlmr_128",
+      "macro_f1_percent_mean": 91.58873587852757,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_xlmr_256",
+      "macro_f1_percent_mean": 91.64620487004981,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_xlmr_512",
+      "macro_f1_percent_mean": 92.34379560895684,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_xlmr_full",
+      "macro_f1_percent_mean": 91.11871424299399,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_phobert_32",
+      "macro_f1_percent_mean": 84.15843693043008,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_phobert_64",
+      "macro_f1_percent_mean": 77.74235154067547,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_phobert_128",
+      "macro_f1_percent_mean": 83.98716256162531,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_phobert_256",
+      "macro_f1_percent_mean": 84.52557054616238,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_vistral_64",
+      "macro_f1_percent_mean": 86.72702841179841,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_vistral_128",
+      "macro_f1_percent_mean": 86.21842891901686,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_vistral_256",
+      "macro_f1_percent_mean": 70.30418924919749,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_vistral_512",
+      "macro_f1_percent_mean": 87.19902998734285,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_vistral_full",
+      "macro_f1_percent_mean": 87.37671782397103,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_vistral_32",
+      "macro_f1_percent_mean": 86.15976466647113,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_phobert_512",
+      "macro_f1_percent_mean": 78.0876862498559,
+      "paper_match": true
+    },
+    {
+      "group": "Q3_reported_phobert_full",
+      "macro_f1_percent_mean": 84.4812768574945,
+      "paper_match": true
+    }
+  ],
+  "Q1a_pair_F1_ECE_match": true,
+  "Q1b_all_six_rows_paper_mean_SD_match": true,
+  "Q1b_all_six_rows_F1_from_confusion_counts": true,
+  "Q1b_Sailor_Vistral_independent_F1_recomputation": true,
+  "Q2_F1_ECE_relative_cost_match": true,
+  "Q3_all_reported_groups_match": true,
+  "Q4_Vistral_match": true,
+  "saved_CI_matches_reference": true,
+  "Q3_Vistral32_epoch_selection_and_threshold_freeze_saved_results_match": true,
+  "Q3_Vistral32_independent_dev_threshold_reselection_verified": true,
+  "bootstrap_reexecuted": false,
+  "individual_predictions_included": false,
+  "full_paper_reproduction": false,
+  "training_or_API_rerun": false
+}

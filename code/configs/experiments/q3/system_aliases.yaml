@@ -1,0 +1,17 @@
+q3_system_aliases:
+- paper_label: PhoBERT
+  resolved_system_id: phobert_pragmatic_finetune
+  checkpoint_family: phobert_pragmatic_finetune
+  active_heads_and_losses:
+  - six_pragmatic_heads
+  - pragmatic_loss
+  inference_output_source: classification_heads
+  resolution_status: RESOLVED
+- paper_label: Vistral
+  resolved_system_id: vistral_pragmatic_sft
+  checkpoint_family: vistral_pragmatic_sft
+  active_heads_and_losses:
+  - six_pragmatic_heads
+  - pragmatic_loss
+  inference_output_source: classification_heads
+  resolution_status: RESOLVED

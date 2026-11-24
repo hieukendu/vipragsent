@@ -1,0 +1,13 @@
+table: 3
+cohort:
+  runner: scripts/run_priority12_xlmr.py
+  experiment: priority1
+  scheduler: cosine
+  warmup_ratio: 0.20
+  patience: 10
+  checkpoint_selection: dev_macro_pragmatic_f1
+metrics:
+  macro_f1: arithmetic_mean_of_six_binary_macro_f1_on_test
+  sarcasm: sarcasm_binary_macro_f1_on_test
+  ece: raw_positive_probability_ECE_10_equal_width_bins_on_test_averaged_across_six_heads
+variants: [full, no_emotion_auxiliary, no_polarity_auxiliary, no_rationale, no_uncertainty_weighting, all_multipliers_1, beta_01, beta_05]

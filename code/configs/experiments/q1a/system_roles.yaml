@@ -1,0 +1,25 @@
+q1a:
+  source_of_truth: paper Q1a baseline definition
+  roles:
+    vistral_baseline:
+      system_id: vistral_pragmatic_sft
+      display_name: Vistral-7B pragmatic SFT
+      paper_role: q1a_pragmatic_baseline
+      backbone: vistral_7b
+      active_heads:
+      - implicit_sentiment
+      - sarcasm
+      - irony
+      - idiom_figurative
+      - code_switching
+      - mocking
+      active_losses:
+      - pragmatic_equal_weight
+      loss_aggregation: equal_weight
+      trainable_uncertainty_parameters: []
+      rationale_decoder_training: false
+      inference_output_source: classification_heads
+      training_data: vipragsent_train
+      seed_behavior: training_seeds
+      reusable_checkpoint_key: vistral_pragmatic_sft
+  resolution_status: RESOLVED

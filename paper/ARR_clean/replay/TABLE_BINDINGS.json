@@ -1,0 +1,990 @@
+{
+  "paper_pdf_sha256": "cf9c2b7a8f328edbfdc4d5cb486584d3bf7b2426294438b0a16f5a0bd23c0dfe",
+  "paper_pdf_version": 7,
+  "groups": [
+    {
+      "group": "proposed_multitask",
+      "table": "Table 1",
+      "targets": [
+        "runs/proposed_multitask/20260521",
+        "runs/proposed_multitask/20260522",
+        "runs/proposed_multitask/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        92.67,
+        89.36,
+        98.43,
+        93.35,
+        94.84,
+        93.35,
+        93.67
+      ],
+      "sds": [
+        0.24,
+        0.9,
+        0.2,
+        0.66,
+        0.56,
+        0.73,
+        0.19
+      ]
+    },
+    {
+      "group": "baseline_pragmatic_only",
+      "table": "Table 1",
+      "targets": [
+        "runs/baseline_pragmatic_only/20260521",
+        "runs/baseline_pragmatic_only/20260522",
+        "runs/baseline_pragmatic_only/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        92.25,
+        88.4,
+        98.18,
+        92.59,
+        94.34,
+        92.45,
+        93.04
+      ],
+      "sds": [
+        0.1,
+        0.36,
+        0.21,
+        0.39,
+        0.19,
+        0.52,
+        0.04
+      ]
+    },
+    {
+      "group": "Q1a_phobert_pragmatic_single_task",
+      "table": "Table 1",
+      "targets": [
+        "Q1a/phobert_pragmatic_single_task/20260521",
+        "Q1a/phobert_pragmatic_single_task/20260522",
+        "Q1a/phobert_pragmatic_single_task/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        88,
+        70.87,
+        97.13,
+        91.21,
+        91.08,
+        79.16,
+        86.24
+      ],
+      "sds": [
+        1.29,
+        1.34,
+        1.06,
+        0.78,
+        1.51,
+        2.99,
+        0.49
+      ]
+    },
+    {
+      "group": "Q1a_phobert_pragmatic_finetune",
+      "table": "Table 1",
+      "targets": [
+        "Q1a/phobert_pragmatic_finetune/20260521",
+        "Q1a/phobert_pragmatic_finetune/20260522",
+        "Q1a/phobert_pragmatic_finetune/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        85.76,
+        72.64,
+        97.45,
+        86.63,
+        91.73,
+        78.53,
+        85.46
+      ],
+      "sds": [
+        0.72,
+        0.5,
+        0.19,
+        0.66,
+        0.53,
+        1.01,
+        0.36
+      ]
+    },
+    {
+      "group": "Q1a_sailor_pragmatic_sft",
+      "table": "Table 1",
+      "targets": [
+        "Q1a/sailor_pragmatic_sft/20260521",
+        "Q1a/sailor_pragmatic_sft/20260522",
+        "Q1a/sailor_pragmatic_sft/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        85.23,
+        72.24,
+        96.4,
+        91.17,
+        90.48,
+        77.82,
+        85.56
+      ],
+      "sds": [
+        0.11,
+        0.5,
+        0.55,
+        0.41,
+        0.87,
+        0.08,
+        0.1
+      ]
+    },
+    {
+      "group": "Q1a_vistral_pragmatic_sft",
+      "table": "Table 1",
+      "targets": [
+        "Q1a/vistral_pragmatic_sft/20260521",
+        "Q1a/vistral_pragmatic_sft/20260522",
+        "Q1a/vistral_pragmatic_sft/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        87.68,
+        75.4,
+        97.02,
+        91.52,
+        93.22,
+        81.16,
+        87.67
+      ],
+      "sds": [
+        0.42,
+        1.06,
+        0.01,
+        0.35,
+        0.45,
+        1.16,
+        0.06
+      ]
+    },
+    {
+      "group": "Q2_no_emotion_auxiliary",
+      "table": "Table 3",
+      "targets": [
+        "Q2_primary/no_emotion_auxiliary/20260521",
+        "Q2_primary/no_emotion_auxiliary/20260522",
+        "Q2_primary/no_emotion_auxiliary/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        6,
+        1
+      ],
+      "means": [
+        92.93,
+        87.87
+      ],
+      "sds": [
+        0.5,
+        0.58
+      ],
+      "pragmatic_test_ece": [
+        0.0286,
+        0.0016
+      ]
+    },
+    {
+      "group": "Q2_no_polarity_auxiliary",
+      "table": "Table 3",
+      "targets": [
+        "Q2_primary/no_polarity_auxiliary/20260521",
+        "Q2_primary/no_polarity_auxiliary/20260522",
+        "Q2_primary/no_polarity_auxiliary/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        6,
+        1
+      ],
+      "means": [
+        92.75,
+        87.6
+      ],
+      "sds": [
+        0.24,
+        1.32
+      ],
+      "pragmatic_test_ece": [
+        0.0329,
+        0.0031
+      ]
+    },
+    {
+      "group": "Q2_no_rationale",
+      "table": "Table 3",
+      "targets": [
+        "Q2_primary/no_rationale/20260521",
+        "Q2_primary/no_rationale/20260522",
+        "Q2_primary/no_rationale/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        6,
+        1
+      ],
+      "means": [
+        92.99,
+        87.02
+      ],
+      "sds": [
+        0.25,
+        1.01
+      ],
+      "pragmatic_test_ece": [
+        0.0332,
+        0.0017
+      ]
+    },
+    {
+      "group": "Q2_no_uncertainty_weighting",
+      "table": "Table 3",
+      "targets": [
+        "Q2_primary/no_uncertainty_weighting/20260521",
+        "Q2_primary/no_uncertainty_weighting/20260522",
+        "Q2_primary/no_uncertainty_weighting/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        6,
+        1
+      ],
+      "means": [
+        93.26,
+        88.35
+      ],
+      "sds": [
+        0.08,
+        1.17
+      ],
+      "pragmatic_test_ece": [
+        0.0387,
+        0.0066
+      ]
+    },
+    {
+      "group": "Q2_all_multipliers_1",
+      "table": "Table 3",
+      "targets": [
+        "Q2_primary/all_multipliers_1/20260521",
+        "Q2_primary/all_multipliers_1/20260522",
+        "Q2_primary/all_multipliers_1/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        6,
+        1
+      ],
+      "means": [
+        92.98,
+        87.14
+      ],
+      "sds": [
+        0.33,
+        1.11
+      ],
+      "pragmatic_test_ece": [
+        0.0349,
+        0.0005
+      ]
+    },
+    {
+      "group": "Q2_beta_01",
+      "table": "Table 3",
+      "targets": [
+        "Q2_primary/beta_01/20260521",
+        "Q2_primary/beta_01/20260522",
+        "Q2_primary/beta_01/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        6,
+        1
+      ],
+      "means": [
+        93.21,
+        87.3
+      ],
+      "sds": [
+        0.37,
+        1.97
+      ],
+      "pragmatic_test_ece": [
+        0.0332,
+        0.0024
+      ]
+    },
+    {
+      "group": "Q2_beta_05",
+      "table": "Table 3",
+      "targets": [
+        "Q2_primary/beta_05/20260521",
+        "Q2_primary/beta_05/20260522",
+        "Q2_primary/beta_05/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        6,
+        1
+      ],
+      "means": [
+        92.69,
+        86.8
+      ],
+      "sds": [
+        0.65,
+        2.35
+      ],
+      "pragmatic_test_ece": [
+        0.0383,
+        0.0065
+      ]
+    },
+    {
+      "group": "Q2_full",
+      "table": "Table 3",
+      "targets": [
+        "runs/proposed_multitask/20260521",
+        "runs/proposed_multitask/20260522",
+        "runs/proposed_multitask/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        6,
+        1
+      ],
+      "means": [
+        93.67,
+        89.36
+      ],
+      "sds": [
+        0.19,
+        0.9
+      ],
+      "pragmatic_test_ece": [
+        0.0386,
+        0.0069
+      ]
+    },
+    {
+      "group": "Q3_xlmr_32",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/xlmr/32/20260521",
+        "Q3_reported/xlmr/32/20260522",
+        "Q3_reported/xlmr/32/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        82.93,
+        91.19
+      ],
+      "sds": [
+        1.33,
+        0.31
+      ]
+    },
+    {
+      "group": "Q3_xlmr_64",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/xlmr/64/20260521",
+        "Q3_reported/xlmr/64/20260522",
+        "Q3_reported/xlmr/64/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        84.77,
+        91.85
+      ],
+      "sds": [
+        1.28,
+        0.38
+      ]
+    },
+    {
+      "group": "Q3_xlmr_128",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/xlmr/128/20260521",
+        "Q3_reported/xlmr/128/20260522",
+        "Q3_reported/xlmr/128/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        85.94,
+        91.72
+      ],
+      "sds": [
+        1.47,
+        0.48
+      ]
+    },
+    {
+      "group": "Q3_xlmr_256",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/xlmr/256/20260521",
+        "Q3_reported/xlmr/256/20260522",
+        "Q3_reported/xlmr/256/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        86.85,
+        92.17
+      ],
+      "sds": [
+        1.39,
+        0.21
+      ]
+    },
+    {
+      "group": "Q3_xlmr_512",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/xlmr/512/20260521",
+        "Q3_reported/xlmr/512/20260522",
+        "Q3_reported/xlmr/512/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        87.14,
+        91.82
+      ],
+      "sds": [
+        2.05,
+        1.02
+      ]
+    },
+    {
+      "group": "Q3_xlmr_full",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/xlmr/full/20260521",
+        "Q3_reported/xlmr/full/20260522",
+        "Q3_reported/xlmr/full/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        88.24,
+        92.52
+      ],
+      "sds": [
+        1.62,
+        0.49
+      ]
+    },
+    {
+      "group": "Q1a_GPT_zeroshot",
+      "table": "Table 1",
+      "targets": [
+        "Q1a/azure_pragmatic_zero_shot/single",
+        "Q1a/azure_pragmatic_zero_shot/20260522",
+        "Q1a/azure_pragmatic_zero_shot/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        46.42,
+        58.48,
+        53.45,
+        51.71,
+        60.28,
+        54.62,
+        54.16
+      ],
+      "sds": [
+        1.94,
+        2.48,
+        1.31,
+        0.84,
+        3.07,
+        0.8,
+        0.26
+      ]
+    },
+    {
+      "group": "Q1a_GPT_8shot",
+      "table": "Table 1",
+      "targets": [
+        "Q1a/azure_gpt41_mini_8shot/single",
+        "Q1a/azure_gpt41_mini_8shot/20260522",
+        "Q1a/azure_gpt41_mini_8shot/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        48.49,
+        60.72,
+        52.55,
+        50.7,
+        56.89,
+        54.19,
+        53.92
+      ],
+      "sds": [
+        0.48,
+        0.33,
+        0.19,
+        0.27,
+        0.02,
+        0.25,
+        0.16
+      ]
+    },
+    {
+      "group": "Q1a_visobert",
+      "table": "Table 1",
+      "targets": [
+        "Q1a/visobert_baseline/20260521",
+        "Q1a/visobert_baseline/20260522",
+        "Q1a/visobert_baseline/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        88.66,
+        78.4,
+        97.89,
+        90.61,
+        91.49,
+        83.34,
+        88.4
+      ],
+      "sds": [
+        0.48,
+        1.75,
+        0.22,
+        0.34,
+        0.2,
+        0.17,
+        0.25
+      ]
+    },
+    {
+      "group": "Q1a_xlmr_8H",
+      "table": "Table 1",
+      "targets": [
+        "Q1a/q1a_xlmr_pragmatic_finetune/20260521",
+        "Q1a/q1a_xlmr_pragmatic_finetune/20260522",
+        "Q1a/q1a_xlmr_pragmatic_finetune/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "means": [
+        92.16,
+        88.12,
+        97.93,
+        92.85,
+        94.27,
+        92.27,
+        92.93
+      ],
+      "sds": [
+        0.13,
+        0.43,
+        0.1,
+        0.68,
+        0.04,
+        0.41,
+        0.14
+      ]
+    },
+    {
+      "group": "Q3_phobert_32",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/phobert/32/20260521",
+        "Q3_reported/phobert/32/20260522",
+        "Q3_reported/phobert/32/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        69.67,
+        84.16
+      ],
+      "sds": [
+        1.54,
+        0.65
+      ]
+    },
+    {
+      "group": "Q3_phobert_64",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/phobert/64/20260521",
+        "Q3_reported/phobert/64/20260522",
+        "Q3_reported/phobert/64/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        70.85,
+        77.74
+      ],
+      "sds": [
+        2.83,
+        11.78
+      ]
+    },
+    {
+      "group": "Q3_phobert_128",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/phobert/128/20260521",
+        "Q3_reported/phobert/128/20260522",
+        "Q3_reported/phobert/128/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        71.8,
+        83.99
+      ],
+      "sds": [
+        2.17,
+        1.21
+      ]
+    },
+    {
+      "group": "Q3_phobert_256",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/phobert/256/20260521",
+        "Q3_reported/phobert/256/20260522",
+        "Q3_reported/phobert/256/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        73.36,
+        84.53
+      ],
+      "sds": [
+        1.17,
+        0.87
+      ]
+    },
+    {
+      "group": "Q3_phobert_512",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/phobert/512/20260521",
+        "Q3_reported/phobert/512/20260522",
+        "Q3_reported/phobert/512/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        70.79,
+        78.09
+      ],
+      "sds": [
+        2.76,
+        9.13
+      ]
+    },
+    {
+      "group": "Q3_phobert_full",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/phobert/full/20260521",
+        "Q3_reported/phobert/full/20260522",
+        "Q3_reported/phobert/full/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        73.28,
+        84.48
+      ],
+      "sds": [
+        0.83,
+        0.1
+      ]
+    },
+    {
+      "group": "Q3_vistral_32",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/vistral/32/20260521",
+        "Q3_reported/vistral/32/20260522",
+        "Q3_reported/vistral/32/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        70.54,
+        86.16
+      ],
+      "sds": [
+        2.35,
+        0.25
+      ]
+    },
+    {
+      "group": "Q3_vistral_64",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/vistral/64/20260521",
+        "Q3_reported/vistral/64/20260522",
+        "Q3_reported/vistral/64/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        72.51,
+        86.73
+      ],
+      "sds": [
+        0.9,
+        0.46
+      ]
+    },
+    {
+      "group": "Q3_vistral_128",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/vistral/128/20260521",
+        "Q3_reported/vistral/128/20260522",
+        "Q3_reported/vistral/128/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        71.32,
+        86.22
+      ],
+      "sds": [
+        0.56,
+        0.42
+      ]
+    },
+    {
+      "group": "Q3_vistral_256",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/vistral/256/20260521",
+        "Q3_reported/vistral/256/20260522",
+        "Q3_reported/vistral/256/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        63.96,
+        70.3
+      ],
+      "sds": [
+        5.11,
+        14.16
+      ]
+    },
+    {
+      "group": "Q3_vistral_512",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/vistral/512/20260521",
+        "Q3_reported/vistral/512/20260522",
+        "Q3_reported/vistral/512/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        73.95,
+        87.2
+      ],
+      "sds": [
+        1.17,
+        0.25
+      ]
+    },
+    {
+      "group": "Q3_vistral_full",
+      "table": "Table 4",
+      "targets": [
+        "Q3_reported/vistral/full/20260521",
+        "Q3_reported/vistral/full/20260522",
+        "Q3_reported/vistral/full/20260523"
+      ],
+      "digits": 2,
+      "indices": [
+        1,
+        6
+      ],
+      "means": [
+        75.3,
+        87.38
+      ],
+      "sds": [
+        0.83,
+        0.2
+      ]
+    }
+  ],
+  "q3_mask_hashes": {
+    "32": "B0DDCA13D9495873A2FA35F031C992BFEBCB9A0301885BE029ED100275D3B595",
+    "64": "1720E1E1C3FEFF761CB3162048298C6EF17142F3869797BE8DB444C5F135A4D0",
+    "128": "E6DBD24DB160EEDCDC46AC2E73277C1CBE9E85FC461334E13ABB47D3C36DBB62",
+    "256": "FD9F2FFE500F11585D9EF3B271E04D19B04EDEEBD8B7EDA032E566E366466FEA",
+    "512": "E95767961C8133A186FB36763B90E57DDF20918E884FC5511A2948BB9A1A6894",
+    "full": "3D74CA9A231198ABFD5058980E28D9A7804305A2FA363CC736266B1803BB4B1B"
+  },
+  "all_paper_tables_reproduced": false,
+  "historical_annotation_notes_recovered": false
+}

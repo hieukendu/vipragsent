@@ -1,0 +1,44 @@
+{
+  "aggregate_result_verification": {
+    "Q1b_all_six_rows_F1_from_confusion_counts": true,
+    "Q3_Vistral32_independent_dev_threshold_reselection_verified": true,
+    "aggregate_run_splits": 257,
+    "status": "PASS_AGGREGATE_VALIDATION",
+    "training_or_API_rerun": false
+  },
+  "current_input_hash_locks_verified": true,
+  "extra_files_outside_release": [],
+  "historical_Q3_mask_hashes_verified": true,
+  "historical_provenance_verified": false,
+  "q3_masks_restored_to_historical_paper_cohort": true,
+  "release_content_verification": {
+    "checksum_files": 41,
+    "excluded_generated_directories": [
+      "submission"
+    ],
+    "full_paper_reproduction": false,
+    "historical_snapshot_comparison_repeated": false,
+    "individual_predictions_included": false,
+    "q3_positive_budgets": {
+      "128": 128,
+      "256": 256,
+      "32": 32,
+      "512": 512,
+      "64": 64,
+      "full": 545
+    },
+    "q3_rationale_policy": "paper_reported",
+    "rows": 11997,
+    "splits": {
+      "dev": 1999,
+      "test": 2000,
+      "train": 7998
+    },
+    "status": "PASS",
+    "training_or_API_rerun": false,
+    "upstream_online_verification": false
+  },
+  "released_gold_labels_modified": false,
+  "status": "PASS",
+  "verification_scope": "manifest_defined_release_files_only"
+}

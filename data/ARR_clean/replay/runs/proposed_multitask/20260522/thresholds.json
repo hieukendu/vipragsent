@@ -1,0 +1,19 @@
+{
+  "grid": {
+    "start": 0.05,
+    "step": 0.01,
+    "stop": 0.95
+  },
+  "seed": 20260522,
+  "selection_metric": "dev_macro_pragmatic_f1",
+  "source_split": "dev",
+  "thresholds": {
+    "code_switching": 0.95,
+    "idiom_figurative": 0.95,
+    "implicit_sentiment": 0.87,
+    "irony": 0.94,
+    "mocking": 0.93,
+    "sarcasm": 0.94
+  },
+  "tie_break": "nearest_to_0.5_then_smaller_threshold"
+}

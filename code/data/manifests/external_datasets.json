@@ -1,0 +1,34 @@
+{
+  "datasets": {
+    "aivivn_human_derived_3way": {
+      "checksum": "27DA59A452ACC0FA63E26A7F49325DE7D963353E1179C5FE21BC92DB9394EDA8",
+      "hash_scope": "verified_test_bytes",
+      "normalized_path": "data/processed/external/aivivn_human_derived_3way/test.csv",
+      "redistribution_permission_verified": false,
+      "row_count": 1609,
+      "split": "test",
+      "status": "PASS"
+    },
+    "uit_vsfc": {
+      "checksum": "C27B61C70DE1090BD0A12F0F2824148D1691C68FB9CB18A07F23AE5282E75D96",
+      "hash_scope": "verified_test_bytes",
+      "normalized_path": "data/processed/external/uit_vsfc/test.csv",
+      "redistribution_permission_verified": false,
+      "row_count": 3166,
+      "split": "test",
+      "status": "PASS"
+    },
+    "uit_vsmec": {
+      "checksum": "1D2E604BD06A4AAAAD33A3B98DE2FB910E9020F4D468EF8BC16DDCDEADB3D955",
+      "hash_scope": "verified_test_bytes",
+      "normalized_path": "data/processed/external/uit_vsmec/test.csv",
+      "redistribution_permission_verified": false,
+      "row_count": 693,
+      "split": "test",
+      "status": "PASS"
+    }
+  },
+  "external_finetuning": false,
+  "q1b_uses_bundled_aivivn_human_derived_3way": true,
+  "verification_scope": "delivered_test_bytes_and_schema_not_access_receipts"
+}

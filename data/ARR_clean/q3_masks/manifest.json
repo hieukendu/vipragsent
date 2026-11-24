@@ -1,0 +1,35 @@
+{
+  "fixed_negative_count": 7453,
+  "hash_scope": "delivered_release_bytes_not_historical_provenance",
+  "mask_hashes": {
+    "128": "97E83E2B9336455AA5F3164A7C3F1407327A483E0122263AA9EADF7D60845C4F",
+    "256": "45A07D469C13F8195DA26A902F42BD4D7B60C1FCA50AA858224101C932327A52",
+    "32": "4478E1F72DFB1EA551552B0C0F181C586F428D6E5BAA0BBA46625F2D4B08E278",
+    "512": "77A6262689B63662BC1670097BF36EDD0B69BAA4685A2D181C2F8C66038697A8",
+    "64": "F6E643247D1B0F35E38B762E37CA6A24450C1CB3CBCCCF2FE5ABA8D84930250D",
+    "full": "2F6AB6B8DC4A3D188A1E7D064489A4F42F3AC08DFFFC7704108686A895BF84D0"
+  },
+  "negative_pool": {
+    "count": 7453,
+    "rationale_loss_mask": 1,
+    "sarcasm_target_mask": 1
+  },
+  "nested": true,
+  "out_of_budget_positive": {
+    "other_task_targets": "active",
+    "rationale_loss_mask": 0,
+    "sarcasm_target_mask": 0
+  },
+  "positive_count_full": 545,
+  "protocol": "paper_reported_positive_sarcasm_budget",
+  "rationale_mask_policy": "paper_reported",
+  "schema_version": 1,
+  "selected_positive_counts": {
+    "128": 128,
+    "256": 256,
+    "32": 32,
+    "512": 512,
+    "64": 64,
+    "full": 545
+  }
+}

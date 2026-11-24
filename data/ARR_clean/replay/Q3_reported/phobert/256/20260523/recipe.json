@@ -1,0 +1,17 @@
+{
+  "effective_batch_size": 32,
+  "gradient_accumulation_steps": 1,
+  "learning_rate": 2e-05,
+  "maximum_epochs": 10,
+  "optimizer": "AdamW",
+  "patience": 2,
+  "physical_batch_size": 32,
+  "precision": "bf16",
+  "rationale_beta": 0.3,
+  "rationale_inference": false,
+  "rationale_training": false,
+  "scheduler": "linear",
+  "uncertainty_weighting_enabled": false,
+  "warmup_ratio": 0.1,
+  "weight_decay": 0.01
+}
